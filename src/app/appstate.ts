@@ -102,8 +102,14 @@ export const MolstarReadyAtom = atom(false);
 // Current code in the editor
 export const CurrentCodeAtom = atom("");
 
+// Current markdown in the editor
+export const CurrentMarkdownAtom = atom("");
+
 // Editor readiness state
 export const EditorReadyAtom = atom(false);
+
+// Markdown editor readiness state
+export const MarkdownEditorReadyAtom = atom(false);
 
 // Code execution state
 export const CodeExecutingAtom = atom(false);
@@ -121,6 +127,12 @@ export const ActiveSceneAtom = atom((get) => {
 export const ActiveSceneCodeAtom = atom((get) => {
   const activeScene = get(ActiveSceneAtom);
   return activeScene?.javascript || "";
+});
+
+// Sync markdown with active scene (read-only derived atom)
+export const ActiveSceneMarkdownAtom = atom((get) => {
+  const activeScene = get(ActiveSceneAtom);
+  return activeScene?.description || "";
 });
 
 // Initialize Molstar (write-only atom)
@@ -209,11 +221,30 @@ export const InitializeEditorAtom = atom(
   }
 );
 
+// Initialize markdown editor with active scene description
+export const InitializeMarkdownEditorAtom = atom(
+  null,
+  (get, set) => {
+    const activeSceneMarkdown = get(ActiveSceneMarkdownAtom);
+    set(CurrentMarkdownAtom, activeSceneMarkdown);
+    set(MarkdownEditorReadyAtom, true);
+    console.log("Markdown editor initialized with active scene description");
+  }
+);
+
 // Update current code in editor
 export const UpdateCodeAtom = atom(
   null,
   (get, set, newCode: string) => {
     set(CurrentCodeAtom, newCode);
+  }
+);
+
+// Update current markdown in editor
+export const UpdateMarkdownAtom = atom(
+  null,
+  (get, set, newMarkdown: string) => {
+    set(CurrentMarkdownAtom, newMarkdown);
   }
 );
 
@@ -234,11 +265,12 @@ export const SetActiveSceneAtom = atom(
   (get, set, sceneId: number) => {
     set(ActiveSceneIdAtom, sceneId);
     
-    // Update editor with new scene's code
+    // Update editors with new scene's code and description
     const scenes = get(ScenesAtom);
     const newActiveScene = scenes.find(scene => scene.id === sceneId);
     if (newActiveScene) {
       set(CurrentCodeAtom, newActiveScene.javascript);
+      set(CurrentMarkdownAtom, newActiveScene.description);
       // Trigger MVS data update with new scene's code
       set(UpdateMvsDataAtom, newActiveScene.javascript);
     }
@@ -255,10 +287,11 @@ export const UpdateSceneAtom = atom(
     );
     set(ScenesAtom, newScenes);
     
-    // If this is the active scene, update editor and MVS data
+    // If this is the active scene, update editors and MVS data
     const activeId = get(ActiveSceneIdAtom);
     if (updatedScene.id === activeId) {
       set(CurrentCodeAtom, updatedScene.javascript);
+      set(CurrentMarkdownAtom, updatedScene.description);
       set(UpdateMvsDataAtom, updatedScene.javascript);
     }
   }
@@ -275,6 +308,23 @@ export const SaveCodeToSceneAtom = atom(
       const updatedScene: SceneData = {
         ...activeScene,
         javascript: currentCode
+      };
+      set(UpdateSceneAtom, updatedScene);
+    }
+  }
+);
+
+// Action to save current markdown to active scene
+export const SaveMarkdownToSceneAtom = atom(
+  null,
+  (get, set) => {
+    const activeScene = get(ActiveSceneAtom);
+    const currentMarkdown = get(CurrentMarkdownAtom);
+    
+    if (activeScene) {
+      const updatedScene: SceneData = {
+        ...activeScene,
+        description: currentMarkdown
       };
       set(UpdateSceneAtom, updatedScene);
     }

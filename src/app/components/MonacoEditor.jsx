@@ -53,7 +53,7 @@ export function MonacoEditorJotai() {
     <div className="editor-container">
       <div className="flex justify-between items-center mb-2 p-2 bg-gray-50 border rounded">
         <div className="text-sm text-gray-600">
-          Monaco Editor
+          JavaScript Editor
         </div>
         <div className="flex gap-2">
           <button

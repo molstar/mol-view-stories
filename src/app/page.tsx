@@ -11,6 +11,7 @@ import {
 } from "./appstate";
 import { MolStar } from "./components/MolStar.jsx";
 import { MonacoEditorJotai } from "./components/MonacoEditor.jsx";
+import { MonacoMarkdownEditor } from "./components/MonacoMarkdownEditor.jsx";
 
 function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
@@ -52,16 +53,21 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="w-full">
           <h1 className="text-3xl font-bold mb-6">StoriesCreator</h1>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
               <SceneList />
             </div>
-            <div className="lg:col-span-2">
-              <div className="app-container">
-                <MonacoEditorJotai />
-                <div className="visualization-container">
-                  <MolStar />
+            <div className="lg:col-span-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <MonacoMarkdownEditor />
                 </div>
+                <div>
+                  <MonacoEditorJotai />
+                </div>
+              </div>
+              <div className="visualization-container">
+                <MolStar />
               </div>
             </div>
           </div>
