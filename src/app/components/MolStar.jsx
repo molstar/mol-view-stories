@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
-import { JSAtomScopeContext } from "./atomScope";
+import { initializeMolstarAtom } from "../appstate.ts";
+// import { Viewer } from "molstar/build/viewer/molstar.js";
 
 const molstarParams = {
   allowMajorPerformanceCaveat: true,
@@ -40,52 +41,33 @@ const molstarParams = {
   volumeStreamingDisabled: false,
 };
 
+const createViewer = async (container, data) => {
+  const viewer = await molstar.Viewer.create(container, molstarParams);
+  if (data) await viewer.loadMvsData(data, "mvsj", { replaceExisting: true });
+  return viewer;
+};
+
+const loadData = (viewer, data) =>
+  viewer?.loadMvsData(data, "mvsj", { replaceExisting: true });
+
 export function MolStar() {
   const containerRef = useRef(null);
-  const instanceRef = useRef(null);
-  const atomScope = useJSAtomScope();
-  const [molViewSpecJson] = useAtom(atomScope.molViewSpecJsonAtom);
+  const viewerRef = useRef(null);
+  const [molViewSpecJson, setMolViewSpecJson] = useAtom(initializeMolstarAtom);
 
-  // Initialize the component
   useEffect(() => {
     if (!containerRef.current) return;
 
-    molstar.Viewer.create(containerRef.current, molstarParams)
-      .then((viewer) => {
-        instanceRef.current = viewer;
-        if (molViewSpecJson) {
-          viewer.loadMvsData(molViewSpecJson, "mvsj", {
-            replaceExisting: true,
-          });
-        }
-      })
-      .catch((err) =>
-        console.error(`Failed to initialize MolStar: ${err.message}`),
-      );
+    createViewer(containerRef.current, molViewSpecJson)
+      .then((viewer) => (viewerRef.current = viewer))
+      .catch(console.error);
 
-    return () => {
-      if (instanceRef.current) {
-        instanceRef.current.dispose();
-        instanceRef.current = null;
-      }
-    };
+    return () => viewerRef.current?.dispose();
   }, []);
 
-  // Update when molViewSpecJson changes
   useEffect(() => {
-    if (instanceRef.current && molViewSpecJson) {
-      console.log(
-        "MolStar: Loading new data",
-        typeof molViewSpecJson,
-        molViewSpecJson,
-      );
-      try {
-        instanceRef.current.loadMvsData(molViewSpecJson, "mvsj", {
-          replaceExisting: true,
-        });
-      } catch (error) {
-        console.error("MolStar: Error loading data:", error);
-      }
+    if (viewerRef.current && molViewSpecJson) {
+      loadData(viewerRef.current, molViewSpecJson).catch(console.error);
     }
   }, [molViewSpecJson]);
 

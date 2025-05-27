@@ -24,6 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://cdn.jsdelivr.net/npm/molstar@latest/build/viewer/molstar.js"></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -32,78 +35,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-// const ImplementationContext = React.createContext("python"); // Default to python
-
-// // Implementation Provider component to specify which implementation to use
-// export const ImplementationProvider = function (props) {
-//   const implementation = props.implementation || "python";
-//   const children = props.children;
-
-//   return createElement(
-//     ImplementationContext.Provider,
-//     { value: implementation },
-//     children,
-//   );
-// };
-
-// // Export the hook to access the current atom scope
-// export function useAtomScope() {
-//   const implementation = React.useContext(ImplementationContext);
-//
-//   // Determine which implementation to use
-//   if (implementation === "js") {
-//     return useJSAtomScope();
-//   } else {
-//     // Default to Python
-//     return usePythonAtomScope();
-//   }
-// }
-//
-// // Re-export common components for backward compatibility
-// export { PythonEditor as CodeMirrorEditor };
-// export { JSMonacoEditor as MonacoEditor };
-// export { MolStar };
-// export { PythonMolViewSpecApp as MolViewSpecApp };
-//
-// // Main application initialization function
-// export function appInit(
-//   container,
-//   initialState,
-//   initialCode,
-//   mode = "python",
-//   editorType = "codemirror",
-// ) {
-//   if (!container) return;
-//
-//   const root = createRoot(container);
-//
-//   if (mode === "python") {
-//     root.render(
-//       createElement(
-//         ImplementationProvider,
-//         { implementation: "python" },
-//         createElement(
-//           PythonMolViewSpecApp,
-//           { initialCode: initialCode },
-//           createElement(PythonEditor, { initialCode: initialCode }),
-//         ),
-//       ),
-//     );
-//   } else if (mode === "js") {
-//     const Editor = editorType === "monaco" ? JSMonacoEditor : JSEditor;
-//     root.render(
-//       createElement(
-//         ImplementationProvider,
-//         { implementation: "js" },
-//         createElement(
-//           JSMolViewSpecApp,
-//           { initialCode: initialCode },
-//           createElement(Editor, { initialCode: initialCode }),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// export default appInit;
