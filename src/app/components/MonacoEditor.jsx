@@ -25,12 +25,10 @@ export function MonacoEditorJotai() {
     initializeEditor();
   }, [initializeEditor]);
 
-  // Sync editor with active scene code changes
+  // Sync editor with active scene code changes (only when scene changes, not when user types)
   useEffect(() => {
-    if (activeSceneCode !== currentCode) {
-      updateCode(activeSceneCode);
-    }
-  }, [activeSceneCode, currentCode, updateCode]);
+    updateCode(activeSceneCode);
+  }, [activeSceneCode, updateCode]);
 
   const handleCodeChange = (newCode) => {
     updateCode(newCode || "");
@@ -42,6 +40,13 @@ export function MonacoEditorJotai() {
 
   const handleSave = () => {
     saveCode();
+  };
+
+  const handleEditorDidMount = (editor, monaco) => {
+    // Add Alt+Enter keyboard shortcut for code execution
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, () => {
+      handleExecute();
+    });
   };
 
   return (
@@ -70,6 +75,7 @@ export function MonacoEditorJotai() {
         defaultLanguage="javascript"
         value={currentCode}
         onChange={handleCodeChange}
+        onMount={handleEditorDidMount}
         theme="vs-light"
         options={{
           minimap: { enabled: false },

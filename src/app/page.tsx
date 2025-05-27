@@ -3,9 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneAtom, SetActiveSceneAtom, UpdateMvsDataAtom } from "./appstate";
+import {
+  ScenesAtom,
+  ActiveSceneAtom,
+  SetActiveSceneAtom,
+  UpdateMvsDataAtom,
+} from "./appstate";
 import { MolStar } from "./components/MolStar.jsx";
-import { MonacoEditorJotai } from "./components/MonacoEditorJotai.jsx";
+import { MonacoEditorJotai } from "./components/MonacoEditor.jsx";
 
 function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
@@ -23,10 +28,12 @@ function SceneList() {
       <h2>Scene List</h2>
       <ul className="space-y-2">
         {scenes.map((scene) => (
-          <li 
+          <li
             key={scene.id}
             className={`p-3 border rounded cursor-pointer hover:bg-gray-50 ${
-              activeScene?.id === scene.id ? 'bg-blue-50 border-blue-300' : 'border-gray-200'
+              activeScene?.id === scene.id
+                ? "bg-blue-50 border-blue-300"
+                : "border-gray-200"
             }`}
             onClick={() => handleSceneSelect(scene.id)}
           >
