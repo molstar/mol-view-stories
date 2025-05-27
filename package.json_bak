@@ -1,0 +1,29 @@
+{
+  "name": "stories-creator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-python": "^6.2.1",
+    "@monaco-editor/react": "^4.7.0",
+    "@uiw/react-codemirror": "^4.23.12",
+    "jotai": "^2.12.4",
+    "monaco-editor": "^0.52.2",
+    "monaco-editor-auto-typings": "^0.4.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "vite-plugin-static-copy": "^3.0.0"
+  }
+}
