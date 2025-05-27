@@ -2,43 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { CurrentMvsDataAtom, InitializeMolstarAtom, UpdateMvsDataAtom } from "../appstate";
-
-const molstarParams = {
-  allowMajorPerformanceCaveat: true,
-  collapseLeftPanel: false,
-  collapseRightPanel: false,
-  customFormats: [],
-  disableAntialiasing: false,
-  disabledExtensions: [],
-  emdbProvider: "rcsb",
-  illumination: false,
-  layoutIsExpanded: false,
-  layoutShowControls: false,
-  layoutShowLeftPanel: false,
-  layoutShowLog: false,
-  layoutShowRemoteState: false,
-  layoutShowSequence: true,
-  pdbProvider: "rcsb",
-  pickScale: 1,
-  pixelScale: 1,
-  pluginStateServer: "",
-  powerPreference: "default",
-  preferWebgl1: false,
-  rcsbAssemblySymmetryApplyColors: true,
-  rcsbAssemblySymmetryDefaultServerType: "full",
-  rcsbAssemblySymmetryDefaultServerUrl: "",
-  resolutionMode: "auto",
-  saccharideCompIdMapType: "default",
-  transparency: true,
-  viewportShowAnimation: false,
-  viewportShowControls: true,
-  viewportShowExpand: true,
-  viewportShowSelectionMode: false,
-  viewportShowSettings: true,
-  viewportShowTrajectoryControls: false,
-  volumeStreamingDisabled: false,
-};
+import {
+  CurrentMvsDataAtom,
+  InitializeMolstarAtom,
+  UpdateMvsDataAtom,
+} from "../appstate";
+import { molstarParams } from "./MolStar-config";
 
 export function MolStar() {
   const containerRef = useRef(null);
@@ -57,11 +26,14 @@ export function MolStar() {
         console.log("Initializing Molstar...");
         await initializeMolstar();
         console.log("Creating Molstar viewer...");
-        const viewer = await molstar.Viewer.create(containerRef.current, molstarParams);
+        const viewer = await molstar.Viewer.create(
+          containerRef.current,
+          molstarParams,
+        );
         viewerRef.current = viewer;
         setIsViewerReady(true);
         console.log("Molstar viewer ready!");
-        
+
         // Trigger initial data load now that viewer is ready
         setTimeout(() => {
           updateMvsData();
