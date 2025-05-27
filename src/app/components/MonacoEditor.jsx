@@ -1,37 +1,37 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
 import {
   CurrentCodeAtom,
-  UpdateCodeAtom,
+  UpdateCurrentContentAtom,
   ExecuteCurrentCodeAtom,
-  SaveCodeToSceneAtom,
-  InitializeEditorAtom,
-  ActiveSceneCodeAtom,
+  SaveCurrentContentToSceneAtom,
+  InitializeEditorsAtom,
+  ActiveSceneAtom,
 } from "../appstate";
 
 export function MonacoEditorJotai() {
   const [currentCode] = useAtom(CurrentCodeAtom);
-  const [activeSceneCode] = useAtom(ActiveSceneCodeAtom);
-  const [, updateCode] = useAtom(UpdateCodeAtom);
+  const [activeScene] = useAtom(ActiveSceneAtom);
+  const [, updateContent] = useAtom(UpdateCurrentContentAtom);
   const [, executeCode] = useAtom(ExecuteCurrentCodeAtom);
-  const [, saveCode] = useAtom(SaveCodeToSceneAtom);
-  const [, initializeEditor] = useAtom(InitializeEditorAtom);
+  const [, saveContent] = useAtom(SaveCurrentContentToSceneAtom);
+  const [, initializeEditors] = useAtom(InitializeEditorsAtom);
 
   // Initialize editor when component mounts
   useEffect(() => {
-    initializeEditor();
-  }, [initializeEditor]);
+    initializeEditors();
+  }, [initializeEditors]);
 
   // Sync editor with active scene code changes (only when scene changes, not when user types)
   useEffect(() => {
-    updateCode(activeSceneCode);
-  }, [activeSceneCode, updateCode]);
+    updateContent({ code: activeScene.javascript });
+  }, [activeScene.javascript, updateContent]);
 
   const handleCodeChange = (newCode) => {
-    updateCode(newCode || "");
+    updateContent({ code: newCode || "" });
   };
 
   const handleExecute = () => {
@@ -39,7 +39,7 @@ export function MonacoEditorJotai() {
   };
 
   const handleSave = () => {
-    saveCode();
+    saveContent("code");
   };
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -52,9 +52,7 @@ export function MonacoEditorJotai() {
   return (
     <div className="editor-container">
       <div className="flex justify-between items-center mb-2 p-2 bg-gray-50 border rounded">
-        <div className="text-sm text-gray-600">
-          JavaScript Editor
-        </div>
+        <div className="text-sm text-gray-600">JavaScript Editor</div>
         <div className="flex gap-2">
           <button
             onClick={handleSave}
