@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useAtom } from "jotai";
 import { ScenesAtom, ActiveSceneAtom, SetActiveSceneAtom, UpdateMvsDataAtom } from "./appstate";
 import { MolStar } from "./components/MolStar.jsx";
+import { MonacoEditorJotai } from "./components/MonacoEditorJotai.jsx";
 
 function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
@@ -42,13 +43,20 @@ export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <div className="flex w-full gap-4">
-          <div className="flex-1">
-            <h1>Hello</h1>
-          </div>
-          <div className="flex-[2]">
-            <SceneList></SceneList>
-            <MolStar></MolStar>
+        <div className="w-full">
+          <h1 className="text-3xl font-bold mb-6">StoriesCreator</h1>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <SceneList />
+            </div>
+            <div className="lg:col-span-2">
+              <div className="app-container">
+                <MonacoEditorJotai />
+                <div className="visualization-container">
+                  <MolStar />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>

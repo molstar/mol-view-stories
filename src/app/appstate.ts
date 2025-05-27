@@ -13,6 +13,8 @@ type SceneData = {
   javascript: string; // should define a builder that creates mvsData
 };
 
+
+
 // Stateless Functions ------------------------------------------
 
 // Function to check if molstar is ready
@@ -96,6 +98,16 @@ export const ActiveSceneIdAtom = atom(1);
 // Molstar readiness state
 export const MolstarReadyAtom = atom(false);
 
+// Monaco Editor State ------------------------------------------
+// Current code in the editor
+export const CurrentCodeAtom = atom("");
+
+// Editor readiness state
+export const EditorReadyAtom = atom(false);
+
+// Code execution state
+export const CodeExecutingAtom = atom(false);
+
 // Derived/Reactive Atoms ------------------------------------------
 
 // Get the currently active scene
@@ -103,6 +115,12 @@ export const ActiveSceneAtom = atom((get) => {
   const scenes = get(ScenesAtom);
   const activeId = get(ActiveSceneIdAtom);
   return scenes.find(scene => scene.id === activeId) || scenes[0];
+});
+
+// Sync code with active scene (read-only derived atom)
+export const ActiveSceneCodeAtom = atom((get) => {
+  const activeScene = get(ActiveSceneAtom);
+  return activeScene?.javascript || "";
 });
 
 // Initialize Molstar (write-only atom)
@@ -121,33 +139,39 @@ export const InitializeMolstarAtom = atom(
   }
 );
 
-// Execute the active scene's JavaScript and generate MVS data
-export const ActiveSceneMvsDataAtom = atom(
+// Execute JavaScript code and generate MVS data
+export const ExecuteCodeAtom = atom(
   null,
-  async (get, set) => {
+  async (get, set, code?: string) => {
     const molstarReady = get(MolstarReadyAtom);
-    const activeScene = get(ActiveSceneAtom);
+    const currentCode = code || get(CurrentCodeAtom);
 
-    if (!molstarReady) {
-      console.log("Molstar not ready, initializing...");
-      const initialized = await set(InitializeMolstarAtom);
-      if (!initialized) {
-        console.error("Failed to initialize Molstar");
-        return null;
-      }
-    }
-
-    if (!activeScene?.javascript) {
-      console.warn("No JavaScript code in active scene");
-      return null;
-    }
+    set(CodeExecutingAtom, true);
 
     try {
-      console.log("Executing JavaScript for scene:", activeScene.id);
-      const mvsData = await executeJavaScriptCode(activeScene.javascript);
+      if (!molstarReady) {
+        console.log("Molstar not ready, initializing...");
+        const initialized = await set(InitializeMolstarAtom);
+        if (!initialized) {
+          console.error("Failed to initialize Molstar");
+          set(CodeExecutingAtom, false);
+          return null;
+        }
+      }
+
+      if (!currentCode) {
+        console.warn("No JavaScript code to execute");
+        set(CodeExecutingAtom, false);
+        return null;
+      }
+
+      console.log("Executing JavaScript code...");
+      const mvsData = await executeJavaScriptCode(currentCode);
+      set(CodeExecutingAtom, false);
       return mvsData;
     } catch (error) {
-      console.error("Error executing scene JavaScript:", error);
+      console.error("Error executing JavaScript code:", error);
+      set(CodeExecutingAtom, false);
       return null;
     }
   }
@@ -156,12 +180,12 @@ export const ActiveSceneMvsDataAtom = atom(
 // Current MVS data for the viewer (read-only derived atom)
 export const CurrentMvsDataAtom = atom<unknown>(null);
 
-// Atom to trigger MVS data generation when active scene changes
+// Atom to trigger MVS data generation and update viewer
 export const UpdateMvsDataAtom = atom(
   null,
-  async (get, set) => {
+  async (get, set, code?: string) => {
     try {
-      const mvsData = await set(ActiveSceneMvsDataAtom);
+      const mvsData = await set(ExecuteCodeAtom, code);
       set(CurrentMvsDataAtom, mvsData);
       return mvsData;
     } catch (error) {
@@ -172,6 +196,36 @@ export const UpdateMvsDataAtom = atom(
   }
 );
 
+// Monaco Editor Actions ------------------------------------------
+
+// Initialize editor with active scene code
+export const InitializeEditorAtom = atom(
+  null,
+  (get, set) => {
+    const activeSceneCode = get(ActiveSceneCodeAtom);
+    set(CurrentCodeAtom, activeSceneCode);
+    set(EditorReadyAtom, true);
+    console.log("Editor initialized with active scene code");
+  }
+);
+
+// Update current code in editor
+export const UpdateCodeAtom = atom(
+  null,
+  (get, set, newCode: string) => {
+    set(CurrentCodeAtom, newCode);
+  }
+);
+
+// Execute current code and update visualization
+export const ExecuteCurrentCodeAtom = atom(
+  null,
+  async (get, set) => {
+    const currentCode = get(CurrentCodeAtom);
+    return await set(UpdateMvsDataAtom, currentCode);
+  }
+);
+
 // Actions/Mutations ------------------------------------------
 
 // Action to change active scene
@@ -179,8 +233,15 @@ export const SetActiveSceneAtom = atom(
   null,
   (get, set, sceneId: number) => {
     set(ActiveSceneIdAtom, sceneId);
-    // Trigger MVS data update when scene changes
-    set(UpdateMvsDataAtom);
+    
+    // Update editor with new scene's code
+    const scenes = get(ScenesAtom);
+    const newActiveScene = scenes.find(scene => scene.id === sceneId);
+    if (newActiveScene) {
+      set(CurrentCodeAtom, newActiveScene.javascript);
+      // Trigger MVS data update with new scene's code
+      set(UpdateMvsDataAtom, newActiveScene.javascript);
+    }
   }
 );
 
@@ -194,10 +255,28 @@ export const UpdateSceneAtom = atom(
     );
     set(ScenesAtom, newScenes);
     
-    // If this is the active scene, update MVS data
+    // If this is the active scene, update editor and MVS data
     const activeId = get(ActiveSceneIdAtom);
     if (updatedScene.id === activeId) {
-      set(UpdateMvsDataAtom);
+      set(CurrentCodeAtom, updatedScene.javascript);
+      set(UpdateMvsDataAtom, updatedScene.javascript);
+    }
+  }
+);
+
+// Action to save current editor code to active scene
+export const SaveCodeToSceneAtom = atom(
+  null,
+  (get, set) => {
+    const activeScene = get(ActiveSceneAtom);
+    const currentCode = get(CurrentCodeAtom);
+    
+    if (activeScene) {
+      const updatedScene: SceneData = {
+        ...activeScene,
+        javascript: currentCode
+      };
+      set(UpdateSceneAtom, updatedScene);
     }
   }
 );
