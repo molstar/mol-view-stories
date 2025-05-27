@@ -1,23 +1,36 @@
 "use client";
 
 import React from "react";
-import { MonacoEditor } from "./components/MonacoEditor.jsx";
 import Image from "next/image";
 import { useAtom } from "jotai";
-import { SceneAtom, StateAtom, initializeMolstarAtom } from "./appstate.ts";
+import { ScenesAtom, ActiveSceneAtom, SetActiveSceneAtom, UpdateMvsDataAtom } from "./appstate";
 import { MolStar } from "./components/MolStar.jsx";
 
 function SceneList() {
-  const [scenes] = useAtom(StateAtom);
-  console.log(scenes);
+  const [scenes] = useAtom(ScenesAtom);
+  const [activeScene] = useAtom(ActiveSceneAtom);
+  const [, setActiveScene] = useAtom(SetActiveSceneAtom);
+  const [, updateMvsData] = useAtom(UpdateMvsDataAtom);
+
+  const handleSceneSelect = (sceneId: number) => {
+    setActiveScene(sceneId);
+    updateMvsData();
+  };
+
   return (
     <div>
       <h2>Scene List</h2>
-      <ul>
+      <ul className="space-y-2">
         {scenes.map((scene) => (
-          <li key={scene.id}>
-            <h3>{scene.markdown}</h3>
-            <h4>{scene.javascript}</h4>
+          <li 
+            key={scene.id}
+            className={`p-3 border rounded cursor-pointer hover:bg-gray-50 ${
+              activeScene?.id === scene.id ? 'bg-blue-50 border-blue-300' : 'border-gray-200'
+            }`}
+            onClick={() => handleSceneSelect(scene.id)}
+          >
+            <h3 className="font-semibold text-lg">{scene.header}</h3>
+            <p className="text-sm text-gray-600 mt-1">{scene.description}</p>
           </li>
         ))}
       </ul>

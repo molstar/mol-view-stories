@@ -21,7 +21,7 @@ export interface MVSDataBuilder {
   /**
    * Get the current state of the builder
    */
-  getState(): any;
+  getState(): unknown;
 }
 
 export interface DownloadOptions {
@@ -105,7 +105,7 @@ export interface RepresentationOptions {
   /** Type of representation */
   type?: 'cartoon' | 'ball_and_stick' | 'spacefill' | 'surface' | 'tube' | 'ribbon' | 'putty' | 'point' | 'ellipsoid' | 'gaussian_surface';
   /** Optional parameters for the representation */
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
   /** Optional label */
   label?: string;
 }
@@ -134,7 +134,7 @@ export interface LabelOptions {
   /** Text for the label */
   text: string;
   /** Optional label parameters */
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
 }
 
 export interface FocusOptions {
@@ -150,7 +150,7 @@ export interface TooltipOptions {
   /** Tooltip text */
   text: string;
   /** Optional tooltip parameters */
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
 }
 
 // Global molstar variable available in the browser

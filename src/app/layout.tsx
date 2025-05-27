@@ -25,7 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script src="https://cdn.jsdelivr.net/npm/molstar@latest/build/viewer/molstar.js"></script>
+        <script 
+          src="https://cdn.jsdelivr.net/npm/molstar@latest/build/viewer/molstar.js"
+          defer
+        ></script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
