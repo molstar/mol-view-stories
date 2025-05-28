@@ -43,9 +43,6 @@ const executeJavaScriptCode = async (code: string): Promise<unknown> => {
   try {
     const evalFunction = new Function(`
       try {
-        if (!window.molstar?.PluginExtensions?.mvs) {
-          throw new Error("Molstar MVS extension is not available");
-        }
         ${code}
         return mvsData;
       } catch (error) {
@@ -98,7 +95,6 @@ export const ScenesAtom = atom<SceneData[]>([
 ]);
 
 export const ActiveSceneIdAtom = atom(1);
-export const MolstarReadyAtom = atom(false);
 export const CurrentCodeAtom = atom("");
 export const CurrentMarkdownAtom = atom("");
 export const EditorReadyAtom = atom(false);
@@ -116,32 +112,11 @@ export const ActiveSceneAtom = atom((get) => {
 
 // Consolidated Action Atoms ------------------------------------------
 
-// Initialize Molstar
-export const InitializeMolstarAtom = atom(null, async (get, set) => {
-  try {
-    const isReady = await checkMolstarReady();
-    set(MolstarReadyAtom, isReady);
-    return isReady;
-  } catch (error) {
-    console.error("Error initializing Molstar:", error);
-    set(MolstarReadyAtom, false);
-    return false;
-  }
-});
-
 // Execute code and return MVS data
 export const ExecuteCodeAtom = atom(null, async (get, set, code: string) => {
-  const molstarReady = get(MolstarReadyAtom);
   set(CodeExecutingAtom, true);
 
   try {
-    if (!molstarReady) {
-      const initialized = await set(InitializeMolstarAtom);
-      if (!initialized) {
-        throw new Error("Failed to initialize Molstar");
-      }
-    }
-
     if (!code) {
       throw new Error("No JavaScript code to execute");
     }

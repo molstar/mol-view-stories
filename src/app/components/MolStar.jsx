@@ -9,32 +9,57 @@ import {
 } from "../appstate";
 import { molstarParams } from "./MolStar-config";
 
-export function MolStar() {
-  const containerRef = useRef(null);
-  const viewerRef = useRef(null);
-  const [isViewerReady, setIsViewerReady] = useState(false);
-  const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const [, initializeMolstar] = useAtom(InitializeMolstarAtom);
+// Helper function 
+const checkMolstarReady = () => {
+  return new Promise((resolve) => {
+    if (window.molstar?.PluginExtensions?.mvs) {
+      resolve(true);
+      return;
+    }
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    const checkInterval = setInterval(() => {
+      attempts++;
+      if (window.molstar?.PluginExtensions?.mvs) {
+        clearInterval(checkInterval);
+        resolve(true);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        console.error("Timed out waiting for Molstar MVS extension");
+        resolve(false);
+      }
+    }, 100);
+  });
+};
+
+// Custom hook for Molstar initialization
+const useMolstarViewer = (containerRef) => {
+  const [viewer, setViewer] = useState(null);
+  const [isReady, setIsReady] = useState(false);
   const [, updateMvsData] = useAtom(UpdateMvsDataAtom);
 
-  // Initialize viewer on mount
   useEffect(() => {
     if (!containerRef.current) return;
 
     const initViewer = async () => {
       try {
         console.log("Initializing Molstar...");
-        await initializeMolstar();
+
+        // Wait for Molstar to be ready
+        await checkMolstarReady();
+
         console.log("Creating Molstar viewer...");
-        const viewer = await molstar.Viewer.create(
+        const newViewer = await molstar.Viewer.create(
           containerRef.current,
           molstarParams,
         );
-        viewerRef.current = viewer;
-        setIsViewerReady(true);
+
+        setViewer(newViewer);
+        setIsReady(true);
         console.log("Molstar viewer ready!");
 
-        // Trigger initial data load now that viewer is ready
+        // Trigger initial data load
         setTimeout(() => {
           updateMvsData();
         }, 100);
@@ -46,19 +71,27 @@ export function MolStar() {
     initViewer();
 
     return () => {
-      if (viewerRef.current) {
-        viewerRef.current.dispose();
-        viewerRef.current = null;
+      if (viewer) {
+        viewer.dispose();
       }
-      setIsViewerReady(false);
+      setViewer(null);
+      setIsReady(false);
     };
-  }, [initializeMolstar, updateMvsData]);
+  }, [updateMvsData]);
+
+  return { viewer, isReady };
+};
+
+export function MolStar() {
+  const containerRef = useRef(null);
+  const [mvsData] = useAtom(CurrentMvsDataAtom);
+  const { viewer, isReady } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
   useEffect(() => {
-    if (viewerRef.current && mvsData && isViewerReady) {
+    if (viewer && mvsData && isReady) {
       console.log("Loading MVS data into viewer...", mvsData);
-      viewerRef.current
+      viewer
         .loadMvsData(mvsData, "mvsj", { replaceExisting: true })
         .then(() => {
           console.log("MVS data loaded successfully");
@@ -67,7 +100,7 @@ export function MolStar() {
           console.error("Error loading MVS data:", error);
         });
     }
-  }, [mvsData, isViewerReady]);
+  }, [mvsData, isReady, viewer]);
 
   return (
     <div className="molstar-container">
