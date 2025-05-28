@@ -33,6 +33,51 @@ const checkMolstarReady = () => {
   });
 };
 
+// Camera Position Component
+const CameraPositionDisplay = ({ cameraSnapshot }) => {
+  if (!cameraSnapshot) return null;
+
+  return (
+    <div className="camera-info-box bg-gray-100 border border-gray-300 rounded-lg p-4 mb-4 shadow-sm">
+      <h3 className="text-sm font-semibold mb-2 text-gray-700">
+        Camera Position
+      </h3>
+      <div className="text-xs font-mono text-gray-600 space-y-1">
+        <div>
+          <span className="font-medium">Position:</span>
+          {cameraSnapshot.position
+            ? ` [${cameraSnapshot.position[0]?.toFixed(2)}, ${cameraSnapshot.position[1]?.toFixed(2)}, ${cameraSnapshot.position[2]?.toFixed(2)}]`
+            : " N/A"}
+        </div>
+        <div>
+          <span className="font-medium">Target:</span>
+          {cameraSnapshot.target
+            ? ` [${cameraSnapshot.target[0]?.toFixed(2)}, ${cameraSnapshot.target[1]?.toFixed(2)}, ${cameraSnapshot.target[2]?.toFixed(2)}]`
+            : " N/A"}
+        </div>
+        <div>
+          <span className="font-medium">Up:</span>
+          {cameraSnapshot.up
+            ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
+            : " N/A"}
+        </div>
+        {cameraSnapshot.radius && (
+          <div>
+            <span className="font-medium">Radius:</span>{" "}
+            {cameraSnapshot.radius.toFixed(2)}
+          </div>
+        )}
+        {cameraSnapshot.fov && (
+          <div>
+            <span className="font-medium">FOV:</span>{" "}
+            {cameraSnapshot.fov.toFixed(2)}°
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Custom hook for Molstar initialization
 const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState(null);
@@ -121,45 +166,7 @@ export function MolStar() {
   return (
     <div className="molstar-container">
       {/* Camera Position Display */}
-      {cameraSnapshot && (
-        <div className="camera-info-box bg-gray-100 border border-gray-300 rounded-lg p-4 mb-4 shadow-sm">
-          <h3 className="text-sm font-semibold mb-2 text-gray-700">
-            Camera Position
-          </h3>
-          <div className="text-xs font-mono text-gray-600 space-y-1">
-            <div>
-              <span className="font-medium">Position:</span>
-              {cameraSnapshot.position
-                ? ` [${cameraSnapshot.position[0]?.toFixed(2)}, ${cameraSnapshot.position[1]?.toFixed(2)}, ${cameraSnapshot.position[2]?.toFixed(2)}]`
-                : " N/A"}
-            </div>
-            <div>
-              <span className="font-medium">Target:</span>
-              {cameraSnapshot.target
-                ? ` [${cameraSnapshot.target[0]?.toFixed(2)}, ${cameraSnapshot.target[1]?.toFixed(2)}, ${cameraSnapshot.target[2]?.toFixed(2)}]`
-                : " N/A"}
-            </div>
-            <div>
-              <span className="font-medium">Up:</span>
-              {cameraSnapshot.up
-                ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
-                : " N/A"}
-            </div>
-            {cameraSnapshot.radius && (
-              <div>
-                <span className="font-medium">Radius:</span>{" "}
-                {cameraSnapshot.radius.toFixed(2)}
-              </div>
-            )}
-            {cameraSnapshot.fov && (
-              <div>
-                <span className="font-medium">FOV:</span>{" "}
-                {cameraSnapshot.fov.toFixed(2)}°
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
 
       {/* MolStar Viewer */}
       <div className="molstar" ref={containerRef}></div>

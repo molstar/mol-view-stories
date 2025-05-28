@@ -3,11 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
-import {
-  ScenesAtom,
-  ActiveSceneIdAtom,
-  getActiveScene,
-} from "../appstate";
+import { ScenesAtom, ActiveSceneIdAtom, getActiveScene } from "../appstate";
 
 interface BaseMonacoEditorProps {
   language: string;
@@ -32,8 +28,8 @@ export function BaseMonacoEditor({
   const [currentCode, setCurrentCode] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const editorRef = useRef<any>(null);
-  const monacoRef = useRef<any>(null);
+  const editorRef = useRef(null);
+  const monacoRef = useRef(null);
 
   const activeScene = getActiveScene(scenes, activeSceneId);
 
@@ -73,7 +69,7 @@ export function BaseMonacoEditor({
     }
   };
 
-  const handleEditorDidMount = (editor: any, monaco: any) => {
+  const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
 
@@ -95,7 +91,8 @@ export function BaseMonacoEditor({
       monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
         target: monaco.languages.typescript.ScriptTarget.ES2020,
         allowNonTsExtensions: true,
-        moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+        moduleResolution:
+          monaco.languages.typescript.ModuleResolutionKind.NodeJs,
         module: monaco.languages.typescript.ModuleKind.CommonJS,
         noEmit: true,
         esModuleInterop: true,
@@ -117,7 +114,7 @@ export function BaseMonacoEditor({
 
       monaco.languages.typescript.javascriptDefaults.addExtraLib(
         molstarTypes,
-        "ts:molstar-globals.d.ts"
+        "ts:molstar-globals.d.ts",
       );
     }
   };
@@ -150,9 +147,7 @@ export function BaseMonacoEditor({
         </div>
         <div className="scene-info">
           {activeScene && (
-            <span className="active-scene">
-              Scene: {activeScene.header}
-            </span>
+            <span className="active-scene">Scene: {activeScene.header}</span>
           )}
         </div>
       </div>
@@ -186,8 +181,6 @@ export function BaseMonacoEditor({
           },
         }}
       />
-
-
     </div>
   );
 }
