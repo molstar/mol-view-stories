@@ -6,6 +6,7 @@ import {
   CurrentMvsDataAtom,
   SetActiveSceneAtom,
   ActiveSceneAtom,
+  CameraPositionAtom,
 } from "../../app/appstate";
 import { molstarParams } from "./config/MolStar-config";
 
@@ -111,7 +112,7 @@ const CameraPositionDisplay = ({ cameraSnapshot }) => {
 const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState<MolstarViewer | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [cameraSnapshot, setCameraSnapshot] = useState(null);
+  const [, setCameraPosition] = useAtom(CameraPositionAtom);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
   const [activeScene] = useAtom(ActiveSceneAtom);
 
@@ -140,7 +141,7 @@ const useMolstarViewer = (containerRef) => {
           newViewer.plugin.canvas3d.didDraw.subscribe(() => {
             const snapshot = newViewer.plugin.canvas3d?.camera.getSnapshot();
             if (snapshot) {
-              setCameraSnapshot(snapshot);
+              setCameraPosition(snapshot);
               console.log("Camera snapshot:", snapshot);
             }
           });
@@ -165,18 +166,19 @@ const useMolstarViewer = (containerRef) => {
       }
       setViewer(null);
       setIsReady(false);
-      setCameraSnapshot(null);
+      setCameraPosition(null);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setActiveScene, activeScene]);
 
-  return { viewer, isReady, cameraSnapshot };
+  return { viewer, isReady };
 };
 
 export function MolStar() {
   const containerRef = useRef(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const { viewer, isReady, cameraSnapshot } = useMolstarViewer(containerRef);
+  const [cameraSnapshot] = useAtom(CameraPositionAtom);
+  const { viewer, isReady } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
   useEffect(() => {

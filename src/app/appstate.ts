@@ -20,6 +20,7 @@ export {
   ScenesAtom,
   ActiveSceneIdAtom,
   CurrentMvsDataAtom,
+  CameraPositionAtom,
   SetActiveSceneAtom,
   ActiveSceneAtom,
 } from "./state/atoms";

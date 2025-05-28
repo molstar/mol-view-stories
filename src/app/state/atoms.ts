@@ -25,6 +25,7 @@ export const ScenesAtom = atom<SceneData[]>([
 
 export const ActiveSceneIdAtom = atom(1);
 export const CurrentMvsDataAtom = atom<unknown>(null);
+export const CameraPositionAtom = atom<unknown>(null);
 
 // Derived atoms for automatic JavaScript execution
 export const ActiveSceneAtom = atom((get) => {
