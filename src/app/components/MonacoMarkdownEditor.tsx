@@ -4,32 +4,45 @@ import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
 import {
-  ActiveSceneAtom,
-  UpdateSceneAtom,
+  ScenesAtom,
+  ActiveSceneIdAtom,
+  getActiveScene,
 } from "../appstate";
 
 export function MonacoMarkdownEditor() {
-  const [activeScene] = useAtom(ActiveSceneAtom);
-  const [, updateScene] = useAtom(UpdateSceneAtom);
+  const [scenes, setScenes] = useAtom(ScenesAtom);
+  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
   
   const [currentMarkdown, setCurrentMarkdown] = useState("");
 
+  const activeScene = getActiveScene(scenes, activeSceneId);
+
   // Sync with active scene when it changes
   useEffect(() => {
-    setCurrentMarkdown(activeScene.description);
-  }, [activeScene.id, activeScene.description]);
+    if (activeScene) {
+      setCurrentMarkdown(activeScene.description);
+    }
+  }, [activeScene]);
 
-  const handleMarkdownChange = (newMarkdown) => {
+  const handleMarkdownChange = (newMarkdown: string | undefined) => {
     setCurrentMarkdown(newMarkdown || "");
   };
 
   const handleSave = async () => {
-    await updateScene(activeScene.id, { description: currentMarkdown });
+    if (!activeScene) return;
+    
+    const updatedScenes = scenes.map((scene) =>
+      scene.id === activeScene.id ? { ...scene, description: currentMarkdown } : scene
+    );
+    setScenes(updatedScenes);
   };
 
-  const handleEditorDidMount = (editor, monaco) => {
+  const handleEditorDidMount = (editor: unknown, monaco: unknown) => {
+    const editorInstance = editor as { addCommand: (keybinding: number, handler: () => void) => void };
+    const monacoInstance = monaco as { KeyMod: { Alt: number }; KeyCode: { KeyS: number } };
+    
     // Add Alt+S keyboard shortcut for saving markdown
-    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
+    editorInstance.addCommand(monacoInstance.KeyMod.Alt | monacoInstance.KeyCode.KeyS, () => {
       handleSave();
     });
   };

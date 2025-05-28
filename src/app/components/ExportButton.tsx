@@ -2,16 +2,18 @@
 
 import React, { useState } from "react";
 import { useAtom } from "jotai";
-import { ExportStateAtom } from "../appstate";
+import { ScenesAtom, ActiveSceneIdAtom, CurrentMvsDataAtom, exportState } from "../appstate";
 
 export function ExportButton() {
-  const [, exportState] = useAtom(ExportStateAtom);
+  const [scenes] = useAtom(ScenesAtom);
+  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
+  const [currentMvsData] = useAtom(CurrentMvsDataAtom);
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
     try {
       setIsExporting(true);
-      await exportState();
+      await exportState(scenes, activeSceneId, currentMvsData);
       console.log("Export completed successfully");
     } catch (error) {
       console.error("Error during export:", error);

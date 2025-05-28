@@ -3,19 +3,31 @@
 import React from "react";
 import Image from "next/image";
 import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneAtom, SetActiveSceneAtom } from "./appstate";
-import { MolStar } from "./components/MolStar.jsx";
-import { MonacoEditorJS } from "./components/MonacoEditor.jsx";
-import { MonacoMarkdownEditor } from "./components/MonacoMarkdownEditor.jsx";
+import { 
+  ScenesAtom, 
+  ActiveSceneIdAtom, 
+  CurrentMvsDataAtom,
+  getActiveScene,
+  executeCode 
+} from "./appstate";
+import { MolStar } from "./components/MolStar";
+import { MonacoEditorJS } from "./components/MonacoEditor";
+import { MonacoMarkdownEditor } from "./components/MonacoMarkdownEditor";
 import { ExportButton } from "./components/ExportButton";
 
 function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
-  const [activeScene] = useAtom(ActiveSceneAtom);
-  const [, setActiveScene] = useAtom(SetActiveSceneAtom);
+  const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
+  const [, setCurrentMvsData] = useAtom(CurrentMvsDataAtom);
 
-  const handleSceneSelect = (sceneId: number) => {
-    setActiveScene(sceneId);
+  const activeScene = getActiveScene(scenes, activeSceneId);
+
+  const handleSceneSelect = async (sceneId: number) => {
+    setActiveSceneId(sceneId);
+    const selectedScene = getActiveScene(scenes, sceneId);
+    if (selectedScene) {
+      await executeCode(selectedScene.javascript, setCurrentMvsData);
+    }
   };
 
   return (

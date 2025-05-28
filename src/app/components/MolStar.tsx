@@ -4,13 +4,38 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import {
   CurrentMvsDataAtom,
-  SetActiveSceneAtom,
-  ActiveSceneAtom,
+  ScenesAtom,
+  ActiveSceneIdAtom,
+  getActiveScene,
+  executeCode,
 } from "../appstate";
 import { molstarParams } from "./config/MolStar-config";
 
+// Type definitions for MolStar viewer (not declared in existing types)
+interface MolstarViewer {
+  dispose: () => void;
+  loadMvsData: (data: unknown, format: string, options: { replaceExisting: boolean }) => Promise<void>;
+  plugin: {
+    canvas3d?: {
+      didDraw: {
+        subscribe: (callback: () => void) => { unsubscribe: () => void };
+      };
+      camera: {
+        getSnapshot: () => CameraSnapshot;
+      };
+    };
+  };
+}
+
+interface CameraSnapshot {
+  position: number[];
+  target: number[];
+  up: number[];
+  radius?: number;
+}
+
 // Helper function
-const checkMolstarReady = () => {
+const checkMolstarReady = (): Promise<boolean> => {
   return new Promise((resolve) => {
     if (window.molstar?.PluginExtensions?.mvs) {
       resolve(true);
@@ -34,15 +59,13 @@ const checkMolstarReady = () => {
 };
 
 // Custom hook for Molstar initialization
-const useMolstarViewer = (containerRef) => {
-  const [viewer, setViewer] = useState(null);
+const useMolstarViewer = (containerRef: React.RefObject<HTMLDivElement | null>) => {
+  const [viewer, setViewer] = useState<MolstarViewer | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [cameraSnapshot, setCameraSnapshot] = useState(null);
+  const [cameraSnapshot, setCameraSnapshot] = useState<CameraSnapshot | null>(null);
   const [cameraTrackingEnabled, setCameraTrackingEnabled] = useState(false);
-  const [, setActiveScene] = useAtom(SetActiveSceneAtom);
-  const [activeScene] = useAtom(ActiveSceneAtom);
 
-  const cameraSubscriptionRef = useRef(null);
+  const cameraSubscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -55,21 +78,15 @@ const useMolstarViewer = (containerRef) => {
         await checkMolstarReady();
 
         console.log("Creating Molstar viewer...");
-        const newViewer = await molstar.Viewer.create(
-          containerRef.current,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const newViewer = await (window as any).molstar.Viewer.create(
+          containerRef.current!,
           molstarParams,
-        );
+        ) as MolstarViewer;
 
         setViewer(newViewer);
         setIsReady(true);
         console.log("Molstar viewer ready!");
-
-        // Trigger initial data load for active scene
-        setTimeout(() => {
-          if (activeScene) {
-            setActiveScene(activeScene.id);
-          }
-        }, 100);
       } catch (error) {
         console.error("Error creating Molstar viewer:", error);
       }
@@ -89,7 +106,7 @@ const useMolstarViewer = (containerRef) => {
       setCameraSnapshot(null);
       setCameraTrackingEnabled(false);
     };
-  }, [setActiveScene, activeScene]);
+  }, [containerRef]);
 
   // Camera subscription effect
   useEffect(() => {
@@ -97,7 +114,7 @@ const useMolstarViewer = (containerRef) => {
       console.log("Setting up camera tracking...");
 
       // Subscribe to camera changes
-      cameraSubscriptionRef.current = viewer.plugin.canvas3d?.didDraw.subscribe(
+      const subscription = viewer.plugin.canvas3d?.didDraw.subscribe(
         () => {
           const snapshot = viewer.plugin.canvas3d?.camera.getSnapshot();
           if (snapshot) {
@@ -105,6 +122,7 @@ const useMolstarViewer = (containerRef) => {
           }
         },
       );
+      cameraSubscriptionRef.current = subscription || null;
 
       return () => {
         if (cameraSubscriptionRef.current) {
@@ -125,8 +143,12 @@ const useMolstarViewer = (containerRef) => {
 };
 
 export function MolStar() {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
+  const [scenes] = useAtom(ScenesAtom);
+  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
+  const [, setCurrentMvsData] = useAtom(CurrentMvsDataAtom);
+
   const {
     viewer,
     isReady,
@@ -134,6 +156,15 @@ export function MolStar() {
     cameraTrackingEnabled,
     setCameraTrackingEnabled,
   } = useMolstarViewer(containerRef);
+
+  const activeScene = getActiveScene(scenes, activeSceneId);
+
+  // Load initial data when viewer is ready
+  useEffect(() => {
+    if (viewer && isReady && activeScene) {
+      executeCode(activeScene.javascript, setCurrentMvsData);
+    }
+  }, [viewer, isReady, activeScene, setCurrentMvsData]);
 
   // Load data when mvsData changes and viewer is ready
   useEffect(() => {
@@ -144,11 +175,11 @@ export function MolStar() {
         .then(() => {
           console.log("MVS data loaded successfully");
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           console.error("Error loading MVS data:", error);
         });
     }
-  }, [mvsData, isReady, viewer]);
+  }, [viewer, mvsData, isReady]);
 
   return (
     <div className="molstar-container">
