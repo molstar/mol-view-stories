@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Eye } from "lucide-react";
 
 export default function StoryBuilder() {
   const [scenes] = useAtom(ScenesAtom);
@@ -36,7 +37,7 @@ export default function StoryBuilder() {
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main className="flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-screen-2xl mx-auto w-full">
+      <main className="flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-[1600px] mx-auto w-full">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-foreground">Story Builder</h1>
           <div className="flex items-center gap-4">
@@ -65,9 +66,12 @@ export default function StoryBuilder() {
 
           <div className="flex-1 flex flex-col h-full">
             <Card className="h-full flex flex-col">
-              <CardHeader className="pb-4">
+              <CardHeader className="border-b">
                 <div className="flex items-center justify-between">
-                  <CardTitle>Visualization</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4" />
+                    <CardTitle className="text-sm text-muted-foreground">Visualization</CardTitle>
+                  </div>
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="molstar">MolStar</TabsTrigger>
@@ -75,12 +79,11 @@ export default function StoryBuilder() {
                     </TabsList>
                   </Tabs>
                 </div>
-                <div className="border-b"></div>
               </CardHeader>
               <CardContent className="flex-1 p-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
                   <TabsContent value="molstar" className="h-full">
-                    <div className="h-full min-h-[500px]">
+                    <div className="w-full" style={{ aspectRatio: '1.3/1' }}>
                       <MolStar />
                     </div>
                   </TabsContent>
