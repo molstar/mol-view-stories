@@ -9,6 +9,7 @@ import {
   getActiveScene,
   executeCode,
 } from "../appstate";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
@@ -26,22 +27,28 @@ export function SceneList() {
   };
 
   return (
-    <div className="scene-list">
-      <h3 className="scene-list-title">Scenes</h3>
-      <ul className="scene-list-items">
-        {scenes.map((scene) => (
-          <li
-            key={scene.id}
-            className={`scene-item ${
-              activeScene?.id === scene.id ? "scene-item-active" : ""
-            }`}
-            onClick={() => handleSceneSelect(scene.id)}
-          >
-            <h4 className="scene-item-title">{scene.header}</h4>
-            <p className="scene-item-description">{scene.description}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Scenes</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-3">
+          {scenes.map((scene) => (
+            <div
+              key={scene.id}
+              className={`p-4 border rounded-md cursor-pointer transition-all ${
+                activeScene?.id === scene.id
+                  ? "bg-primary/10 border-primary"
+                  : "bg-card border-border hover:bg-accent hover:border-accent-foreground/20"
+              }`}
+              onClick={() => handleSceneSelect(scene.id)}
+            >
+              <h4 className="text-lg font-semibold mb-2 text-foreground">{scene.header}</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">{scene.description}</p>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -14,8 +14,7 @@ import { MonacoMarkdownEditor } from "./MonacoMarkdownEditor";
 
 export function SceneEditors() {
   return (
-    <div className="editor-section">
-      <Tabs defaultValue="markdown" className="w-full">
+    <Tabs defaultValue="markdown" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="markdown">Markdown</TabsTrigger>
           <TabsTrigger value="javascript">JavaScript</TabsTrigger>
@@ -46,7 +45,6 @@ export function SceneEditors() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
-    </div>
+    </Tabs>
   );
 }
