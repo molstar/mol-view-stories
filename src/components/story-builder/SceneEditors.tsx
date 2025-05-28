@@ -1,16 +1,16 @@
 "use client";
 
 import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { MonacoEditorJS } from "./MonacoEditor";
-import { MonacoMarkdownEditor } from "./MonacoMarkdownEditor";
+} from "@/components/ui/card";
+import { MonacoEditorJS } from "./editors/MonacoEditor";
+import { MonacoMarkdownEditor } from "./editors/MonacoMarkdownEditor";
 
 export function SceneEditors() {
   return (

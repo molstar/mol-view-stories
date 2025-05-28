@@ -6,8 +6,37 @@ import {
   CurrentMvsDataAtom,
   SetActiveSceneAtom,
   ActiveSceneAtom,
-} from "../appstate";
+} from "../../app/appstate";
 import { molstarParams } from "./config/MolStar-config";
+
+// Declare molstar global type
+declare global {
+  interface Window {
+    molstar: {
+      Viewer: {
+        create: (container: HTMLElement, params: unknown) => Promise<MolstarViewer>;
+      };
+      PluginExtensions: {
+        mvs: unknown;
+      };
+    };
+  }
+}
+
+interface MolstarViewer {
+  dispose: () => void;
+  loadMvsData: (data: unknown, format: string, options: { replaceExisting: boolean }) => Promise<void>;
+  plugin: {
+    canvas3d?: {
+      didDraw: {
+        subscribe: (callback: () => void) => void;
+      };
+      camera: {
+        getSnapshot: () => unknown;
+      };
+    };
+  };
+}
 
 // Helper function
 const checkMolstarReady = () => {
@@ -80,7 +109,7 @@ const CameraPositionDisplay = ({ cameraSnapshot }) => {
 
 // Custom hook for Molstar initialization
 const useMolstarViewer = (containerRef) => {
-  const [viewer, setViewer] = useState(null);
+  const [viewer, setViewer] = useState<MolstarViewer | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [cameraSnapshot, setCameraSnapshot] = useState(null);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
@@ -97,7 +126,7 @@ const useMolstarViewer = (containerRef) => {
         await checkMolstarReady();
 
         console.log("Creating Molstar viewer...");
-        const newViewer = await molstar.Viewer.create(
+        const newViewer = await window.molstar.Viewer.create(
           containerRef.current,
           molstarParams,
         );
@@ -138,6 +167,7 @@ const useMolstarViewer = (containerRef) => {
       setIsReady(false);
       setCameraSnapshot(null);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setActiveScene, activeScene]);
 
   return { viewer, isReady, cameraSnapshot };

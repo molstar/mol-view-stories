@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useAtom } from "jotai";
-import { CurrentMvsDataAtom, executeCode } from "../appstate";
+import { CurrentMvsDataAtom, executeCode } from "../../../app/appstate";
 import { BaseMonacoEditor } from "./BaseMonacoEditor";
 
 export function MonacoEditorJS() {

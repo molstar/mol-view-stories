@@ -7,7 +7,7 @@ import {
   ScenesAtom,
   ActiveSceneIdAtom,
   getActiveScene,
-} from "../appstate";
+} from "../../../app/appstate";
 import { Button } from "@/components/ui/button";
 
 export function MonacoMarkdownEditor() {

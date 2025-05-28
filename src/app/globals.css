@@ -146,8 +146,6 @@
     }
 
     /* Monaco Editor Containers */
-    #python-container,
-    #js-container,
     #monaco-container {
         @apply border border-gray-200 rounded p-5 bg-white;
     }

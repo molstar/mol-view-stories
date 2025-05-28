@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneIdAtom, getActiveScene } from "../appstate";
+import { ScenesAtom, ActiveSceneIdAtom, getActiveScene } from "../../../app/appstate";
 import { Button } from "@/components/ui/button";
 
 interface BaseMonacoEditorProps {

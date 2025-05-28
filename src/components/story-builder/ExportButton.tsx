@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneIdAtom, CurrentMvsDataAtom, exportState } from "../appstate";
+import { ScenesAtom, ActiveSceneIdAtom, CurrentMvsDataAtom, exportState } from "../../app/appstate";
 import { Button } from "@/components/ui/button";
 
 export function ExportButton() {
