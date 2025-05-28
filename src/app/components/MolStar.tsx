@@ -4,9 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import {
   CurrentMvsDataAtom,
-  ScenesAtom,
-  ActiveSceneIdAtom,
-  getActiveScene,
+  SetActiveSceneAtom,
+  ActiveSceneAtom,
 } from "../appstate";
 import { molstarParams } from "./config/MolStar-config";
 
@@ -39,8 +38,8 @@ const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [cameraSnapshot, setCameraSnapshot] = useState(null);
-  const [scenes] = useAtom(ScenesAtom);
-  const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
+  const [, setActiveScene] = useAtom(SetActiveSceneAtom);
+  const [activeScene] = useAtom(ActiveSceneAtom);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -74,12 +73,11 @@ const useMolstarViewer = (containerRef) => {
         }
 
         // Trigger initial data load for active scene
-        const activeScene = getActiveScene(scenes, activeSceneId);
-        if (activeScene) {
-          setTimeout(() => {
-            setActiveSceneId(activeScene.id);
-          }, 100);
-        }
+        setTimeout(() => {
+          if (activeScene) {
+            setActiveScene(activeScene.id);
+          }
+        }, 100);
       } catch (error) {
         console.error("Error creating Molstar viewer:", error);
       }
@@ -95,7 +93,7 @@ const useMolstarViewer = (containerRef) => {
       setIsReady(false);
       setCameraSnapshot(null);
     };
-  }, [scenes, activeSceneId, setActiveSceneId]);
+  }, [setActiveScene, activeScene]);
 
   return { viewer, isReady, cameraSnapshot };
 };

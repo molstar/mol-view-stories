@@ -26,6 +26,31 @@ export const ScenesAtom = atom<SceneData[]>([
 export const ActiveSceneIdAtom = atom(1);
 export const CurrentMvsDataAtom = atom<unknown>(null);
 
+// Derived atoms for automatic JavaScript execution
+export const ActiveSceneAtom = atom((get) => {
+  const scenes = get(ScenesAtom);
+  const activeId = get(ActiveSceneIdAtom);
+  return getActiveScene(scenes, activeId);
+});
+
+export const SetActiveSceneAtom = atom(
+  null,
+  async (get, set, sceneId: number) => {
+    const scenes = get(ScenesAtom);
+    const scene = scenes.find(s => s.id === sceneId);
+    
+    if (scene) {
+      set(ActiveSceneIdAtom, sceneId);
+      try {
+        await executeCode(scene.javascript, (data) => set(CurrentMvsDataAtom, data));
+      } catch (error) {
+        console.error("Error executing scene JavaScript:", error);
+        set(CurrentMvsDataAtom, null);
+      }
+    }
+  }
+);
+
 // Helper functions
 export const getActiveScene = (scenes: SceneData[], activeId: number): SceneData | undefined => {
   return scenes.find((scene) => scene.id === activeId) || scenes[0];

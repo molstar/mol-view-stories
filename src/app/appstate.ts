@@ -20,6 +20,8 @@ export {
   ScenesAtom,
   ActiveSceneIdAtom,
   CurrentMvsDataAtom,
+  SetActiveSceneAtom,
+  ActiveSceneAtom,
 } from "./state/atoms";
 
 // Helper functions for state management
