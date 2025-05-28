@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useAtom } from "jotai";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
@@ -12,8 +13,13 @@ import {
 import { Edit } from "lucide-react";
 import { MonacoEditorJS } from "./editors/MonacoEditor";
 import { MonacoMarkdownEditor } from "./editors/MonacoMarkdownEditor";
+import { CameraControls } from "./CameraControls";
+import { CameraPositionAtom } from "../../app/appstate";
+import { CameraSnapshot } from "../../types/camera";
 
 export function SceneEditors() {
+  const [cameraSnapshot] = useAtom(CameraPositionAtom);
+
   return (
     <Tabs defaultValue="javascript" className="w-full">
       <Card className="w-full">
@@ -23,9 +29,10 @@ export function SceneEditors() {
               <Edit className="h-4 w-4" />
               <CardTitle className="text-sm text-muted-foreground">Scene Editor</CardTitle>
             </div>
-            <TabsList className="grid grid-cols-2">
+            <TabsList className="grid grid-cols-3">
               <TabsTrigger value="markdown">Markdown</TabsTrigger>
               <TabsTrigger value="javascript">JavaScript</TabsTrigger>
+              <TabsTrigger value="camera">Camera</TabsTrigger>
             </TabsList>
           </div>
 
@@ -36,6 +43,9 @@ export function SceneEditors() {
           </TabsContent>
           <TabsContent value="javascript" className="mt-0">
             <MonacoEditorJS />
+          </TabsContent>
+          <TabsContent value="camera" className="mt-0">
+            <CameraControls cameraSnapshot={cameraSnapshot as CameraSnapshot | null} />
           </TabsContent>
         </CardContent>
       </Card>

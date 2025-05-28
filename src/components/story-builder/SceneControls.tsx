@@ -6,19 +6,15 @@ import {
   ScenesAtom,
   ActiveSceneIdAtom,
   CurrentMvsDataAtom,
-  CameraPositionAtom,
   getActiveScene,
   executeCode,
 } from "../../app/appstate";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { CameraControls } from "./CameraControls";
-import { CameraSnapshot } from "../../types/camera";
 
 export function SceneControls() {
   const [scenes] = useAtom(ScenesAtom);
   const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
   const [, setCurrentMvsData] = useAtom(CurrentMvsDataAtom);
-  const [cameraSnapshot] = useAtom(CameraPositionAtom);
 
   const activeScene = getActiveScene(scenes, activeSceneId);
 
@@ -56,9 +52,6 @@ export function SceneControls() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Camera Controls */}
-      <CameraControls cameraSnapshot={cameraSnapshot as CameraSnapshot | null} />
     </div>
   );
 }
