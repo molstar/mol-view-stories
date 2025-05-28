@@ -150,3 +150,85 @@ h1 {
     padding: 20px;
     background-color: #fff;
 }
+
+/* Camera Info Panel Styles */
+.camera-info-panel {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.camera-controls {
+    margin-bottom: 10px;
+}
+
+.camera-toggle-btn {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.camera-toggle-btn:hover {
+    background-color: #0056b3;
+}
+
+.camera-toggle-btn.active {
+    background-color: #28a745;
+}
+
+.camera-toggle-btn.active:hover {
+    background-color: #1e7e34;
+}
+
+.camera-info h4 {
+    margin: 0 0 10px 0;
+    color: #222;
+    font-size: 16px;
+}
+
+.camera-data {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.camera-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.camera-field strong {
+    color: #333;
+    font-size: 14px;
+}
+
+.camera-field pre {
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin: 0;
+    font-size: 12px;
+    overflow-x: auto;
+    color: #222;
+}
+
+.camera-field span {
+    font-family: monospace;
+    font-size: 12px;
+    color: #333;
+}
+
+.no-camera-data {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}

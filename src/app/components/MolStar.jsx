@@ -33,8 +33,12 @@ const checkMolstarReady = () => {
 const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState(null);
   const [isReady, setIsReady] = useState(false);
+  const [cameraSnapshot, setCameraSnapshot] = useState(null);
+  const [cameraTrackingEnabled, setCameraTrackingEnabled] = useState(false);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
   const [activeScene] = useAtom(ActiveSceneAtom);
+  
+  const cameraSubscriptionRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -73,18 +77,57 @@ const useMolstarViewer = (containerRef) => {
       if (viewer) {
         viewer.dispose();
       }
+      if (cameraSubscriptionRef.current) {
+        cameraSubscriptionRef.current.unsubscribe();
+      }
       setViewer(null);
       setIsReady(false);
+      setCameraSnapshot(null);
+      setCameraTrackingEnabled(false);
     };
   }, [setActiveScene, activeScene]);
 
-  return { viewer, isReady };
+  // Camera subscription effect
+  useEffect(() => {
+    if (viewer && isReady && cameraTrackingEnabled) {
+      console.log("Setting up camera tracking...");
+      
+      // Subscribe to camera changes
+      cameraSubscriptionRef.current = viewer.plugin.canvas3d?.didDraw.subscribe(() => {
+        const snapshot = viewer.plugin.canvas3d?.camera.getSnapshot();
+        if (snapshot) {
+          setCameraSnapshot(snapshot);
+        }
+      });
+
+      return () => {
+        if (cameraSubscriptionRef.current) {
+          cameraSubscriptionRef.current.unsubscribe();
+          cameraSubscriptionRef.current = null;
+        }
+      };
+    }
+  }, [viewer, isReady, cameraTrackingEnabled]);
+
+  return { 
+    viewer, 
+    isReady, 
+    cameraSnapshot, 
+    cameraTrackingEnabled, 
+    setCameraTrackingEnabled 
+  };
 };
 
 export function MolStar() {
   const containerRef = useRef(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const { viewer, isReady } = useMolstarViewer(containerRef);
+  const { 
+    viewer, 
+    isReady, 
+    cameraSnapshot, 
+    cameraTrackingEnabled, 
+    setCameraTrackingEnabled 
+  } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
   useEffect(() => {
@@ -104,6 +147,48 @@ export function MolStar() {
   return (
     <div className="molstar-container">
       <div className="molstar" ref={containerRef}></div>
+      
+      {/* Camera Info Panel */}
+      <div className="camera-info-panel">
+        <div className="camera-controls">
+          <button 
+            onClick={() => setCameraTrackingEnabled(!cameraTrackingEnabled)}
+            className={`camera-toggle-btn ${cameraTrackingEnabled ? 'active' : ''}`}
+          >
+            {cameraTrackingEnabled ? 'Disable' : 'Enable'} Camera Tracking
+          </button>
+        </div>
+        
+        {cameraTrackingEnabled && (
+          <div className="camera-info">
+            <h4>Camera Information</h4>
+            {cameraSnapshot ? (
+              <div className="camera-data">
+                <div className="camera-field">
+                  <strong>Position:</strong>
+                  <pre>{JSON.stringify(cameraSnapshot.position, null, 2)}</pre>
+                </div>
+                <div className="camera-field">
+                  <strong>Target:</strong>
+                  <pre>{JSON.stringify(cameraSnapshot.target, null, 2)}</pre>
+                </div>
+                <div className="camera-field">
+                  <strong>Up Vector:</strong>
+                  <pre>{JSON.stringify(cameraSnapshot.up, null, 2)}</pre>
+                </div>
+                {cameraSnapshot.radius && (
+                  <div className="camera-field">
+                    <strong>Radius:</strong>
+                    <span>{cameraSnapshot.radius.toFixed(3)}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="no-camera-data">Move the camera to see position data</div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
