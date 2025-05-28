@@ -130,6 +130,7 @@ export function BaseMonacoEditor({
   };
 
   return (
+    <div className="h-full w-full">
       <Editor
         height="500px"
         language={language}
@@ -159,5 +160,6 @@ export function BaseMonacoEditor({
           },
         }}
       />
+    </div>
   );
 }

@@ -21,8 +21,8 @@ export function SceneEditors() {
   const [cameraSnapshot] = useAtom(CameraPositionAtom);
 
   return (
-    <Tabs defaultValue="javascript" className="w-full">
-      <Card className="w-full">
+    <Tabs defaultValue="javascript" className="w-full h-full">
+      <Card className="w-full h-full">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -37,14 +37,14 @@ export function SceneEditors() {
           </div>
 
         </CardHeader>
-        <CardContent>
-          <TabsContent value="markdown" className="mt-0">
+        <CardContent className="flex-1 overflow-hidden">
+          <TabsContent value="markdown" className="mt-0 h-full">
             <MonacoMarkdownEditor />
           </TabsContent>
-          <TabsContent value="javascript" className="mt-0">
+          <TabsContent value="javascript" className="mt-0 h-full">
             <MonacoEditorJS />
           </TabsContent>
-          <TabsContent value="camera" className="mt-0">
+          <TabsContent value="camera" className="mt-0 h-full">
             <CameraControls cameraSnapshot={cameraSnapshot as CameraSnapshot | null} />
           </TabsContent>
         </CardContent>
