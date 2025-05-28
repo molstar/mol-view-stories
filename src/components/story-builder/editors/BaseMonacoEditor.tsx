@@ -130,40 +130,8 @@ export function BaseMonacoEditor({
   };
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden bg-card">
-      <div className="flex justify-between items-center px-3 py-2 bg-background border-b border-border">
-        <div className="flex gap-2">
-          <Button
-            onClick={handleSave}
-            variant="default"
-            size="sm"
-            className="bg-green-600 hover:bg-green-700"
-            title="Save (Alt+S)"
-          >
-            Save
-          </Button>
-          {onExecute && (
-            <Button
-              onClick={handleExecute}
-              disabled={isExecuting}
-              variant="default"
-              size="sm"
-              className={isExecuting ? "bg-yellow-500 hover:bg-yellow-600 text-black" : ""}
-              title={`${executeButtonText} (Alt+Enter)`}
-            >
-              {isExecuting ? "Executing..." : executeButtonText}
-            </Button>
-          )}
-        </div>
-        <div className="flex items-center">
-          {activeScene && (
-            <span className="text-xs text-muted-foreground font-medium">Scene: {activeScene.header}</span>
-          )}
-        </div>
-      </div>
-
       <Editor
-        height="400px"
+        height="500px"
         language={language}
         value={currentCode}
         onChange={handleEditorChange}
@@ -191,6 +159,5 @@ export function BaseMonacoEditor({
           },
         }}
       />
-    </div>
   );
 }
