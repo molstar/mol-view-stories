@@ -2,6 +2,13 @@
 
 import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { MonacoEditorJS } from "./MonacoEditor";
 import { MonacoMarkdownEditor } from "./MonacoMarkdownEditor";
 
@@ -14,10 +21,30 @@ export function SceneEditors() {
           <TabsTrigger value="javascript">JavaScript</TabsTrigger>
         </TabsList>
         <TabsContent value="markdown">
-          <MonacoMarkdownEditor />
+          <Card>
+            <CardHeader>
+              <CardTitle>Markdown Editor</CardTitle>
+              <CardDescription>
+                Write your story content in Markdown format.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MonacoMarkdownEditor />
+            </CardContent>
+          </Card>
         </TabsContent>
         <TabsContent value="javascript">
-          <MonacoEditorJS />
+          <Card>
+            <CardHeader>
+              <CardTitle>JavaScript Editor</CardTitle>
+              <CardDescription>
+                Add interactive functionality and logic to your story.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MonacoEditorJS />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
