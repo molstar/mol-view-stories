@@ -9,32 +9,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Edit } from "lucide-react";
 import { MonacoEditorJS } from "./editors/MonacoEditor";
 import { MonacoMarkdownEditor } from "./editors/MonacoMarkdownEditor";
 
 export function SceneEditors() {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Scene Editor</CardTitle>
-        <CardDescription>
-          Edit your story content using Markdown or add interactive functionality with JavaScript.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="javascript" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="markdown">Markdown</TabsTrigger>
-            <TabsTrigger value="javascript">JavaScript</TabsTrigger>
-          </TabsList>
-          <TabsContent value="markdown" className="mt-4">
+    <Tabs defaultValue="javascript" className="w-full">
+      <Card className="w-full">
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              <CardTitle className="text-sm text-muted-foreground">Scene Editor</CardTitle>
+            </div>
+            <TabsList className="grid grid-cols-2">
+              <TabsTrigger value="markdown">Markdown</TabsTrigger>
+              <TabsTrigger value="javascript">JavaScript</TabsTrigger>
+            </TabsList>
+          </div>
+
+        </CardHeader>
+        <CardContent>
+          <TabsContent value="markdown" className="mt-0">
             <MonacoMarkdownEditor />
           </TabsContent>
-          <TabsContent value="javascript" className="mt-4">
+          <TabsContent value="javascript" className="mt-0">
             <MonacoEditorJS />
           </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Tabs>
   );
 }
