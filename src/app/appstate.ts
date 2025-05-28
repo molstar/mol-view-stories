@@ -16,7 +16,7 @@
 // Re-export types
 export type { SceneData, SceneUpdate, CreateSceneData } from "./state/types";
 
-// Re-export core state atoms
+// Core state atoms
 export {
   ScenesAtom,
   ActiveSceneIdAtom,
@@ -24,11 +24,12 @@ export {
   ActiveSceneAtom,
 } from "./state/atoms";
 
-// Re-export action atoms
+// Action atoms
 export {
   ExecuteCodeAtom,
   SetActiveSceneAtom,
   UpdateSceneAtom,
   AddSceneAtom,
   RemoveSceneAtom,
+  ExportStateAtom,
 } from "./state/atoms";

@@ -7,6 +7,7 @@ import { ScenesAtom, ActiveSceneAtom, SetActiveSceneAtom } from "./appstate";
 import { MolStar } from "./components/MolStar.jsx";
 import { MonacoEditorJS } from "./components/MonacoEditor.jsx";
 import { MonacoMarkdownEditor } from "./components/MonacoMarkdownEditor.jsx";
+import { ExportButton } from "./components/ExportButton";
 
 function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
@@ -45,7 +46,10 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="w-full">
-          <h1 className="text-3xl font-bold mb-6">StoriesCreator</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">StoriesCreator</h1>
+            <ExportButton />
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
               <SceneList />
