@@ -3,21 +3,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
-import {
-  ScenesAtom,
-  ActiveSceneIdAtom,
-  getActiveScene,
-} from "../appstate";
+import { ScenesAtom, ActiveSceneIdAtom, getActiveScene } from "../../../app/appstate";
+import { Button } from "@/components/ui/button";
 
 interface BaseMonacoEditorProps {
   language: string;
   fieldName: keyof { javascript: string; description: string };
   onExecute?: (code: string) => Promise<void>;
   executeButtonText?: string;
-  executeKeyBinding?: {
-    mod: number;
-    key: number;
-  };
 }
 
 export function BaseMonacoEditor({
@@ -25,15 +18,14 @@ export function BaseMonacoEditor({
   fieldName,
   onExecute,
   executeButtonText = "Execute",
-  executeKeyBinding = { mod: 512, key: 3 }, // Alt + Enter
 }: BaseMonacoEditorProps) {
   const [scenes, setScenes] = useAtom(ScenesAtom);
   const [activeSceneId] = useAtom(ActiveSceneIdAtom);
   const [currentCode, setCurrentCode] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const editorRef = useRef<any>(null);
-  const monacoRef = useRef<any>(null);
+  const editorRef = useRef(null);
+  const monacoRef = useRef(null);
 
   const activeScene = getActiveScene(scenes, activeSceneId);
 
@@ -63,9 +55,18 @@ export function BaseMonacoEditor({
   const handleExecute = async () => {
     if (!onExecute || isExecuting) return;
 
+    // Get the current code from the editor directly to ensure we have the latest value
+    const editorCode = editorRef.current?.getValue() || currentCode;
+    
+    console.log("Executing code:", { 
+      currentCode: currentCode.length, 
+      editorCode: editorCode.length,
+      actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
+    });
+
     setIsExecuting(true);
     try {
-      await onExecute(currentCode);
+      await onExecute(editorCode);
     } catch (error) {
       console.error("Execution error:", error);
     } finally {
@@ -73,7 +74,7 @@ export function BaseMonacoEditor({
     }
   };
 
-  const handleEditorDidMount = (editor: any, monaco: any) => {
+  const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
 
@@ -82,9 +83,10 @@ export function BaseMonacoEditor({
       handleSave();
     });
 
-    // Add execute keyboard shortcut if provided
-    if (onExecute && executeKeyBinding) {
-      editor.addCommand(executeKeyBinding.mod | executeKeyBinding.key, () => {
+    // Add execute keyboard shortcut if onExecute is provided
+    if (onExecute) {
+      editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, () => {
+        console.log("Alt+Enter pressed, executing code");
         handleExecute();
       });
     }
@@ -95,7 +97,8 @@ export function BaseMonacoEditor({
       monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
         target: monaco.languages.typescript.ScriptTarget.ES2020,
         allowNonTsExtensions: true,
-        moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+        moduleResolution:
+          monaco.languages.typescript.ModuleResolutionKind.NodeJs,
         module: monaco.languages.typescript.ModuleKind.CommonJS,
         noEmit: true,
         esModuleInterop: true,
@@ -117,7 +120,7 @@ export function BaseMonacoEditor({
 
       monaco.languages.typescript.javascriptDefaults.addExtraLib(
         molstarTypes,
-        "ts:molstar-globals.d.ts"
+        "ts:molstar-globals.d.ts",
       );
     }
   };
@@ -127,32 +130,34 @@ export function BaseMonacoEditor({
   };
 
   return (
-    <div className="base-monaco-editor">
-      <div className="editor-toolbar">
-        <div className="editor-controls">
-          <button
+    <div className="border border-border rounded-lg overflow-hidden bg-card">
+      <div className="flex justify-between items-center px-3 py-2 bg-background border-b border-border">
+        <div className="flex gap-2">
+          <Button
             onClick={handleSave}
-            className="editor-btn save-btn"
+            variant="default"
+            size="sm"
+            className="bg-green-600 hover:bg-green-700"
             title="Save (Alt+S)"
           >
             Save
-          </button>
+          </Button>
           {onExecute && (
-            <button
+            <Button
               onClick={handleExecute}
               disabled={isExecuting}
-              className={`editor-btn execute-btn ${isExecuting ? "executing" : ""}`}
+              variant="default"
+              size="sm"
+              className={isExecuting ? "bg-yellow-500 hover:bg-yellow-600 text-black" : ""}
               title={`${executeButtonText} (Alt+Enter)`}
             >
               {isExecuting ? "Executing..." : executeButtonText}
-            </button>
+            </Button>
           )}
         </div>
-        <div className="scene-info">
+        <div className="flex items-center">
           {activeScene && (
-            <span className="active-scene">
-              Scene: {activeScene.header}
-            </span>
+            <span className="text-xs text-muted-foreground font-medium">Scene: {activeScene.header}</span>
           )}
         </div>
       </div>
@@ -186,8 +191,6 @@ export function BaseMonacoEditor({
           },
         }}
       />
-
-
     </div>
   );
 }

@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneIdAtom, CurrentMvsDataAtom, exportState } from "../appstate";
+import { ScenesAtom, ActiveSceneIdAtom, CurrentMvsDataAtom, exportState } from "../../app/appstate";
+import { Button } from "@/components/ui/button";
 
 export function ExportButton() {
   const [scenes] = useAtom(ScenesAtom);
@@ -23,16 +24,12 @@ export function ExportButton() {
   };
 
   return (
-    <button
+    <Button
       onClick={handleExport}
       disabled={isExporting}
-      className={`px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${
-        isExporting 
-          ? "bg-gray-400 text-white cursor-not-allowed" 
-          : "bg-blue-600 text-white hover:bg-blue-700"
-      }`}
+      variant="default"
     >
       {isExporting ? "Exporting..." : "Export JSON"}
-    </button>
+    </Button>
   );
 }

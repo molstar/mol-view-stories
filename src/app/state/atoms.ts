@@ -42,9 +42,12 @@ export const SetActiveSceneAtom = atom(
     if (scene) {
       set(ActiveSceneIdAtom, sceneId);
       try {
-        await executeCode(scene.javascript, (data) => set(CurrentMvsDataAtom, data));
+        const mvsData = await executeJavaScriptCode(scene.javascript);
+        // @ts-expect-error - suppress TypeScript error for atom setter
+        set(CurrentMvsDataAtom, mvsData);
       } catch (error) {
         console.error("Error executing scene JavaScript:", error);
+        // @ts-expect-error - suppress TypeScript error for atom setter
         set(CurrentMvsDataAtom, null);
       }
     }

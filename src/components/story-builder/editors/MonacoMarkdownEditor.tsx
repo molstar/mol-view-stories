@@ -7,7 +7,8 @@ import {
   ScenesAtom,
   ActiveSceneIdAtom,
   getActiveScene,
-} from "../appstate";
+} from "../../../app/appstate";
+import { Button } from "@/components/ui/button";
 
 export function MonacoMarkdownEditor() {
   const [scenes, setScenes] = useAtom(ScenesAtom);
@@ -48,16 +49,17 @@ export function MonacoMarkdownEditor() {
   };
 
   return (
-    <div className="editor-container">
-      <div className="flex justify-between items-center mb-2 p-2 bg-gray-50 border rounded">
-        <div className="text-sm text-gray-600">Markdown Editor</div>
+    <div>
+      <div className="flex justify-between items-center mb-3 p-3 bg-background border border-border rounded-md">
+        <div className="text-sm text-muted-foreground">Markdown Editor</div>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={handleSave}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            variant="default"
+            size="sm"
           >
             Save
-          </button>
+          </Button>
         </div>
       </div>
       <Editor

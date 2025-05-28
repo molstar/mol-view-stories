@@ -6,8 +6,37 @@ import {
   CurrentMvsDataAtom,
   SetActiveSceneAtom,
   ActiveSceneAtom,
-} from "../appstate";
+} from "../../app/appstate";
 import { molstarParams } from "./config/MolStar-config";
+
+// Declare molstar global type
+declare global {
+  interface Window {
+    molstar: {
+      Viewer: {
+        create: (container: HTMLElement, params: unknown) => Promise<MolstarViewer>;
+      };
+      PluginExtensions: {
+        mvs: unknown;
+      };
+    };
+  }
+}
+
+interface MolstarViewer {
+  dispose: () => void;
+  loadMvsData: (data: unknown, format: string, options: { replaceExisting: boolean }) => Promise<void>;
+  plugin: {
+    canvas3d?: {
+      didDraw: {
+        subscribe: (callback: () => void) => void;
+      };
+      camera: {
+        getSnapshot: () => unknown;
+      };
+    };
+  };
+}
 
 // Helper function
 const checkMolstarReady = () => {
@@ -33,9 +62,54 @@ const checkMolstarReady = () => {
   });
 };
 
+// Camera Position Component
+const CameraPositionDisplay = ({ cameraSnapshot }) => {
+  if (!cameraSnapshot) return null;
+
+  return (
+    <div className="bg-background border border-border rounded-lg p-4 mb-4 shadow-sm">
+      <h3 className="text-sm font-semibold mb-2 text-foreground">
+        Camera Position
+      </h3>
+      <div className="text-xs font-mono text-muted-foreground space-y-1">
+        <div>
+          <span className="font-medium">Position:</span>
+          {cameraSnapshot.position
+            ? ` [${cameraSnapshot.position[0]?.toFixed(2)}, ${cameraSnapshot.position[1]?.toFixed(2)}, ${cameraSnapshot.position[2]?.toFixed(2)}]`
+            : " N/A"}
+        </div>
+        <div>
+          <span className="font-medium">Target:</span>
+          {cameraSnapshot.target
+            ? ` [${cameraSnapshot.target[0]?.toFixed(2)}, ${cameraSnapshot.target[1]?.toFixed(2)}, ${cameraSnapshot.target[2]?.toFixed(2)}]`
+            : " N/A"}
+        </div>
+        <div>
+          <span className="font-medium">Up:</span>
+          {cameraSnapshot.up
+            ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
+            : " N/A"}
+        </div>
+        {cameraSnapshot.radius && (
+          <div>
+            <span className="font-medium">Radius:</span>{" "}
+            {cameraSnapshot.radius.toFixed(2)}
+          </div>
+        )}
+        {cameraSnapshot.fov && (
+          <div>
+            <span className="font-medium">FOV:</span>{" "}
+            {cameraSnapshot.fov.toFixed(2)}°
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Custom hook for Molstar initialization
 const useMolstarViewer = (containerRef) => {
-  const [viewer, setViewer] = useState(null);
+  const [viewer, setViewer] = useState<MolstarViewer | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [cameraSnapshot, setCameraSnapshot] = useState(null);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
@@ -52,7 +126,7 @@ const useMolstarViewer = (containerRef) => {
         await checkMolstarReady();
 
         console.log("Creating Molstar viewer...");
-        const newViewer = await molstar.Viewer.create(
+        const newViewer = await window.molstar.Viewer.create(
           containerRef.current,
           molstarParams,
         );
@@ -93,6 +167,7 @@ const useMolstarViewer = (containerRef) => {
       setIsReady(false);
       setCameraSnapshot(null);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setActiveScene, activeScene]);
 
   return { viewer, isReady, cameraSnapshot };
@@ -119,49 +194,12 @@ export function MolStar() {
   }, [mvsData, isReady, viewer]);
 
   return (
-    <div className="molstar-container">
+    <div className="rounded overflow-hidden w-full h-[500px] border border-border bg-background relative">
       {/* Camera Position Display */}
-      {cameraSnapshot && (
-        <div className="camera-info-box bg-gray-100 border border-gray-300 rounded-lg p-4 mb-4 shadow-sm">
-          <h3 className="text-sm font-semibold mb-2 text-gray-700">Camera Position</h3>
-          <div className="text-xs font-mono text-gray-600 space-y-1">
-            <div>
-              <span className="font-medium">Position:</span> 
-              {cameraSnapshot.position ? 
-                ` [${cameraSnapshot.position.x?.toFixed(2)}, ${cameraSnapshot.position.y?.toFixed(2)}, ${cameraSnapshot.position.z?.toFixed(2)}]` : 
-                ' N/A'
-              }
-            </div>
-            <div>
-              <span className="font-medium">Target:</span> 
-              {cameraSnapshot.target ? 
-                ` [${cameraSnapshot.target.x?.toFixed(2)}, ${cameraSnapshot.target.y?.toFixed(2)}, ${cameraSnapshot.target.z?.toFixed(2)}]` : 
-                ' N/A'
-              }
-            </div>
-            <div>
-              <span className="font-medium">Up:</span> 
-              {cameraSnapshot.up ? 
-                ` [${cameraSnapshot.up.x?.toFixed(2)}, ${cameraSnapshot.up.y?.toFixed(2)}, ${cameraSnapshot.up.z?.toFixed(2)}]` : 
-                ' N/A'
-              }
-            </div>
-            {cameraSnapshot.radius && (
-              <div>
-                <span className="font-medium">Radius:</span> {cameraSnapshot.radius.toFixed(2)}
-              </div>
-            )}
-            {cameraSnapshot.fov && (
-              <div>
-                <span className="font-medium">FOV:</span> {cameraSnapshot.fov.toFixed(2)}°
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      
+      <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
+
       {/* MolStar Viewer */}
-      <div className="molstar" ref={containerRef}></div>
+      <div className="w-full h-full relative" ref={containerRef}></div>
     </div>
   );
 }
