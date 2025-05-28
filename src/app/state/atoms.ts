@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import { SceneData, SceneUpdate, CreateSceneData } from "./types";
-import { init_js_code, init_js_code_02 } from "./initial_data.mjs";
+import { init_js_code, init_js_code_02 } from "./initial-data.mjs";
 import { executeJavaScriptCode } from "./code-execution";
 
 // Core State Atoms
@@ -71,16 +71,13 @@ export const UpdateSceneAtom = atom(
   },
 );
 
-export const AddSceneAtom = atom(
-  null,
-  (get, set, scene: CreateSceneData) => {
-    const scenes = get(ScenesAtom);
-    const maxId = Math.max(...scenes.map((s) => s.id), 0);
-    const newScene: SceneData = { ...scene, id: maxId + 1 };
-    set(ScenesAtom, [...scenes, newScene]);
-    return newScene.id;
-  },
-);
+export const AddSceneAtom = atom(null, (get, set, scene: CreateSceneData) => {
+  const scenes = get(ScenesAtom);
+  const maxId = Math.max(...scenes.map((s) => s.id), 0);
+  const newScene: SceneData = { ...scene, id: maxId + 1 };
+  set(ScenesAtom, [...scenes, newScene]);
+  return newScene.id;
+});
 
 export const RemoveSceneAtom = atom(null, (get, set, sceneId: number) => {
   const scenes = get(ScenesAtom);
@@ -105,28 +102,38 @@ export const ExportStateAtom = atom(null, async (get) => {
   const scenesWithExecutedData = await Promise.all(
     scenes.map(async (scene) => {
       try {
-        console.log(`⚡ Executing JavaScript for scene ${scene.id}: "${scene.header}"`);
+        console.log(
+          `⚡ Executing JavaScript for scene ${scene.id}: "${scene.header}"`,
+        );
         const executedData = await executeJavaScriptCode(scene.javascript);
-        console.log(`✅ Successfully executed scene ${scene.id}, data size:`, JSON.stringify(executedData).length, 'characters');
+        console.log(
+          `✅ Successfully executed scene ${scene.id}, data size:`,
+          JSON.stringify(executedData).length,
+          "characters",
+        );
         return {
           id: scene.id,
           header: scene.header,
           key: scene.key,
           description: scene.description,
-          executedData
+          executedData,
         };
       } catch (error) {
-        console.error(`❌ Error executing JavaScript for scene ${scene.id}:`, error);
+        console.error(
+          `❌ Error executing JavaScript for scene ${scene.id}:`,
+          error,
+        );
         return {
           id: scene.id,
           header: scene.header,
           key: scene.key,
           description: scene.description,
           executedData: null,
-          executionError: error instanceof Error ? error.message : String(error)
+          executionError:
+            error instanceof Error ? error.message : String(error),
         };
       }
-    })
+    }),
   );
 
   const exportData = {
@@ -137,16 +144,20 @@ export const ExportStateAtom = atom(null, async (get) => {
       header: activeScene.header,
       key: activeScene.key,
       description: activeScene.description,
-      executedData: currentMvsData
+      executedData: currentMvsData,
     },
     exportTimestamp: new Date().toISOString(),
-    version: "1.0.0"
+    version: "1.0.0",
   };
 
   const jsonString = JSON.stringify(exportData, null, 2);
-  console.log("📋 StoriesCreator Complete Export (JavaScript executed and replaced with JSON data):");
+  console.log(
+    "📋 StoriesCreator Complete Export (JavaScript executed and replaced with JSON data):",
+  );
   console.log(jsonString);
-  console.log(`📊 Export Summary: ${scenesWithExecutedData.length} scenes processed, ${scenesWithExecutedData.filter(s => s.executedData).length} successful executions`);
-  
+  console.log(
+    `📊 Export Summary: ${scenesWithExecutedData.length} scenes processed, ${scenesWithExecutedData.filter((s) => s.executedData).length} successful executions`,
+  );
+
   return exportData;
 });
