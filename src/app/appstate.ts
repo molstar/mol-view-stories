@@ -1,8 +1,10 @@
 //
 // StoriesCreator App State Coordinator
 //
-// This file serves as the main entry point for all application state.
-// It re-exports the key atoms, types, and helper functions needed throughout the app.
+//  - This file serves as the main entry point for all application state.
+//  - It re-exports the key atoms, types, and helper functions needed throughout the app.
+//  - All application components either use local state or interact with the global state defined here.
+//  - All state is maintines as JOTAI atoms
 //
 // Data Flow:
 // 1. ScenesAtom holds the collection of scene data with JavaScript code
@@ -26,8 +28,4 @@ export {
 } from "./state/atoms";
 
 // Helper functions for state management
-export {
-  getActiveScene,
-  executeCode,
-  exportState,
-} from "./state/atoms";
+export { getActiveScene, executeCode, exportState } from "./state/atoms";
