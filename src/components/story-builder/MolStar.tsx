@@ -63,51 +63,6 @@ const checkMolstarReady = () => {
   });
 };
 
-// Camera Position Component
-const CameraPositionDisplay = ({ cameraSnapshot }) => {
-  if (!cameraSnapshot) return null;
-
-  return (
-    <div className="bg-background border border-border rounded-lg p-4 mb-4 shadow-sm">
-      <h3 className="text-sm font-semibold mb-2 text-foreground">
-        Camera Position
-      </h3>
-      <div className="text-xs font-mono text-muted-foreground space-y-1">
-        <div>
-          <span className="font-medium">Position:</span>
-          {cameraSnapshot.position
-            ? ` [${cameraSnapshot.position[0]?.toFixed(2)}, ${cameraSnapshot.position[1]?.toFixed(2)}, ${cameraSnapshot.position[2]?.toFixed(2)}]`
-            : " N/A"}
-        </div>
-        <div>
-          <span className="font-medium">Target:</span>
-          {cameraSnapshot.target
-            ? ` [${cameraSnapshot.target[0]?.toFixed(2)}, ${cameraSnapshot.target[1]?.toFixed(2)}, ${cameraSnapshot.target[2]?.toFixed(2)}]`
-            : " N/A"}
-        </div>
-        <div>
-          <span className="font-medium">Up:</span>
-          {cameraSnapshot.up
-            ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
-            : " N/A"}
-        </div>
-        {cameraSnapshot.radius && (
-          <div>
-            <span className="font-medium">Radius:</span>{" "}
-            {cameraSnapshot.radius.toFixed(2)}
-          </div>
-        )}
-        {cameraSnapshot.fov && (
-          <div>
-            <span className="font-medium">FOV:</span>{" "}
-            {cameraSnapshot.fov.toFixed(2)}°
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 // Custom hook for Molstar initialization
 const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState<MolstarViewer | null>(null);
@@ -177,7 +132,6 @@ const useMolstarViewer = (containerRef) => {
 export function MolStar() {
   const containerRef = useRef(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const [cameraSnapshot] = useAtom(CameraPositionAtom);
   const { viewer, isReady } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
@@ -196,10 +150,7 @@ export function MolStar() {
   }, [mvsData, isReady, viewer]);
 
   return (
-    <div className="rounded overflow-hidden w-full h-[500px] border border-border bg-background relative">
-      {/* Camera Position Display */}
-      <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
-
+    <div className="rounded overflow-hidden w-full h-full border border-border bg-background relative">
       {/* MolStar Viewer */}
       <div className="w-full h-full relative" ref={containerRef}></div>
     </div>
