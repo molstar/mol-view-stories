@@ -52,5 +52,4 @@ export function Controls() {
         <ExportButton />
       </div>
     </div>
-  );
-}
+);
