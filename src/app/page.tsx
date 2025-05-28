@@ -3,25 +3,18 @@
 import React from "react";
 import Image from "next/image";
 import { useAtom } from "jotai";
-import {
-  ScenesAtom,
-  ActiveSceneAtom,
-  SetActiveSceneAtom,
-  UpdateMvsDataAtom,
-} from "./appstate";
+import { ScenesAtom, ActiveSceneAtom, SetActiveSceneAtom } from "./appstate";
 import { MolStar } from "./components/MolStar.jsx";
-import { MonacoEditorJotai } from "./components/MonacoEditor.jsx";
+import { MonacoEditorJS } from "./components/MonacoEditor.jsx";
 import { MonacoMarkdownEditor } from "./components/MonacoMarkdownEditor.jsx";
 
 function SceneList() {
   const [scenes] = useAtom(ScenesAtom);
   const [activeScene] = useAtom(ActiveSceneAtom);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
-  const [, updateMvsData] = useAtom(UpdateMvsDataAtom);
 
   const handleSceneSelect = (sceneId: number) => {
     setActiveScene(sceneId);
-    updateMvsData();
   };
 
   return (
@@ -63,7 +56,7 @@ export default function Home() {
                   <MonacoMarkdownEditor />
                 </div>
                 <div>
-                  <MonacoEditorJotai />
+                  <MonacoEditorJS />
                 </div>
               </div>
               <div className="visualization-container">

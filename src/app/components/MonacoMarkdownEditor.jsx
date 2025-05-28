@@ -1,39 +1,30 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
 import {
-  CurrentMarkdownAtom,
-  UpdateCurrentContentAtom,
-  SaveCurrentContentToSceneAtom,
-  InitializeEditorsAtom,
   ActiveSceneAtom,
+  UpdateSceneAtom,
 } from "../appstate";
 
 export function MonacoMarkdownEditor() {
-  const [currentMarkdown] = useAtom(CurrentMarkdownAtom);
   const [activeScene] = useAtom(ActiveSceneAtom);
-  const [, updateContent] = useAtom(UpdateCurrentContentAtom);
-  const [, saveContent] = useAtom(SaveCurrentContentToSceneAtom);
-  const [, initializeEditors] = useAtom(InitializeEditorsAtom);
+  const [, updateScene] = useAtom(UpdateSceneAtom);
+  
+  const [currentMarkdown, setCurrentMarkdown] = useState("");
 
-  // Initialize editor when component mounts
+  // Sync with active scene when it changes
   useEffect(() => {
-    initializeEditors();
-  }, [initializeEditors]);
-
-  // Sync editor with active scene markdown changes (only when scene changes, not when user types)
-  useEffect(() => {
-    updateContent({ markdown: activeScene.description });
-  }, [activeScene.description, updateContent]);
+    setCurrentMarkdown(activeScene.description);
+  }, [activeScene.id, activeScene.description]);
 
   const handleMarkdownChange = (newMarkdown) => {
-    updateContent({ markdown: newMarkdown || "" });
+    setCurrentMarkdown(newMarkdown || "");
   };
 
-  const handleSave = () => {
-    saveContent("markdown");
+  const handleSave = async () => {
+    await updateScene(activeScene.id, { description: currentMarkdown });
   };
 
   const handleEditorDidMount = (editor, monaco) => {

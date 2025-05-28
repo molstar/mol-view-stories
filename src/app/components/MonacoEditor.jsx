@@ -1,45 +1,42 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
-import {
-  CurrentCodeAtom,
-  UpdateCurrentContentAtom,
-  ExecuteCurrentCodeAtom,
-  SaveCurrentContentToSceneAtom,
-  InitializeEditorsAtom,
-  ActiveSceneAtom,
-} from "../appstate";
+import { ActiveSceneAtom, ExecuteCodeAtom, UpdateSceneAtom } from "../appstate";
 
-export function MonacoEditorJotai() {
-  const [currentCode] = useAtom(CurrentCodeAtom);
+export function MonacoEditorJS() {
   const [activeScene] = useAtom(ActiveSceneAtom);
-  const [, updateContent] = useAtom(UpdateCurrentContentAtom);
-  const [, executeCode] = useAtom(ExecuteCurrentCodeAtom);
-  const [, saveContent] = useAtom(SaveCurrentContentToSceneAtom);
-  const [, initializeEditors] = useAtom(InitializeEditorsAtom);
+  const [, executeCode] = useAtom(ExecuteCodeAtom);
+  const [, updateScene] = useAtom(UpdateSceneAtom);
 
-  // Initialize editor when component mounts
-  useEffect(() => {
-    initializeEditors();
-  }, [initializeEditors]);
+  const [currentCode, setCurrentCode] = useState("");
+  const [isExecuting, setIsExecuting] = useState(false);
 
-  // Sync editor with active scene code changes (only when scene changes, not when user types)
+  // Sync with active scene when it changes
   useEffect(() => {
-    updateContent({ code: activeScene.javascript });
-  }, [activeScene.javascript, updateContent]);
+    setCurrentCode(activeScene.javascript);
+  }, [activeScene.id, activeScene.javascript]);
 
   const handleCodeChange = (newCode) => {
-    updateContent({ code: newCode || "" });
+    setCurrentCode(newCode || "");
   };
 
-  const handleExecute = () => {
-    executeCode();
+  const handleExecute = async () => {
+    if (isExecuting) return;
+
+    setIsExecuting(true);
+    try {
+      await executeCode(currentCode);
+    } catch (error) {
+      console.error("Error executing code:", error);
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
-  const handleSave = () => {
-    saveContent("code");
+  const handleSave = async () => {
+    await updateScene(activeScene.id, { javascript: currentCode });
   };
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -62,9 +59,14 @@ export function MonacoEditorJotai() {
           </button>
           <button
             onClick={handleExecute}
-            className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+            disabled={isExecuting}
+            className={`px-3 py-1 text-sm rounded ${
+              isExecuting
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-green-500 text-white hover:bg-green-600"
+            }`}
           >
-            Execute
+            {isExecuting ? "Executing..." : "Execute"}
           </button>
         </div>
       </div>

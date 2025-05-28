@@ -2,14 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import {
-  CurrentMvsDataAtom,
-  InitializeMolstarAtom,
-  UpdateMvsDataAtom,
-} from "../appstate";
+import { CurrentMvsDataAtom, SetActiveSceneAtom, ActiveSceneAtom } from "../appstate";
 import { molstarParams } from "./MolStar-config";
 
-// Helper function 
+// Helper function
 const checkMolstarReady = () => {
   return new Promise((resolve) => {
     if (window.molstar?.PluginExtensions?.mvs) {
@@ -37,7 +33,8 @@ const checkMolstarReady = () => {
 const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState(null);
   const [isReady, setIsReady] = useState(false);
-  const [, updateMvsData] = useAtom(UpdateMvsDataAtom);
+  const [, setActiveScene] = useAtom(SetActiveSceneAtom);
+  const [activeScene] = useAtom(ActiveSceneAtom);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -59,9 +56,11 @@ const useMolstarViewer = (containerRef) => {
         setIsReady(true);
         console.log("Molstar viewer ready!");
 
-        // Trigger initial data load
+        // Trigger initial data load for active scene
         setTimeout(() => {
-          updateMvsData();
+          if (activeScene) {
+            setActiveScene(activeScene.id);
+          }
         }, 100);
       } catch (error) {
         console.error("Error creating Molstar viewer:", error);
@@ -77,7 +76,7 @@ const useMolstarViewer = (containerRef) => {
       setViewer(null);
       setIsReady(false);
     };
-  }, [updateMvsData]);
+  }, [setActiveScene, activeScene]);
 
   return { viewer, isReady };
 };
