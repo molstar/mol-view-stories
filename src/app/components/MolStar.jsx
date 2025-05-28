@@ -2,8 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { CurrentMvsDataAtom, SetActiveSceneAtom, ActiveSceneAtom } from "../appstate";
-import { molstarParams } from "./MolStar-config";
+import {
+  CurrentMvsDataAtom,
+  SetActiveSceneAtom,
+  ActiveSceneAtom,
+} from "../appstate";
+import { molstarParams } from "./config/MolStar-config";
 
 // Helper function
 const checkMolstarReady = () => {
@@ -37,7 +41,7 @@ const useMolstarViewer = (containerRef) => {
   const [cameraTrackingEnabled, setCameraTrackingEnabled] = useState(false);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
   const [activeScene] = useAtom(ActiveSceneAtom);
-  
+
   const cameraSubscriptionRef = useRef(null);
 
   useEffect(() => {
@@ -91,14 +95,16 @@ const useMolstarViewer = (containerRef) => {
   useEffect(() => {
     if (viewer && isReady && cameraTrackingEnabled) {
       console.log("Setting up camera tracking...");
-      
+
       // Subscribe to camera changes
-      cameraSubscriptionRef.current = viewer.plugin.canvas3d?.didDraw.subscribe(() => {
-        const snapshot = viewer.plugin.canvas3d?.camera.getSnapshot();
-        if (snapshot) {
-          setCameraSnapshot(snapshot);
-        }
-      });
+      cameraSubscriptionRef.current = viewer.plugin.canvas3d?.didDraw.subscribe(
+        () => {
+          const snapshot = viewer.plugin.canvas3d?.camera.getSnapshot();
+          if (snapshot) {
+            setCameraSnapshot(snapshot);
+          }
+        },
+      );
 
       return () => {
         if (cameraSubscriptionRef.current) {
@@ -109,24 +115,24 @@ const useMolstarViewer = (containerRef) => {
     }
   }, [viewer, isReady, cameraTrackingEnabled]);
 
-  return { 
-    viewer, 
-    isReady, 
-    cameraSnapshot, 
-    cameraTrackingEnabled, 
-    setCameraTrackingEnabled 
+  return {
+    viewer,
+    isReady,
+    cameraSnapshot,
+    cameraTrackingEnabled,
+    setCameraTrackingEnabled,
   };
 };
 
 export function MolStar() {
   const containerRef = useRef(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const { 
-    viewer, 
-    isReady, 
-    cameraSnapshot, 
-    cameraTrackingEnabled, 
-    setCameraTrackingEnabled 
+  const {
+    viewer,
+    isReady,
+    cameraSnapshot,
+    cameraTrackingEnabled,
+    setCameraTrackingEnabled,
   } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
@@ -147,18 +153,18 @@ export function MolStar() {
   return (
     <div className="molstar-container">
       <div className="molstar" ref={containerRef}></div>
-      
+
       {/* Camera Info Panel */}
       <div className="camera-info-panel">
         <div className="camera-controls">
-          <button 
+          <button
             onClick={() => setCameraTrackingEnabled(!cameraTrackingEnabled)}
-            className={`camera-toggle-btn ${cameraTrackingEnabled ? 'active' : ''}`}
+            className={`camera-toggle-btn ${cameraTrackingEnabled ? "active" : ""}`}
           >
-            {cameraTrackingEnabled ? 'Disable' : 'Enable'} Camera Tracking
+            {cameraTrackingEnabled ? "Disable" : "Enable"} Camera Tracking
           </button>
         </div>
-        
+
         {cameraTrackingEnabled && (
           <div className="camera-info">
             <h4>Camera Information</h4>
@@ -184,7 +190,9 @@ export function MolStar() {
                 )}
               </div>
             ) : (
-              <div className="no-camera-data">Move the camera to see position data</div>
+              <div className="no-camera-data">
+                Move the camera to see position data
+              </div>
             )}
           </div>
         )}
