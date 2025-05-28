@@ -131,11 +131,13 @@
 
     /* MolStar Container */
     .molstar-container {
-        @apply rounded overflow-hidden w-full h-[500px] relative border border-gray-200 bg-gray-50;
+        @apply rounded overflow-hidden w-full h-[500px] border border-gray-200 bg-gray-50;
+        position: relative !important;
     }
 
     .molstar {
-        @apply w-full h-full relative;
+        @apply w-full h-full;
+        position: relative !important;
     }
 
     /* Loading Indicator */
@@ -246,5 +248,34 @@
 
     .active-scene {
         @apply text-xs text-gray-500 font-medium;
+    }
+
+    /* Scene List */
+    .scene-list {
+        @apply bg-white border border-gray-200 rounded-lg p-6;
+    }
+
+    .scene-list-title {
+        @apply text-xl font-semibold mb-4 text-gray-900;
+    }
+
+    .scene-list-items {
+        @apply list-none p-0 m-0 flex flex-col gap-3;
+    }
+
+    .scene-item {
+        @apply p-4 border border-gray-200 rounded-md cursor-pointer transition-all bg-white hover:bg-gray-50 hover:border-gray-300;
+    }
+
+    .scene-item-active {
+        @apply bg-blue-50 border-blue-600;
+    }
+
+    .scene-item-title {
+        @apply text-lg font-semibold mb-2 text-gray-900;
+    }
+
+    .scene-item-description {
+        @apply text-sm text-gray-500 m-0 leading-relaxed;
     }
 }

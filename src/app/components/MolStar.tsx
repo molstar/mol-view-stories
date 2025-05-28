@@ -38,7 +38,7 @@ const CameraPositionDisplay = ({ cameraSnapshot }) => {
   if (!cameraSnapshot) return null;
 
   return (
-    <div className="camera-info-box bg-gray-100 border border-gray-300 rounded-lg p-4 mb-4 shadow-sm">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
       <h3 className="text-sm font-semibold mb-2 text-gray-700">
         Camera Position
       </h3>
