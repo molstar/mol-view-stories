@@ -1,21 +1,10 @@
 "use client";
 
 import React from "react";
-import { useAtom } from "jotai";
-import {
-  ScenesAtom,
-  ActiveSceneIdAtom,
-  getActiveScene,
-} from "./appstate";
 import { MolStar } from "./components/MolStar";
-import { MonacoEditorJS } from "./components/MonacoEditor";
-import { MonacoMarkdownEditor } from "./components/MonacoMarkdownEditor";
+import { SceneEditors } from "./components/SceneEditors";
 import { ExportButton } from "./components/ExportButton";
 import { SceneList } from "./components/SceneList";
-
-
-
-
 
 export default function Home() {
   return (
@@ -32,12 +21,7 @@ export default function Home() {
         <div className="left-column">
           <SceneList />
           <div className="editors-container">
-            <div className="editor-section">
-              <MonacoMarkdownEditor />
-            </div>
-            <div className="editor-section">
-              <MonacoEditorJS />
-            </div>
+            <SceneEditors />
           </div>
         </div>
 
