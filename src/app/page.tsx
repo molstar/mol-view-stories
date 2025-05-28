@@ -49,6 +49,7 @@ export default function Home() {
       <main className="app-main">
         {/* Left Column */}
         <div className="left-column">
+          <SceneList />
           <DescriptionBox />
           <div className="editors-container">
             <div className="editor-section">
@@ -58,7 +59,6 @@ export default function Home() {
               <MonacoEditorJS />
             </div>
           </div>
-          <SceneList />
         </div>
 
         {/* Right Column */}
