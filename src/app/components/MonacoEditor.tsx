@@ -18,10 +18,6 @@ export function MonacoEditorJS() {
       fieldName="javascript"
       onExecute={handleExecute}
       executeButtonText="Execute"
-      executeKeyBinding={{ 
-        mod: 512, // Alt key
-        key: 3   // Enter key
-      }}
     />
   );
 }

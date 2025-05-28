@@ -11,10 +11,6 @@ interface BaseMonacoEditorProps {
   fieldName: keyof { javascript: string; description: string };
   onExecute?: (code: string) => Promise<void>;
   executeButtonText?: string;
-  executeKeyBinding?: {
-    mod: number;
-    key: number;
-  };
 }
 
 export function BaseMonacoEditor({
@@ -22,7 +18,6 @@ export function BaseMonacoEditor({
   fieldName,
   onExecute,
   executeButtonText = "Execute",
-  executeKeyBinding = { mod: 512, key: 3 }, // Alt + Enter
 }: BaseMonacoEditorProps) {
   const [scenes, setScenes] = useAtom(ScenesAtom);
   const [activeSceneId] = useAtom(ActiveSceneIdAtom);
@@ -60,9 +55,18 @@ export function BaseMonacoEditor({
   const handleExecute = async () => {
     if (!onExecute || isExecuting) return;
 
+    // Get the current code from the editor directly to ensure we have the latest value
+    const editorCode = editorRef.current?.getValue() || currentCode;
+    
+    console.log("Executing code:", { 
+      currentCode: currentCode.length, 
+      editorCode: editorCode.length,
+      actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
+    });
+
     setIsExecuting(true);
     try {
-      await onExecute(currentCode);
+      await onExecute(editorCode);
     } catch (error) {
       console.error("Execution error:", error);
     } finally {
@@ -79,9 +83,10 @@ export function BaseMonacoEditor({
       handleSave();
     });
 
-    // Add execute keyboard shortcut if provided
-    if (onExecute && executeKeyBinding) {
-      editor.addCommand(executeKeyBinding.mod | executeKeyBinding.key, () => {
+    // Add execute keyboard shortcut if onExecute is provided
+    if (onExecute) {
+      editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, () => {
+        console.log("Alt+Enter pressed, executing code");
         handleExecute();
       });
     }
