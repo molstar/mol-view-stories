@@ -11,53 +11,10 @@ import {
   executeCode,
 } from "../../app/appstate";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { CameraControls } from "./CameraControls";
+import { CameraSnapshot } from "../../types/camera";
 
-// Camera Position Component
-const CameraPositionDisplay = ({ cameraSnapshot }) => {
-  if (!cameraSnapshot) return null;
-
-  return (
-    <div className="bg-background border border-border rounded-lg p-4 mb-4 shadow-sm">
-      <h3 className="text-sm font-semibold mb-2 text-foreground">
-        Camera Position
-      </h3>
-      <div className="text-xs font-mono text-muted-foreground space-y-1">
-        <div>
-          <span className="font-medium">Position:</span>
-          {cameraSnapshot.position
-            ? ` [${cameraSnapshot.position[0]?.toFixed(2)}, ${cameraSnapshot.position[1]?.toFixed(2)}, ${cameraSnapshot.position[2]?.toFixed(2)}]`
-            : " N/A"}
-        </div>
-        <div>
-          <span className="font-medium">Target:</span>
-          {cameraSnapshot.target
-            ? ` [${cameraSnapshot.target[0]?.toFixed(2)}, ${cameraSnapshot.target[1]?.toFixed(2)}, ${cameraSnapshot.target[2]?.toFixed(2)}]`
-            : " N/A"}
-        </div>
-        <div>
-          <span className="font-medium">Up:</span>
-          {cameraSnapshot.up
-            ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
-            : " N/A"}
-        </div>
-        {cameraSnapshot.radius && (
-          <div>
-            <span className="font-medium">Radius:</span>{" "}
-            {cameraSnapshot.radius.toFixed(2)}
-          </div>
-        )}
-        {cameraSnapshot.fov && (
-          <div>
-            <span className="font-medium">FOV:</span>{" "}
-            {cameraSnapshot.fov.toFixed(2)}°
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export function SceneList() {
+export function SceneControls() {
   const [scenes] = useAtom(ScenesAtom);
   const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
   const [, setCurrentMvsData] = useAtom(CurrentMvsDataAtom);
@@ -75,9 +32,6 @@ export function SceneList() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Camera Position Display */}
-      <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
-      
       {/* Scenes List */}
       <Card>
         <CardHeader>
@@ -102,6 +56,9 @@ export function SceneList() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Camera Controls */}
+      <CameraControls cameraSnapshot={cameraSnapshot as CameraSnapshot | null} />
     </div>
   );
 }
