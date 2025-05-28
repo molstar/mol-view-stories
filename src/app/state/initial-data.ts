@@ -1,4 +1,11 @@
-export const init_js_code = `
+export interface MolecularVisualizationConfig {
+  proteinColor: string;
+  ligandColor: string;
+  ligandLabel?: string;
+}
+
+export const createInitialJavaScriptCode = (config: MolecularVisualizationConfig): string => {
+  return `
 // Create a builder for molecular visualization
 const builder = molstar.PluginExtensions.mvs.MVSData.createBuilder();
 
@@ -12,44 +19,30 @@ const structure = builder
 structure
 .component({ selector: 'polymer' })
 .representation({ type: 'cartoon' })
-.color({ color: 'green' });
+.color({ color: '${config.proteinColor}' });
 
 // Add ligand
 structure
 .component({ selector: 'ligand' })
-.label({ text: 'Retinoic Acid' })
+.label({ text: '${config.ligandLabel || 'Retinoic Acid'}' })
 .focus({})
 .representation({ type: 'ball_and_stick' })
-.color({color: '#cc3399',
+.color({color: '${config.ligandColor}',
 });
 
 const mvsData = builder.getState();
 `;
+};
 
-export const init_js_code_02 = `
-// Create a builder for molecular visualization
-const builder = molstar.PluginExtensions.mvs.MVSData.createBuilder();
-
-// Define the structure with full type support
-const structure = builder
-.download({url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif'})
-.parse({ format: 'bcif' })
-.modelStructure({});
-
-// Add components and representations
-structure
-.component({ selector: 'polymer' })
-.representation({ type: 'cartoon' })
-.color({ color: 'blue' });
-
-// Add ligand
-structure
-.component({ selector: 'ligand' })
-.label({ text: 'Retinoic Acid' })
-.focus({})
-.representation({ type: 'ball_and_stick' })
-.color({color: 'orange',
+// Pre-configured initial data
+export const init_js_code = createInitialJavaScriptCode({
+  proteinColor: 'green',
+  ligandColor: '#cc3399',
+  ligandLabel: 'Retinoic Acid'
 });
 
-const mvsData = builder.getState();
-`;
+export const init_js_code_02 = createInitialJavaScriptCode({
+  proteinColor: 'blue',
+  ligandColor: 'orange',
+  ligandLabel: 'Retinoic Acid'
+});

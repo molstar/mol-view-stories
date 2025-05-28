@@ -232,3 +232,75 @@ h1 {
     text-align: center;
     padding: 20px;
 }
+
+/* BaseMonacoEditor Styles */
+.base-monaco-editor {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.editor-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.editor-btn {
+    padding: 6px 12px;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.editor-btn:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.editor-btn:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.save-btn {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.save-btn:hover {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+}
+
+.execute-btn.executing {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.scene-info {
+    display: flex;
+    align-items: center;
+}
+
+.active-scene {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}

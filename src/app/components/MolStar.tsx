@@ -7,35 +7,11 @@ import {
   ScenesAtom,
   ActiveSceneIdAtom,
   getActiveScene,
-  executeCode,
 } from "../appstate";
 import { molstarParams } from "./config/MolStar-config";
 
-// Type definitions for MolStar viewer (not declared in existing types)
-interface MolstarViewer {
-  dispose: () => void;
-  loadMvsData: (data: unknown, format: string, options: { replaceExisting: boolean }) => Promise<void>;
-  plugin: {
-    canvas3d?: {
-      didDraw: {
-        subscribe: (callback: () => void) => { unsubscribe: () => void };
-      };
-      camera: {
-        getSnapshot: () => CameraSnapshot;
-      };
-    };
-  };
-}
-
-interface CameraSnapshot {
-  position: number[];
-  target: number[];
-  up: number[];
-  radius?: number;
-}
-
 // Helper function
-const checkMolstarReady = (): Promise<boolean> => {
+const checkMolstarReady = () => {
   return new Promise((resolve) => {
     if (window.molstar?.PluginExtensions?.mvs) {
       resolve(true);
@@ -59,13 +35,12 @@ const checkMolstarReady = (): Promise<boolean> => {
 };
 
 // Custom hook for Molstar initialization
-const useMolstarViewer = (containerRef: React.RefObject<HTMLDivElement | null>) => {
-  const [viewer, setViewer] = useState<MolstarViewer | null>(null);
+const useMolstarViewer = (containerRef) => {
+  const [viewer, setViewer] = useState(null);
   const [isReady, setIsReady] = useState(false);
-  const [cameraSnapshot, setCameraSnapshot] = useState<CameraSnapshot | null>(null);
-  const [cameraTrackingEnabled, setCameraTrackingEnabled] = useState(false);
-
-  const cameraSubscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
+  const [cameraSnapshot, setCameraSnapshot] = useState(null);
+  const [scenes] = useAtom(ScenesAtom);
+  const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -78,15 +53,33 @@ const useMolstarViewer = (containerRef: React.RefObject<HTMLDivElement | null>) 
         await checkMolstarReady();
 
         console.log("Creating Molstar viewer...");
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const newViewer = await (window as any).molstar.Viewer.create(
-          containerRef.current!,
+        const newViewer = await molstar.Viewer.create(
+          containerRef.current,
           molstarParams,
-        ) as MolstarViewer;
+        );
 
         setViewer(newViewer);
         setIsReady(true);
         console.log("Molstar viewer ready!");
+
+        // Set up camera tracking
+        if (newViewer.plugin.canvas3d?.didDraw) {
+          newViewer.plugin.canvas3d.didDraw.subscribe(() => {
+            const snapshot = newViewer.plugin.canvas3d?.camera.getSnapshot();
+            if (snapshot) {
+              setCameraSnapshot(snapshot);
+              console.log("Camera snapshot:", snapshot);
+            }
+          });
+        }
+
+        // Trigger initial data load for active scene
+        const activeScene = getActiveScene(scenes, activeSceneId);
+        if (activeScene) {
+          setTimeout(() => {
+            setActiveSceneId(activeScene.id);
+          }, 100);
+        }
       } catch (error) {
         console.error("Error creating Molstar viewer:", error);
       }
@@ -98,73 +91,19 @@ const useMolstarViewer = (containerRef: React.RefObject<HTMLDivElement | null>) 
       if (viewer) {
         viewer.dispose();
       }
-      if (cameraSubscriptionRef.current) {
-        cameraSubscriptionRef.current.unsubscribe();
-      }
       setViewer(null);
       setIsReady(false);
       setCameraSnapshot(null);
-      setCameraTrackingEnabled(false);
     };
-  }, [containerRef]);
+  }, [scenes, activeSceneId, setActiveSceneId]);
 
-  // Camera subscription effect
-  useEffect(() => {
-    if (viewer && isReady && cameraTrackingEnabled) {
-      console.log("Setting up camera tracking...");
-
-      // Subscribe to camera changes
-      const subscription = viewer.plugin.canvas3d?.didDraw.subscribe(
-        () => {
-          const snapshot = viewer.plugin.canvas3d?.camera.getSnapshot();
-          if (snapshot) {
-            setCameraSnapshot(snapshot);
-          }
-        },
-      );
-      cameraSubscriptionRef.current = subscription || null;
-
-      return () => {
-        if (cameraSubscriptionRef.current) {
-          cameraSubscriptionRef.current.unsubscribe();
-          cameraSubscriptionRef.current = null;
-        }
-      };
-    }
-  }, [viewer, isReady, cameraTrackingEnabled]);
-
-  return {
-    viewer,
-    isReady,
-    cameraSnapshot,
-    cameraTrackingEnabled,
-    setCameraTrackingEnabled,
-  };
+  return { viewer, isReady, cameraSnapshot };
 };
 
 export function MolStar() {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const [scenes] = useAtom(ScenesAtom);
-  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
-  const [, setCurrentMvsData] = useAtom(CurrentMvsDataAtom);
-
-  const {
-    viewer,
-    isReady,
-    cameraSnapshot,
-    cameraTrackingEnabled,
-    setCameraTrackingEnabled,
-  } = useMolstarViewer(containerRef);
-
-  const activeScene = getActiveScene(scenes, activeSceneId);
-
-  // Load initial data when viewer is ready
-  useEffect(() => {
-    if (viewer && isReady && activeScene) {
-      executeCode(activeScene.javascript, setCurrentMvsData);
-    }
-  }, [viewer, isReady, activeScene, setCurrentMvsData]);
+  const { viewer, isReady, cameraSnapshot } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
   useEffect(() => {
@@ -175,59 +114,56 @@ export function MolStar() {
         .then(() => {
           console.log("MVS data loaded successfully");
         })
-        .catch((error: unknown) => {
+        .catch((error) => {
           console.error("Error loading MVS data:", error);
         });
     }
-  }, [viewer, mvsData, isReady]);
+  }, [mvsData, isReady, viewer]);
 
   return (
     <div className="molstar-container">
-      <div className="molstar" ref={containerRef}></div>
-
-      {/* Camera Info Panel */}
-      <div className="camera-info-panel">
-        <div className="camera-controls">
-          <button
-            onClick={() => setCameraTrackingEnabled(!cameraTrackingEnabled)}
-            className={`camera-toggle-btn ${cameraTrackingEnabled ? "active" : ""}`}
-          >
-            {cameraTrackingEnabled ? "Disable" : "Enable"} Camera Tracking
-          </button>
-        </div>
-
-        {cameraTrackingEnabled && (
-          <div className="camera-info">
-            <h4>Camera Information</h4>
-            {cameraSnapshot ? (
-              <div className="camera-data">
-                <div className="camera-field">
-                  <strong>Position:</strong>
-                  <pre>{JSON.stringify(cameraSnapshot.position, null, 2)}</pre>
-                </div>
-                <div className="camera-field">
-                  <strong>Target:</strong>
-                  <pre>{JSON.stringify(cameraSnapshot.target, null, 2)}</pre>
-                </div>
-                <div className="camera-field">
-                  <strong>Up Vector:</strong>
-                  <pre>{JSON.stringify(cameraSnapshot.up, null, 2)}</pre>
-                </div>
-                {cameraSnapshot.radius && (
-                  <div className="camera-field">
-                    <strong>Radius:</strong>
-                    <span>{cameraSnapshot.radius.toFixed(3)}</span>
-                  </div>
-                )}
+      {/* Camera Position Display */}
+      {cameraSnapshot && (
+        <div className="camera-info-box bg-gray-100 border border-gray-300 rounded-lg p-4 mb-4 shadow-sm">
+          <h3 className="text-sm font-semibold mb-2 text-gray-700">Camera Position</h3>
+          <div className="text-xs font-mono text-gray-600 space-y-1">
+            <div>
+              <span className="font-medium">Position:</span> 
+              {cameraSnapshot.position ? 
+                ` [${cameraSnapshot.position.x?.toFixed(2)}, ${cameraSnapshot.position.y?.toFixed(2)}, ${cameraSnapshot.position.z?.toFixed(2)}]` : 
+                ' N/A'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Target:</span> 
+              {cameraSnapshot.target ? 
+                ` [${cameraSnapshot.target.x?.toFixed(2)}, ${cameraSnapshot.target.y?.toFixed(2)}, ${cameraSnapshot.target.z?.toFixed(2)}]` : 
+                ' N/A'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Up:</span> 
+              {cameraSnapshot.up ? 
+                ` [${cameraSnapshot.up.x?.toFixed(2)}, ${cameraSnapshot.up.y?.toFixed(2)}, ${cameraSnapshot.up.z?.toFixed(2)}]` : 
+                ' N/A'
+              }
+            </div>
+            {cameraSnapshot.radius && (
+              <div>
+                <span className="font-medium">Radius:</span> {cameraSnapshot.radius.toFixed(2)}
               </div>
-            ) : (
-              <div className="no-camera-data">
-                Move the camera to see position data
+            )}
+            {cameraSnapshot.fov && (
+              <div>
+                <span className="font-medium">FOV:</span> {cameraSnapshot.fov.toFixed(2)}°
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      
+      {/* MolStar Viewer */}
+      <div className="molstar" ref={containerRef}></div>
     </div>
   );
 }
