@@ -150,3 +150,157 @@ h1 {
     padding: 20px;
     background-color: #fff;
 }
+
+/* Camera Info Panel Styles */
+.camera-info-panel {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.camera-controls {
+    margin-bottom: 10px;
+}
+
+.camera-toggle-btn {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.camera-toggle-btn:hover {
+    background-color: #0056b3;
+}
+
+.camera-toggle-btn.active {
+    background-color: #28a745;
+}
+
+.camera-toggle-btn.active:hover {
+    background-color: #1e7e34;
+}
+
+.camera-info h4 {
+    margin: 0 0 10px 0;
+    color: #222;
+    font-size: 16px;
+}
+
+.camera-data {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.camera-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.camera-field strong {
+    color: #333;
+    font-size: 14px;
+}
+
+.camera-field pre {
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin: 0;
+    font-size: 12px;
+    overflow-x: auto;
+    color: #222;
+}
+
+.camera-field span {
+    font-family: monospace;
+    font-size: 12px;
+    color: #333;
+}
+
+.no-camera-data {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+/* BaseMonacoEditor Styles */
+.base-monaco-editor {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.editor-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.editor-btn {
+    padding: 6px 12px;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.editor-btn:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.editor-btn:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.save-btn {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.save-btn:hover {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+}
+
+.execute-btn.executing {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.scene-info {
+    display: flex;
+    align-items: center;
+}
+
+.active-scene {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}

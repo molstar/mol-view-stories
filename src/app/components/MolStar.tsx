@@ -2,8 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { CurrentMvsDataAtom, SetActiveSceneAtom, ActiveSceneAtom } from "../appstate";
-import { molstarParams } from "./MolStar-config";
+import {
+  CurrentMvsDataAtom,
+  SetActiveSceneAtom,
+  ActiveSceneAtom,
+} from "../appstate";
+import { molstarParams } from "./config/MolStar-config";
 
 // Helper function
 const checkMolstarReady = () => {
@@ -33,6 +37,7 @@ const checkMolstarReady = () => {
 const useMolstarViewer = (containerRef) => {
   const [viewer, setViewer] = useState(null);
   const [isReady, setIsReady] = useState(false);
+  const [cameraSnapshot, setCameraSnapshot] = useState(null);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
   const [activeScene] = useAtom(ActiveSceneAtom);
 
@@ -56,6 +61,17 @@ const useMolstarViewer = (containerRef) => {
         setIsReady(true);
         console.log("Molstar viewer ready!");
 
+        // Set up camera tracking
+        if (newViewer.plugin.canvas3d?.didDraw) {
+          newViewer.plugin.canvas3d.didDraw.subscribe(() => {
+            const snapshot = newViewer.plugin.canvas3d?.camera.getSnapshot();
+            if (snapshot) {
+              setCameraSnapshot(snapshot);
+              console.log("Camera snapshot:", snapshot);
+            }
+          });
+        }
+
         // Trigger initial data load for active scene
         setTimeout(() => {
           if (activeScene) {
@@ -75,16 +91,17 @@ const useMolstarViewer = (containerRef) => {
       }
       setViewer(null);
       setIsReady(false);
+      setCameraSnapshot(null);
     };
   }, [setActiveScene, activeScene]);
 
-  return { viewer, isReady };
+  return { viewer, isReady, cameraSnapshot };
 };
 
 export function MolStar() {
   const containerRef = useRef(null);
   const [mvsData] = useAtom(CurrentMvsDataAtom);
-  const { viewer, isReady } = useMolstarViewer(containerRef);
+  const { viewer, isReady, cameraSnapshot } = useMolstarViewer(containerRef);
 
   // Load data when mvsData changes and viewer is ready
   useEffect(() => {
@@ -103,6 +120,47 @@ export function MolStar() {
 
   return (
     <div className="molstar-container">
+      {/* Camera Position Display */}
+      {cameraSnapshot && (
+        <div className="camera-info-box bg-gray-100 border border-gray-300 rounded-lg p-4 mb-4 shadow-sm">
+          <h3 className="text-sm font-semibold mb-2 text-gray-700">Camera Position</h3>
+          <div className="text-xs font-mono text-gray-600 space-y-1">
+            <div>
+              <span className="font-medium">Position:</span> 
+              {cameraSnapshot.position ? 
+                ` [${cameraSnapshot.position.x?.toFixed(2)}, ${cameraSnapshot.position.y?.toFixed(2)}, ${cameraSnapshot.position.z?.toFixed(2)}]` : 
+                ' N/A'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Target:</span> 
+              {cameraSnapshot.target ? 
+                ` [${cameraSnapshot.target.x?.toFixed(2)}, ${cameraSnapshot.target.y?.toFixed(2)}, ${cameraSnapshot.target.z?.toFixed(2)}]` : 
+                ' N/A'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Up:</span> 
+              {cameraSnapshot.up ? 
+                ` [${cameraSnapshot.up.x?.toFixed(2)}, ${cameraSnapshot.up.y?.toFixed(2)}, ${cameraSnapshot.up.z?.toFixed(2)}]` : 
+                ' N/A'
+              }
+            </div>
+            {cameraSnapshot.radius && (
+              <div>
+                <span className="font-medium">Radius:</span> {cameraSnapshot.radius.toFixed(2)}
+              </div>
+            )}
+            {cameraSnapshot.fov && (
+              <div>
+                <span className="font-medium">FOV:</span> {cameraSnapshot.fov.toFixed(2)}°
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* MolStar Viewer */}
       <div className="molstar" ref={containerRef}></div>
     </div>
   );
