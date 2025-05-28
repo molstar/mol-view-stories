@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useAtom } from "jotai";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -16,11 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function StoryBuilder() {
   const [scenes] = useAtom(ScenesAtom);
   const [activeSceneId] = useAtom(ActiveSceneIdAtom);
   const [, setActiveScene] = useAtom(SetActiveSceneAtom);
+  const [activeTab, setActiveTab] = useState("molstar");
 
   const activeScene = scenes.find(scene => scene.id === activeSceneId);
 
@@ -33,7 +36,7 @@ export default function StoryBuilder() {
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main className="flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-screen-2xl mx-auto w-full">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-foreground">Story Builder</h1>
           <div className="flex items-center gap-4">
@@ -55,19 +58,42 @@ export default function StoryBuilder() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 lg:gap-6">
-          <SceneEditors />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 flex-1">
-          <div className="lg:col-span-2 flex flex-col h-full min-h-[500px] lg:min-h-[600px]">
-            <MolStar />
+        <div className="flex gap-6 lg:gap-8 flex-1">
+          <div className="flex-1 flex flex-col h-full">
+            <SceneEditors />
           </div>
 
-          <div className="flex flex-col h-full min-h-[500px] lg:min-h-[600px] bg-gray-50 rounded-lg p-4">
-            <div className="text-gray-500 italic">
-              Markdown renderer component (TBD)
-            </div>
+          <div className="flex-1 flex flex-col h-full">
+            <Card className="h-full flex flex-col">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Visualization</CardTitle>
+                  <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="molstar">MolStar</TabsTrigger>
+                      <TabsTrigger value="markdown">Markdown</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+                <div className="border-b"></div>
+              </CardHeader>
+              <CardContent className="flex-1 p-6">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
+                  <TabsContent value="molstar" className="h-full">
+                    <div className="h-full min-h-[500px]">
+                      <MolStar />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="markdown" className="h-full">
+                    <div className="h-full min-h-[500px] bg-gray-50 rounded-lg p-4">
+                      <div className="text-gray-500 italic">
+                        Markdown renderer component (TBD)
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>

@@ -9,7 +9,7 @@ export default function StoryView() {
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main className="flex-1 px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 px-4 py-6 md:px-8 md:py-8 max-w-screen-2xl mx-auto w-full">
         <div className="text-center py-20">
           <h1 className="text-4xl font-bold text-foreground mb-6">
             Story Viewer
