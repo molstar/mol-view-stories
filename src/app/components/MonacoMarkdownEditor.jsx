@@ -1,39 +1,30 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
 import {
-  CurrentMarkdownAtom,
-  UpdateMarkdownAtom,
-  SaveMarkdownToSceneAtom,
-  InitializeMarkdownEditorAtom,
-  ActiveSceneMarkdownAtom,
+  ActiveSceneAtom,
+  UpdateSceneAtom,
 } from "../appstate";
 
 export function MonacoMarkdownEditor() {
-  const [currentMarkdown] = useAtom(CurrentMarkdownAtom);
-  const [activeSceneMarkdown] = useAtom(ActiveSceneMarkdownAtom);
-  const [, updateMarkdown] = useAtom(UpdateMarkdownAtom);
-  const [, saveMarkdown] = useAtom(SaveMarkdownToSceneAtom);
-  const [, initializeMarkdownEditor] = useAtom(InitializeMarkdownEditorAtom);
+  const [activeScene] = useAtom(ActiveSceneAtom);
+  const [, updateScene] = useAtom(UpdateSceneAtom);
+  
+  const [currentMarkdown, setCurrentMarkdown] = useState("");
 
-  // Initialize editor when component mounts
+  // Sync with active scene when it changes
   useEffect(() => {
-    initializeMarkdownEditor();
-  }, [initializeMarkdownEditor]);
-
-  // Sync editor with active scene markdown changes (only when scene changes, not when user types)
-  useEffect(() => {
-    updateMarkdown(activeSceneMarkdown);
-  }, [activeSceneMarkdown, updateMarkdown]);
+    setCurrentMarkdown(activeScene.description);
+  }, [activeScene.id, activeScene.description]);
 
   const handleMarkdownChange = (newMarkdown) => {
-    updateMarkdown(newMarkdown || "");
+    setCurrentMarkdown(newMarkdown || "");
   };
 
-  const handleSave = () => {
-    saveMarkdown();
+  const handleSave = async () => {
+    await updateScene(activeScene.id, { description: currentMarkdown });
   };
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -46,9 +37,7 @@ export function MonacoMarkdownEditor() {
   return (
     <div className="editor-container">
       <div className="flex justify-between items-center mb-2 p-2 bg-gray-50 border rounded">
-        <div className="text-sm text-gray-600">
-          Markdown Editor
-        </div>
+        <div className="text-sm text-gray-600">Markdown Editor</div>
         <div className="flex gap-2">
           <button
             onClick={handleSave}
