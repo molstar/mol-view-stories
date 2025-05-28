@@ -49,33 +49,19 @@ export function MonacoMarkdownEditor() {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-3 p-3 bg-background border border-border rounded-md">
-        <div className="text-sm text-muted-foreground">Markdown Editor</div>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleSave}
-            variant="default"
-            size="sm"
-          >
-            Save
-          </Button>
-        </div>
-      </div>
-      <Editor
-        height="400px"
-        defaultLanguage="markdown"
-        value={currentMarkdown}
-        onChange={handleMarkdownChange}
-        onMount={handleEditorDidMount}
-        theme="vs-light"
-        options={{
-          minimap: { enabled: false },
-          fontSize: 14,
-          wordWrap: "on",
-          automaticLayout: true,
-        }}
-      />
-    </div>
+    <Editor
+      height="500px"
+      defaultLanguage="markdown"
+      value={currentMarkdown}
+      onChange={handleMarkdownChange}
+      onMount={handleEditorDidMount}
+      theme="vs-light"
+      options={{
+        minimap: { enabled: false },
+        fontSize: 14,
+        wordWrap: "on",
+        automaticLayout: true,
+      }}
+    />
   );
 }
