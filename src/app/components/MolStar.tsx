@@ -38,11 +38,11 @@ const CameraPositionDisplay = ({ cameraSnapshot }) => {
   if (!cameraSnapshot) return null;
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
-      <h3 className="text-sm font-semibold mb-2 text-gray-700">
+    <div className="bg-background border border-border rounded-lg p-4 mb-4 shadow-sm">
+      <h3 className="text-sm font-semibold mb-2 text-foreground">
         Camera Position
       </h3>
-      <div className="text-xs font-mono text-gray-600 space-y-1">
+      <div className="text-xs font-mono text-muted-foreground space-y-1">
         <div>
           <span className="font-medium">Position:</span>
           {cameraSnapshot.position
@@ -164,12 +164,12 @@ export function MolStar() {
   }, [mvsData, isReady, viewer]);
 
   return (
-    <div className="molstar-container">
+    <div className="rounded overflow-hidden w-full h-[500px] border border-border bg-background relative">
       {/* Camera Position Display */}
       <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
 
       {/* MolStar Viewer */}
-      <div className="molstar" ref={containerRef}></div>
+      <div className="w-full h-full relative" ref={containerRef}></div>
     </div>
   );
 }

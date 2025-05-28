@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useAtom } from "jotai";
 import { ScenesAtom, ActiveSceneIdAtom, getActiveScene } from "../appstate";
+import { Button } from "@/components/ui/button";
 
 interface BaseMonacoEditorProps {
   language: string;
@@ -124,30 +125,34 @@ export function BaseMonacoEditor({
   };
 
   return (
-    <div className="base-monaco-editor">
-      <div className="editor-toolbar">
-        <div className="editor-controls">
-          <button
+    <div className="border border-border rounded-lg overflow-hidden bg-card">
+      <div className="flex justify-between items-center px-3 py-2 bg-background border-b border-border">
+        <div className="flex gap-2">
+          <Button
             onClick={handleSave}
-            className="editor-btn save-btn"
+            variant="default"
+            size="sm"
+            className="bg-green-600 hover:bg-green-700"
             title="Save (Alt+S)"
           >
             Save
-          </button>
+          </Button>
           {onExecute && (
-            <button
+            <Button
               onClick={handleExecute}
               disabled={isExecuting}
-              className={`editor-btn execute-btn ${isExecuting ? "executing" : ""}`}
+              variant="default"
+              size="sm"
+              className={isExecuting ? "bg-yellow-500 hover:bg-yellow-600 text-black" : ""}
               title={`${executeButtonText} (Alt+Enter)`}
             >
               {isExecuting ? "Executing..." : executeButtonText}
-            </button>
+            </Button>
           )}
         </div>
-        <div className="scene-info">
+        <div className="flex items-center">
           {activeScene && (
-            <span className="active-scene">Scene: {activeScene.header}</span>
+            <span className="text-xs text-muted-foreground font-medium">Scene: {activeScene.header}</span>
           )}
         </div>
       </div>
