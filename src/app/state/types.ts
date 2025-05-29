@@ -26,3 +26,5 @@ export type Story = {
 export type SceneUpdate = Partial<Omit<SceneData, 'id'>>;
 
 export type CreateSceneData = Omit<SceneData, 'id'>;
+
+export type CurrentView = { type: 'story-options' } | { type: 'scene'; id: string } | { type: 'preview' };

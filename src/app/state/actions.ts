@@ -1,10 +1,10 @@
-import { useStore } from 'jotai';
-import { ActiveSceneIdAtom, getActiveScene, StoryAtom } from './atoms';
-import { SceneData, SceneUpdate, Story, StoryMetadata } from './types';
-import { getMVSData } from '../../lib/story-builder';
-import { UUID } from 'molstar/lib/mol-util/uuid';
-import { download } from 'molstar/lib/mol-util/download';
 import { generateStoriesHtml } from '@/lib/stories-html';
+import { useStore } from 'jotai';
+import { download } from 'molstar/lib/mol-util/download';
+import { UUID } from 'molstar/lib/mol-util/uuid';
+import { getMVSData } from '../../lib/story-builder';
+import { ActiveSceneIdAtom, CurrentViewAtom, getActiveScene, StoryAtom } from './atoms';
+import { SceneData, SceneUpdate, Story, StoryMetadata } from './types';
 
 export function addScene(store: ReturnType<typeof useStore>, options?: { duplicate?: boolean }) {
   const story = store.get(StoryAtom);
@@ -26,7 +26,7 @@ export function addScene(store: ReturnType<typeof useStore>, options?: { duplica
         };
 
   store.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
-  store.set(ActiveSceneIdAtom, newScene.id);
+  store.set(CurrentViewAtom, { type: 'scene', id: newScene.id });
 }
 
 export function removeCurrentScene(store: ReturnType<typeof useStore>) {
@@ -39,7 +39,7 @@ export function removeCurrentScene(store: ReturnType<typeof useStore>) {
   const sceneId = store.get(ActiveSceneIdAtom);
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
   store.set(StoryAtom, { ...story, scenes });
-  store.set(ActiveSceneIdAtom, scenes[0].id);
+  store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
 }
 
 export function modifySceneMetadata(store: ReturnType<typeof useStore>, update: Partial<StoryMetadata>) {
@@ -64,7 +64,7 @@ export function modifyCurrentScene(store: ReturnType<typeof useStore>, update: S
 
 export const exportState = async (
   story: Story,
-  activeSceneId: string,
+  activeSceneId: string | undefined,
   currentMvsData: unknown
 ): Promise<Record<string, unknown>> => {
   const activeScene = getActiveScene(story, activeSceneId);
