@@ -3,8 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { datastore, ActiveSceneAtom, addScene, CurrentViewAtom, removeCurrentScene, StoryAtom } from '@/app/appstate';
-import { DownloadStoryButtons, ExportButton } from '@/components/story-builder/ExportButton';
+import { datastore, ActiveSceneAtom, addScene, CurrentViewAtom, removeCurrentScene, StoryAtom, ActiveSceneIdAtom, exportState, downloadStory } from '@/app/appstate';
 import {
   Menubar,
   MenubarContent,
@@ -16,8 +15,49 @@ import {
 } from '@/components/ui/menubar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import { useAtom, useAtomValue } from 'jotai';
 import Image from 'next/image';
+import { useState } from 'react';
+
+function ExportButton() {
+  const story = useAtomValue(StoryAtom);
+  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportState(story, activeSceneId, {});
+      console.log('Export completed successfully');
+    } catch (error) {
+      console.error('Error during export:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
+    <Button onClick={handleExport} disabled={isExporting} variant='default' size='sm' className='h-6'>
+      {isExporting ? 'Exporting...' : 'Export JSON'}
+    </Button>
+  );
+}
+
+function DownloadStoryButtons() {
+  const story = useAtomValue(StoryAtom);
+
+  return (
+    <>
+      <Button onClick={() => downloadStory(story, 'state')} variant='default' size='sm' className='h-6'>
+        Download Story
+      </Button>
+      <Button onClick={() => downloadStory(story, 'html')} variant='default' size='sm' className='h-6'>
+        Download HTML
+      </Button>
+    </>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -105,28 +145,34 @@ export function Header() {
           </div>
 
           <div className='flex items-center gap-4'>
-            <div className='hidden lg:flex items-center gap-3'>
-              <span className='text-sm text-muted-foreground'>Scene:</span>
-              <Select
-                value={currentView.type === 'scene' ? activeScene?.id : undefined}
-                onValueChange={(value) => setCurrentView({ type: 'scene', id: value })}
-              >
-                <SelectTrigger className='w-[180px] h-7 text-sm'>
-                  <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {story.scenes.map((scene) => (
-                    <SelectItem key={scene.id} value={scene.id.toString()}>
-                      {scene.header}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className='hidden lg:flex items-center gap-2'>
-              <ExportButton />
-              <DownloadStoryButtons />
+            <div className='hidden lg:flex items-center'>
+              <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
+                <div className='flex items-center gap-3 px-3'>
+                  <span className='text-sm text-foreground/70'>Scenes:</span>
+                  <Select
+                    value={currentView.type === 'scene' ? activeScene?.id : undefined}
+                    onValueChange={(value) => setCurrentView({ type: 'scene', id: value })}
+                  >
+                    <SelectTrigger className='w-[180px] h-7 text-sm border-0 bg-transparent'>
+                      <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {story.scenes.map((scene) => (
+                        <SelectItem key={scene.id} value={scene.id.toString()}>
+                          {scene.header}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <Separator orientation='vertical' className='h-6' />
+                
+                <div className='flex items-center gap-2 px-3'>
+                  <ExportButton />
+                  <DownloadStoryButtons />
+                </div>
+              </Menubar>
             </div>
 
             {/* Mobile menu button - you can expand this later */}
