@@ -19,6 +19,7 @@ export type { SceneData, SceneUpdate, CreateSceneData, CurrentView } from './sta
 
 // Core state atoms
 export {
+  datastore,
   StoryAtom,
   CurrentViewAtom,
   ActiveSceneIdAtom,
@@ -27,5 +28,4 @@ export {
 } from './state/atoms';
 
 // Helper functions for state management
-export { getActiveScene } from './state/atoms';
 export * from './state/actions';

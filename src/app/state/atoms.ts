@@ -1,8 +1,10 @@
-import { atom } from 'jotai';
+import { atom, createStore } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { init_js_code, init_js_code_02 } from './initial-data';
 import { CurrentView, SceneData, Story } from './types';
 import { UUID } from 'molstar/lib/mol-util';
+
+export const datastore = createStore();
 
 const DefaultStory: Story = {
   metadata: { title: 'Molecular Visualization Story' },
@@ -35,21 +37,11 @@ export const ActiveSceneIdAtom = atom<string | undefined>((get) => {
   return view.type === 'scene' ? view.id : undefined;
 });
 
-// export const CurrentMvsDataAtom = atom<MVSData | Uint8Array | null>(null);
 export const CameraSnapshotAtom = atom<Camera.Snapshot | null>(null);
 
 // Derived atoms for automatic JavaScript execution
 export const ActiveSceneAtom = atom((get) => {
   const story = get(StoryAtom);
   const activeId = get(ActiveSceneIdAtom);
-  return getActiveScene(story, activeId);
-});
-
-// Utils
-
-export const getActiveScene = (story: Story, activeId: string | undefined): SceneData | undefined => {
-  if (!activeId) {
-    return story.scenes[0];
-  }
   return story.scenes.find((scene) => scene.id === activeId) || story.scenes[0];
-};
+});

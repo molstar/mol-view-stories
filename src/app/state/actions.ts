@@ -3,12 +3,12 @@ import { useStore } from 'jotai';
 import { download } from 'molstar/lib/mol-util/download';
 import { UUID } from 'molstar/lib/mol-util/uuid';
 import { getMVSData } from '../../lib/story-builder';
-import { ActiveSceneIdAtom, CurrentViewAtom, getActiveScene, StoryAtom } from './atoms';
+import { datastore, ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom } from './atoms';
 import { SceneData, SceneUpdate, Story, StoryMetadata } from './types';
 
 export function addScene(store: ReturnType<typeof useStore>, options?: { duplicate?: boolean }) {
   const story = store.get(StoryAtom);
-  const current = getActiveScene(story, store.get(ActiveSceneIdAtom));
+  const current = datastore.get(ActiveSceneAtom);
 
   const newScene: SceneData =
     options?.duplicate && current
@@ -67,7 +67,7 @@ export const exportState = async (
   activeSceneId: string | undefined,
   currentMvsData: unknown
 ): Promise<Record<string, unknown>> => {
-  const activeScene = getActiveScene(story, activeSceneId);
+  const activeScene = datastore.get(ActiveSceneAtom);
 
   console.log(`🚀 Starting export process for ${story.scenes.length} scenes...`);
 
