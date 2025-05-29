@@ -3,7 +3,7 @@
 import React from "react";
 import { useAtom, useStore } from "jotai";
 import { StoryAtom, ActiveSceneIdAtom, getActiveScene, addScene, removeCurrentScene } from "@/app/appstate";
-import { DownloadStoryButton, ExportButton } from "@/components/story-builder/ExportButton";
+import { DownloadStoryButtons, ExportButton } from "@/components/story-builder/ExportButton";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -150,7 +150,7 @@ export function Controls() {
           </div>
           <div className="flex-1" />
           <ExportButton />
-          <DownloadStoryButton />
+          <DownloadStoryButtons />
         </div>
       </div>
 

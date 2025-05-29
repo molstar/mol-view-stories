@@ -33,16 +33,22 @@ export function ExportButton() {
   );
 }
 
-export function DownloadStoryButton() {
+export function DownloadStoryButtons() {
   // TODO: loading state
   const [story] = useAtom(StoryAtom);
 
-  return (
+  return (<>
     <Button
-      onClick={() => downloadStory(story)}
+      onClick={() => downloadStory(story, 'state')}
       variant="default"
     >
       Download Story
     </Button>
-  );
+    <Button
+      onClick={() => downloadStory(story, 'html')}
+      variant="default"
+    >
+      Download HTML
+    </Button>
+  </>);
 }

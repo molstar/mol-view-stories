@@ -18,7 +18,7 @@ import { SingleTaskQueue } from "@/lib/utils";
 import { MVSData } from "molstar/lib/extensions/mvs/mvs-data";
 import { Camera } from "molstar/lib/mol-canvas3d/camera";
 import { StoryAtom } from "@/app/state/atoms";
-import { getMVSData } from "@/app/state/story-builder";
+import { getMVSData } from "@/lib/story-builder";
 
 
 function createViewer() {

@@ -1,5 +1,5 @@
 import { MVSData } from "molstar/lib/extensions/mvs/mvs-data";
-import { SceneData, StoryMetadata } from "./types";
+import { SceneData, StoryMetadata } from "../app/state/types";
 
 const createStateProvider = (code: string) => {
   return new Function('builder', code);

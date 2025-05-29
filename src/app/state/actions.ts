@@ -1,9 +1,10 @@
 import { useStore } from "jotai";
 import { ActiveSceneIdAtom, getActiveScene, StoryAtom } from "./atoms";
 import { SceneData, SceneUpdate, Story, StoryMetadata } from "./types";
-import { getMVSData } from "./story-builder";
+import { getMVSData } from "../../lib/story-builder";
 import { UUID } from "molstar/lib/mol-util/uuid";
 import { download } from "molstar/lib/mol-util/download";
+import { generateStoriesHtml } from "@/lib/stories-html";
 
 export function addScene(
     store: ReturnType<typeof useStore>,
@@ -141,16 +142,27 @@ export const exportState = async (
     return exportData;
 };
 
-export async function downloadStory(story: Story) {
+export async function downloadStory(story: Story, how: 'state' | 'html') {
     // TODO:
     // - download as HTML with embedded state
     try {
         const data = await getMVSData(story.metadata, story.scenes);
-        const blob = data instanceof Uint8Array
-            ? new Blob([data], { type: "application/octet-stream" })
-            : new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const filename = `story-${Date.now()}.${data instanceof Uint8Array ? "mvsx" : "mvsj"}`;
-
+        let blob: Blob;
+        let filename: string;
+        if (how === 'html') {
+            const htmlContent = generateStoriesHtml(data);
+            blob = new Blob([htmlContent], { type: "text/html" });
+            filename = `story-${Date.now()}.html`;
+            
+        } else if (how === 'state') {
+            blob = data instanceof Uint8Array
+                ? new Blob([data], { type: "application/octet-stream" })
+                : new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            filename = `story-${Date.now()}.${data instanceof Uint8Array ? "mvsx" : "mvsj"}`;
+        } else {
+            console.warn("Invalid download type specified. Use 'state' or 'html'.");
+            return;
+        }
         download(blob, filename);
     } catch (error) {
         console.error("Error generating MVS data:", error);
