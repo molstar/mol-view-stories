@@ -161,30 +161,49 @@ export function removeCurrentScene() {
 
 export async function uploadSceneAsset(file: File): Promise<void> {
   const store = getDefaultStore();
-  
+  const currentAssets = store.get(SceneAssetsAtom);
+  console.log(
+    'Current assets before upload:',
+    currentAssets.map((a) => a.name)
+  );
+
   try {
     const arrayBuffer = await file.arrayBuffer();
     const content = new Uint8Array(arrayBuffer);
-    
+
     const newAsset: SceneAsset = {
       name: file.name,
       content: content,
     };
-    
-    const currentAssets = store.get(SceneAssetsAtom);
-    
+
     // Check if asset with same name already exists and replace it
-    const existingIndex = currentAssets.findIndex(asset => asset.name === file.name);
-    
+    const existingIndex = currentAssets.findIndex((asset) => asset.name === file.name);
+
     if (existingIndex >= 0) {
       const updatedAssets = [...currentAssets];
       updatedAssets[existingIndex] = newAsset;
       store.set(SceneAssetsAtom, updatedAssets);
       console.log(`Replaced existing asset: ${file.name}`);
+      console.log(
+        'Updated assets after replace:',
+        updatedAssets.map((a) => a.name)
+      );
     } else {
-      store.set(SceneAssetsAtom, [...currentAssets, newAsset]);
+      const newAssets = [...currentAssets, newAsset];
+      store.set(SceneAssetsAtom, newAssets);
       console.log(`Added new asset: ${file.name}`);
+      console.log(
+        'Updated assets after add:',
+        newAssets.map((a) => a.name)
+      );
     }
+
+    // Verify the atom was updated
+    const verifyAssets = store.get(SceneAssetsAtom);
+    console.log(
+      'Verification - assets in store:',
+      verifyAssets.map((a) => a.name)
+    );
   } catch (error) {
     console.error('Error uploading file:', error);
     throw error;
