@@ -1,12 +1,9 @@
-"use client";
-
 import React, { memo, useEffect, useRef } from "react";
 import { useAtom, useStore } from "jotai";
 import {
   CameraPositionAtom,
   ActiveSceneAtom,
 } from "../../app/appstate";
-
 import { Plugin } from "molstar/lib/mol-plugin-ui/plugin";
 import { DefaultPluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
@@ -20,7 +17,6 @@ import { Camera } from "molstar/lib/mol-canvas3d/camera";
 import { StoryAtom } from "@/app/state/atoms";
 import { getMVSData } from "@/lib/story-builder";
 
-import "molstar/build/viewer/molstar.css";
 
 function createViewer() {
   const spec = DefaultPluginUISpec();

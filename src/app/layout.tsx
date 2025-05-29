@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Provider } from "jotai";
 import "./globals.css";
 
+import "molstar/build/viewer/molstar.css";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
