@@ -4,9 +4,7 @@ export interface MolecularVisualizationConfig {
   ligandLabel?: string;
 }
 
-export const createInitialJavaScriptCode = (
-  config: MolecularVisualizationConfig,
-): string => {
+export const createInitialJavaScriptCode = (config: MolecularVisualizationConfig): string => {
   return `// Create a builder for molecular visualization
 // Define the structure with full type support
 const structure = builder
@@ -23,7 +21,7 @@ structure
 // Add ligand
 structure
   .component({ selector: 'ligand' })
-  .label({ text: '${config.ligandLabel || "Retinoic Acid"}' })
+  .label({ text: '${config.ligandLabel || 'Retinoic Acid'}' })
   .focus({})
   .representation({ type: 'ball_and_stick' })
   .color({ color: '${config.ligandColor}' });
@@ -32,13 +30,13 @@ structure
 
 // Pre-configured initial data
 export const init_js_code = createInitialJavaScriptCode({
-  proteinColor: "green",
-  ligandColor: "#cc3399",
-  ligandLabel: "Retinoic Acid",
+  proteinColor: 'green',
+  ligandColor: '#cc3399',
+  ligandLabel: 'Retinoic Acid',
 });
 
 export const init_js_code_02 = createInitialJavaScriptCode({
-  proteinColor: "blue",
-  ligandColor: "orange",
-  ligandLabel: "Retinoic Acid",
+  proteinColor: 'blue',
+  ligandColor: 'orange',
+  ligandLabel: 'Retinoic Acid',
 });

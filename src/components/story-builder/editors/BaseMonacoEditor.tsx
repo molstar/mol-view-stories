@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import Editor, { OnMount } from "@monaco-editor/react";
+import React, { useState, useEffect, useRef } from 'react';
+import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { useAtomValue, useStore } from "jotai";
-import { StoryAtom, ActiveSceneIdAtom, getActiveScene, modifyCurrentScene } from "../../../app/appstate";
+import { useAtomValue, useStore } from 'jotai';
+import { StoryAtom, ActiveSceneIdAtom, getActiveScene, modifyCurrentScene } from '../../../app/appstate';
 
 interface BaseMonacoEditorProps {
   language: string;
@@ -13,15 +13,11 @@ interface BaseMonacoEditorProps {
   executeButtonText?: string;
 }
 
-export function BaseMonacoEditor({
-  language,
-  fieldName,
-  onExecute,
-}: BaseMonacoEditorProps) {
+export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoEditorProps) {
   const store = useStore();
   const story = useAtomValue(StoryAtom);
   const activeSceneId = useAtomValue(ActiveSceneIdAtom);
-  const [currentCode, setCurrentCode] = useState("");
+  const [currentCode, setCurrentCode] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
@@ -32,19 +28,16 @@ export function BaseMonacoEditor({
   // Sync with active scene when it changes
   useEffect(() => {
     if (activeScene) {
-      setCurrentCode(activeScene[fieldName] || "");
+      setCurrentCode(activeScene[fieldName] || '');
     }
   }, [activeScene, fieldName]);
 
   const handleSave = (value: string) => {
     if (!activeScene) return;
 
-    modifyCurrentScene(
-      store,
-      {
-        [fieldName]: value,
-      },
-    );
+    modifyCurrentScene(store, {
+      [fieldName]: value,
+    });
   };
 
   const handleExecute = async (editorCode: string) => {
@@ -53,20 +46,19 @@ export function BaseMonacoEditor({
     if (!onExecute || isExecuting) return;
 
     // Get the current code from the editor directly to ensure we have the latest value
-    
-    // console.log("Executing code:", { 
-    //   currentCode: currentCode.length, 
+
+    // console.log("Executing code:", {
+    //   currentCode: currentCode.length,
     //   editorCode: editorCode.length,
     //   actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
     // });
 
-
     // Note: this should not needed
-    setIsExecuting(true); 
+    setIsExecuting(true);
     try {
       await onExecute(editorCode);
     } catch (error) {
-      console.error("Execution error:", error);
+      console.error('Execution error:', error);
     } finally {
       setIsExecuting(false);
     }
@@ -84,26 +76,25 @@ export function BaseMonacoEditor({
     // Add execute keyboard shortcut if onExecute is provided
     if (onExecute) {
       editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, () => {
-        console.log("Alt+Enter pressed, executing code");
+        console.log('Alt+Enter pressed, executing code');
         handleExecute(editor.getValue());
       });
     }
 
     // Set up TypeScript/JavaScript configuration
-    if (language === "javascript" || language === "typescript") {
+    if (language === 'javascript' || language === 'typescript') {
       monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
       monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
         target: monaco.languages.typescript.ScriptTarget.ES2020,
         allowNonTsExtensions: true,
-        moduleResolution:
-          monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+        moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
         module: monaco.languages.typescript.ModuleKind.CommonJS,
         noEmit: true,
         esModuleInterop: true,
         jsx: monaco.languages.typescript.JsxEmit.React,
-        reactNamespace: "React",
+        reactNamespace: 'React',
         allowJs: true,
-        typeRoots: ["node_modules/@types"],
+        typeRoots: ['node_modules/@types'],
       });
 
       // Add global type definitions for molstar
@@ -116,31 +107,28 @@ export function BaseMonacoEditor({
         }
       `;
 
-      monaco.languages.typescript.javascriptDefaults.addExtraLib(
-        molstarTypes,
-        "ts:molstar-globals.d.ts",
-      );
+      monaco.languages.typescript.javascriptDefaults.addExtraLib(molstarTypes, 'ts:molstar-globals.d.ts');
     }
   };
 
   const handleEditorChange = (value: string | undefined) => {
-    setCurrentCode(value || "");
+    setCurrentCode(value || '');
   };
 
   return (
-    <div className="h-full w-full">
+    <div className='h-full w-full'>
       <Editor
-        height="500px"
+        height='500px'
         language={language}
         value={currentCode}
         onChange={handleEditorChange}
         onMount={handleEditorDidMount}
         options={{
-          theme: "vs",
+          theme: 'vs',
           fontSize: 14,
-          fontFamily: "Monaco, Menlo, Ubuntu Mono, Consolas, monospace",
-          lineNumbers: "on",
-          wordWrap: "on",
+          fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
+          lineNumbers: 'on',
+          wordWrap: 'on',
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
           automaticLayout: true,
@@ -149,8 +137,8 @@ export function BaseMonacoEditor({
           formatOnPaste: true,
           formatOnType: true,
           suggestOnTriggerCharacters: true,
-          acceptSuggestionOnEnter: "on",
-          snippetSuggestions: "inline",
+          acceptSuggestionOnEnter: 'on',
+          snippetSuggestions: 'inline',
           quickSuggestions: {
             other: true,
             comments: false,

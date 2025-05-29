@@ -1,26 +1,25 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Editor, { OnChange, OnMount } from "@monaco-editor/react";
-import { useAtomValue, useStore } from "jotai";
-import { ActiveSceneAtom, modifyCurrentScene } from "@/app/appstate";
+import React, { useState, useEffect } from 'react';
+import Editor, { OnChange, OnMount } from '@monaco-editor/react';
+import { useAtomValue, useStore } from 'jotai';
+import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 
 export function MonacoMarkdownEditor() {
   const store = useStore();
   const activeScene = useAtomValue(ActiveSceneAtom);
-  const [currentMarkdown, setCurrentMarkdown] = useState("");
+  const [currentMarkdown, setCurrentMarkdown] = useState('');
 
   // Sync with active scene when it changes
   useEffect(() => {
-    setCurrentMarkdown(activeScene?.description || "");
+    setCurrentMarkdown(activeScene?.description || '');
   }, [activeScene?.description]);
 
   const handleMarkdownChange: OnChange = (newMarkdown) => {
-    setCurrentMarkdown(newMarkdown || "");
+    setCurrentMarkdown(newMarkdown || '');
   };
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
-    
     // Add Alt+S keyboard shortcut for saving markdown
     editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
       modifyCurrentScene(store, { description: editor.getValue() });
@@ -29,16 +28,16 @@ export function MonacoMarkdownEditor() {
 
   return (
     <Editor
-      height="500px"
-      defaultLanguage="markdown"
+      height='500px'
+      defaultLanguage='markdown'
       value={currentMarkdown}
       onChange={handleMarkdownChange}
       onMount={handleEditorDidMount}
-      theme="vs-light"
+      theme='vs-light'
       options={{
         minimap: { enabled: false },
         fontSize: 14,
-        wordWrap: "on",
+        wordWrap: 'on',
         automaticLayout: true,
       }}
     />

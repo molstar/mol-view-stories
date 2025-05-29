@@ -1,23 +1,22 @@
-import { MVSData } from "molstar/lib/extensions/mvs/mvs-data";
+import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 
-export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: string = "latest"): string {
-    const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
+export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: string = 'latest'): string {
+  const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
-    let state;
+  let state;
 
-    if (data instanceof Uint8Array) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        state = `"base64,${(data as any).toBase64()}"`;
-    } else {
-        state = JSON.stringify(data);
-    }
+  if (data instanceof Uint8Array) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state = `"base64,${(data as any).toBase64()}"`;
+  } else {
+    state = JSON.stringify(data);
+  }
 
-    const html = Template
-        .replaceAll("{{version}}", molstarVersion)
-        .replace("{{format}}", format)
-        .replace("{{state}}", state);
+  const html = Template.replaceAll('{{version}}', molstarVersion)
+    .replace('{{format}}', format)
+    .replace('{{state}}', state);
 
-    return html;
+  return html;
 }
 
 const Template = `<!DOCTYPE html>
@@ -95,4 +94,4 @@ const Template = `<!DOCTYPE html>
         mvsStories.loadFromData(mvsData, { format: '{{format}}' });
     </script>
 </body>
-</html>`
+</html>`;

@@ -1,10 +1,10 @@
 //   - drag and drop box.
 
-import type { Camera } from "molstar/lib/mol-canvas3d/camera";
+import type { Camera } from 'molstar/lib/mol-canvas3d/camera';
 
 export type StoryMetadata = {
   title: string;
-}
+};
 
 export type SceneData = {
   id: string;
@@ -21,8 +21,8 @@ export type Story = {
   metadata: StoryMetadata;
   scenes: SceneData[];
   // TODO: assets?: ...
-}
+};
 
-export type SceneUpdate = Partial<Omit<SceneData, "id">>;
+export type SceneUpdate = Partial<Omit<SceneData, 'id'>>;
 
-export type CreateSceneData = Omit<SceneData, "id">;
+export type CreateSceneData = Omit<SceneData, 'id'>;

@@ -17,7 +17,7 @@ export interface MVSDataBuilder {
    * Download structure data from a URL
    */
   download(options: DownloadOptions): StructureBuilder;
-  
+
   /**
    * Get the current state of the builder
    */
@@ -84,17 +84,17 @@ export interface RepresentationBuilder {
    * Add a representation to the component
    */
   representation(options?: RepresentationOptions): ColorBuilder;
-  
+
   /**
    * Add a label to the component
    */
   label(options: LabelOptions): RepresentationBuilder;
-  
+
   /**
    * Focus on the component
    */
   focus(options?: FocusOptions): RepresentationBuilder;
-  
+
   /**
    * Add tooltip to the component
    */
@@ -103,7 +103,17 @@ export interface RepresentationBuilder {
 
 export interface RepresentationOptions {
   /** Type of representation */
-  type?: 'cartoon' | 'ball_and_stick' | 'spacefill' | 'surface' | 'tube' | 'ribbon' | 'putty' | 'point' | 'ellipsoid' | 'gaussian_surface';
+  type?:
+    | 'cartoon'
+    | 'ball_and_stick'
+    | 'spacefill'
+    | 'surface'
+    | 'tube'
+    | 'ribbon'
+    | 'putty'
+    | 'point'
+    | 'ellipsoid'
+    | 'gaussian_surface';
   /** Optional parameters for the representation */
   params?: Record<string, unknown>;
   /** Optional label */
@@ -121,7 +131,14 @@ export interface ColorOptions {
   /** Static color */
   color?: string | number;
   /** Color theme */
-  theme?: 'element-symbol' | 'chain-id' | 'entity-id' | 'model-index' | 'residue-name' | 'secondary-structure' | 'uniform';
+  theme?:
+    | 'element-symbol'
+    | 'chain-id'
+    | 'entity-id'
+    | 'model-index'
+    | 'residue-name'
+    | 'secondary-structure'
+    | 'uniform';
   /** Custom color theme name */
   custom?: {
     molstar_color_theme_name?: string;

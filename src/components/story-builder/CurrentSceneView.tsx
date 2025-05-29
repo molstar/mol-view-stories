@@ -1,22 +1,18 @@
-import React, { memo, useEffect, useRef } from "react";
-import { useAtom, useStore } from "jotai";
-import {
-  CameraPositionAtom,
-  ActiveSceneAtom,
-} from "../../app/appstate";
-import { Plugin } from "molstar/lib/mol-plugin-ui/plugin";
-import { DefaultPluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
-import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { PluginSpec } from "molstar/lib/mol-plugin/spec";
-import { MolViewSpec } from "molstar/lib/extensions/mvs/behavior";
-import { PluginConfig } from "molstar/lib/mol-plugin/config";
-import { loadMVSData } from "molstar/lib/extensions/mvs/components/formats";
-import { SingleTaskQueue } from "@/lib/utils";
-import { MVSData } from "molstar/lib/extensions/mvs/mvs-data";
-import { Camera } from "molstar/lib/mol-canvas3d/camera";
-import { StoryAtom } from "@/app/state/atoms";
-import { getMVSData } from "@/lib/story-builder";
-
+import React, { memo, useEffect, useRef } from 'react';
+import { useAtom, useStore } from 'jotai';
+import { CameraPositionAtom, ActiveSceneAtom } from '../../app/appstate';
+import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
+import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
+import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { PluginSpec } from 'molstar/lib/mol-plugin/spec';
+import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
+import { PluginConfig } from 'molstar/lib/mol-plugin/config';
+import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
+import { SingleTaskQueue } from '@/lib/utils';
+import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
+import { Camera } from 'molstar/lib/mol-canvas3d/camera';
+import { StoryAtom } from '@/app/state/atoms';
+import { getMVSData } from '@/lib/story-builder';
 
 function createViewer() {
   const spec = DefaultPluginUISpec();
@@ -25,26 +21,22 @@ function createViewer() {
     layout: {
       initial: {
         isExpanded: false,
-        showControls: false
+        showControls: false,
       },
-
     },
     components: {
       remoteState: 'none',
       viewport: {
         snapshotDescription: EmptyDescription,
-      }
+      },
     },
-    behaviors: [
-      ...spec.behaviors,
-      PluginSpec.Behavior(MolViewSpec)
-    ],
+    behaviors: [...spec.behaviors, PluginSpec.Behavior(MolViewSpec)],
     config: [
       [PluginConfig.Viewport.ShowAnimation, false],
       [PluginConfig.Viewport.ShowSelectionMode, false],
       [PluginConfig.Viewport.ShowExpand, false],
       [PluginConfig.Viewport.ShowControls, false],
-    ]
+    ],
   });
 
   return plugin;
@@ -55,7 +47,7 @@ class CurrentStoryViewModel {
 
   readonly plugin: PluginUIContext;
 
-  setCameraSnapshot: (snapshot: Camera.Snapshot) => void = () => { };
+  setCameraSnapshot: (snapshot: Camera.Snapshot) => void = () => {};
 
   loadMVSData(data: MVSData | Uint8Array | null) {
     if (!data) return;
@@ -65,7 +57,7 @@ class CurrentStoryViewModel {
         await this.plugin.initialized;
         await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
       } catch (error) {
-        console.error("Error loading MVS data into Molstar:", error);
+        console.error('Error loading MVS data into Molstar:', error);
       }
     });
   }
@@ -90,11 +82,11 @@ class CurrentStoryViewModel {
 }
 
 function EmptyDescription() {
-    return <></>;
+  return <></>;
 }
 
 const PluginWrapper = memo(function _PluginWrapper({ plugin }: { plugin: PluginUIContext }) {
-  return <Plugin plugin={plugin} />
+  return <Plugin plugin={plugin} />;
 });
 
 async function loadCurrentScene(model: CurrentStoryViewModel, store: ReturnType<typeof useStore>) {
@@ -102,7 +94,7 @@ async function loadCurrentScene(model: CurrentStoryViewModel, store: ReturnType<
   const scene = store.get(ActiveSceneAtom);
   if (!scene) return;
 
-  const mvsData = await getMVSData(story.metadata, [scene]); 
+  const mvsData = await getMVSData(story.metadata, [scene]);
   model.loadMVSData(mvsData);
 }
 
@@ -130,8 +122,8 @@ export default function CurrentSceneView() {
   }, [store, model]);
 
   return (
-    <div className="rounded overflow-hidden w-full h-full border border-border bg-background relative">
-      <div className="w-full h-full relative">
+    <div className='rounded overflow-hidden w-full h-full border border-border bg-background relative'>
+      <div className='w-full h-full relative'>
         <PluginWrapper plugin={model.plugin} />
       </div>
     </div>

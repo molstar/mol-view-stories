@@ -1,5 +1,5 @@
-import { MVSData } from "molstar/lib/extensions/mvs/mvs-data";
-import { SceneData, StoryMetadata } from "../app/state/types";
+import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
+import { SceneData, StoryMetadata } from '../app/state/types';
 
 const createStateProvider = (code: string) => {
   return new Function('builder', code);
@@ -27,7 +27,7 @@ export function getMVSSnapshot(scene: SceneData) {
 
     return snapshot;
   } catch (error) {
-    console.error("Error creating state provider:", error);
+    console.error('Error creating state provider:', error);
     throw error;
   }
 }
@@ -44,5 +44,5 @@ export async function getMVSData(story: StoryMetadata, scenes: SceneData[]): Pro
       version: `${MVSData.SupportedVersion}`,
     },
     snapshots,
-  }
+  };
 }

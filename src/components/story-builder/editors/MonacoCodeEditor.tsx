@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useStore } from "jotai";
-import { BaseMonacoEditor } from "./BaseMonacoEditor";
-import { modifyCurrentScene } from "@/app/appstate";
+import React from 'react';
+import { useStore } from 'jotai';
+import { BaseMonacoEditor } from './BaseMonacoEditor';
+import { modifyCurrentScene } from '@/app/appstate';
 
 export function MonacoEditorJS() {
   const store = useStore();
@@ -14,10 +14,10 @@ export function MonacoEditorJS() {
 
   return (
     <BaseMonacoEditor
-      language="javascript"  // should this be "typescript"?
-      fieldName="javascript"
+      language='javascript' // should this be "typescript"?
+      fieldName='javascript'
       onExecute={handleExecute}
-      executeButtonText="Execute"
+      executeButtonText='Execute'
     />
   );
 }
