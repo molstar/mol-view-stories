@@ -1,22 +1,27 @@
 //   - drag and drop box.
-//
-//   - Scenes horizontal // tab etc.
-//
-// camera buttons will allow you to update/keep the camera data in the view
-// keep those on the left
-//  - postion // target // up <- we need those 3.
-//
-//
+
+import type { Camera } from "molstar/lib/mol-canvas3d/camera";
+
+export type StoryMetadata = {
+  title: string;
+}
+
 export type SceneData = {
-  id: number;
+  id: string;
   header: string;
   key: string;
   description: string;
   javascript: string;
-  // add the camera
-  // linger_duration (ms)
-  // transition_duration (ms)
+  camera?: Camera.Snapshot | null;
+  linger_duration_ms?: number;
+  transition_duration_ms?: number;
 };
+
+export type Story = {
+  metadata: StoryMetadata;
+  scenes: SceneData[];
+  // TODO: assets?: ...
+}
 
 export type SceneUpdate = Partial<Omit<SceneData, "id">>;
 

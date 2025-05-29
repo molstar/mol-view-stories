@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Editor from "@monaco-editor/react";
-import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneIdAtom, getActiveScene } from "../../../app/appstate";
-import { Button } from "@/components/ui/button";
+import Editor, { OnMount } from "@monaco-editor/react";
+import * as monaco from 'monaco-editor';
+import { useAtom, useStore } from "jotai";
+import { StoryAtom, ActiveSceneIdAtom, getActiveScene, modifyCurrentScene } from "../../../app/appstate";
 
 interface BaseMonacoEditorProps {
   language: string;
@@ -17,17 +17,17 @@ export function BaseMonacoEditor({
   language,
   fieldName,
   onExecute,
-  executeButtonText = "Execute",
 }: BaseMonacoEditorProps) {
-  const [scenes, setScenes] = useAtom(ScenesAtom);
+  const store = useStore();
+  const [story] = useAtom(StoryAtom);
   const [activeSceneId] = useAtom(ActiveSceneIdAtom);
   const [currentCode, setCurrentCode] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const editorRef = useRef(null);
-  const monacoRef = useRef(null);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
+  const monacoRef = useRef<typeof monaco>(null);
 
-  const activeScene = getActiveScene(scenes, activeSceneId);
+  const activeScene = getActiveScene(story, activeSceneId);
 
   // Sync with active scene when it changes
   useEffect(() => {
@@ -36,35 +36,33 @@ export function BaseMonacoEditor({
     }
   }, [activeScene, fieldName]);
 
-  const handleSave = () => {
+  const handleSave = (value: string) => {
     if (!activeScene) return;
 
-    const updatedScenes = scenes.map((scene) => {
-      if (scene.id === activeScene.id) {
-        return {
-          ...scene,
-          [fieldName]: currentCode,
-        };
-      }
-      return scene;
-    });
-
-    setScenes(updatedScenes);
+    modifyCurrentScene(
+      store,
+      {
+        [fieldName]: value,
+      },
+    );
   };
 
-  const handleExecute = async () => {
+  const handleExecute = async (editorCode: string) => {
+    // NOTE: save currently behaves same as execute
+
     if (!onExecute || isExecuting) return;
 
     // Get the current code from the editor directly to ensure we have the latest value
-    const editorCode = editorRef.current?.getValue() || currentCode;
     
-    console.log("Executing code:", { 
-      currentCode: currentCode.length, 
-      editorCode: editorCode.length,
-      actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
-    });
+    // console.log("Executing code:", { 
+    //   currentCode: currentCode.length, 
+    //   editorCode: editorCode.length,
+    //   actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
+    // });
 
-    setIsExecuting(true);
+
+    // Note: this should not needed
+    setIsExecuting(true); 
     try {
       await onExecute(editorCode);
     } catch (error) {
@@ -74,20 +72,20 @@ export function BaseMonacoEditor({
     }
   };
 
-  const handleEditorDidMount = (editor, monaco) => {
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
 
     // Add save keyboard shortcut (Alt+S)
     editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
-      handleSave();
+      handleSave(editor.getValue());
     });
 
     // Add execute keyboard shortcut if onExecute is provided
     if (onExecute) {
       editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, () => {
         console.log("Alt+Enter pressed, executing code");
-        handleExecute();
+        handleExecute(editor.getValue());
       });
     }
 

@@ -4,7 +4,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SceneEditors } from "@/components/story-builder/SceneEditors";
 import { Controls } from "@/components/story-builder/Controls";
-import { VisualizationPanel } from "@/components/story-builder/VisualizationPanel";
 
 export default function StoryBuilder() {
   return (
@@ -16,9 +15,9 @@ export default function StoryBuilder() {
           <div className="flex-1 flex flex-col h-full min-h-0">
             <SceneEditors />
           </div>
-          <div className="flex-1 flex flex-col h-full min-h-0">
+          {/* <div className="flex-1 flex flex-col h-full min-h-0">
             <VisualizationPanel />
-          </div>
+          </div> */}
         </div>
       </main>
       <Footer />
