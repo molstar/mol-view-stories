@@ -1,23 +1,22 @@
 "use client";
 
-import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ActiveSceneAtom } from "@/app/appstate";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAtomValue } from "jotai";
 import { Edit } from "lucide-react";
+import dynamic from "next/dynamic";
+import Markdown from "react-markdown";
+import { Label } from "../ui/label";
+import { CameraControls } from "./CameraControls";
 import { MonacoEditorJS } from "./editors/MonacoCodeEditor";
 import { MonacoMarkdownEditor } from "./editors/MonacoMarkdownEditor";
-import { CameraControls } from "./CameraControls";
 import { OptionsEditor } from "./editors/Options";
-import { useAtom } from "jotai";
-import { ActiveSceneAtom } from "@/app/appstate";
-import Markdown from "react-markdown";
-import dynamic from "next/dynamic";
-import { Label } from "../ui/label";
 
 // Don't want Mol* to be rendered on the server side
 const CurrentSceneView = dynamic(() => import("./CurrentSceneView"), { ssr: false });
@@ -74,7 +73,7 @@ export function SceneEditors() {
 }
 
 function MarkdownRenderer() {
-  const [scene] = useAtom(ActiveSceneAtom);
+  const scene = useAtomValue(ActiveSceneAtom);
   return <div className="h-full min-h-[500px] max-h-[500px] bg-gray-50 rounded-lg p-4 overflow-y-auto">
     <div className="prose">
       <Markdown skipHtml>{scene?.description || ''}</Markdown>

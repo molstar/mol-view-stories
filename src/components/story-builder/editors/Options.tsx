@@ -1,12 +1,12 @@
 import { ActiveSceneAtom, modifyCurrentScene } from "@/app/appstate";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAtom, useStore } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import { useEffect, useState } from "react";
 
 export function OptionsEditor() {
     const store = useStore();
-    const [scene] = useAtom(ActiveSceneAtom);
+    const scene = useAtomValue(ActiveSceneAtom);
 
     return (
         <div className="flex flex-col gap-2">

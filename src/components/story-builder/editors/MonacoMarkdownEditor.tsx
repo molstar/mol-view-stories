@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Editor, { OnChange, OnMount } from "@monaco-editor/react";
-import { useAtom, useStore } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import { ActiveSceneAtom, modifyCurrentScene } from "@/app/appstate";
 
 export function MonacoMarkdownEditor() {
   const store = useStore();
-  const [activeScene] = useAtom(ActiveSceneAtom);
+  const activeScene = useAtomValue(ActiveSceneAtom);
   const [currentMarkdown, setCurrentMarkdown] = useState("");
 
   // Sync with active scene when it changes

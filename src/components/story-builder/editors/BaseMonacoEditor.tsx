@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
 import * as monaco from 'monaco-editor';
-import { useAtom, useStore } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import { StoryAtom, ActiveSceneIdAtom, getActiveScene, modifyCurrentScene } from "../../../app/appstate";
 
 interface BaseMonacoEditorProps {
@@ -19,8 +19,8 @@ export function BaseMonacoEditor({
   onExecute,
 }: BaseMonacoEditorProps) {
   const store = useStore();
-  const [story] = useAtom(StoryAtom);
-  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
+  const story = useAtomValue(StoryAtom);
+  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
   const [currentCode, setCurrentCode] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
 

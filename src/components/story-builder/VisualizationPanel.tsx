@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye } from "lucide-react";
 import dynamic from "next/dynamic";
 import Markdown from 'react-markdown';
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { ActiveSceneAtom } from "@/app/appstate";
 
 interface VisualizationPanelProps {
@@ -18,7 +18,7 @@ const CurrentSceneView = dynamic(() => import("./CurrentSceneView"), { ssr: fals
 
 
 function MarkdownRenderer() {
-  const [scene] = useAtom(ActiveSceneAtom);
+  const scene = useAtomValue(ActiveSceneAtom);
   return <Markdown skipHtml>{scene?.description || ''}</Markdown>;
 }
 

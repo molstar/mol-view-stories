@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
 import { ActiveSceneAtom, CameraPositionAtom, modifyCurrentScene } from "@/app/appstate";
-import { useAtom, useStore } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import type { Camera } from "molstar/lib/mol-canvas3d/camera";
 import { Button } from "../ui/button";
 
@@ -49,8 +48,8 @@ const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: Camera.Sna
 };
 
 export function CameraControls() {
-  const [cameraSnapshot] = useAtom(CameraPositionAtom);
-  const [scene] = useAtom(ActiveSceneAtom);
+  const cameraSnapshot = useAtomValue(CameraPositionAtom);
+  const scene = useAtomValue(ActiveSceneAtom);
   const store = useStore();
 
   return <div className="space-y-4">

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { StoryAtom, ActiveSceneIdAtom, exportState, downloadStory } from "../../app/appstate";
 import { Button } from "@/components/ui/button";
 
 export function ExportButton() {
-  const [story] = useAtom(StoryAtom);
-  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
+  const story = useAtomValue(StoryAtom);
+  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
@@ -35,7 +35,7 @@ export function ExportButton() {
 
 export function DownloadStoryButtons() {
   // TODO: loading state
-  const [story] = useAtom(StoryAtom);
+  const story = useAtomValue(StoryAtom);
 
   return (<>
     <Button

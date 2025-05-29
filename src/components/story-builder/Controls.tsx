@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useAtom, useStore } from "jotai";
+import { useAtom, useAtomValue, useStore } from "jotai";
 import { StoryAtom, ActiveSceneIdAtom, getActiveScene, addScene, removeCurrentScene } from "@/app/appstate";
 import { DownloadStoryButtons, ExportButton } from "@/components/story-builder/ExportButton";
 import { Separator } from "@/components/ui/separator";
@@ -24,7 +24,7 @@ import {
 
 export function Controls() {
   const store = useStore();
-  const [story] = useAtom(StoryAtom);
+  const story = useAtomValue(StoryAtom);
   const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
 
   const activeScene = getActiveScene(story, activeSceneId);
