@@ -1,7 +1,7 @@
 'use client';
 
 import { ActiveSceneAtom, CameraPositionAtom, modifyCurrentScene } from '@/app/appstate';
-import { useAtomValue, useStore } from 'jotai';
+import { useAtomValue } from 'jotai';
 import type { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { Button } from '../ui/button';
 
@@ -49,13 +49,12 @@ const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: Camera.Sna
 export function CameraControls() {
   const cameraSnapshot = useAtomValue(CameraPositionAtom);
   const scene = useAtomValue(ActiveSceneAtom);
-  const store = useStore();
 
   return (
     <div className='space-y-4'>
       <div className='flex items-center gap-2'>
-        <Button onClick={() => modifyCurrentScene(store, { camera: cameraSnapshot })}>Store Camera</Button>
-        <Button onClick={() => modifyCurrentScene(store, { camera: undefined })}>Clear Camera</Button>
+        <Button onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>Store Camera</Button>
+        <Button onClick={() => modifyCurrentScene({ camera: undefined })}>Clear Camera</Button>
       </div>
       <div>
         {!scene?.camera && <p className='text-sm text-muted-foreground'>No camera position stored for this scene.</p>}

@@ -1,13 +1,12 @@
 import { generateStoriesHtml } from '@/lib/stories-html';
-import { useStore } from 'jotai';
 import { download } from 'molstar/lib/mol-util/download';
 import { UUID } from 'molstar/lib/mol-util/uuid';
 import { getMVSData } from '../../lib/story-builder';
 import { datastore, ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom } from './atoms';
 import { SceneData, SceneUpdate, Story, StoryMetadata } from './types';
 
-export function addScene(store: ReturnType<typeof useStore>, options?: { duplicate?: boolean }) {
-  const story = store.get(StoryAtom);
+export function addScene(options?: { duplicate?: boolean }) {
+  const story = datastore.get(StoryAtom);
   const current = datastore.get(ActiveSceneAtom);
 
   const newScene: SceneData =
@@ -25,31 +24,31 @@ export function addScene(store: ReturnType<typeof useStore>, options?: { duplica
           javascript: '',
         };
 
-  store.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
-  store.set(CurrentViewAtom, { type: 'scene', id: newScene.id });
+  datastore.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
+  datastore.set(CurrentViewAtom, { type: 'scene', id: newScene.id });
 }
 
-export function removeCurrentScene(store: ReturnType<typeof useStore>) {
-  const story = store.get(StoryAtom);
+export function removeCurrentScene() {
+  const story = datastore.get(StoryAtom);
   if (story.scenes.length <= 1) {
     console.warn('Cannot remove the last scene.');
     return;
   }
 
-  const sceneId = store.get(ActiveSceneIdAtom);
+  const sceneId = datastore.get(ActiveSceneIdAtom);
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
-  store.set(StoryAtom, { ...story, scenes });
-  store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
+  datastore.set(StoryAtom, { ...story, scenes });
+  datastore.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
 }
 
-export function modifySceneMetadata(store: ReturnType<typeof useStore>, update: Partial<StoryMetadata>) {
-  const story = store.get(StoryAtom);
-  store.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
+export function modifySceneMetadata(update: Partial<StoryMetadata>) {
+  const story = datastore.get(StoryAtom);
+  datastore.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
 }
 
-export function modifyCurrentScene(store: ReturnType<typeof useStore>, update: SceneUpdate) {
-  const story = store.get(StoryAtom);
-  const sceneId = store.get(ActiveSceneIdAtom);
+export function modifyCurrentScene(update: SceneUpdate) {
+  const story = datastore.get(StoryAtom);
+  const sceneId = datastore.get(ActiveSceneIdAtom);
   const sceneIdx = story.scenes.findIndex((s) => s.id === sceneId);
 
   if (sceneIdx < 0) return;
@@ -59,7 +58,7 @@ export function modifyCurrentScene(store: ReturnType<typeof useStore>, update: S
     ...scenes[sceneIdx],
     ...update,
   };
-  store.set(StoryAtom, { ...story, scenes });
+  datastore.set(StoryAtom, { ...story, scenes });
 }
 
 export const exportState = async (

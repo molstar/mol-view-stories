@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
-import { useAtomValue, useStore } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 
 export function MonacoMarkdownEditor() {
-  const store = useStore();
   const activeScene = useAtomValue(ActiveSceneAtom);
   const [currentMarkdown, setCurrentMarkdown] = useState('');
 
@@ -22,7 +21,7 @@ export function MonacoMarkdownEditor() {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Add Alt+S keyboard shortcut for saving markdown
     editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
-      modifyCurrentScene(store, { description: editor.getValue() });
+      modifyCurrentScene({ description: editor.getValue() });
     });
   };
 

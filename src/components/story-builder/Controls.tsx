@@ -13,10 +13,9 @@ import {
 } from '@/components/ui/menubar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { useAtom, useAtomValue, useStore } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 export function Controls() {
-  const store = useStore();
   const story = useAtomValue(StoryAtom);
   const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
@@ -79,13 +78,13 @@ export function Controls() {
             <MenubarMenu>
               <MenubarTrigger className='text-sm'>Scene</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem onClick={() => addScene(store)}>
+                <MenubarItem onClick={() => addScene()}>
                   Add New Scene <MenubarShortcut>⌘⇧N</MenubarShortcut>
                 </MenubarItem>
-                <MenubarItem onClick={() => addScene(store, { duplicate: true })}>
+                <MenubarItem onClick={() => addScene({ duplicate: true })}>
                   Duplicate Scene <MenubarShortcut>⌘D</MenubarShortcut>
                 </MenubarItem>
-                <MenubarItem onClick={() => removeCurrentScene(store)}>
+                <MenubarItem onClick={() => removeCurrentScene()}>
                   Delete Scene <MenubarShortcut>⌘⌫</MenubarShortcut>
                 </MenubarItem>
                 <MenubarSeparator />
