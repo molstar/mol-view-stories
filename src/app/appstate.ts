@@ -4,7 +4,7 @@
 //  - This file serves as the main entry point for all application state.
 //  - It re-exports the key atoms, types, and helper functions needed throughout the app.
 //  - All application components either use local state or interact with the global state defined here.
-//  - All state is maintained as JOTAI `atom`s within a JOTAI `store`, which we are calling `datastore`
+//  - All state is maintained as JOTAI `atom`s
 //
 
 // Re-export types
@@ -12,11 +12,9 @@ export type { SceneData, SceneUpdate, CreateSceneData, CurrentView } from './sta
 
 // Core state atoms.
 //
-// If you want to use a global value, say in a function - import and use `datastore`
 // If you want to use/mutate a value in a React Component, import the Atom directly `with useAtom`.
 //
 export {
-  datastore,
   StoryAtom,
   CurrentViewAtom,
   ActiveSceneIdAtom,

@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
-import { CameraPositionAtom, ActiveSceneAtom, datastore, StoryAtom } from '../../app/appstate';
+import { CameraPositionAtom, ActiveSceneAtom, StoryAtom } from '../../app/appstate';
 import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
@@ -88,9 +88,7 @@ const PluginWrapper = memo(function _PluginWrapper({ plugin }: { plugin: PluginU
   return <Plugin plugin={plugin} />;
 });
 
-async function loadCurrentScene(model: CurrentStoryViewModel) {
-  const story = datastore.get(StoryAtom);
-  const scene = datastore.get(ActiveSceneAtom);
+async function loadCurrentScene(model: CurrentStoryViewModel, story: any, scene: any) {
   if (!scene) return;
 
   const mvsData = await getMVSData(story.metadata, [scene]);
@@ -106,18 +104,15 @@ export function CurrentSceneView() {
   if (!modelRef.current) {
     _modelInstance = modelRef.current = new CurrentStoryViewModel();
   }
-
   const model = modelRef.current;
+  const [story] = useAtom(StoryAtom);
+  const [scene] = useAtom(ActiveSceneAtom);
 
   model.setCameraSnapshot = useAtom(CameraPositionAtom)[1];
 
   useEffect(() => {
-    loadCurrentScene(model);
-    const unsub = datastore.sub(ActiveSceneAtom, () => loadCurrentScene(model));
-    return () => {
-      unsub();
-    };
-  }, [model]);
+    loadCurrentScene(model, story, scene);
+  }, [model, story, scene]);
 
   return (
     <div className='rounded overflow-hidden w-full h-full border border-border bg-background relative'>

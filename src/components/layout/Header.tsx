@@ -3,7 +3,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { datastore, ActiveSceneAtom, addScene, CurrentViewAtom, removeCurrentScene, StoryAtom, ActiveSceneIdAtom, exportState, downloadStory } from '@/app/appstate';
+import {
+  ActiveSceneAtom,
+  addScene,
+  CurrentViewAtom,
+  removeCurrentScene,
+  StoryAtom,
+  ActiveSceneIdAtom,
+  exportState,
+  downloadStory,
+} from '@/app/appstate';
 import {
   Menubar,
   MenubarContent,
@@ -21,7 +30,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 function ExportButton() {
-  const story = useAtomValue(StoryAtom);
+  const [story, setStory] = useAtom(StoryAtom);
   const activeSceneId = useAtomValue(ActiveSceneIdAtom);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -61,9 +70,9 @@ function DownloadStoryButtons() {
 
 export function Header() {
   const pathname = usePathname();
-  const story = useAtomValue(StoryAtom, { store: datastore });
+  const [story, setStory] = useAtom(StoryAtom);
   const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
-  const activeScene = useAtomValue(ActiveSceneAtom);
+  const [activeScene, setActiveScene] = useAtom(ActiveSceneAtom);
 
   const isActive = (path: string) => pathname === path;
   const isStoryBuilder = pathname === '/story-builder';
@@ -73,7 +82,10 @@ export function Header() {
       {/* Main Header */}
       <div className='flex justify-between items-center px-4 py-2 md:px-6'>
         <div className='flex items-center gap-6'>
-          <Link href='/' className='flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors'>
+          <Link
+            href='/'
+            className='flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors'
+          >
             <Image src='/favicon.ico' alt='MolViewStories' width={24} height={24} className='w-6 h-6' />
             MolViewStories
           </Link>
@@ -83,108 +95,103 @@ export function Header() {
           {/* Control Bar Inline */}
           <div className='hidden lg:flex items-center'>
             <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
-                <MenubarMenu>
-                  <MenubarTrigger className='text-sm'>File</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>
-                      New Story <MenubarShortcut>⌘N</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Open Story <MenubarShortcut>⌘O</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarItem>
-                      Save <MenubarShortcut>⌘S</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Save As... <MenubarShortcut>⇧⌘S</MenubarShortcut>
-                    </MenubarItem>
+              <MenubarMenu>
+                <MenubarTrigger className='text-sm'>File</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem>
+                    New Story <MenubarShortcut>⌘N</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem>
+                    Open Story <MenubarShortcut>⌘O</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem>
+                    Save <MenubarShortcut>⌘S</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem>
+                    Save As... <MenubarShortcut>⇧⌘S</MenubarShortcut>
+                  </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
 
-                  </MenubarContent>
-                </MenubarMenu>
+              <MenubarMenu>
+                <MenubarTrigger className='text-sm'>Scene</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem onClick={() => addScene()}>
+                    Add New Scene <MenubarShortcut>⌘⇧N</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addScene({ duplicate: true })}>
+                    Duplicate Scene <MenubarShortcut>⌘D</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem onClick={() => removeCurrentScene()}>
+                    Delete Scene <MenubarShortcut>⌘⌫</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem>
+                    Move Up <MenubarShortcut>⌘↑</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem>
+                    Move Down <MenubarShortcut>⌘↓</MenubarShortcut>
+                  </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
 
+              <Separator orientation='vertical' className='h-6' />
 
-
-                <MenubarMenu>
-                  <MenubarTrigger className='text-sm'>Scene</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem onClick={() => addScene()}>
-                      Add New Scene <MenubarShortcut>⌘⇧N</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem onClick={() => addScene({ duplicate: true })}>
-                      Duplicate Scene <MenubarShortcut>⌘D</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem onClick={() => removeCurrentScene()}>
-                      Delete Scene <MenubarShortcut>⌘⌫</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarItem>
-                      Move Up <MenubarShortcut>⌘↑</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Move Down <MenubarShortcut>⌘↓</MenubarShortcut>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-
-                <Separator orientation='vertical' className='h-6' />
-
-                <MenubarMenu>
-                  <MenubarTrigger className='text-sm'>View</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem onClick={() => setCurrentView({ type: 'preview' })}>
-                      Story Preview
-                    </MenubarItem>
-                    <MenubarItem onClick={() => setCurrentView({ type: 'scene', id: activeScene?.id })}>
-                      Builder Preview
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
-            </div>
-          </div>
-
-          <div className='flex items-center gap-4'>
-            <div className='hidden lg:flex items-center'>
-              <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
-                <div className='flex items-center gap-3 px-3'>
-                  <span className='text-sm text-foreground/70'>Scenes:</span>
-                  <Select
-                    value={currentView.type === 'scene' ? activeScene?.id : undefined}
-                    onValueChange={(value) => setCurrentView({ type: 'scene', id: value })}
-                  >
-                    <SelectTrigger className='w-[180px] h-7 text-sm border-0 bg-transparent'>
-                      <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {story.scenes.map((scene) => (
-                        <SelectItem key={scene.id} value={scene.id.toString()}>
-                          {scene.header}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <Separator orientation='vertical' className='h-6' />
-                
-                <div className='flex items-center gap-2 px-3'>
-                  <ExportButton />
-                  <DownloadStoryButtons />
-                </div>
-              </Menubar>
-            </div>
-
-            {/* Mobile menu button - you can expand this later */}
-            <div className='md:hidden'>
-              <button className='text-foreground'>
-                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
-                </svg>
-              </button>
-            </div>
+              <MenubarMenu>
+                <MenubarTrigger className='text-sm'>View</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem onClick={() => setCurrentView({ type: 'preview' })}>Story Preview</MenubarItem>
+                  <MenubarItem onClick={() => setCurrentView({ type: 'scene', id: activeScene?.id })}>
+                    Builder Preview
+                  </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+            </Menubar>
           </div>
         </div>
+
+        <div className='flex items-center gap-4'>
+          <div className='hidden lg:flex items-center'>
+            <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
+              <div className='flex items-center gap-3 px-3'>
+                <span className='text-sm text-foreground/70'>Scenes:</span>
+                <Select
+                  value={currentView.type === 'scene' ? activeScene?.id : undefined}
+                  onValueChange={(value) => setCurrentView({ type: 'scene', id: value })}
+                >
+                  <SelectTrigger className='w-[180px] h-7 text-sm border-0 bg-transparent'>
+                    <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {story.scenes.map((scene) => (
+                      <SelectItem key={scene.id} value={scene.id.toString()}>
+                        {scene.header}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator orientation='vertical' className='h-6' />
+
+              <div className='flex items-center gap-2 px-3'>
+                <ExportButton />
+                <DownloadStoryButtons />
+              </div>
+            </Menubar>
+          </div>
+
+          {/* Mobile menu button - you can expand this later */}
+          <div className='md:hidden'>
+            <button className='text-foreground'>
+              <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

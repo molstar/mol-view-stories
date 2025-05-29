@@ -1,10 +1,8 @@
-import { atom, createStore } from 'jotai';
+import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { init_js_code, init_js_code_02 } from './initial-data';
 import { CurrentView, Story } from './types';
 import { UUID } from 'molstar/lib/mol-util';
-
-export const datastore = createStore();
 
 const DefaultStory: Story = {
   metadata: { title: 'Molecular Visualization Story' },
