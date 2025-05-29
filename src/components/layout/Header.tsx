@@ -17,6 +17,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useAtom, useAtomValue } from 'jotai';
+import Image from 'next/image';
 
 export function Header() {
   const pathname = usePathname();
@@ -30,42 +31,18 @@ export function Header() {
   return (
     <header className='bg-background border-b border-border'>
       {/* Main Header */}
-      <div className='flex justify-between items-center px-4 py-3 md:px-8 md:py-4'>
-        <div className='flex items-center gap-8'>
-          <Link href='/' className='text-3xl font-bold text-foreground hover:text-foreground/80 transition-colors'>
+      <div className='flex justify-between items-center px-4 py-2 md:px-6'>
+        <div className='flex items-center gap-6'>
+          <Link href='/' className='flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors'>
+            <Image src='/favicon.ico' alt='MolViewStories' width={24} height={24} className='w-6 h-6' />
             MolViewStories
           </Link>
 
-          <nav className='hidden md:flex items-center gap-6'>
-            <Link
-              href='/'
-              className={`text-sm font-medium transition-colors ${
-                isActive('/') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              href='/story-builder'
-              className={`text-sm font-medium transition-colors ${
-                isActive('/story-builder') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Story Builder
-            </Link>
-            <Link
-              href='/story-view'
-              className={`text-sm font-medium transition-colors ${
-                isActive('/story-view') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              View Stories
-            </Link>
-          </nav>
+          <Separator orientation='vertical' className='h-6' />
 
           {/* Control Bar Inline */}
           <div className='hidden lg:flex items-center'>
-            <Menubar className='bg-transparent border-0 shadow-none h-8'>
+            <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
                 <MenubarMenu>
                   <MenubarTrigger className='text-sm'>File</MenubarTrigger>
                   <MenubarContent>
@@ -82,38 +59,11 @@ export function Header() {
                     <MenubarItem>
                       Save As... <MenubarShortcut>⇧⌘S</MenubarShortcut>
                     </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarItem>
-                      Export PDF <MenubarShortcut>⌘E</MenubarShortcut>
-                    </MenubarItem>
+
                   </MenubarContent>
                 </MenubarMenu>
 
-                <Separator orientation='vertical' className='h-6' />
 
-                <MenubarMenu>
-                  <MenubarTrigger className='text-sm'>Edit</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>
-                      Undo <MenubarShortcut>⌘Z</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarItem>
-                      Cut <MenubarShortcut>⌘X</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Copy <MenubarShortcut>⌘C</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Paste <MenubarShortcut>⌘V</MenubarShortcut>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-
-                <Separator orientation='vertical' className='h-6' />
 
                 <MenubarMenu>
                   <MenubarTrigger className='text-sm'>Scene</MenubarTrigger>
@@ -143,20 +93,10 @@ export function Header() {
                   <MenubarTrigger className='text-sm'>View</MenubarTrigger>
                   <MenubarContent>
                     <MenubarItem onClick={() => setCurrentView({ type: 'preview' })}>
-                      Story Preview <MenubarShortcut>⌘P</MenubarShortcut>
+                      Story Preview
                     </MenubarItem>
-                    <MenubarItem>
-                      Full Screen <MenubarShortcut>⌘⌃F</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarItem>
-                      Zoom In <MenubarShortcut>⌘+</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Zoom Out <MenubarShortcut>⌘-</MenubarShortcut>
-                    </MenubarItem>
-                    <MenubarItem>
-                      Reset Zoom <MenubarShortcut>⌘0</MenubarShortcut>
+                    <MenubarItem onClick={() => setCurrentView({ type: 'scene', id: activeScene?.id })}>
+                      Builder Preview
                     </MenubarItem>
                   </MenubarContent>
                 </MenubarMenu>
@@ -165,13 +105,13 @@ export function Header() {
           </div>
 
           <div className='flex items-center gap-4'>
-            <div className='hidden lg:flex items-center gap-2'>
-              <span className='text-sm text-muted-foreground'>Current Scene:</span>
+            <div className='hidden lg:flex items-center gap-3'>
+              <span className='text-sm text-muted-foreground'>Scene:</span>
               <Select
                 value={currentView.type === 'scene' ? activeScene?.id : undefined}
                 onValueChange={(value) => setCurrentView({ type: 'scene', id: value })}
               >
-                <SelectTrigger className='w-[200px] h-8'>
+                <SelectTrigger className='w-[180px] h-7 text-sm'>
                   <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -192,7 +132,7 @@ export function Header() {
             {/* Mobile menu button - you can expand this later */}
             <div className='md:hidden'>
               <button className='text-foreground'>
-                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
                 </svg>
               </button>
