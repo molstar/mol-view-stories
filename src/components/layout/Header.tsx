@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ActiveSceneAtom,
@@ -28,7 +28,6 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useAtom, useAtomValue } from 'jotai';
 import Image from 'next/image';
-import { useState, useRef } from 'react';
 
 function ExportButton() {
   const story = useAtomValue(StoryAtom);
@@ -72,18 +71,43 @@ function DownloadStoryButtons() {
 function FileUploadButton() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [sceneAssets] = useAtom(SceneAssetsAtom);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    console.log('🚨🚨🚨 FILE INPUT CHANGED! 🚨🚨🚨');
+    console.log('🔧 FileUploadButton: handleFileSelect triggered');
+    
+    const files = event.target.files;
+    console.log('🔧 FileUploadButton: Files:', files);
+    console.log('🔧 FileUploadButton: Files length:', files?.length);
+    
+    const file = files?.[0];
+    
+    if (!file) {
+      console.log('❌ FileUploadButton: No file selected - files array was empty or undefined');
+      return;
+    }
+
+    console.log('📁 FileUploadButton: File selected details:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified).toISOString()
+    });
+
+    console.log('📊 FileUploadButton: Current assets count before upload:', sceneAssets.length);
+    console.log('📊 FileUploadButton: Current assets before upload:', sceneAssets.map(a => ({ name: a.name, size: a.content.length })));
 
     try {
       setIsUploading(true);
-      console.log(`Starting upload for file: ${file.name}`);
+      console.log(`🚀 FileUploadButton: Starting upload for file: ${file.name}`);
       await uploadSceneAsset(file);
-      console.log(`File uploaded successfully: ${file.name}`);
+      console.log(`✅ FileUploadButton: File uploaded successfully: ${file.name}`);
+      
+      // Log assets after upload attempt
+      console.log('📊 FileUploadButton: Assets count after upload should be updated in next render');
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('❌ FileUploadButton: Error uploading file:', error);
       alert(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
@@ -91,10 +115,12 @@ function FileUploadButton() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      console.log('🔄 FileUploadButton: Upload process completed, input reset');
     }
   };
 
   const triggerFileSelect = () => {
+    console.log('👆 FileUploadButton: File select triggered by user click');
     fileInputRef.current?.click();
   };
 
@@ -103,7 +129,6 @@ function FileUploadButton() {
       <input
         ref={fileInputRef}
         type='file'
-        accept='.pdb,.cif,.mmcif,.mol,.sdf,.xyz,.gro'
         onChange={handleFileSelect}
         style={{ display: 'none' }}
       />
@@ -127,7 +152,7 @@ function HeaderLogo() {
 }
 
 function MainMenuBar() {
-  const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
+  const [, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
 
   return (
@@ -219,6 +244,19 @@ function SceneSelector() {
 
 function AssetSelector() {
   const [sceneAssets] = useAtom(SceneAssetsAtom);
+  
+  // Log whenever assets change
+  useEffect(() => {
+    console.log('🔄 AssetSelector: Assets updated:', {
+      count: sceneAssets.length,
+      assets: sceneAssets.map(asset => ({ 
+        name: asset.name, 
+        size: asset.content.length,
+        sizeKB: Math.round(asset.content.length / 1024)
+      }))
+    });
+  }, [sceneAssets]);
+
   return (
     <div className='flex items-center gap-3 px-3'>
       <span className='text-sm text-foreground/70'>Assets:</span>

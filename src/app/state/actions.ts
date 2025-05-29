@@ -160,52 +160,87 @@ export function removeCurrentScene() {
 }
 
 export async function uploadSceneAsset(file: File): Promise<void> {
+  console.log('🔥 uploadSceneAsset: Function called with file:', {
+    name: file.name,
+    size: file.size,
+    type: file.type
+  });
+
   const store = getDefaultStore();
   const currentAssets = store.get(SceneAssetsAtom);
-  console.log(
-    'Current assets before upload:',
-    currentAssets.map((a) => a.name)
-  );
+  console.log('📊 uploadSceneAsset: Current assets before upload:', {
+    count: currentAssets.length,
+    names: currentAssets.map((a) => a.name),
+    totalSize: currentAssets.reduce((sum, a) => sum + a.content.length, 0)
+  });
 
   try {
+    console.log('🔄 uploadSceneAsset: Converting file to ArrayBuffer...');
     const arrayBuffer = await file.arrayBuffer();
+    console.log('✅ uploadSceneAsset: ArrayBuffer created, size:', arrayBuffer.byteLength);
+    
     const content = new Uint8Array(arrayBuffer);
+    console.log('✅ uploadSceneAsset: Uint8Array created, length:', content.length);
 
     const newAsset: SceneAsset = {
       name: file.name,
       content: content,
     };
+    console.log('📦 uploadSceneAsset: New asset object created:', {
+      name: newAsset.name,
+      contentLength: newAsset.content.length,
+      contentType: newAsset.content.constructor.name
+    });
 
     // Check if asset with same name already exists and replace it
     const existingIndex = currentAssets.findIndex((asset) => asset.name === file.name);
+    console.log('🔍 uploadSceneAsset: Checking for existing asset with name:', file.name, 'found at index:', existingIndex);
 
     if (existingIndex >= 0) {
+      console.log('🔄 uploadSceneAsset: Replacing existing asset at index:', existingIndex);
       const updatedAssets = [...currentAssets];
       updatedAssets[existingIndex] = newAsset;
+      
+      console.log('🔄 uploadSceneAsset: Setting SceneAssetsAtom with updated assets...');
       store.set(SceneAssetsAtom, updatedAssets);
-      console.log(`Replaced existing asset: ${file.name}`);
-      console.log(
-        'Updated assets after replace:',
-        updatedAssets.map((a) => a.name)
-      );
+      console.log(`✅ uploadSceneAsset: Replaced existing asset: ${file.name}`);
+      console.log('📊 uploadSceneAsset: Updated assets after replace:', {
+        count: updatedAssets.length,
+        names: updatedAssets.map((a) => a.name),
+        sizes: updatedAssets.map((a) => ({ name: a.name, size: a.content.length }))
+      });
     } else {
+      console.log('➕ uploadSceneAsset: Adding new asset to collection');
       const newAssets = [...currentAssets, newAsset];
+      
+      console.log('🔄 uploadSceneAsset: Setting SceneAssetsAtom with new assets...');
       store.set(SceneAssetsAtom, newAssets);
-      console.log(`Added new asset: ${file.name}`);
-      console.log(
-        'Updated assets after add:',
-        newAssets.map((a) => a.name)
-      );
+      console.log(`✅ uploadSceneAsset: Added new asset: ${file.name}`);
+      console.log('📊 uploadSceneAsset: Updated assets after add:', {
+        count: newAssets.length,
+        names: newAssets.map((a) => a.name),
+        sizes: newAssets.map((a) => ({ name: a.name, size: a.content.length }))
+      });
     }
 
     // Verify the atom was updated
+    console.log('🔍 uploadSceneAsset: Verifying atom state was updated...');
     const verifyAssets = store.get(SceneAssetsAtom);
-    console.log(
-      'Verification - assets in store:',
-      verifyAssets.map((a) => a.name)
-    );
+    console.log('✅ uploadSceneAsset: Verification - assets in store:', {
+      count: verifyAssets.length,
+      names: verifyAssets.map((a) => a.name),
+      targetAssetPresent: verifyAssets.some(a => a.name === file.name),
+      sizes: verifyAssets.map((a) => ({ name: a.name, size: a.content.length }))
+    });
+    
+    if (verifyAssets.some(a => a.name === file.name)) {
+      console.log('🎉 uploadSceneAsset: SUCCESS - Asset confirmed in store!');
+    } else {
+      console.error('❌ uploadSceneAsset: FAILURE - Asset NOT found in store after update!');
+    }
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('❌ uploadSceneAsset: Error uploading file:', error);
+    console.error('❌ uploadSceneAsset: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     throw error;
   }
 }
