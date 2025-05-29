@@ -1,7 +1,6 @@
 'use client';
 
 import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Controls } from '@/components/story-builder/Controls';
 import dynamic from 'next/dynamic';
 
@@ -17,7 +16,6 @@ export default function StoryBuilder() {
           <StoryBuilderRoot />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
