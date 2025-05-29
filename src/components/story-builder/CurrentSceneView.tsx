@@ -102,7 +102,7 @@ async function loadCurrentScene(model: CurrentStoryViewModel, store: ReturnType<
 // re-initializing each time the component is needed.
 let _modelInstance: CurrentStoryViewModel | null = null;
 
-export default function CurrentSceneView() {
+export function CurrentSceneView() {
   const modelRef = useRef<CurrentStoryViewModel>(_modelInstance);
   if (!modelRef.current) {
     _modelInstance = modelRef.current = new CurrentStoryViewModel();

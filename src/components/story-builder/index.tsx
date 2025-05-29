@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { getMVSData } from '@/lib/story-builder';
 import { generateStoriesHtml } from '@/lib/stories-html';
 
-export function StoryEditors() {
+export default function StoryBuilderRoot() {
   const view = useAtomValue(CurrentViewAtom);
 
   if (view.type === 'scene') return <SceneEditors />;
