@@ -28,37 +28,32 @@ export function addScene(options?: { duplicate?: boolean }) {
   datastore.set(CurrentViewAtom, { type: 'scene', id: newScene.id });
 }
 
-export function removeCurrentScene() {
-  const story = datastore.get(StoryAtom);
-  if (story.scenes.length <= 1) {
-    console.warn('Cannot remove the last scene.');
+export async function downloadStory(story: Story, how: 'state' | 'html') {
+  // TODO:
+  // - download as HTML with embedded state
+  try {
+    const data = await getMVSData(story.metadata, story.scenes);
+    let blob: Blob;
+    let filename: string;
+    if (how === 'html') {
+      const htmlContent = generateStoriesHtml(data);
+      blob = new Blob([htmlContent], { type: 'text/html' });
+      filename = `story-${Date.now()}.html`;
+    } else if (how === 'state') {
+      blob =
+        data instanceof Uint8Array
+          ? new Blob([data], { type: 'application/octet-stream' })
+          : new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      filename = `story-${Date.now()}.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
+    } else {
+      console.warn("Invalid download type specified. Use 'state' or 'html'.");
+      return;
+    }
+    download(blob, filename);
+  } catch (error) {
+    console.error('Error generating MVS data:', error);
     return;
   }
-
-  const sceneId = datastore.get(ActiveSceneIdAtom);
-  const scenes = story.scenes.filter((s) => s.id !== sceneId);
-  datastore.set(StoryAtom, { ...story, scenes });
-  datastore.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
-}
-
-export function modifySceneMetadata(update: Partial<StoryMetadata>) {
-  const story = datastore.get(StoryAtom);
-  datastore.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
-}
-
-export function modifyCurrentScene(update: SceneUpdate) {
-  const story = datastore.get(StoryAtom);
-  const sceneId = datastore.get(ActiveSceneIdAtom);
-  const sceneIdx = story.scenes.findIndex((s) => s.id === sceneId);
-
-  if (sceneIdx < 0) return;
-
-  const scenes = [...story.scenes];
-  scenes[sceneIdx] = {
-    ...scenes[sceneIdx],
-    ...update,
-  };
-  datastore.set(StoryAtom, { ...story, scenes });
 }
 
 export const exportState = async (
@@ -127,30 +122,35 @@ export const exportState = async (
   return exportData;
 };
 
-export async function downloadStory(story: Story, how: 'state' | 'html') {
-  // TODO:
-  // - download as HTML with embedded state
-  try {
-    const data = await getMVSData(story.metadata, story.scenes);
-    let blob: Blob;
-    let filename: string;
-    if (how === 'html') {
-      const htmlContent = generateStoriesHtml(data);
-      blob = new Blob([htmlContent], { type: 'text/html' });
-      filename = `story-${Date.now()}.html`;
-    } else if (how === 'state') {
-      blob =
-        data instanceof Uint8Array
-          ? new Blob([data], { type: 'application/octet-stream' })
-          : new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      filename = `story-${Date.now()}.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
-    } else {
-      console.warn("Invalid download type specified. Use 'state' or 'html'.");
-      return;
-    }
-    download(blob, filename);
-  } catch (error) {
-    console.error('Error generating MVS data:', error);
+export function modifyCurrentScene(update: SceneUpdate) {
+  const story = datastore.get(StoryAtom);
+  const sceneId = datastore.get(ActiveSceneIdAtom);
+  const sceneIdx = story.scenes.findIndex((s) => s.id === sceneId);
+
+  if (sceneIdx < 0) return;
+
+  const scenes = [...story.scenes];
+  scenes[sceneIdx] = {
+    ...scenes[sceneIdx],
+    ...update,
+  };
+  datastore.set(StoryAtom, { ...story, scenes });
+}
+
+export function modifySceneMetadata(update: Partial<StoryMetadata>) {
+  const story = datastore.get(StoryAtom);
+  datastore.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
+}
+
+export function removeCurrentScene() {
+  const story = datastore.get(StoryAtom);
+  if (story.scenes.length <= 1) {
+    console.warn('Cannot remove the last scene.');
     return;
   }
+
+  const sceneId = datastore.get(ActiveSceneIdAtom);
+  const scenes = story.scenes.filter((s) => s.id !== sceneId);
+  datastore.set(StoryAtom, { ...story, scenes });
+  datastore.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
 }

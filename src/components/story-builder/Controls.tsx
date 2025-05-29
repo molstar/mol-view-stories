@@ -1,6 +1,6 @@
 'use client';
 
-import { ActiveSceneAtom, addScene, CurrentViewAtom, removeCurrentScene, StoryAtom } from '@/app/appstate';
+import { datastore, ActiveSceneAtom, addScene, CurrentViewAtom, removeCurrentScene, StoryAtom } from '@/app/appstate';
 import { DownloadStoryButtons, ExportButton } from '@/components/story-builder/ExportButton';
 import {
   Menubar,
@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAtom, useAtomValue } from 'jotai';
 
 export function Controls() {
-  const story = useAtomValue(StoryAtom);
+  const story = useAtomValue(StoryAtom, { store: datastore });
   const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
 
