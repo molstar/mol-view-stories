@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useAtom } from 'jotai';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { datastore, ActiveSceneIdAtom, ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
+import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 
 interface BaseMonacoEditorProps {
   language: string;
@@ -13,8 +14,7 @@ interface BaseMonacoEditorProps {
 }
 
 export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoEditorProps) {
-  const activeScene = datastore.get(ActiveSceneAtom);
-
+  const [activeScene] = useAtom(ActiveSceneAtom);
   const [currentCode, setCurrentCode] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
 

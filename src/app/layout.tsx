@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { Provider } from 'jotai';
-import './globals.css';
 
+import './globals.css';
 import 'molstar/build/viewer/molstar.css';
 
 const geistSans = Geist({
@@ -28,9 +27,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head></head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Provider>{children}</Provider>
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }
