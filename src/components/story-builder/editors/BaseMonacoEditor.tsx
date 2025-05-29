@@ -14,7 +14,7 @@ interface BaseMonacoEditorProps {
 }
 
 export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoEditorProps) {
-  const [activeScene] = useAtom(ActiveSceneAtom);
+  const activeScene = useAtomValue(ActiveSceneAtom);
   const [currentCode, setCurrentCode] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
 
