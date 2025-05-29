@@ -21,8 +21,6 @@ export default function StoryView() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

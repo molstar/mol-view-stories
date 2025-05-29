@@ -17,7 +17,6 @@ export default function StoryBuilder() {
           <StoryBuilderRoot />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
