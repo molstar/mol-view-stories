@@ -3,7 +3,6 @@
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Hero } from '@/components/landing/Hero';
-import { Features } from '@/components/landing/Features';
 
 export default function Home() {
   return (
@@ -11,7 +10,6 @@ export default function Home() {
       <Header />
       <main className='flex-1'>
         <Hero />
-        <Features />
       </main>
     </div>
   );
