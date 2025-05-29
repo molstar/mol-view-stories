@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { useAtomValue } from 'jotai';
-import { datastore, StoryAtom, ActiveSceneIdAtom, ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
+import { datastore, ActiveSceneIdAtom, ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 
 interface BaseMonacoEditorProps {
   language: string;
