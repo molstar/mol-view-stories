@@ -20,6 +20,7 @@ import { Camera } from "molstar/lib/mol-canvas3d/camera";
 import { StoryAtom } from "@/app/state/atoms";
 import { getMVSData } from "@/lib/story-builder";
 
+import "molstar/build/viewer/molstar.css";
 
 function createViewer() {
   const spec = DefaultPluginUISpec();
@@ -29,10 +30,14 @@ function createViewer() {
       initial: {
         isExpanded: false,
         showControls: false
-      }
+      },
+
     },
     components: {
       remoteState: 'none',
+      viewport: {
+        snapshotDescription: EmptyDescription,
+      }
     },
     behaviors: [
       ...spec.behaviors,
@@ -86,6 +91,10 @@ class CurrentStoryViewModel {
     this.plugin = createViewer();
     this.init();
   }
+}
+
+function EmptyDescription() {
+    return <></>;
 }
 
 const PluginWrapper = memo(function _PluginWrapper({ plugin }: { plugin: PluginUIContext }) {
