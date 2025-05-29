@@ -14,8 +14,6 @@ interface BaseMonacoEditorProps {
 }
 
 export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoEditorProps) {
-  const story = useAtomValue(StoryAtom);
-  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
   const activeScene = datastore.get(ActiveSceneAtom);
 
   const [currentCode, setCurrentCode] = useState('');
