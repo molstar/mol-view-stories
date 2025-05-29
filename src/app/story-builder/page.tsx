@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { SceneEditors } from '@/components/story-builder/SceneEditors';
+import { StoryEditors } from '@/components/story-builder/StoryEditors';
 import { Controls } from '@/components/story-builder/Controls';
 
 export default function StoryBuilder() {
@@ -12,9 +12,7 @@ export default function StoryBuilder() {
       <main className='flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-[1600px] mx-auto w-full h-full'>
         <Controls />
         <div className='flex gap-6 lg:gap-8 flex-1 h-full min-h-0'>
-          <div className='flex-1 flex flex-col h-full min-h-0'>
-            <SceneEditors />
-          </div>
+          <StoryEditors />
           {/* <div className="flex-1 flex flex-col h-full min-h-0">
             <VisualizationPanel />
           </div> */}

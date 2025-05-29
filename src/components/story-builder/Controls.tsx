@@ -1,11 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useAtom, useAtomValue, useStore } from 'jotai';
-import { StoryAtom, ActiveSceneIdAtom, getActiveScene, addScene, removeCurrentScene } from '@/app/appstate';
+import { ActiveSceneAtom, addScene, CurrentViewAtom, removeCurrentScene, StoryAtom } from '@/app/appstate';
 import { DownloadStoryButtons, ExportButton } from '@/components/story-builder/ExportButton';
-import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Menubar,
   MenubarContent,
@@ -15,13 +11,15 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from '@/components/ui/menubar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 
 export function Controls() {
   const store = useStore();
   const story = useAtomValue(StoryAtom);
-  const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
-
-  const activeScene = getActiveScene(story, activeSceneId);
+  const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
+  const activeScene = useAtomValue(ActiveSceneAtom);
 
   return (
     <div className='space-y-3'>
@@ -105,8 +103,8 @@ export function Controls() {
             <MenubarMenu>
               <MenubarTrigger className='text-sm'>View</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem>
-                  Toggle Preview <MenubarShortcut>⌘P</MenubarShortcut>
+                <MenubarItem onClick={() => setCurrentView({ type: 'preview' })}>
+                  Story Preview <MenubarShortcut>⌘P</MenubarShortcut>
                 </MenubarItem>
                 <MenubarItem>
                   Full Screen <MenubarShortcut>⌘⌃F</MenubarShortcut>
@@ -127,7 +125,10 @@ export function Controls() {
 
           <div className='flex items-center gap-2 ms-8'>
             <span className='text-sm text-muted-foreground'>Current Scene:</span>
-            <Select value={activeSceneId.toString()} onValueChange={setActiveSceneId}>
+            <Select
+              value={currentView.type === 'scene' ? activeScene?.id : undefined}
+              onValueChange={(value) => setCurrentView({ type: 'scene', id: value })}
+            >
               <SelectTrigger className='w-[200px] h-8'>
                 <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
               </SelectTrigger>
