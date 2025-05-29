@@ -1,17 +1,11 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useAtom } from "jotai";
-import { ScenesAtom, ActiveSceneIdAtom, SetActiveSceneAtom } from "@/app/appstate";
-import { ExportButton } from "@/components/story-builder/ExportButton";
-import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React from 'react';
+import { useAtom, useAtomValue, useStore } from 'jotai';
+import { StoryAtom, ActiveSceneIdAtom, getActiveScene, addScene, removeCurrentScene } from '@/app/appstate';
+import { DownloadStoryButtons, ExportButton } from '@/components/story-builder/ExportButton';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Menubar,
   MenubarContent,
@@ -20,28 +14,23 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from "@/components/ui/menubar";
+} from '@/components/ui/menubar';
 
 export function Controls() {
-  const [scenes] = useAtom(ScenesAtom);
-  const [activeSceneId] = useAtom(ActiveSceneIdAtom);
-  const [, setActiveScene] = useAtom(SetActiveSceneAtom);
+  const store = useStore();
+  const story = useAtomValue(StoryAtom);
+  const [activeSceneId, setActiveSceneId] = useAtom(ActiveSceneIdAtom);
 
-  const activeScene = scenes.find(scene => scene.id === activeSceneId);
-
-  const handleSceneChange = (value: string) => {
-    const sceneId = parseInt(value, 10);
-    setActiveScene(sceneId);
-  };
+  const activeScene = getActiveScene(story, activeSceneId);
 
   return (
-    <div className="space-y-3">
+    <div className='space-y-3'>
       {/* Command Bar */}
-      <div className="bg-muted/50 border border-border rounded-lg p-2">
-        <div className="flex justify-between items-center">
-          <Menubar className="bg-transparent border-0 shadow-none h-8">
+      <div className='bg-muted/50 border border-border rounded-lg p-2'>
+        <div className='flex justify-between gap-2 items-center'>
+          <Menubar className='bg-transparent border-0 shadow-none h-8'>
             <MenubarMenu>
-              <MenubarTrigger className="text-sm">File</MenubarTrigger>
+              <MenubarTrigger className='text-sm'>File</MenubarTrigger>
               <MenubarContent>
                 <MenubarItem>
                   New Story <MenubarShortcut>⌘N</MenubarShortcut>
@@ -62,11 +51,11 @@ export function Controls() {
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
-            
-            <Separator orientation="vertical" className="h-6" />
-            
+
+            <Separator orientation='vertical' className='h-6' />
+
             <MenubarMenu>
-              <MenubarTrigger className="text-sm">Edit</MenubarTrigger>
+              <MenubarTrigger className='text-sm'>Edit</MenubarTrigger>
               <MenubarContent>
                 <MenubarItem>
                   Undo <MenubarShortcut>⌘Z</MenubarShortcut>
@@ -86,19 +75,19 @@ export function Controls() {
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
-            
-            <Separator orientation="vertical" className="h-6" />
-            
+
+            <Separator orientation='vertical' className='h-6' />
+
             <MenubarMenu>
-              <MenubarTrigger className="text-sm">Scene</MenubarTrigger>
+              <MenubarTrigger className='text-sm'>Scene</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem>
+                <MenubarItem onClick={() => addScene(store)}>
                   Add New Scene <MenubarShortcut>⌘⇧N</MenubarShortcut>
                 </MenubarItem>
-                <MenubarItem>
+                <MenubarItem onClick={() => addScene(store, { duplicate: true })}>
                   Duplicate Scene <MenubarShortcut>⌘D</MenubarShortcut>
                 </MenubarItem>
-                <MenubarItem>
+                <MenubarItem onClick={() => removeCurrentScene(store)}>
                   Delete Scene <MenubarShortcut>⌘⌫</MenubarShortcut>
                 </MenubarItem>
                 <MenubarSeparator />
@@ -110,11 +99,11 @@ export function Controls() {
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
-            
-            <Separator orientation="vertical" className="h-6" />
-            
+
+            <Separator orientation='vertical' className='h-6' />
+
             <MenubarMenu>
-              <MenubarTrigger className="text-sm">View</MenubarTrigger>
+              <MenubarTrigger className='text-sm'>View</MenubarTrigger>
               <MenubarContent>
                 <MenubarItem>
                   Toggle Preview <MenubarShortcut>⌘P</MenubarShortcut>
@@ -135,28 +124,27 @@ export function Controls() {
               </MenubarContent>
             </MenubarMenu>
           </Menubar>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Scenes:</span>
-            <Select value={activeSceneId.toString()} onValueChange={handleSceneChange}>
-              <SelectTrigger className="w-[200px] h-8">
-                <SelectValue placeholder="Select a scene">
-                  {activeScene?.header || "Select a scene"}
-                </SelectValue>
+
+          <div className='flex items-center gap-2 ms-8'>
+            <span className='text-sm text-muted-foreground'>Current Scene:</span>
+            <Select value={activeSceneId.toString()} onValueChange={setActiveSceneId}>
+              <SelectTrigger className='w-[200px] h-8'>
+                <SelectValue placeholder='Select a scene'>{activeScene?.header || 'Select a scene'}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {scenes.map((scene) => (
+                {story.scenes.map((scene) => (
                   <SelectItem key={scene.id} value={scene.id.toString()}>
                     {scene.header}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <ExportButton />
           </div>
+          <div className='flex-1' />
+          <ExportButton />
+          <DownloadStoryButtons />
         </div>
       </div>
-
-
     </div>
   );
+}

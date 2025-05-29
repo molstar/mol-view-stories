@@ -15,17 +15,11 @@
 //
 
 // Re-export types
-export type { SceneData, SceneUpdate, CreateSceneData } from "./state/types";
+export type { SceneData, SceneUpdate, CreateSceneData } from './state/types';
 
 // Core state atoms
-export {
-  ScenesAtom,
-  ActiveSceneIdAtom,
-  CurrentMvsDataAtom,
-  CameraPositionAtom,
-  SetActiveSceneAtom,
-  ActiveSceneAtom,
-} from "./state/atoms";
+export { StoryAtom, ActiveSceneIdAtom, CameraSnapshotAtom as CameraPositionAtom, ActiveSceneAtom } from './state/atoms';
 
 // Helper functions for state management
-export { getActiveScene, executeCode, exportState } from "./state/atoms";
+export { getActiveScene } from './state/atoms';
+export * from './state/actions';

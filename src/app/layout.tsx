@@ -1,21 +1,23 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Provider } from "jotai";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import { Provider } from 'jotai';
+import './globals.css';
+
+import 'molstar/build/viewer/molstar.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "StoriesCreator - Interactive Molecular Storytelling",
-  description: "Create compelling molecular visualizations and interactive stories with MolStar and custom code.",
+  title: 'StoriesCreator - Interactive Molecular Storytelling',
+  description: 'Create compelling molecular visualizations and interactive stories with MolStar and custom code.',
 };
 
 export default function RootLayout({
@@ -24,19 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <script 
-          src="https://cdn.jsdelivr.net/npm/molstar@latest/build/viewer/molstar.js"
-          defer
-        ></script>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Provider>
-          {children}
-        </Provider>
+    <html lang='en'>
+      <head></head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
