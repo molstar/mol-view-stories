@@ -31,5 +31,4 @@ export {
   modifyCurrentScene,
   modifySceneMetadata,
   removeCurrentScene,
-  uploadSceneAsset,
 } from './state/actions';
