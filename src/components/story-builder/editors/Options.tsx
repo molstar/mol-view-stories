@@ -1,11 +1,10 @@
 import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAtomValue, useStore } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
 export function OptionsEditor() {
-  const store = useStore();
   const scene = useAtomValue(ActiveSceneAtom);
 
   return (
@@ -17,7 +16,7 @@ export function OptionsEditor() {
           value={scene?.header || ''}
           placeholder='Scene Title'
           onChange={(value) => {
-            modifyCurrentScene(store, { header: value.trim() });
+            modifyCurrentScene({ header: value.trim() });
           }}
         />
       </div>
@@ -28,7 +27,7 @@ export function OptionsEditor() {
           value={scene?.key || ''}
           placeholder='Scene Key'
           onChange={(value) => {
-            modifyCurrentScene(store, { key: value.trim() ? value : undefined });
+            modifyCurrentScene({ key: value.trim() ? value : undefined });
           }}
         />
       </div>
@@ -40,10 +39,10 @@ export function OptionsEditor() {
           placeholder='Linger Duration in milliseconds'
           onChange={(value) => {
             if (!value.trim()) {
-              modifyCurrentScene(store, { linger_duration_ms: undefined });
+              modifyCurrentScene({ linger_duration_ms: undefined });
             } else {
               const numValue = parseInt(value, 10);
-              modifyCurrentScene(store, { linger_duration_ms: Number.isFinite(numValue) ? numValue : undefined });
+              modifyCurrentScene({ linger_duration_ms: Number.isFinite(numValue) ? numValue : undefined });
             }
           }}
         />
@@ -56,10 +55,10 @@ export function OptionsEditor() {
           placeholder='Transition Duration in milliseconds'
           onChange={(value) => {
             if (!value.trim()) {
-              modifyCurrentScene(store, { transition_duration_ms: undefined });
+              modifyCurrentScene({ transition_duration_ms: undefined });
             } else {
               const numValue = parseInt(value, 10);
-              modifyCurrentScene(store, { transition_duration_ms: Number.isFinite(numValue) ? numValue : undefined });
+              modifyCurrentScene({ transition_duration_ms: Number.isFinite(numValue) ? numValue : undefined });
             }
           }}
         />

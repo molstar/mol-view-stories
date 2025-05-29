@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { useAtom, useStore } from 'jotai';
-import { CameraPositionAtom, ActiveSceneAtom } from '../../app/appstate';
+import { useAtom } from 'jotai';
+import { CameraPositionAtom, ActiveSceneAtom, datastore, StoryAtom } from '../../app/appstate';
 import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
@@ -11,7 +11,6 @@ import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { SingleTaskQueue } from '@/lib/utils';
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
-import { StoryAtom } from '@/app/state/atoms';
 import { getMVSData } from '@/lib/story-builder';
 
 function createViewer() {
@@ -89,9 +88,9 @@ const PluginWrapper = memo(function _PluginWrapper({ plugin }: { plugin: PluginU
   return <Plugin plugin={plugin} />;
 });
 
-async function loadCurrentScene(model: CurrentStoryViewModel, store: ReturnType<typeof useStore>) {
-  const story = store.get(StoryAtom);
-  const scene = store.get(ActiveSceneAtom);
+async function loadCurrentScene(model: CurrentStoryViewModel) {
+  const story = datastore.get(StoryAtom);
+  const scene = datastore.get(ActiveSceneAtom);
   if (!scene) return;
 
   const mvsData = await getMVSData(story.metadata, [scene]);
@@ -108,18 +107,17 @@ export function CurrentSceneView() {
     _modelInstance = modelRef.current = new CurrentStoryViewModel();
   }
 
-  const store = useStore();
   const model = modelRef.current;
 
   model.setCameraSnapshot = useAtom(CameraPositionAtom)[1];
 
   useEffect(() => {
-    loadCurrentScene(model, store);
-    const unsub = store.sub(ActiveSceneAtom, () => loadCurrentScene(model, store));
+    loadCurrentScene(model);
+    const unsub = datastore.sub(ActiveSceneAtom, () => loadCurrentScene(model));
     return () => {
       unsub();
     };
-  }, [store, model]);
+  }, [model]);
 
   return (
     <div className='rounded overflow-hidden w-full h-full border border-border bg-background relative'>
