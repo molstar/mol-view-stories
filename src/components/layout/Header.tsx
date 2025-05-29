@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   ActiveSceneAtom,
   addScene,
@@ -12,6 +11,7 @@ import {
   ActiveSceneIdAtom,
   exportState,
   downloadStory,
+  uploadSceneAsset,
 } from '@/app/appstate';
 import {
   Menubar,
@@ -27,10 +27,10 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useAtom, useAtomValue } from 'jotai';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 function ExportButton() {
-  const [story, setStory] = useAtom(StoryAtom);
+  const story = useAtomValue(StoryAtom);
   const activeSceneId = useAtomValue(ActiveSceneIdAtom);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -68,14 +68,53 @@ function DownloadStoryButtons() {
   );
 }
 
-export function Header() {
-  const pathname = usePathname();
-  const [story, setStory] = useAtom(StoryAtom);
-  const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
-  const [activeScene, setActiveScene] = useAtom(ActiveSceneAtom);
+function FileUploadButton() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const isActive = (path: string) => pathname === path;
-  const isStoryBuilder = pathname === '/story-builder';
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      await uploadSceneAsset(file);
+      console.log(`File uploaded successfully: ${file.name}`);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setIsUploading(false);
+      // Reset the input value so the same file can be uploaded again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdb,.cif,.mmcif,.mol,.sdf,.xyz,.gro"
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+      <MenubarItem onClick={triggerFileSelect} disabled={isUploading}>
+        {isUploading ? 'Uploading...' : 'Upload File'} <MenubarShortcut>⌘U</MenubarShortcut>
+      </MenubarItem>
+    </>
+  );
+}
+
+export function Header() {
+  const story = useAtomValue(StoryAtom);
+  const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
+  const activeScene = useAtomValue(ActiveSceneAtom);
 
   return (
     <header className='bg-background border-b border-border'>
@@ -104,6 +143,8 @@ export function Header() {
                   <MenubarItem>
                     Open Story <MenubarShortcut>⌘O</MenubarShortcut>
                   </MenubarItem>
+                  <MenubarSeparator />
+                  <FileUploadButton />
                   <MenubarSeparator />
                   <MenubarItem>
                     Save <MenubarShortcut>⌘S</MenubarShortcut>

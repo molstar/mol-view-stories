@@ -6,6 +6,17 @@ export type StoryMetadata = {
   title: string;
 };
 
+export type Story = {
+  metadata: StoryMetadata;
+  scenes: SceneData[];
+  // TODO: assets?: ...
+};
+
+export type SceneAsset = {
+  name: string;
+  content: Uint8Array;
+};
+
 export type SceneData = {
   id: string;
   header: string;
@@ -15,12 +26,6 @@ export type SceneData = {
   camera?: Camera.Snapshot | null;
   linger_duration_ms?: number;
   transition_duration_ms?: number;
-};
-
-export type Story = {
-  metadata: StoryMetadata;
-  scenes: SceneData[];
-  // TODO: assets?: ...
 };
 
 export type SceneUpdate = Partial<Omit<SceneData, 'id'>>;

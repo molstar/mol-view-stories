@@ -3,8 +3,8 @@ import { download } from 'molstar/lib/mol-util/download';
 import { UUID } from 'molstar/lib/mol-util/uuid';
 import { getMVSData } from '../../lib/story-builder';
 import { getDefaultStore } from 'jotai';
-import { ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom } from './atoms';
-import { SceneData, SceneUpdate, Story, StoryMetadata } from './types';
+import { ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom, SceneAssetsAtom } from './atoms';
+import { SceneData, SceneUpdate, Story, StoryMetadata, SceneAsset } from './types';
 
 export function addScene(options?: { duplicate?: boolean }) {
   const store = getDefaultStore();
@@ -157,4 +157,36 @@ export function removeCurrentScene() {
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
   store.set(StoryAtom, { ...story, scenes });
   store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
+}
+
+export async function uploadSceneAsset(file: File): Promise<void> {
+  const store = getDefaultStore();
+  
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const content = new Uint8Array(arrayBuffer);
+    
+    const newAsset: SceneAsset = {
+      name: file.name,
+      content: content,
+    };
+    
+    const currentAssets = store.get(SceneAssetsAtom);
+    
+    // Check if asset with same name already exists and replace it
+    const existingIndex = currentAssets.findIndex(asset => asset.name === file.name);
+    
+    if (existingIndex >= 0) {
+      const updatedAssets = [...currentAssets];
+      updatedAssets[existingIndex] = newAsset;
+      store.set(SceneAssetsAtom, updatedAssets);
+      console.log(`Replaced existing asset: ${file.name}`);
+    } else {
+      store.set(SceneAssetsAtom, [...currentAssets, newAsset]);
+      console.log(`Added new asset: ${file.name}`);
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw error;
+  }
 }

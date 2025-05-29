@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { init_js_code, init_js_code_02 } from './initial-data';
-import { CurrentView, Story } from './types';
+import { CurrentView, Story, SceneAsset } from './types';
 import { UUID } from 'molstar/lib/mol-util';
 
 const DefaultStory: Story = {
@@ -36,6 +36,8 @@ export const ActiveSceneIdAtom = atom<string | undefined>((get) => {
 });
 
 export const CameraSnapshotAtom = atom<Camera.Snapshot | null>(null);
+
+export const SceneAssetsAtom = atom<SceneAsset[]>([]);
 
 // Derived atoms for automatic JavaScript execution
 export const ActiveSceneAtom = atom((get) => {
