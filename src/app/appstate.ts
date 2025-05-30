@@ -20,7 +20,7 @@ export {
   ActiveSceneIdAtom,
   CameraSnapshotAtom as CameraPositionAtom,
   ActiveSceneAtom,
-  SceneAssetsAtom,
+  StoryAssetsAtom,
 } from './state/atoms';
 
 // Helper functions for state management
@@ -31,4 +31,6 @@ export {
   modifyCurrentScene,
   modifySceneMetadata,
   removeCurrentScene,
+  addStoryAssets,
+  removeStoryAsset,
 } from './state/actions';

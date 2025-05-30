@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { init_js_code, init_js_code_02 } from './initial-data';
-import { CurrentView, Story, SceneAsset } from './types';
+import { CurrentView, Story } from './types';
 import { UUID } from 'molstar/lib/mol-util';
 
 const DefaultStory: Story = {
@@ -23,6 +23,7 @@ const DefaultStory: Story = {
       javascript: init_js_code_02,
     },
   ],
+  assets: [],
 };
 
 // Core State Atoms
@@ -37,7 +38,11 @@ export const ActiveSceneIdAtom = atom<string | undefined>((get) => {
 
 export const CameraSnapshotAtom = atom<Camera.Snapshot | null>(null);
 
-export const SceneAssetsAtom = atom<SceneAsset[]>([]);
+// Derived atom for story assets
+export const StoryAssetsAtom = atom((get) => {
+  const story = get(StoryAtom);
+  return story.assets || [];
+});
 
 // Derived atoms for automatic JavaScript execution
 export const ActiveSceneAtom = atom((get) => {
