@@ -131,6 +131,7 @@ export function modifyCurrentScene(update: SceneUpdate) {
   const sceneId = store.get(ActiveSceneIdAtom);
   const sceneIdx = story.scenes.findIndex((s) => s.id === sceneId);
   if (sceneIdx < 0) return;
+
   const scenes = [...story.scenes];
   scenes[sceneIdx] = {
     ...scenes[sceneIdx],
