@@ -1,16 +1,14 @@
-import { CurrentViewAtom, StoryAtom } from '@/app/appstate';
-import { generateStoriesHtml } from '@/app/state/template';
-import { useAtomValue, useStore } from 'jotai';
-import { useEffect, useState } from 'react';
-import { Header } from '../common';
-import { SceneEditors } from './SceneEditor';
-import { StoryOptions } from './StoryOptions';
-import { StoriesToolBar } from './Toolbar';
-import { ExampleStories } from '@/app/examples';
+import { useAtomValue, useStore } from 'jotai/index';
+import { CurrentViewAtom, StoryAtom } from '@/app/state/atoms';
+import { SceneEditors } from '@/components/story-builder/SceneEditor';
+import { StoryOptions } from '@/components/story-builder/StoryOptions';
 import { useSearchParams } from 'next/navigation';
-
-
+import { useEffect, useState } from 'react';
+import { ExampleStories } from '@/app/examples';
+import { Header } from '@/components/common';
+import { StoriesToolBar } from '@/components/story-builder/Toolbar';
 import { getMVSData } from '@/app/state/actions';
+import { generateStoriesHtml } from '@/app/state/template';
 
 export default function StoryBuilderPage() {
   const store = useStore();
@@ -70,6 +68,7 @@ function StoryPreview() {
 
   useEffect(() => {
     let mounted = true;
+
     async function build() {
       const data = await getMVSData(story);
       if (!mounted) return;
@@ -77,6 +76,7 @@ function StoryPreview() {
       const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));
       setSrc(src);
     }
+
     build();
     return () => {
       mounted = false;
