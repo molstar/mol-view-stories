@@ -25,11 +25,11 @@ export function StoryOptions() {
       <CardContent className='flex-1 overflow-hidden'>
         <div className='space-y-4'>
           <Options />
+          <Label>Common Code</Label>
+          <StoryCodeEditor />
           <Label>Assets</Label>
           <FileUploadZone />
           <AssetEditor />
-          <Label>Common Code</Label>
-          <StoryCodeEditor />
         </div>
       </CardContent>
     </Card>

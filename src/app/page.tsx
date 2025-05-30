@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/common';
+import { ExampleStoryList } from './examples/list';
 
 export default function Home() {
   return (
@@ -21,21 +22,31 @@ export default function Home() {
               rendering with custom scripts to tell your scientific story.
             </p>
 
-            <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
+            <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mb-8'>
               <Link
-                href='/story-builder'
+                // NOTE: this (and other links) will not work in the deployed version as it will be hosted on molstar.org/mol-view-stories/...
+                //       need to set this up with base prefix
+                href='/story-builder?story=Empty'
                 className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors'
               >
                 Start Building
               </Link>
-
-              <Link
-                href='/story-view'
-                className='border border-border px-8 py-3 rounded-lg font-semibold text-foreground hover:bg-muted/50 transition-colors'
-              >
-                View Examples
-              </Link>
             </div>
+          </div>
+
+          <div className='max-w-4xl mx-auto text-center'>
+            <h2 className='text-3xl md:text-3xl font-bold text-foreground mb-6'>Examples</h2>
+          </div>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
+            {ExampleStoryList.map((example) => (
+              <Link
+                key={example.key}
+                className='border border-border px-8 py-3 rounded-lg font-semibold text-foreground hover:bg-muted/50 transition-colors'
+                href={`/story-builder?story=${example.key}`}
+              >
+                {example.name}
+              </Link>
+            ))}
           </div>
         </section>
       </main>

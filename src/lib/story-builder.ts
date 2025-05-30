@@ -1,8 +1,7 @@
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
-import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { Zip } from 'molstar/lib/mol-util/zip/zip';
-import { SceneData, Story } from '../app/state/types';
+import { CameraData, SceneData, Story } from '../app/state/types';
 
 const createStateProvider = (code: string) => {
   return new Function('builder', code);
@@ -25,7 +24,7 @@ function getMVSSnapshot(story: Story, scene: SceneData) {
       title: scene.header,
       description: scene.description,
       linger_duration_ms: scene.linger_duration_ms || 5000,
-      transition_duration_ms: scene.transition_duration_ms,
+      transition_duration_ms: scene.transition_duration_ms || 500,
     });
 
     return snapshot;
@@ -35,11 +34,11 @@ function getMVSSnapshot(story: Story, scene: SceneData) {
   }
 }
 
-function adjustedCameraPosition(camera: Camera.Snapshot) {
+function adjustedCameraPosition(camera: CameraData) {
   // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
   const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
-  const delta = Vec3.sub(Vec3(), camera.position, camera.target);
-  return Vec3.scaleAndAdd(Vec3(), camera.target, delta, 1 / f) as unknown as [number, number, number];
+  const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
+  return Vec3.scaleAndAdd(Vec3(), camera.target as Vec3, delta, 1 / f) as unknown as [number, number, number];
 }
 
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {

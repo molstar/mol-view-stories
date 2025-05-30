@@ -2,11 +2,11 @@
 
 import { ActiveSceneAtom, CameraPositionAtom, modifyCurrentScene } from '@/app/appstate';
 import { useAtomValue } from 'jotai';
-import type { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { Button } from '../ui/button';
+import { CameraData } from '@/app/state/types';
 
 // Camera Position Component
-const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: Camera.Snapshot | null }) => {
+const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: CameraData | null }) => {
   if (!cameraSnapshot) return null;
 
   return (
@@ -30,11 +30,6 @@ const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: Camera.Sna
             ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
             : ' N/A'}
         </div>
-        {cameraSnapshot.radius && (
-          <div>
-            <span className='font-medium'>Radius:</span> {cameraSnapshot.radius.toFixed(2)}
-          </div>
-        )}
         {/* {cameraSnapshot.fov && (
           <div>
             <span className="font-medium">FOV:</span>{" "}

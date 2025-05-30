@@ -1,14 +1,35 @@
 import { CurrentViewAtom, StoryAtom } from '@/app/appstate';
 import { generateStoriesHtml } from '@/lib/stories-html';
 import { getMVSData } from '@/lib/story-builder';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useStore } from 'jotai';
 import { useEffect, useState } from 'react';
 import { Header } from '../common';
 import { SceneEditors } from './SceneEditor';
 import { StoryOptions } from './StoryOptions';
 import { StoriesToolBar } from './Toolbar';
+import { ExampleStories } from '@/app/examples';
+import { useSearchParams } from 'next/navigation';
 
 export default function StoryBuilderPage() {
+  const store = useStore();
+  const searchParams = useSearchParams();
+  const storyName = searchParams.get('story');
+
+  useEffect(() => {
+    if (!storyName) return;
+
+    let story = ExampleStories[storyName as keyof typeof ExampleStories];
+    if (!story) story = ExampleStories.Empty;
+
+    store.set(CurrentViewAtom, { type: 'story-options' });
+    store.set(StoryAtom, story);
+
+    // clear search params
+    const url = new URL(window.location.href);
+    url.searchParams.delete('story');
+    window.history.replaceState({}, '', url.toString());
+  }, [store, storyName]);
+
   return (
     <div className='flex flex-col min-h-screen'>
       <Header>

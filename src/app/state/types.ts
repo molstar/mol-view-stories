@@ -1,4 +1,4 @@
-import type { Camera } from 'molstar/lib/mol-canvas3d/camera';
+import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 
 export type StoryMetadata = {
   title: string;
@@ -17,13 +17,21 @@ export type SceneAsset = {
   content: Uint8Array;
 };
 
+export type CameraData = {
+  mode: 'perspective' | 'orthographic';
+  target: [number, number, number] | Vec3;
+  position: [number, number, number] | Vec3;
+  up: [number, number, number] | Vec3;
+  fov: number;
+};
+
 export type SceneData = {
   id: string;
   header: string;
   key: string;
   description: string;
   javascript: string;
-  camera?: Camera.Snapshot | null;
+  camera?: CameraData | null;
   linger_duration_ms?: number;
   transition_duration_ms?: number;
 };

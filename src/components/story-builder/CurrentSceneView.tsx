@@ -53,14 +53,16 @@ class CurrentStoryViewModel {
   loadMVSData(data: MVSData | Uint8Array | null) {
     if (!data) return;
 
-    this.queue.run(async () => {
-      try {
-        await this.plugin.initialized;
-        await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
-      } catch (error) {
-        console.error('Error loading MVS data into Molstar:', error);
-      }
-    });
+    setTimeout(() => {
+      this.queue.run(async () => {
+        try {
+          await this.plugin.initialized;
+          await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
+        } catch (error) {
+          console.error('Error loading MVS data into Molstar:', error);
+        }
+      });
+    }, 0);
   }
 
   private async init() {
