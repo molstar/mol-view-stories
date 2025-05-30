@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Header } from '@/components/layout/Header';
-import { Hero } from '@/components/landing/Hero';
+import { Header } from '@/components/story-builder/Header';
+import { Hero } from '@/components/story-builder/Hero';
 
 export default function Home() {
   return (

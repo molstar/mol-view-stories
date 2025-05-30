@@ -4,7 +4,7 @@ import { UUID } from 'molstar/lib/mol-util/uuid';
 import { getMVSData } from '../../lib/story-builder';
 import { getDefaultStore } from 'jotai';
 import { ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom } from './atoms';
-import { SceneData, SceneUpdate, Story, StoryMetadata } from './types';
+import { SceneData, SceneUpdate, Story, StoryMetadata, SceneAsset } from './types';
 
 export function addScene(options?: { duplicate?: boolean }) {
   const store = getDefaultStore();
@@ -157,4 +157,17 @@ export function removeCurrentScene() {
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
   store.set(StoryAtom, { ...story, scenes });
   store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
+}
+
+export function addStoryAssets(newAssets: SceneAsset[]) {
+  const store = getDefaultStore();
+  const story = store.get(StoryAtom);
+  store.set(StoryAtom, { ...story, assets: [...(story.assets || []), ...newAssets] });
+}
+
+export function removeStoryAsset(assetName: string) {
+  const store = getDefaultStore();
+  const story = store.get(StoryAtom);
+  const updatedAssets = (story.assets || []).filter((asset) => asset.name !== assetName);
+  store.set(StoryAtom, { ...story, assets: updatedAssets });
 }

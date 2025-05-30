@@ -1,7 +1,7 @@
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
-import { SceneData, StoryMetadata } from '../app/state/types';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
+import { SceneData, StoryMetadata } from '../app/state/types';
 
 const createStateProvider = (code: string) => {
   return new Function('builder', code);

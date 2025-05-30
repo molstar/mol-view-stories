@@ -23,6 +23,7 @@ const DefaultStory: Story = {
       javascript: init_js_code_02,
     },
   ],
+  assets: [],
 };
 
 // Core State Atoms
@@ -36,6 +37,12 @@ export const ActiveSceneIdAtom = atom<string | undefined>((get) => {
 });
 
 export const CameraSnapshotAtom = atom<Camera.Snapshot | null>(null);
+
+// Derived atom for story assets
+export const StoryAssetsAtom = atom((get) => {
+  const story = get(StoryAtom);
+  return story.assets || [];
+});
 
 // Derived atoms for automatic JavaScript execution
 export const ActiveSceneAtom = atom((get) => {
