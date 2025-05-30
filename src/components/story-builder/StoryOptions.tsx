@@ -58,7 +58,6 @@ function Options() {
 
 function AssetEditor() {
   const [story, setStory] = useAtom(StoryAtom);
-
   return (
     <div className='max-h-[200px] overflow-y-auto space-y-2'>
       {story.assets.map((asset, index) => (
