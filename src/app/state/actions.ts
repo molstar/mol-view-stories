@@ -1,11 +1,15 @@
 import { generateStoriesHtml } from '@/lib/stories-html';
+import { getDefaultStore } from 'jotai';
+import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
+import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode';
 import { download } from 'molstar/lib/mol-util/download';
 import { UUID } from 'molstar/lib/mol-util/uuid';
 import { getMVSData } from '../../lib/story-builder';
-import { getDefaultStore } from 'jotai';
-import { ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom } from './atoms';
-import { SceneData, SceneUpdate, Story, StoryMetadata, SceneAsset } from './types';
 import { ExampleStories } from '../examples';
+import { ActiveSceneAtom, ActiveSceneIdAtom, CurrentViewAtom, StoryAtom } from './atoms';
+import { SceneAsset, SceneData, SceneUpdate, Story, StoryContainer, StoryMetadata } from './types';
+import { Task } from 'molstar/lib/mol-task';
+import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip';
 
 export function addScene(options?: { duplicate?: boolean }) {
   const store = getDefaultStore();
@@ -68,71 +72,41 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
   }
 }
 
-export const exportState = async (
-  story: Story,
-  activeSceneId: string | undefined,
-  currentMvsData: unknown
-): Promise<Record<string, unknown>> => {
-  const store = getDefaultStore();
-  const activeScene = store.get(ActiveSceneAtom);
+// TODO better extension?
+export const SessionFileExtension = '.mvsession';
 
-  console.log(`🚀 Starting export process for ${story.scenes.length} scenes...`);
-
-  const scenesWithExecutedData = await Promise.all(
-    story.scenes.map(async (scene) => {
-      try {
-        console.log(`⚡ Executing JavaScript for scene ${scene.id}: "${scene.header}"`);
-        const executedData = getMVSData(story, [scene]);
-        console.log(
-          `✅ Successfully executed scene ${scene.id}, data size:`,
-          JSON.stringify(executedData).length,
-          'characters'
-        );
-        return {
-          id: scene.id,
-          header: scene.header,
-          key: scene.key,
-          description: scene.description,
-          executedData,
-        };
-      } catch (error) {
-        console.error(`❌ Error executing JavaScript for scene ${scene.id}:`, error);
-        return {
-          id: scene.id,
-          header: scene.header,
-          key: scene.key,
-          description: scene.description,
-          executedData: null,
-          executionError: error instanceof Error ? error.message : String(error),
-        };
-      }
-    })
-  );
-
-  const exportData = {
-    scenes: scenesWithExecutedData,
-    activeSceneId,
-    activeScene: activeScene
-      ? {
-          id: activeScene.id,
-          header: activeScene.header,
-          key: activeScene.key,
-          description: activeScene.description,
-          executedData: currentMvsData,
-        }
-      : null,
-    exportTimestamp: new Date().toISOString(),
-    version: '1.0.0',
+export const exportState = async (story: Story) => {
+  const container: StoryContainer = {
+    version: 1,
+    story,
   };
 
-  const jsonString = JSON.stringify(exportData, null, 2);
-  console.log('📋 StoriesCreator Complete Export (JavaScript executed and replaced with JSON data):');
-  console.log(jsonString);
-  console.log(
-    `📊 Export Summary: ${scenesWithExecutedData.length} scenes processed, ${scenesWithExecutedData.filter((s) => s.executedData).length} successful executions`
-  );
+  // Using message pack for:
+  // - More efficient
+  // - Ablity to encode Uint8Array for file assets directly
+  const encoded = encodeMsgPack(container);
+  const deflated = await Task.create('Deflate Story Data', async (ctx) => {
+    return await deflate(ctx, encoded, { level: 3 });
+  }).run();
+  const blob = new Blob([deflated], { type: 'application/octet-stream' });
+  const filename = `story-${Date.now()}${SessionFileExtension}`;
+  download(blob, filename);
+};
 
-  return exportData;
+export const importState = async (file: File) => {
+  const store = getDefaultStore();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const inflated = await Task.create('Inflate Story Data', async (ctx) => {
+    return await inflate(ctx, bytes);
+  }).run();
+  const decoded = decodeMsgPack(inflated) as StoryContainer;
+  if (decoded.version !== 1) {
+    console.warn(`Unsupported story version: ${decoded.version}. Expected version 1.`);
+    return;
+  }
+
+  store.set(CurrentViewAtom, { type: 'story-options' });
+  store.set(StoryAtom, decoded.story);
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {

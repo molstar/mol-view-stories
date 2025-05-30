@@ -1,5 +1,10 @@
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 
+export type StoryContainer = {
+  version: 1;
+  story: Story;
+};
+
 export type StoryMetadata = {
   title: string;
 };
