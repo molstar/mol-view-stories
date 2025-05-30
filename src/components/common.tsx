@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Separator } from './ui/separator';
 import { MenuIcon } from 'lucide-react';
+import React from 'react';
 
 function HeaderLogo() {
   return (

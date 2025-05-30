@@ -27,3 +27,6 @@ export const ActiveSceneAtom = atom((get) => {
   const activeId = get(ActiveSceneIdAtom);
   return story.scenes.find((scene) => scene.id === activeId) || story.scenes[0];
 });
+
+// UI State Atoms
+export const OpenSessionAtom = atom<boolean>(false);

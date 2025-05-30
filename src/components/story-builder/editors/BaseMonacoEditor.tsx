@@ -49,7 +49,7 @@ export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoE
     //   actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
     // });
 
-    // Note: this should not needed
+    // Note: this should not be needed
     setIsExecuting(true);
     try {
       await onExecute(editorCode);
