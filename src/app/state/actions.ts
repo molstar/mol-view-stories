@@ -5,9 +5,13 @@ import { getMVSData } from '../../lib/story-builder';
 import { getDefaultStore } from 'jotai';
 import { ActiveSceneIdAtom, CurrentViewAtom, ActiveSceneAtom, StoryAtom } from './atoms';
 import { SceneData, SceneUpdate, Story, StoryMetadata, SceneAsset } from './types';
+import { ExampleStories } from '../examples';
 
 export function addScene(options?: { duplicate?: boolean }) {
   const store = getDefaultStore();
+  const view = store.get(CurrentViewAtom);
+  if (view.type !== 'scene' && options?.duplicate) return;
+
   const story = store.get(StoryAtom);
   const current = store.get(ActiveSceneAtom);
 
@@ -28,6 +32,12 @@ export function addScene(options?: { duplicate?: boolean }) {
 
   store.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
   store.set(CurrentViewAtom, { type: 'scene', id: newScene.id });
+}
+
+export function newStory() {
+  const store = getDefaultStore();
+  store.set(CurrentViewAtom, { type: 'story-options' });
+  store.set(StoryAtom, ExampleStories.Empty);
 }
 
 export async function downloadStory(story: Story, how: 'state' | 'html') {
@@ -127,6 +137,9 @@ export const exportState = async (
 
 export function modifyCurrentScene(update: SceneUpdate) {
   const store = getDefaultStore();
+  const view = store.get(CurrentViewAtom);
+  if (view.type !== 'scene') return;
+
   const story = store.get(StoryAtom);
   const sceneId = store.get(ActiveSceneIdAtom);
   const sceneIdx = story.scenes.findIndex((s) => s.id === sceneId);
@@ -146,8 +159,32 @@ export function modifySceneMetadata(update: Partial<StoryMetadata>) {
   store.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
 }
 
+export function moveCurrentScene(delta: number) {
+  const store = getDefaultStore();
+  const view = store.get(CurrentViewAtom);
+  if (view.type !== 'scene') return;
+
+  const story = store.get(StoryAtom);
+  const sceneId = store.get(ActiveSceneIdAtom);
+  const sceneIdx = story.scenes.findIndex((s) => s.id === sceneId);
+  if (sceneIdx < 0) return;
+
+  const scenes = [...story.scenes];
+  let newIdx = (sceneIdx + delta) % scenes.length;
+  if (newIdx < 0) newIdx += scenes.length; // Wrap around if negative
+  if (newIdx === sceneIdx) return; // No change
+  // shuffle the scenes array
+  const scene = scenes[sceneIdx];
+  scenes.splice(sceneIdx, 1);
+  scenes.splice(newIdx, 0, scene);
+  store.set(StoryAtom, { ...story, scenes });
+}
+
 export function removeCurrentScene() {
   const store = getDefaultStore();
+  const view = store.get(CurrentViewAtom);
+  if (view.type !== 'scene') return;
+
   const story = store.get(StoryAtom);
   if (story.scenes.length <= 1) {
     console.warn('Cannot remove the last scene.');

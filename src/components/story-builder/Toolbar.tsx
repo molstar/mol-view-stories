@@ -28,43 +28,17 @@ import {
 } from '@/components/ui/menubar';
 import { Separator } from '@/components/ui/separator';
 import { useAtom, useAtomValue } from 'jotai';
-import { WrenchIcon, EyeIcon, FileIcon, FolderIcon, FrameIcon, ImageIcon, CopyIcon } from 'lucide-react';
+import { WrenchIcon, EyeIcon, FileIcon, DownloadIcon, FolderIcon, FrameIcon, ImageIcon, CopyIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../ui/button';
-
-function FileUploadButton() {
-  const [, setCurrentView] = useAtom(CurrentViewAtom);
-  const activeScene = useAtomValue(ActiveSceneAtom);
-
-  const handleUploadClick = () => {
-    setCurrentView({ type: 'scene', id: activeScene?.id });
-  };
-  return (
-    <MenubarItem onClick={handleUploadClick}>
-      Upload File <MenubarShortcut>⌘U</MenubarShortcut>
-    </MenubarItem>
-  );
-}
+import { moveCurrentScene, newStory } from '@/app/state/actions';
 
 export function StoriesToolBar() {
   const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
   const story = useAtomValue(StoryAtom);
-  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
   const storyAssets = useAtomValue(StoryAssetsAtom);
-  const [isExporting, setIsExporting] = useState(false);
-
-  const handleExport = async () => {
-    try {
-      setIsExporting(true);
-      await exportState(story, activeSceneId, {});
-      console.log('Export completed successfully');
-    } catch (error) {
-      console.error('Error during export:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  const canModifyScene = currentView.type === 'scene' && story.scenes.length >= 1;
 
   return (
     <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
@@ -74,29 +48,28 @@ export function StoriesToolBar() {
           File
         </MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>
-            New Story <MenubarShortcut>⌘N</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem>
-            Open Story <MenubarShortcut>⌘O</MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <FileUploadButton />
+          <MenubarItem onClick={() => newStory()}>New Story</MenubarItem>
           <MenubarSeparator />
           <MenubarItem>
-            Save <MenubarShortcut>⌘S</MenubarShortcut>
+            {/* TODO: dialog with file select? */}
+            Import Story Session
           </MenubarItem>
-          <MenubarItem>
-            Save As... <MenubarShortcut>⇧⌘S</MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem onClick={handleExport} disabled={isExporting}>
-            {isExporting ? 'Exporting...' : 'Export JSON'}
-          </MenubarItem>
+          <ExportSessionButton />
+        </MenubarContent>
+      </MenubarMenu>
+
+      <MenubarMenu>
+        <MenubarTrigger className='text-sm flex items-center gap-1'>
+          <DownloadIcon className='size-4' />
+          Export
+        </MenubarTrigger>
+        <MenubarContent>
           <MenubarItem onClick={() => downloadStory(story, 'state')}>Download Story</MenubarItem>
           <MenubarItem onClick={() => downloadStory(story, 'html')}>Download HTML</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
+
+      <Separator orientation='vertical' className='h-6' />
 
       <MenubarMenu>
         <MenubarTrigger className='text-sm flex items-center gap-1'>
@@ -107,23 +80,21 @@ export function StoriesToolBar() {
           <MenubarItem onClick={() => addScene()}>
             Add New Scene <MenubarShortcut>⌘⇧N</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem onClick={() => addScene({ duplicate: true })}>
+          <MenubarItem onClick={() => addScene({ duplicate: true })} disabled={!canModifyScene}>
             Duplicate Scene <MenubarShortcut>⌘D</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem onClick={() => removeCurrentScene()}>
+          <MenubarItem onClick={() => removeCurrentScene()} disabled={!canModifyScene || story.scenes.length <= 1}>
             Delete Scene <MenubarShortcut>⌘⌫</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
-          <MenubarItem>
+          <MenubarItem onClick={() => moveCurrentScene(-1)} disabled={!canModifyScene}>
             Move Up <MenubarShortcut>⌘↑</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem onClick={() => moveCurrentScene(1)} disabled={!canModifyScene}>
             Move Down <MenubarShortcut>⌘↓</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-
-      <Separator orientation='vertical' className='h-6' />
 
       <MenubarMenu>
         <MenubarTrigger className='text-sm flex items-center gap-1'>
@@ -152,7 +123,7 @@ export function StoriesToolBar() {
       <Separator orientation='vertical' className='h-6' />
 
       <span className='text-sm text-foreground/70 ms-4 me-2'>View:</span>
-          
+
       <Button
         className='rounded-none'
         onClick={() => setCurrentView({ type: 'story-options' })}
@@ -160,7 +131,7 @@ export function StoriesToolBar() {
         variant={currentView.type === 'story-options' ? 'default' : 'ghost'}
       >
         <WrenchIcon />
-        Options
+        Story Options
       </Button>
 
       <DropdownMenu>
@@ -195,8 +166,32 @@ export function StoriesToolBar() {
         variant={currentView.type === 'preview' ? 'default' : 'ghost'}
       >
         <EyeIcon />
-        Preview
+        Story Preview
       </Button>
     </Menubar>
+  );
+}
+
+function ExportSessionButton() {
+  const story = useAtomValue(StoryAtom);
+  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportState(story, activeSceneId, {});
+      console.log('Export completed successfully');
+    } catch (error) {
+      console.error('Error during export:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
+    <MenubarItem onClick={handleExport} disabled={isExporting}>
+      {isExporting ? 'Exporting...' : 'Export Story Session'}
+    </MenubarItem>
   );
 }

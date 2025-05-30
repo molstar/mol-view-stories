@@ -13,6 +13,7 @@ import { CurrentSceneView } from './CurrentSceneView';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
 import { OptionsEditor } from './editors/SceneOptions';
+import { BoxIcon, BoltIcon } from 'lucide-react';
 
 export function SceneEditors() {
   return (
@@ -26,14 +27,18 @@ export function SceneEditors() {
                 <SceneTitle />
               </CardTitle>
             </div>
-            <TabsList className='grid grid-cols-2'>
-              <TabsTrigger value='scene'>3D View</TabsTrigger>
-              <TabsTrigger value='description'>Description</TabsTrigger>
+            <TabsList>
+              <TabsTrigger value='scene'>
+                <BoxIcon className='size-4' /> 3D View
+              </TabsTrigger>
+              <TabsTrigger value='options'>
+                <BoltIcon className='size-4' /> Scene Options
+              </TabsTrigger>
             </TabsList>
           </div>
         </CardHeader>
         <CardContent className='flex-1 overflow-hidden'>
-          <TabsContent value='description' className='mt-0 h-full'>
+          <TabsContent value='options' className='mt-0 h-full'>
             <div className='space-y-4'>
               <OptionsEditor />
               <Label>Markdown Description</Label>
