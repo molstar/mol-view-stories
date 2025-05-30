@@ -1,5 +1,3 @@
-//   - drag and drop box.
-
 import type { Camera } from 'molstar/lib/mol-canvas3d/camera';
 
 export type StoryMetadata = {
@@ -9,9 +7,10 @@ export type StoryMetadata = {
 export type Story = {
   metadata: StoryMetadata;
   scenes: SceneData[];
-  // TODO: assets?: ...
+  assets: SceneAsset[];
 };
 
+// a file
 export type SceneAsset = {
   name: string;
   content: Uint8Array;
