@@ -29,44 +29,7 @@ import { Switch } from '@/components/ui/switch';
 import { useAtom, useAtomValue } from 'jotai';
 import Image from 'next/image';
 
-function ExportButton() {
-  const story = useAtomValue(StoryAtom);
-  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
-  const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = async () => {
-    try {
-      setIsExporting(true);
-      await exportState(story, activeSceneId, {});
-      console.log('Export completed successfully');
-    } catch (error) {
-      console.error('Error during export:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  return (
-    <Button onClick={handleExport} disabled={isExporting} variant='default' size='sm' className='h-6'>
-      {isExporting ? 'Exporting...' : 'Export JSON'}
-    </Button>
-  );
-}
-
-function DownloadStoryButtons() {
-  const story = useAtomValue(StoryAtom);
-
-  return (
-    <>
-      <Button onClick={() => downloadStory(story, 'state')} variant='default' size='sm' className='h-6'>
-        Download Story
-      </Button>
-      <Button onClick={() => downloadStory(story, 'html')} variant='default' size='sm' className='h-6'>
-        Download HTML
-      </Button>
-    </>
-  );
-}
 
 function FileUploadButton() {
   const [, setCurrentView] = useAtom(CurrentViewAtom);
@@ -101,6 +64,21 @@ function HeaderLogo() {
 function MainMenuBar() {
   const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
+  const story = useAtomValue(StoryAtom);
+  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportState(story, activeSceneId, {});
+      console.log('Export completed successfully');
+    } catch (error) {
+      console.error('Error during export:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <Menubar className='bg-secondary/80 border border-border/50 shadow-sm h-8 rounded-md'>
@@ -121,6 +99,16 @@ function MainMenuBar() {
           </MenubarItem>
           <MenubarItem>
             Save As... <MenubarShortcut>⇧⌘S</MenubarShortcut>
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem onClick={handleExport} disabled={isExporting}>
+            {isExporting ? 'Exporting...' : 'Export JSON'}
+          </MenubarItem>
+          <MenubarItem onClick={() => downloadStory(story, 'state')}>
+            Download Story
+          </MenubarItem>
+          <MenubarItem onClick={() => downloadStory(story, 'html')}>
+            Download HTML
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
@@ -230,14 +218,7 @@ function AssetSelector() {
   );
 }
 
-function ActionButtons() {
-  return (
-    <div className='flex items-center gap-2 px-3'>
-      <ExportButton />
-      <DownloadStoryButtons />
-    </div>
-  );
-}
+
 
 function ControlsMenuBar() {
   return (
@@ -245,8 +226,6 @@ function ControlsMenuBar() {
       <SceneSelector />
       <Separator orientation='vertical' className='h-6' />
       <AssetSelector />
-      <Separator orientation='vertical' className='h-6' />
-      <ActionButtons />
     </Menubar>
   );
 }
