@@ -1,6 +1,5 @@
 import { CurrentViewAtom, StoryAtom } from '@/app/appstate';
-import { generateStoriesHtml } from '@/lib/stories-html';
-import { getMVSData } from '@/lib/story-builder';
+import { generateStoriesHtml } from '@/app/state/template';
 import { useAtomValue, useStore } from 'jotai';
 import { useEffect, useState } from 'react';
 import { Header } from '../common';
@@ -9,6 +8,9 @@ import { StoryOptions } from './StoryOptions';
 import { StoriesToolBar } from './Toolbar';
 import { ExampleStories } from '@/app/examples';
 import { useSearchParams } from 'next/navigation';
+
+
+import { getMVSData } from '@/app/state/actions';
 
 export default function StoryBuilderPage() {
   const store = useStore();

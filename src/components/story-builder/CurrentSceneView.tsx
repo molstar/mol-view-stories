@@ -10,9 +10,11 @@ import { PluginConfig } from 'molstar/lib/mol-plugin/config';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { SingleTaskQueue } from '@/lib/utils';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
-import { getMVSData } from '@/lib/story-builder';
 import { SceneData, Story } from '@/app/state/types';
-import { Scheduler, Task } from 'molstar/lib/mol-task';
+import { Scheduler} from 'molstar/lib/mol-task';
+
+
+import { getMVSData } from '@/app/state/actions';
 
 function createViewer() {
   const spec = DefaultPluginUISpec();
