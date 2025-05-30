@@ -10,10 +10,10 @@ const createStateProvider = (code: string) => {
 async function getMVSSnapshot(story: Story, scene: SceneData) {
   try {
     const stateProvider = createStateProvider(`
-async function run() {
+async function _run_builder() {
       ${story.javascript}\n\n${scene.javascript}
 }
-return run();      
+return _run_builder();
 `);
     const builder = MVSData.createBuilder();
     await stateProvider(builder);
