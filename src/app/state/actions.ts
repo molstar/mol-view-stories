@@ -159,6 +159,12 @@ export function removeCurrentScene() {
   store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
 }
 
+export function setStoryAssets(assets: SceneAsset[]) {
+  const store = getDefaultStore();
+  const story = store.get(StoryAtom);
+  store.set(StoryAtom, { ...story, assets });
+}
+
 export function addStoryAssets(newAssets: SceneAsset[]) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);

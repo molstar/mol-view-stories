@@ -5,7 +5,7 @@ import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import { useAtomValue } from 'jotai';
 import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 
-export function MonacoMarkdownEditor() {
+export function SceneMarkdownEditor() {
   const activeScene = useAtomValue(ActiveSceneAtom);
   const [currentMarkdown, setCurrentMarkdown] = useState('');
 

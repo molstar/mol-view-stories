@@ -6,6 +6,7 @@ import { UUID } from 'molstar/lib/mol-util';
 
 const DefaultStory: Story = {
   metadata: { title: 'Molecular Visualization Story' },
+  javascript: '// Common code for all scenes\n',
   scenes: [
     {
       id: UUID.createv4(),

@@ -1,18 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import {
   ActiveSceneAtom,
+  ActiveSceneIdAtom,
   addScene,
   CurrentViewAtom,
-  removeCurrentScene,
-  StoryAtom,
-  ActiveSceneIdAtom,
-  exportState,
   downloadStory,
+  exportState,
+  removeCurrentScene,
   StoryAssetsAtom,
+  StoryAtom,
 } from '@/app/appstate';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Menubar,
   MenubarContent,
@@ -23,10 +27,10 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
 import { useAtom, useAtomValue } from 'jotai';
-import Image from 'next/image';
-import { FileIcon, ImageIcon, FrameIcon, FolderIcon, EyeIcon, MenuIcon } from 'lucide-react';
+import { WrenchIcon, EyeIcon, FileIcon, FolderIcon, FrameIcon, ImageIcon, CopyIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '../ui/button';
 
 function FileUploadButton() {
   const [, setCurrentView] = useAtom(CurrentViewAtom);
@@ -42,19 +46,7 @@ function FileUploadButton() {
   );
 }
 
-function HeaderLogo() {
-  return (
-    <Link
-      href='/'
-      className='flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors'
-    >
-      <Image src='/favicon.ico' alt='MolViewStories' width={24} height={24} className='w-6 h-6' />
-      MolViewStories
-    </Link>
-  );
-}
-
-function MainMenuBar() {
+export function StoriesToolBar() {
   const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
   const story = useAtomValue(StoryAtom);
@@ -135,26 +127,6 @@ function MainMenuBar() {
 
       <MenubarMenu>
         <MenubarTrigger className='text-sm flex items-center gap-1'>
-          <FrameIcon className='size-4' />
-          Frames
-        </MenubarTrigger>
-        <MenubarContent>
-          {story.scenes.map((scene) => (
-            <MenubarItem
-              key={scene.id}
-              onClick={() => setCurrentView({ type: 'scene', id: scene.id.toString() })}
-              className={activeScene?.id === scene.id.toString() ? 'bg-accent' : ''}
-            >
-              {scene.header}
-            </MenubarItem>
-          ))}
-        </MenubarContent>
-      </MenubarMenu>
-
-      <Separator orientation='vertical' className='h-6' />
-
-      <MenubarMenu>
-        <MenubarTrigger className='text-sm flex items-center gap-1'>
           <FolderIcon className='size-4' />
           Assets
         </MenubarTrigger>
@@ -163,8 +135,14 @@ function MainMenuBar() {
             <MenubarItem disabled>No assets uploaded</MenubarItem>
           ) : (
             storyAssets.map((asset, index) => (
-              <MenubarItem key={`${asset.name}-${index}`}>
-                {asset.name} ({Math.round(asset.content.length / 1024)}KB)
+              <MenubarItem
+                key={`${asset.name}-${index}`}
+                onClick={() => {
+                  navigator.clipboard.writeText(asset.name);
+                }}
+                title='Click to copy asset name'
+              >
+                <CopyIcon className='size-4' /> {asset.name} ({Math.round(asset.content.length / 1024)}KB)
               </MenubarItem>
             ))
           )}
@@ -173,47 +151,51 @@ function MainMenuBar() {
 
       <Separator orientation='vertical' className='h-6' />
 
-      <div className='flex items-center gap-2 px-3'>
-        <span className='text-sm text-foreground/70'>Mode:</span>
-        <span className='text-sm text-foreground/70'>Builder</span>
-        <Switch
-          checked={currentView.type === 'preview'}
-          onCheckedChange={(checked) =>
-            setCurrentView(checked ? { type: 'preview' } : { type: 'scene', id: activeScene?.id })
-          }
-        />
-        <span className='text-sm text-foreground/70'>Story</span>
-      </div>
+      <span className='text-sm text-foreground/70 ms-4 me-2'>View:</span>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className='rounded-none' size='sm' variant={currentView.type === 'scene' ? 'default' : 'ghost'}>
+            <FrameIcon />
+            {currentView.type !== 'scene' && `${story.scenes.length} Scene${story.scenes.length !== 1 ? 's' : ''}`}
+            {currentView.type === 'scene' && (
+              <>
+                Scene {story.scenes.findIndex((s) => s.id === activeScene?.id) + 1}/{story.scenes.length}
+              </>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {story.scenes.map((scene, i) => (
+            <DropdownMenuItem
+              key={scene.id}
+              onClick={() => setCurrentView({ type: 'scene', id: scene.id.toString() })}
+              className={currentView.type === 'scene' && activeScene?.id === scene.id.toString() ? 'bg-accent' : ''}
+            >
+              {i + 1}/{story.scenes.length}: {scene.header}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Button
+        className='rounded-none'
+        onClick={() => setCurrentView({ type: 'story-options' })}
+        size='sm'
+        variant={currentView.type === 'story-options' ? 'default' : 'ghost'}
+      >
+        <WrenchIcon />
+        Options
+      </Button>
+      <Button
+        className='rounded-none'
+        onClick={() => setCurrentView({ type: 'preview' })}
+        size='sm'
+        variant={currentView.type === 'preview' ? 'default' : 'ghost'}
+      >
+        <EyeIcon />
+        Preview
+      </Button>
     </Menubar>
-  );
-}
-
-function MobileMenuButton() {
-  return (
-    <div className='md:hidden'>
-      <button className='text-foreground'>
-        <MenuIcon className='w-5 h-5' />
-      </button>
-    </div>
-  );
-}
-
-export function Header() {
-  return (
-    <header className='bg-background border-b border-border'>
-      <div className='flex justify-between items-center px-4 py-2 md:px-6'>
-        <div className='flex items-center gap-6'>
-          <HeaderLogo />
-          <Separator orientation='vertical' className='h-6' />
-          <div className='hidden lg:flex items-center'>
-            <MainMenuBar />
-          </div>
-        </div>
-
-        <div className='flex items-center gap-4'>
-          <MobileMenuButton />
-        </div>
-      </div>
-    </header>
   );
 }

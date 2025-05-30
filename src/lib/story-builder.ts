@@ -8,9 +8,9 @@ const createStateProvider = (code: string) => {
   return new Function('builder', code);
 };
 
-export function getMVSSnapshot(scene: SceneData) {
+function getMVSSnapshot(story: Story, scene: SceneData) {
   try {
-    const stateProvider = createStateProvider(scene.javascript);
+    const stateProvider = createStateProvider(`${story.javascript}\n\n${scene.javascript}`);
     const builder = MVSData.createBuilder();
     stateProvider(builder);
     if (scene.camera) {
@@ -45,7 +45,7 @@ function adjustedCameraPosition(camera: Camera.Snapshot) {
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
   // Async in case of creating a ZIP archite with static assets
 
-  const snapshots = scenes.map(getMVSSnapshot);
+  const snapshots = scenes.map((scene) => getMVSSnapshot(story, scene));
   const index: MVSData = {
     kind: 'multiple',
     metadata: {
@@ -62,7 +62,7 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
 
   const encoder = new TextEncoder();
   const files: Record<string, Uint8Array> = {
-    "index.mvsj": encoder.encode(JSON.stringify(index)),
+    'index.mvsj': encoder.encode(JSON.stringify(index)),
   };
   for (const asset of story.assets) {
     files[asset.name] = asset.content;

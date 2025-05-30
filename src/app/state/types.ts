@@ -6,6 +6,7 @@ export type StoryMetadata = {
 
 export type Story = {
   metadata: StoryMetadata;
+  javascript: string;
   scenes: SceneData[];
   assets: SceneAsset[];
 };
