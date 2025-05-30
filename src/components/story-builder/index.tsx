@@ -13,12 +13,12 @@ import { useSearchParams } from 'next/navigation';
 export default function StoryBuilderPage() {
   const store = useStore();
   const searchParams = useSearchParams();
-  const storyName = searchParams.get('story');
+  const templateName = searchParams.get('template');
 
   useEffect(() => {
-    if (!storyName) return;
+    if (!templateName) return;
 
-    let story = ExampleStories[storyName as keyof typeof ExampleStories];
+    let story = ExampleStories[templateName as keyof typeof ExampleStories];
     if (!story) story = ExampleStories.Empty;
 
     store.set(CurrentViewAtom, { type: 'story-options' });
@@ -26,9 +26,9 @@ export default function StoryBuilderPage() {
 
     // clear search params
     const url = new URL(window.location.href);
-    url.searchParams.delete('story');
+    url.searchParams.delete('template');
     window.history.replaceState({}, '', url.toString());
-  }, [store, storyName]);
+  }, [store, templateName]);
 
   return (
     <div className='flex flex-col min-h-screen'>
