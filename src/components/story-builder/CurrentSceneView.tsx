@@ -12,6 +12,7 @@ import { SingleTaskQueue } from '@/lib/utils';
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { getMVSData } from '@/lib/story-builder';
+import { SceneData, Story } from '@/app/state/types';
 
 function createViewer() {
   const spec = DefaultPluginUISpec();
@@ -24,6 +25,7 @@ function createViewer() {
       },
     },
     components: {
+      disableDragOverlay: true,
       remoteState: 'none',
       viewport: {
         snapshotDescription: EmptyDescription,
@@ -88,10 +90,10 @@ const PluginWrapper = memo(function _PluginWrapper({ plugin }: { plugin: PluginU
   return <Plugin plugin={plugin} />;
 });
 
-async function loadCurrentScene(model: CurrentStoryViewModel, story: any, scene: any) {
+async function loadCurrentScene(model: CurrentStoryViewModel, story: Story, scene: SceneData) {
   if (!scene) return;
 
-  const mvsData = await getMVSData(story.metadata, [scene]);
+  const mvsData = await getMVSData(story, [scene]);
   model.loadMVSData(mvsData);
 }
 

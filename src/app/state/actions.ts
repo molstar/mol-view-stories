@@ -34,7 +34,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
   // TODO:
   // - download as HTML with embedded state
   try {
-    const data = await getMVSData(story.metadata, story.scenes);
+    const data = await getMVSData(story);
     let blob: Blob;
     let filename: string;
     if (how === 'html') {
@@ -72,7 +72,7 @@ export const exportState = async (
     story.scenes.map(async (scene) => {
       try {
         console.log(`⚡ Executing JavaScript for scene ${scene.id}: "${scene.header}"`);
-        const executedData = getMVSData(story.metadata, [scene]);
+        const executedData = getMVSData(story, [scene]);
         console.log(
           `✅ Successfully executed scene ${scene.id}, data size:`,
           JSON.stringify(executedData).length,

@@ -31,7 +31,7 @@ function StoryPreview() {
   useEffect(() => {
     let mounted = true;
     async function build() {
-      const data = await getMVSData(story.metadata, story.scenes);
+      const data = await getMVSData(story);
       if (!mounted) return;
       const htmlContent = generateStoriesHtml(data);
       const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));
