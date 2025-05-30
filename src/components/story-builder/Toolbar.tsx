@@ -152,6 +152,16 @@ export function StoriesToolBar() {
       <Separator orientation='vertical' className='h-6' />
 
       <span className='text-sm text-foreground/70 ms-4 me-2'>View:</span>
+          
+      <Button
+        className='rounded-none'
+        onClick={() => setCurrentView({ type: 'story-options' })}
+        size='sm'
+        variant={currentView.type === 'story-options' ? 'default' : 'ghost'}
+      >
+        <WrenchIcon />
+        Options
+      </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -178,15 +188,6 @@ export function StoriesToolBar() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button
-        className='rounded-none'
-        onClick={() => setCurrentView({ type: 'story-options' })}
-        size='sm'
-        variant={currentView.type === 'story-options' ? 'default' : 'ghost'}
-      >
-        <WrenchIcon />
-        Options
-      </Button>
       <Button
         className='rounded-none'
         onClick={() => setCurrentView({ type: 'preview' })}

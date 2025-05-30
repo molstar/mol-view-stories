@@ -26,7 +26,7 @@ export default function Home() {
               <Link
                 // NOTE: this (and other links) will not work in the deployed version as it will be hosted on molstar.org/mol-view-stories/...
                 //       need to set this up with base prefix
-                href='/story-builder?story=Empty'
+                href='/builder?story=Empty'
                 className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors'
               >
                 Start Building
@@ -42,7 +42,7 @@ export default function Home() {
               <Link
                 key={example.key}
                 className='border border-border px-8 py-3 rounded-lg font-semibold text-foreground hover:bg-muted/50 transition-colors'
-                href={`/story-builder?story=${example.key}`}
+                href={`/builder?story=${example.key}`}
               >
                 {example.name}
               </Link>

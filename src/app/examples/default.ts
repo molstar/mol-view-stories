@@ -31,8 +31,8 @@ structure
 `;
 };
 
-export const DefaultStory: Story = {
-  metadata: { title: 'Molecular Visualization Story' },
+export const SimpleStory: Story = {
+  metadata: { title: 'Simple Molecular Visualization Story' },
   javascript: '// Common code for all scenes\n',
   scenes: [
     {

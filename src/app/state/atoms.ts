@@ -4,7 +4,7 @@ import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { CurrentView, Story } from './types';
 
 // Core State Atoms
-export const StoryAtom = atom<Story>(ExampleStories.Kinase);
+export const StoryAtom = atom<Story>(ExampleStories.Empty);
 
 export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options' });
 

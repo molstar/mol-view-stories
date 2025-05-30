@@ -1,9 +1,9 @@
-import { DefaultStory } from './default';
+import { SimpleStory } from './default';
 import { EmptyStory } from './empty';
 import { KinaseStory } from './kinase';
 
 export const ExampleStories = {
   Empty: EmptyStory,
-  Default: DefaultStory,
+  Simple: SimpleStory,
   Kinase: KinaseStory,
 };
