@@ -9,7 +9,6 @@ import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
 import { PluginConfig } from 'molstar/lib/mol-plugin/config';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { SingleTaskQueue } from '@/lib/utils';
-import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { getMVSData } from '@/lib/story-builder';
 import { SceneData, Story } from '@/app/state/types';

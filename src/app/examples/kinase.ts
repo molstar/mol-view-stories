@@ -138,14 +138,14 @@ function drawInteractions(structure, interactions) {
     const primitives = structure.primitives();
 
     const interactingResidues = [];
-    const addedResidues = new Set<string>();
+    const addedResidues = new Set();
 
     for (const [tooltip, a, b, options] of interactions) {
         primitives.tube({ start: a, end: b, color: '#4289B5', tooltip, radius: 0.1, dash_length: 0.1 });
 
         if (options?.skipResidue) continue;
 
-        const expressions = isPrimitiveComponentExpressions(a) ? a.expressions : [a as ComponentExpressionT];
+        const expressions = isPrimitiveComponentExpressions(a) ? a.expressions : [a];
         for (const _e of expressions) {
             const e = { ..._e };
             delete e.auth_atom_id;
