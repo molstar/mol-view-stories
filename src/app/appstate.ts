@@ -21,6 +21,7 @@ export {
   CameraSnapshotAtom as CameraPositionAtom,
   ActiveSceneAtom,
   StoryAssetsAtom,
+  OpenSessionAtom,
 } from './state/atoms';
 
 // Helper functions for state management

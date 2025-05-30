@@ -6,6 +6,7 @@ import {
   CurrentViewAtom,
   downloadStory,
   exportState,
+  OpenSessionAtom,
   removeCurrentScene,
   StoryAssetsAtom,
   StoryAtom,
@@ -27,7 +28,7 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { Separator } from '@/components/ui/separator';
-import { atom, useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
   CopyIcon,
   DownloadIcon,
@@ -205,8 +206,6 @@ function ExportSessionButton() {
     </MenubarItem>
   );
 }
-
-const OpenSessionAtom = atom(false);
 
 function ImportSessionButton() {
   const [, setIsOpen] = useAtom(OpenSessionAtom);
