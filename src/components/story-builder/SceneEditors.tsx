@@ -1,9 +1,9 @@
 'use client';
 
-import { ActiveSceneAtom, SceneAssetsAtom } from '@/app/appstate';
+import { ActiveSceneAtom, StoryAtom, addStoryAssets, removeStoryAsset } from '@/app/appstate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Edit, Upload, X } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { useDropzone } from 'react-dropzone';
@@ -84,11 +84,12 @@ function MarkdownRenderer() {
 }
 
 function FileUploadZone() {
-  const [sceneAssets, setSceneAssets] = useAtom(SceneAssetsAtom);
+  const story = useAtomValue(StoryAtom);
+  const storyAssets = story.assets || [];
 
   const onDrop = async (acceptedFiles: File[]) => {
     console.log('Files dropped:', acceptedFiles);
-    
+
     const newAssets = await Promise.all(
       acceptedFiles.map(async (file) => {
         const arrayBuffer = await file.arrayBuffer();
@@ -98,12 +99,12 @@ function FileUploadZone() {
         };
       })
     );
-    
-    setSceneAssets(prev => [...prev, ...newAssets]);
+
+    addStoryAssets(newAssets);
   };
 
   const removeAsset = (assetToRemove: { name: string; content: Uint8Array }) => {
-    setSceneAssets(prev => prev.filter(asset => asset.name !== assetToRemove.name));
+    removeStoryAsset(assetToRemove.name);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -124,9 +125,7 @@ function FileUploadZone() {
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors min-h-[200px] flex flex-col items-center justify-center ${
-          isDragActive
-            ? 'border-blue-400 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400'
+          isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
         }`}
       >
         <input {...getInputProps()} />
@@ -142,21 +141,19 @@ function FileUploadZone() {
           </div>
         )}
       </div>
-      
-      {sceneAssets.length > 0 && (
+
+      {storyAssets.length > 0 && (
         <div className='space-y-2'>
           <Label>Uploaded Files</Label>
           <div className='max-h-[200px] overflow-y-auto space-y-2'>
-            {sceneAssets.map((asset, index) => (
+            {storyAssets.map((asset, index) => (
               <div
                 key={`${asset.name}-${index}`}
                 className='flex items-center justify-between p-3 bg-gray-50 rounded-lg border'
               >
                 <div className='flex flex-col'>
                   <span className='text-sm font-medium'>{asset.name}</span>
-                  <span className='text-xs text-gray-500'>
-                    {(asset.content.length / 1024).toFixed(1)} KB
-                  </span>
+                  <span className='text-xs text-gray-500'>{(asset.content.length / 1024).toFixed(1)} KB</span>
                 </div>
                 <button
                   onClick={() => removeAsset(asset)}
