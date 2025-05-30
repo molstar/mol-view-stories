@@ -1,4 +1,4 @@
-import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
+import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { Zip } from 'molstar/lib/mol-util/zip/zip';
 import { CameraData, SceneData, Story } from '../app/state/types';
@@ -7,11 +7,16 @@ const createStateProvider = (code: string) => {
   return new Function('builder', code);
 };
 
-function getMVSSnapshot(story: Story, scene: SceneData) {
+async function getMVSSnapshot(story: Story, scene: SceneData) {
   try {
-    const stateProvider = createStateProvider(`${story.javascript}\n\n${scene.javascript}`);
+    const stateProvider = createStateProvider(`
+async function run() {
+      ${story.javascript}\n\n${scene.javascript}
+}
+return run();      
+`);
     const builder = MVSData.createBuilder();
-    stateProvider(builder);
+    await stateProvider(builder);
     if (scene.camera) {
       builder.camera({
         position: adjustedCameraPosition(scene.camera),
@@ -44,7 +49,13 @@ function adjustedCameraPosition(camera: CameraData) {
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
   // Async in case of creating a ZIP archite with static assets
 
-  const snapshots = scenes.map((scene) => getMVSSnapshot(story, scene));
+  const snapshots: Snapshot[] = [];
+
+  // TODO: not sure if Promise.all would be better here.
+  for (const scene of scenes) {
+    const snapshot = await getMVSSnapshot(story, scene);
+    snapshots.push(snapshot);
+  }
   const index: MVSData = {
     kind: 'multiple',
     metadata: {
