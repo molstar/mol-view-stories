@@ -12,6 +12,7 @@ import { SingleTaskQueue } from '@/lib/utils';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { getMVSData } from '@/lib/story-builder';
 import { SceneData, Story } from '@/app/state/types';
+import { Scheduler, Task } from 'molstar/lib/mol-task';
 
 function createViewer() {
   const spec = DefaultPluginUISpec();
@@ -53,20 +54,23 @@ class CurrentStoryViewModel {
   loadStory(story: Story, scene: SceneData) {
     if (!scene) return;
 
-    setTimeout(() => {
-      this.queue.run(async () => {
-        try {
-          this.store?.set(IsLoadingAtom, true);
-          const data = await getMVSData(story, [scene]);
-          await this.plugin.initialized;
-          await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
-        } catch (error) {
-          console.error('Error loading MVS data into Molstar:', error);
-        } finally {
-          this.store?.set(IsLoadingAtom, false);
-        }
-      });
-    }, 0);
+    this.queue.run(async () => {
+      try {
+        this.store?.set(IsLoadingAtom, true);
+        const data = await getMVSData(story, [scene]);
+        await this.plugin.initialized;
+        // The plugin.initialized get triggered after plugin.init(),
+        // before plugin.initContainer() is called. Depending on the use case,
+        // there was an edge case where the `loadMVSData` was called before
+        // the canvas was ready.
+        await Scheduler.immediatePromise();
+        await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
+      } catch (error) {
+        console.error('Error loading MVS data into Molstar:', error);
+      } finally {
+        this.store?.set(IsLoadingAtom, false);
+      }
+    });
   }
 
   private async init() {
