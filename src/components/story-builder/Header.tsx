@@ -25,6 +25,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { useAtom, useAtomValue } from 'jotai';
 import Image from 'next/image';
 
@@ -98,7 +99,7 @@ function HeaderLogo() {
 }
 
 function MainMenuBar() {
-  const [, setCurrentView] = useAtom(CurrentViewAtom);
+  const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
   const activeScene = useAtomValue(ActiveSceneAtom);
 
   return (
@@ -148,15 +149,16 @@ function MainMenuBar() {
 
       <Separator orientation='vertical' className='h-6' />
 
-      <MenubarMenu>
-        <MenubarTrigger className='text-sm'>View</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem onClick={() => setCurrentView({ type: 'preview' })}>Story Preview</MenubarItem>
-          <MenubarItem onClick={() => setCurrentView({ type: 'scene', id: activeScene?.id })}>
-            Builder Preview
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
+      <div className='flex items-center gap-2 px-3'>
+        <span className='text-sm text-foreground/70'>Builder</span>
+        <Switch 
+          checked={currentView.type === 'preview'}
+          onCheckedChange={(checked) => 
+            setCurrentView(checked ? { type: 'preview' } : { type: 'scene', id: activeScene?.id })
+          }
+        />
+        <span className='text-sm text-foreground/70'>Story</span>
+      </div>
     </Menubar>
   );
 }
