@@ -1,15 +1,14 @@
 import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
-import { Input } from '@/components/ui/input';
+import { StatefulInput } from '@/components/controls';
 import { Label } from '@/components/ui/label';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
 
 export function OptionsEditor() {
   const scene = useAtomValue(ActiveSceneAtom);
 
   return (
     <div className='flex flex-col gap-2'>
-      <div>
+      <div className='space-y-2'>
         <Label htmlFor='scene-header'>Header</Label>
         <StatefulInput
           id='scene-header'
@@ -20,7 +19,7 @@ export function OptionsEditor() {
           }}
         />
       </div>
-      <div>
+      <div className='space-y-2'>
         <Label htmlFor='scene-key'>Key</Label>
         <StatefulInput
           id='scene-key'
@@ -31,7 +30,7 @@ export function OptionsEditor() {
           }}
         />
       </div>
-      <div>
+      <div className='space-y-2'>
         <Label htmlFor='linger-duration'>Linger Duration (ms)</Label>
         <StatefulInput
           id='linger-duration'
@@ -47,7 +46,7 @@ export function OptionsEditor() {
           }}
         />
       </div>
-      <div>
+      <div className='space-y-2'>
         <Label htmlFor='transition-duration'>Transition Duration (ms)</Label>
         <StatefulInput
           id='transition-duration'
@@ -64,40 +63,5 @@ export function OptionsEditor() {
         />
       </div>
     </div>
-  );
-}
-
-function StatefulInput({
-  id,
-  value,
-  placeholder,
-  onChange,
-}: {
-  id: string;
-  value: string;
-  placeholder: string;
-  onChange: (value: string) => void;
-}) {
-  const [current, setCurrent] = useState(value);
-  useEffect(() => {
-    setCurrent(value);
-  }, [value]);
-  return (
-    <Input
-      id={id}
-      value={current}
-      placeholder={placeholder}
-      onChange={(e) => {
-        setCurrent(e.target.value);
-      }}
-      onBlur={() => {
-        onChange(current);
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.currentTarget.blur();
-        }
-      }}
-    />
   );
 }

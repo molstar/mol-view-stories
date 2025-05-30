@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { useAtom } from 'jotai';
+import { atom, useAtom, useAtomValue, useStore } from 'jotai';
 import { CameraPositionAtom, ActiveSceneAtom, StoryAtom } from '../../app/appstate';
 import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
@@ -12,6 +12,7 @@ import { SingleTaskQueue } from '@/lib/utils';
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { getMVSData } from '@/lib/story-builder';
+import { SceneData, Story } from '@/app/state/types';
 
 function createViewer() {
   const spec = DefaultPluginUISpec();
@@ -24,6 +25,7 @@ function createViewer() {
       },
     },
     components: {
+      disableDragOverlay: true,
       remoteState: 'none',
       viewport: {
         snapshotDescription: EmptyDescription,
@@ -46,19 +48,26 @@ class CurrentStoryViewModel {
 
   readonly plugin: PluginUIContext;
 
+  store: ReturnType<typeof useStore> | undefined = undefined;
   setCameraSnapshot: (snapshot: Camera.Snapshot) => void = () => {};
 
-  loadMVSData(data: MVSData | Uint8Array | null) {
-    if (!data) return;
+  loadStory(story: Story, scene: SceneData) {
+    if (!scene) return;
 
-    this.queue.run(async () => {
-      try {
-        await this.plugin.initialized;
-        await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
-      } catch (error) {
-        console.error('Error loading MVS data into Molstar:', error);
-      }
-    });
+    setTimeout(() => {
+      this.queue.run(async () => {
+        try {
+          this.store?.set(IsLoadingAtom, true);
+          const data = await getMVSData(story, [scene]);
+          await this.plugin.initialized;
+          await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
+        } catch (error) {
+          console.error('Error loading MVS data into Molstar:', error);
+        } finally {
+          this.store?.set(IsLoadingAtom, false);
+        }
+      });
+    }, 0);
   }
 
   private async init() {
@@ -88,16 +97,22 @@ const PluginWrapper = memo(function _PluginWrapper({ plugin }: { plugin: PluginU
   return <Plugin plugin={plugin} />;
 });
 
-async function loadCurrentScene(model: CurrentStoryViewModel, story: any, scene: any) {
-  if (!scene) return;
-
-  const mvsData = await getMVSData(story.metadata, [scene]);
-  model.loadMVSData(mvsData);
-}
-
 // We want to use a single global instance for the viewer to avoid
 // re-initializing each time the component is needed.
 let _modelInstance: CurrentStoryViewModel | null = null;
+
+const IsLoadingAtom = atom(false);
+
+function LoadingIndicator() {
+  const isLoading = useAtomValue(IsLoadingAtom);
+  if (!isLoading) return null;
+
+  return (
+    <div className='absolute start-0 top-0 ps-4 pt-1' style={{ zIndex: 1000 }}>
+      <span className='text-sm text-gray-500'>Loading...</span>
+    </div>
+  );
+}
 
 export function CurrentSceneView() {
   const modelRef = useRef<CurrentStoryViewModel>(_modelInstance);
@@ -105,19 +120,22 @@ export function CurrentSceneView() {
     _modelInstance = modelRef.current = new CurrentStoryViewModel();
   }
   const model = modelRef.current;
-  const [story] = useAtom(StoryAtom);
-  const [scene] = useAtom(ActiveSceneAtom);
 
+  const story = useAtomValue(StoryAtom);
+  const scene = useAtomValue(ActiveSceneAtom);
+
+  model.store = useStore();
   model.setCameraSnapshot = useAtom(CameraPositionAtom)[1];
 
   useEffect(() => {
-    loadCurrentScene(model, story, scene);
+    model.loadStory(story, scene);
   }, [model, story, scene]);
 
   return (
     <div className='rounded overflow-hidden w-full h-full border border-border bg-background relative'>
       <div className='w-full h-full relative'>
         <PluginWrapper plugin={model.plugin} />
+        <LoadingIndicator />
       </div>
     </div>
   );

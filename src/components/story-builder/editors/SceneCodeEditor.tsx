@@ -4,7 +4,7 @@ import React from 'react';
 import { BaseMonacoEditor } from './BaseMonacoEditor';
 import { modifyCurrentScene } from '@/app/appstate';
 
-export function MonacoEditorJS() {
+export function SceneCodeEditor() {
   const handleExecute = async (javascript: string) => {
     modifyCurrentScene({ javascript });
   };
