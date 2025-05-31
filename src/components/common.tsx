@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Separator } from './ui/separator';
 import { MenuIcon, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { HeaderExportDropdown } from './HeaderExportDropdown';
 
 function HeaderLogo() {
   return (
@@ -63,6 +64,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
         </div>
 
         <div className='flex items-center gap-4'>
+          <HeaderExportDropdown />
           <MobileMenuButton />
         </div>
       </div>
