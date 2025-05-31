@@ -21,7 +21,7 @@ export default function StoryBuilderPage() {
     let story = ExampleStories[templateName as keyof typeof ExampleStories];
     if (!story) story = ExampleStories.Empty;
 
-    store.set(CurrentViewAtom, { type: 'story-options' });
+    store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
 
     // clear search params
