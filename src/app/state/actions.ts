@@ -43,7 +43,7 @@ export function addScene(options?: { duplicate?: boolean }) {
 
 export function newStory() {
   const store = getDefaultStore();
-  store.set(CurrentViewAtom, { type: 'story-options' });
+  store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
 }
 
@@ -187,7 +187,7 @@ export const importState = async (file: File) => {
     return;
   }
 
-  store.set(CurrentViewAtom, { type: 'story-options' });
+  store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
 };
 

@@ -11,7 +11,7 @@ export function StoryOptions() {
   return (
     <Button
       className='rounded-none'
-      onClick={() => setCurrentView({ type: 'story-options' })}
+      onClick={() => setCurrentView({ type: 'story-options', subview: 'story-metadata' })}
       size='sm'
       variant={currentView.type === 'story-options' ? 'default' : 'ghost'}
     >

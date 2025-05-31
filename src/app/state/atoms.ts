@@ -6,7 +6,7 @@ import { CurrentView, Story } from './types';
 // Core State Atoms
 export const StoryAtom = atom<Story>(ExampleStories.Empty);
 
-export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options' });
+export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options', subview: 'story-metadata' });
 
 export const ActiveSceneIdAtom = atom<string | undefined>((get) => {
   const view = get(CurrentViewAtom);
