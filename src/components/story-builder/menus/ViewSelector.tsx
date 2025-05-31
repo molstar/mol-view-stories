@@ -50,7 +50,7 @@ export function ViewSelector() {
           {story.scenes.map((scene, i) => (
             <DropdownMenuItem
               key={scene.id}
-              onClick={() => setCurrentView({ type: 'scene', id: scene.id.toString() })}
+              onClick={() => setCurrentView({ type: 'scene', id: scene.id.toString(), subview: 'scene-options' })}
               className={currentView.type === 'scene' && activeScene?.id === scene.id.toString() ? 'bg-accent' : ''}
             >
               {i + 1}/{story.scenes.length}: {scene.header}

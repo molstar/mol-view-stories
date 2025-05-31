@@ -38,7 +38,7 @@ export function addScene(options?: { duplicate?: boolean }) {
         };
 
   store.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
-  store.set(CurrentViewAtom, { type: 'scene', id: newScene.id });
+  store.set(CurrentViewAtom, { type: 'scene', id: newScene.id, subview: 'scene-options' });
 }
 
 export function newStory() {
@@ -249,7 +249,7 @@ export function removeCurrentScene() {
   const sceneId = store.get(ActiveSceneIdAtom);
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
   store.set(StoryAtom, { ...story, scenes });
-  store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id });
+  store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id, subview: 'scene-options' });
 }
 
 export function setStoryAssets(assets: SceneAsset[]) {
