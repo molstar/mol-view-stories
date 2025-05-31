@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'StoriesCreator - Interactive Molecular Storytelling',
+  title: 'MolViewStories - Interactive Molecular Storytelling',
   description: 'Create compelling molecular visualizations and interactive stories with MolStar and custom code.',
 };
 

@@ -2,8 +2,9 @@
 
 import { StoryAtom, addStoryAssets, modifySceneMetadata, removeStoryAsset } from '@/app/appstate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAtom, useAtomValue } from 'jotai';
-import { Upload, Wrench, X } from 'lucide-react';
+import { Upload, Wrench, X, FileText, Code, FolderUp } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 
 import { StatefulInput } from '../controls';
@@ -13,26 +14,49 @@ import { Button } from '../ui/button';
 
 export function StoryOptions() {
   return (
-    <Card className='w-full h-full'>
-      <CardHeader className='border-b'>
-        <div className='flex items-center gap-6'>
-          <div className='flex items-center gap-2'>
-            <Wrench className='h-4 w-4' />
-            <CardTitle className='text-sm text-muted-foreground'>Story Options</CardTitle>
+    <Tabs defaultValue='story-metadata' className='w-full h-full'>
+      <Card className='w-full h-full'>
+        <CardHeader className='border-b'>
+          <div className='flex items-center gap-6'>
+            <div className='flex items-center gap-2'>
+              <Wrench className='h-4 w-4' />
+              <CardTitle className='text-sm text-muted-foreground'>Story Options</CardTitle>
+            </div>
+            <TabsList>
+              <TabsTrigger value='story-metadata'>
+                <FileText className='size-4' /> Story Metadata
+              </TabsTrigger>
+              <TabsTrigger value='story-wide-code'>
+                <Code className='size-4' /> Story-Wide Code
+              </TabsTrigger>
+              <TabsTrigger value='asset-upload'>
+                <FolderUp className='size-4' /> Asset Upload
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className='flex-1 overflow-hidden'>
-        <div className='space-y-4'>
-          <Options />
-          <Label>Common Code</Label>
-          <StoryCodeEditor />
-          <Label>Assets</Label>
-          <FileUploadZone />
-          <AssetEditor />
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className='flex-1 overflow-hidden'>
+          <TabsContent value='story-metadata' className='mt-0 h-full'>
+            <div className='space-y-4'>
+              <Options />
+            </div>
+          </TabsContent>
+          <TabsContent value='story-wide-code' className='mt-0 h-full'>
+            <div className='space-y-4'>
+              <Label>Common Code</Label>
+              <StoryCodeEditor />
+            </div>
+          </TabsContent>
+          <TabsContent value='asset-upload' className='mt-0 h-full'>
+            <div className='space-y-4'>
+              <Label>Assets</Label>
+              <FileUploadZone />
+              <AssetEditor />
+            </div>
+          </TabsContent>
+        </CardContent>
+      </Card>
+    </Tabs>
   );
 }
 
