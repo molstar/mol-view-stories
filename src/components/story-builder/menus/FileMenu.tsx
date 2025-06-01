@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
+import { MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarTrigger } from '@/components/ui/menubar';
 import { newStory } from '@/app/state/actions';
 import { FileIcon } from 'lucide-react';
 import { ExportSessionButton, ImportSessionButton } from '../file-operations';

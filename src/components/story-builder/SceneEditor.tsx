@@ -1,39 +1,46 @@
 'use client';
 
-import { ActiveSceneAtom, CameraPositionAtom, modifyCurrentScene, SceneData, StoryAtom, StoryAssetsAtom } from '@/app/appstate';
+import {
+  ActiveSceneAtom,
+  CameraPositionAtom,
+  modifyCurrentScene,
+  SceneData,
+  StoryAssetsAtom,
+  StoryAtom,
+} from '@/app/appstate';
+import { getMVSData } from '@/app/state/actions';
+import { CameraData, Story } from '@/app/state/types';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BoltIcon, BoxIcon, Edit, CameraIcon, XIcon } from 'lucide-react';
+import { SingleTaskQueue } from '@/lib/utils';
+import { atom, useAtom, useAtomValue, useStore } from 'jotai/index';
+import { BoltIcon, BoxIcon, CameraIcon, CopyIcon, Edit, FolderIcon, XIcon } from 'lucide-react';
+import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
+import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
+import { Camera } from 'molstar/lib/mol-canvas3d/camera';
+import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
+import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
+import { PluginConfig } from 'molstar/lib/mol-plugin/config';
+import { PluginSpec } from 'molstar/lib/mol-plugin/spec';
+import { Scheduler } from 'molstar/lib/mol-task';
+import { memo, useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import { Label } from '../ui/label';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
 import { OptionsEditor } from './editors/SceneOptions';
-import { CameraData, Story } from '@/app/state/types';
-import { atom, useAtom, useAtomValue, useStore } from 'jotai/index';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
-import React, { memo, useEffect, useRef } from 'react';
-import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
-import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { PluginSpec } from 'molstar/lib/mol-plugin/spec';
-import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
-import { PluginConfig } from 'molstar/lib/mol-plugin/config';
-import { SingleTaskQueue } from '@/lib/utils';
-import { Camera } from 'molstar/lib/mol-canvas3d/camera';
-import { getMVSData } from '@/app/state/actions';
-import { Scheduler } from 'molstar/lib/mol-task';
-import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
-import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
-
-// New atom for controlling assets overlay
-const viewAssetsAtom = atom(false);
 
 // Camera Position Component
 const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: CameraData | null }) => {
-  if (!cameraSnapshot) return (
-    <div className='text-xs text-muted-foreground italic'>No camera data available</div>
-  );
+  if (!cameraSnapshot) return <div className='text-xs text-muted-foreground italic'>No camera data available</div>;
 
   return (
     <div className='bg-muted/50 rounded p-2 text-xs font-mono space-y-0.5'>
@@ -84,11 +91,11 @@ export function CameraComponent() {
         )}
       </div>
       <div className='flex flex-col gap-1'>
-        <Button size="sm" onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>
+        <Button size='sm' onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>
           <CameraIcon className='h-3 w-3 mr-1' />
           Store
         </Button>
-        <Button size="sm" variant="outline" onClick={() => modifyCurrentScene({ camera: undefined })}>
+        <Button size='sm' variant='outline' onClick={() => modifyCurrentScene({ camera: undefined })}>
           <XIcon className='h-3 w-3 mr-1' />
           Clear
         </Button>
@@ -98,77 +105,43 @@ export function CameraComponent() {
 }
 
 // Assets overlay component
-function AssetsOverlay() {
+function AssetList() {
   const storyAssets = useAtomValue(StoryAssetsAtom);
-  const [viewAssets, setViewAssets] = useAtom(viewAssetsAtom);
-
-  if (!viewAssets) return null;
 
   return (
-    <div className='fixed top-4 right-4 z-50 bg-background border border-border rounded-lg shadow-lg p-4 max-w-sm'>
-      <div className='flex items-center justify-between mb-3'>
-        <h3 className='text-sm font-semibold'>Available Assets</h3>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setViewAssets(false)}
-          className='h-6 w-6 p-0'
-        >
-          ×
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size='sm' variant='outline'>
+          <FolderIcon />
+          Assets
         </Button>
-      </div>
-      <div className='space-y-2 max-h-60 overflow-y-auto'>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
         {storyAssets.length === 0 ? (
-          <p className='text-sm text-muted-foreground'>No assets uploaded</p>
+          <DropdownMenuItem disabled>No assets uploaded</DropdownMenuItem>
         ) : (
           storyAssets.map((asset, index) => (
-            <div 
+            <DropdownMenuItem
               key={`${asset.name}-${index}`}
-              className='flex items-center gap-2 text-sm p-2 rounded bg-muted/50 cursor-pointer hover:bg-muted'
-              onClick={() => navigator.clipboard.writeText(asset.name)}
+              onClick={() => {
+                navigator.clipboard.writeText(asset.name);
+              }}
               title='Click to copy asset name'
             >
-              <span className='font-mono text-xs'>📄</span>
-              <span className='flex-1 truncate'>{asset.name}</span>
-              <span className='text-xs text-muted-foreground'>
-                ({Math.round(asset.content.length / 1024)}KB)
-              </span>
-            </div>
+              <CopyIcon className='size-4' /> {asset.name} ({Math.round(asset.content.length / 1024)}KB)
+            </DropdownMenuItem>
           ))
         )}
-      </div>
-    </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 export function CodeUIControls() {
-  const [viewAssets, setViewAssets] = useAtom(viewAssetsAtom);
-
   return (
-    <div className='space-y-4'>
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-sm'>Controls</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='flex items-start gap-6'>
-            <CameraComponent />
-            
-            <div className='flex flex-col items-center gap-1'>
-              <Label htmlFor='assets-toggle' className='text-xs font-medium'>
-                Show Assets
-              </Label>
-              <Switch
-                id='assets-toggle'
-                checked={viewAssets}
-                onCheckedChange={setViewAssets}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <AssetsOverlay />
+    <div className='flex items-start gap-6'>
+      <CameraComponent />
+      <AssetList />
     </div>
   );
 }
@@ -322,7 +295,7 @@ export function SceneEditors() {
             </TabsList>
           </div>
         </CardHeader>
-        
+
         <CardContent className='flex-1 overflow-hidden'>
           <TabsContent value='options' className='mt-0 h-full'>
             <div className='space-y-4'>
@@ -341,9 +314,9 @@ export function SceneEditors() {
           <TabsContent value='scene' className='mt-0 h-full'>
             <div className='flex gap-6'>
               <div className='space-y-4 flex-1'>
-                  <CodeUIControls />
-                  <SceneCodeEditor />
-                </div>
+                <CodeUIControls />
+                <SceneCodeEditor />
+              </div>
               <div className='flex-1'>
                 <div className='w-full' style={{ aspectRatio: '1.3/1' }}>
                   <CurrentSceneView />

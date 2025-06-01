@@ -11,9 +11,13 @@ export function StoryPreview() {
   return (
     <Button
       className='rounded-none'
-      onClick={() => setCurrentView(prev => prev.type === 'preview'
-        ? prev.previous ?? { type: 'story-options', subview: 'story-metadata' }
-        : { type: 'preview', previous: currentView })}
+      onClick={() =>
+        setCurrentView((prev) =>
+          prev.type === 'preview'
+            ? (prev.previous ?? { type: 'story-options', subview: 'story-metadata' })
+            : { type: 'preview', previous: currentView }
+        )
+      }
       size='sm'
       variant={currentView.type === 'preview' ? 'default' : 'ghost'}
     >

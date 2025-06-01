@@ -8,12 +8,7 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from '@/components/ui/menubar';
-import { 
-  addScene, 
-  removeCurrentScene, 
-  CurrentViewAtom, 
-  StoryAtom 
-} from '@/app/appstate';
+import { addScene, removeCurrentScene, CurrentViewAtom, StoryAtom } from '@/app/appstate';
 import { moveCurrentScene } from '@/app/state/actions';
 import { useAtomValue } from 'jotai';
 import { ImageIcon } from 'lucide-react';
