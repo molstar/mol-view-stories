@@ -9,7 +9,8 @@ export const ComprehensiveStory: Story = {
       id: UUID.createv4(),
       header: 'Basic Visualization',
       key: 'scene_basic',
-      description: '# Basic Molecular Visualization\n\nLoad a molecule from URL (PDB ID 1cbs) and display default representation (cartoon) in blue color.',
+      description:
+        '# Basic Molecular Visualization\n\nLoad a molecule from URL (PDB ID 1cbs) and display default representation (cartoon) in blue color.',
       javascript: `// Basic: Load molecule and display cartoon in blue
 const structure = builder
   .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1cbs_updated.cif' })
@@ -23,7 +24,8 @@ const structure = builder
       id: UUID.createv4(),
       header: 'Labels and Focus',
       key: 'scene_labels',
-      description: '# Custom Labels\n\nA molecule (PDB ID 1lap) visualization with custom labels and focused residue highlighting.',
+      description:
+        '# Custom Labels\n\nA molecule (PDB ID 1lap) visualization with custom labels and focused residue highlighting.',
       javascript: `// Labels: Molecule with custom labels
 const structure = builder
   .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1lap_updated.cif' })
@@ -52,7 +54,8 @@ structure
       id: UUID.createv4(),
       header: 'Component Selection',
       key: 'scene_components',
-      description: '# Component-Based Visualization\n\nAn aaRS (PDB ID 1c0a) visualization with different selections. Protein in orange, RNA in blue, ligand in green, and active site residues colored red.',
+      description:
+        '# Component-Based Visualization\n\nAn aaRS (PDB ID 1c0a) visualization with different selections. Protein in orange, RNA in blue, ligand in green, and active site residues colored red.',
       javascript: `// Components: aaRS with different selections
 const structure = builder
   .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1c0a_updated.cif' })
@@ -94,7 +97,8 @@ structure.component({ selector: [
       id: UUID.createv4(),
       header: 'Structural Superposition',
       key: 'scene_superposition',
-      description: '# Structural Superposition\n\nTwo molecules superposed by applying a matrix transform. Red and blue structures overlaid for comparison.',
+      description:
+        '# Structural Superposition\n\nTwo molecules superposed by applying a matrix transform. Red and blue structures overlaid for comparison.',
       javascript: `// Superposition: Two molecules with matrix transform
 // Load first structure and color it red
 builder
@@ -126,7 +130,8 @@ builder
       id: UUID.createv4(),
       header: 'Annotation-Based Coloring',
       key: 'scene_annotations',
-      description: '# Annotation-Based Visualization\n\nLoad a structure (PDB ID 1h9t) and apply coloring and labels based on data from an MVS annotation file.',
+      description:
+        '# Annotation-Based Visualization\n\nLoad a structure (PDB ID 1h9t) and apply coloring and labels based on data from an MVS annotation file.',
       javascript: `// Annotations: Structure with annotation-based coloring
 const structure_url = 'https://files.wwpdb.org/download/1h9t.cif';
 const annotation_url = 'https://molstar.org/mol-view-spec/examples/annotations/annotations-1h9t.cif';
@@ -217,7 +222,8 @@ structure.tooltipFromUri({
       id: UUID.createv4(),
       header: 'Geometric Primitives',
       key: 'scene_primitives',
-      description: '# Geometric Primitives\n\nDraw various geometrical primitives including ellipses, arrows, and ellipsoids with custom colors and opacity.',
+      description:
+        '# Geometric Primitives\n\nDraw various geometrical primitives including ellipses, arrows, and ellipsoids with custom colors and opacity.',
       javascript: `// Primitives: Draw various geometrical primitives
 builder.primitives({ opacity: 0.66 })
   .ellipse({
@@ -287,7 +293,8 @@ builder.primitives({ opacity: 0.33 }).ellipsoid({
       id: UUID.createv4(),
       header: 'Volume Visualization',
       key: 'scene_volumes',
-      description: '# Volume and Electron Density\n\nLoad a structure and a volume from the Mol* Volume Server. Shows 2FO-FC and FO-FC electron density maps with different isovalues.',
+      description:
+        '# Volume and Electron Density\n\nLoad a structure and a volume from the Mol* Volume Server. Shows 2FO-FC and FO-FC electron density maps with different isovalues.',
       javascript: `// Volumes: Structure with electron density maps
 const structure = builder
   .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1tqn_updated.cif' })

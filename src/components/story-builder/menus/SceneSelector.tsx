@@ -7,11 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { 
-  CurrentViewAtom, 
-  StoryAtom, 
-  ActiveSceneAtom 
-} from '@/app/appstate';
+import { CurrentViewAtom, StoryAtom, ActiveSceneAtom } from '@/app/appstate';
 import { useAtom, useAtomValue } from 'jotai';
 import { FrameIcon } from 'lucide-react';
 

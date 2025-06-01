@@ -45,7 +45,7 @@ export type SceneUpdate = Partial<Omit<SceneData, 'id'>>;
 
 export type CreateSceneData = Omit<SceneData, 'id'>;
 
-export type CurrentView = 
+export type CurrentView =
   | { type: 'story-options'; subview: 'story-metadata' | 'story-wide-code' | 'asset-upload' }
-  | { type: 'scene'; id: string; subview: 'scene-options' | '3d-view' } 
-  | { type: 'preview' };
+  | { type: 'scene'; id: string; subview: 'scene-options' | '3d-view' }
+  | { type: 'preview'; previous?: CurrentView };

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
+import { MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from '@/components/ui/menubar';
 import { downloadStory, StoryAtom } from '@/app/appstate';
 import { useAtomValue } from 'jotai';
 import { DownloadIcon } from 'lucide-react';
