@@ -3,4 +3,5 @@
 export const ExampleStoryList = [
   { key: 'Simple', name: 'Simple Story' },
   { key: 'Kinase', name: 'Kinase Story' },
+  { key: 'MVS-Examples', name: 'MVS Examples' },
 ];

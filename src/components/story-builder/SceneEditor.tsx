@@ -1,9 +1,9 @@
 'use client';
 
-import { ActiveSceneAtom, CameraPositionAtom, modifyCurrentScene, SceneData, StoryAtom } from '@/app/appstate';
+import { ActiveSceneAtom, CameraPositionAtom, modifyCurrentScene, SceneData, StoryAtom, StoryAssetsAtom } from '@/app/appstate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BoltIcon, BoxIcon, Edit } from 'lucide-react';
+import { BoltIcon, BoxIcon, Edit, CameraIcon, XIcon } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { Label } from '../ui/label';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
@@ -11,6 +11,7 @@ import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
 import { OptionsEditor } from './editors/SceneOptions';
 import { CameraData, Story } from '@/app/state/types';
 import { atom, useAtom, useAtomValue, useStore } from 'jotai/index';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import React, { memo, useEffect, useRef } from 'react';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
@@ -25,56 +26,149 @@ import { Scheduler } from 'molstar/lib/mol-task';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
 
+// New atom for controlling assets overlay
+const viewAssetsAtom = atom(false);
+
 // Camera Position Component
 const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: CameraData | null }) => {
-  if (!cameraSnapshot) return null;
+  if (!cameraSnapshot) return (
+    <div className='text-xs text-muted-foreground italic'>No camera data available</div>
+  );
 
   return (
-    <div className='bg-background border border-border rounded-lg p-4 shadow-sm'>
-      <div className='text-xs font-mono text-muted-foreground space-y-1'>
-        <div>
-          <span className='font-medium'>Camera Position:</span>
+    <div className='bg-muted/50 rounded p-2 text-xs font-mono space-y-0.5'>
+      <div className='flex'>
+        <span className='w-12 text-muted-foreground'>Pos:</span>
+        <span>
           {cameraSnapshot.position
-            ? ` [${cameraSnapshot.position[0]?.toFixed(2)}, ${cameraSnapshot.position[1]?.toFixed(2)}, ${cameraSnapshot.position[2]?.toFixed(2)}]`
-            : ' N/A'}
-        </div>
-        <div>
-          <span className='font-medium'>Target:</span>
+            ? `[${cameraSnapshot.position[0]?.toFixed(1)}, ${cameraSnapshot.position[1]?.toFixed(1)}, ${cameraSnapshot.position[2]?.toFixed(1)}]`
+            : 'N/A'}
+        </span>
+      </div>
+      <div className='flex'>
+        <span className='w-12 text-muted-foreground'>Tgt:</span>
+        <span>
           {cameraSnapshot.target
-            ? ` [${cameraSnapshot.target[0]?.toFixed(2)}, ${cameraSnapshot.target[1]?.toFixed(2)}, ${cameraSnapshot.target[2]?.toFixed(2)}]`
-            : ' N/A'}
-        </div>
-        <div>
-          <span className='font-medium'>Up:</span>
+            ? `[${cameraSnapshot.target[0]?.toFixed(1)}, ${cameraSnapshot.target[1]?.toFixed(1)}, ${cameraSnapshot.target[2]?.toFixed(1)}]`
+            : 'N/A'}
+        </span>
+      </div>
+      <div className='flex'>
+        <span className='w-12 text-muted-foreground'>Up:</span>
+        <span>
           {cameraSnapshot.up
-            ? ` [${cameraSnapshot.up[0]?.toFixed(2)}, ${cameraSnapshot.up[1]?.toFixed(2)}, ${cameraSnapshot.up[2]?.toFixed(2)}]`
-            : ' N/A'}
-        </div>
-        {/* {cameraSnapshot.fov && (
-          <div>
-            <span className="font-medium">FOV:</span>{" "}
-            {((180 / Math.PI) * cameraSnapshot.fov).toFixed(2)}°
-          </div>
-        )} */}
+            ? `[${cameraSnapshot.up[0]?.toFixed(1)}, ${cameraSnapshot.up[1]?.toFixed(1)}, ${cameraSnapshot.up[2]?.toFixed(1)}]`
+            : 'N/A'}
+        </span>
       </div>
     </div>
   );
 };
 
-export function CameraControls() {
+export function CameraComponent() {
   const cameraSnapshot = useAtomValue(CameraPositionAtom);
   const scene = useAtomValue(ActiveSceneAtom);
 
   return (
-    <div className='space-y-4'>
-      <div className='flex items-center gap-2'>
-        <Button onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>Store Camera</Button>
-        <Button onClick={() => modifyCurrentScene({ camera: undefined })}>Clear Camera</Button>
+    <div className='flex items-start gap-4'>
+      <div>
+        <p className='text-xs font-medium text-muted-foreground mb-1'>Current Camera:</p>
+        <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
       </div>
       <div>
-        {!scene?.camera && <p className='text-sm text-muted-foreground'>No camera position stored for this scene.</p>}
-        {!!scene?.camera && <CameraPositionDisplay cameraSnapshot={scene?.camera} />}
+        <p className='text-xs font-medium text-muted-foreground mb-1'>Stored Camera:</p>
+        {scene?.camera ? (
+          <CameraPositionDisplay cameraSnapshot={scene.camera} />
+        ) : (
+          <p className='text-xs text-muted-foreground italic'>No stored camera position</p>
+        )}
       </div>
+      <div className='flex flex-col gap-1'>
+        <Button size="sm" onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>
+          <CameraIcon className='h-3 w-3 mr-1' />
+          Store
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => modifyCurrentScene({ camera: undefined })}>
+          <XIcon className='h-3 w-3 mr-1' />
+          Clear
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Assets overlay component
+function AssetsOverlay() {
+  const storyAssets = useAtomValue(StoryAssetsAtom);
+  const [viewAssets, setViewAssets] = useAtom(viewAssetsAtom);
+
+  if (!viewAssets) return null;
+
+  return (
+    <div className='fixed top-4 right-4 z-50 bg-background border border-border rounded-lg shadow-lg p-4 max-w-sm'>
+      <div className='flex items-center justify-between mb-3'>
+        <h3 className='text-sm font-semibold'>Available Assets</h3>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setViewAssets(false)}
+          className='h-6 w-6 p-0'
+        >
+          ×
+        </Button>
+      </div>
+      <div className='space-y-2 max-h-60 overflow-y-auto'>
+        {storyAssets.length === 0 ? (
+          <p className='text-sm text-muted-foreground'>No assets uploaded</p>
+        ) : (
+          storyAssets.map((asset, index) => (
+            <div 
+              key={`${asset.name}-${index}`}
+              className='flex items-center gap-2 text-sm p-2 rounded bg-muted/50 cursor-pointer hover:bg-muted'
+              onClick={() => navigator.clipboard.writeText(asset.name)}
+              title='Click to copy asset name'
+            >
+              <span className='font-mono text-xs'>📄</span>
+              <span className='flex-1 truncate'>{asset.name}</span>
+              <span className='text-xs text-muted-foreground'>
+                ({Math.round(asset.content.length / 1024)}KB)
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function CodeUIControls() {
+  const [viewAssets, setViewAssets] = useAtom(viewAssetsAtom);
+
+  return (
+    <div className='space-y-4'>
+      <Card>
+        <CardHeader>
+          <CardTitle className='text-sm'>Controls</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className='flex items-start gap-6'>
+            <CameraComponent />
+            
+            <div className='flex flex-col items-center gap-1'>
+              <Label htmlFor='assets-toggle' className='text-xs font-medium'>
+                Show Assets
+              </Label>
+              <Switch
+                id='assets-toggle'
+                checked={viewAssets}
+                onCheckedChange={setViewAssets}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <AssetsOverlay />
     </div>
   );
 }
@@ -228,6 +322,7 @@ export function SceneEditors() {
             </TabsList>
           </div>
         </CardHeader>
+        
         <CardContent className='flex-1 overflow-hidden'>
           <TabsContent value='options' className='mt-0 h-full'>
             <div className='space-y-4'>
@@ -246,9 +341,9 @@ export function SceneEditors() {
           <TabsContent value='scene' className='mt-0 h-full'>
             <div className='flex gap-6'>
               <div className='space-y-4 flex-1'>
-                <CameraControls />
-                <SceneCodeEditor />
-              </div>
+                  <CodeUIControls />
+                  <SceneCodeEditor />
+                </div>
               <div className='flex-1'>
                 <div className='w-full' style={{ aspectRatio: '1.3/1' }}>
                   <CurrentSceneView />
