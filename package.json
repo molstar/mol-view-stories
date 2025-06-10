@@ -1,9 +1,9 @@
 {
-  "name": "MolViewStories",
+  "name": "mol-view-stories",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -27,7 +27,7 @@
     "cmdk": "^1.1.1",
     "jotai": "^2.12.5",
     "lucide-react": "^0.511.0",
-    "molstar": "^4.17.0",
+    "molstar": "^4.18.0",
     "monaco-editor-auto-typings": "^0.4.6",
     "next": "15.3.2",
     "react": "^19.1.0",
