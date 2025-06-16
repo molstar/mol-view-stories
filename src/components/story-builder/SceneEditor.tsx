@@ -37,6 +37,7 @@ import { Label } from '../ui/label';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
 import { OptionsEditor } from './editors/SceneOptions';
+import { PressToSave } from '../common';
 
 // Camera Position Component
 const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: CameraData | null }) => {
@@ -139,7 +140,7 @@ function AssetList() {
 
 export function CodeUIControls() {
   return (
-    <div className='flex items-start gap-6'>
+    <div className='flex items-start gap-6 mb-2'>
       <CameraComponent />
       <AssetList />
     </div>
@@ -301,6 +302,7 @@ export function SceneEditors() {
             <div className='space-y-4'>
               <OptionsEditor />
               <Label>Markdown Description</Label>
+              <PressToSave />
               <div className='flex gap-6'>
                 <div className='flex-1'>
                   <SceneMarkdownEditor />
@@ -315,6 +317,7 @@ export function SceneEditors() {
             <div className='flex gap-6'>
               <div className='space-y-4 flex-1'>
                 <CodeUIControls />
+                <PressToSave />
                 <SceneCodeEditor />
               </div>
               <div className='flex-1'>

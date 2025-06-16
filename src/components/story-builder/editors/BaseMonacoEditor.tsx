@@ -9,14 +9,12 @@ import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
 interface BaseMonacoEditorProps {
   language: string;
   fieldName: keyof { javascript: string; description: string };
-  onExecute?: (code: string) => Promise<void>;
   executeButtonText?: string;
 }
 
-export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoEditorProps) {
+export function BaseMonacoEditor({ language, fieldName }: BaseMonacoEditorProps) {
   const activeScene = useAtomValue(ActiveSceneAtom);
   const [currentCode, setCurrentCode] = useState('');
-  const [isExecuting, setIsExecuting] = useState(false);
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const monacoRef = useRef<typeof monaco>(null);
@@ -36,44 +34,18 @@ export function BaseMonacoEditor({ language, fieldName, onExecute }: BaseMonacoE
     });
   };
 
-  const handleExecute = async (editorCode: string) => {
-    // NOTE: save currently behaves same as execute
-
-    if (!onExecute || isExecuting) return;
-
-    // Get the current code from the editor directly to ensure we have the latest value
-
-    // console.log("Executing code:", {
-    //   currentCode: currentCode.length,
-    //   editorCode: editorCode.length,
-    //   actualCode: editorCode.substring(0, 100) + (editorCode.length > 100 ? "..." : "")
-    // });
-
-    // Note: this should not be needed
-    setIsExecuting(true);
-    try {
-      await onExecute(editorCode);
-    } catch (error) {
-      console.error('Execution error:', error);
-    } finally {
-      setIsExecuting(false);
-    }
-  };
-
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
 
-    // Add save keyboard shortcut (Alt+S)
-    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
-      handleSave(editor.getValue());
-    });
-
-    // Add execute keyboard shortcut if onExecute is provided
-    if (onExecute) {
-      editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, () => {
-        console.log('Alt+Enter pressed, executing code');
-        handleExecute(editor.getValue());
+    for (const command of [
+      monaco.KeyMod.Alt | monaco.KeyCode.KeyS,
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
+      monaco.KeyMod.Alt | monaco.KeyCode.Enter,
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+    ]) {
+      editor.addCommand(command, () => {
+        handleSave(editor.getValue());
       });
     }
 

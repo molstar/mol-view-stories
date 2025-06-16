@@ -6,11 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAtom, useAtomValue } from 'jotai';
 import { Upload, Wrench, X, FileText, Code, FolderUp } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
-
 import { StatefulInput } from '../controls';
 import { Label } from '../ui/label';
 import { StoryCodeEditor } from './editors/StoryCodeEditor';
 import { Button } from '../ui/button';
+import { PressToSave } from '../common';
 
 export function StoryOptions() {
   return (
@@ -44,6 +44,7 @@ export function StoryOptions() {
           <TabsContent value='story-wide-code' className='mt-0 h-full'>
             <div className='space-y-4'>
               <Label>Common Code</Label>
+              <PressToSave />
               <StoryCodeEditor />
             </div>
           </TabsContent>

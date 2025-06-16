@@ -20,9 +20,16 @@ export function SceneMarkdownEditor() {
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Add Alt+S keyboard shortcut for saving markdown
-    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
-      modifyCurrentScene({ description: editor.getValue() });
-    });
+    for (const cmd of [
+      monaco.KeyMod.Alt | monaco.KeyCode.KeyS,
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
+      monaco.KeyMod.Alt | monaco.KeyCode.Enter,
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+    ]) {
+      editor.addCommand(cmd, () => {
+        modifyCurrentScene({ description: editor.getValue() });
+      });
+    }
   };
 
   return (
