@@ -5,9 +5,11 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useAuth } from "../providers";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const auth = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     console.log("Auth state:", {
@@ -15,7 +17,12 @@ export default function LoginPage() {
       error: auth.error,
       isAuthenticated: auth.isAuthenticated
     });
-  }, [auth]);
+
+    // Redirect authenticated users to file operations
+    if (auth.isAuthenticated) {
+      router.push("/file-operations");
+    }
+  }, [auth, router]);
 
   const handleLogin = async () => {
     try {

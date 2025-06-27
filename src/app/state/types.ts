@@ -49,3 +49,25 @@ export type CurrentView =
   | { type: 'story-options'; subview: 'story-metadata' | 'story-wide-code' | 'asset-upload' }
   | { type: 'scene'; id: string; subview: 'scene-options' | '3d-view' }
   | { type: 'preview'; previous?: CurrentView };
+
+export type Visibility = 'public' | 'private';
+
+export interface BaseItem {
+  id: string;
+  type: string;
+  visibility: Visibility;
+  title: string;
+}
+
+export interface Session extends BaseItem {
+  type: 'session';
+}
+
+export interface State extends BaseItem {
+  type: 'state';
+}
+
+export interface ApiResponse<T> {
+  data: T[];
+  error?: string;
+}

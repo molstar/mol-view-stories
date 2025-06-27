@@ -22,14 +22,14 @@ const oidcConfig = {
   automaticSilentRenew: true,
   checkSessionIntervalInSeconds: 3600,
   stateStore: typeof window !== "undefined" ? new WebStorageStateStore({ store: window.sessionStorage }) : undefined,
-  userStore: typeof window !== "undefined" ? new WebStorageStateStore({ store: window.sessionStorage }) : undefined,
+  userStore: typeof window !== "undefined" ? new WebStorageStateStore({ store: window.localStorage }) : undefined,
   onSigninCallback: () => {
     if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
-      if (code) {
-        sessionStorage.setItem('auth_code', code);
-      }
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+      );
     }
   }
 };
