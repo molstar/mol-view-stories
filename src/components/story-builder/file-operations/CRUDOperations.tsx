@@ -188,6 +188,10 @@ const MetadataDialog: React.FC<MetadataDialogProps> = ({ item, onClose }) => {
     return new Date(dateStr).toLocaleString();
   };
 
+  const getPublicStateUrl = (stateId: string) => {
+    return `https://mol-view-stories.dyn.cloud.e-infra.cz/api/public/state/${stateId}`;
+  };
+
   return (
     <DialogContent className="max-w-2xl">
       <DialogHeader>
@@ -198,6 +202,21 @@ const MetadataDialog: React.FC<MetadataDialogProps> = ({ item, onClose }) => {
           <Label className="text-right font-semibold">ID</Label>
           <div className="col-span-3">{item.id}</div>
         </div>
+        {item.type === 'state' && item.visibility === 'public' && (
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right font-semibold">Public Link</Label>
+            <div className="col-span-3">
+              <a 
+                href={getPublicStateUrl(item.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline break-all"
+              >
+                {getPublicStateUrl(item.id)}
+              </a>
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label className="text-right font-semibold">Type</Label>
           <div className="col-span-3">{item.type}</div>
@@ -317,12 +336,8 @@ export function CRUDOperations(props: CRUDOperationsProps) {
             <Button onClick={() => fetchData('session')}>Read My Sessions</Button>
             <Button onClick={() => fetchData('state', 'public')}>Read Public States</Button>
             <Button onClick={() => fetchData('session', 'public')}>Read Public Sessions</Button>
-            <Button onClick={() => {
-              fetchData('session', 'private');
-              fetchData('state', 'private');
-            }}>Read Private</Button>
-            <Button>Update</Button>
-            <Button>Delete</Button>
+            <Button disabled variant="outline" className="opacity-50 cursor-not-allowed">Update (Not Available)</Button>
+            <Button disabled variant="outline" className="opacity-50 cursor-not-allowed">Delete (Not Available)</Button>
           </>
         )}
       </div>
