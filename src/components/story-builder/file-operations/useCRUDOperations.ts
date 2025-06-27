@@ -35,14 +35,18 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
   const [states, setStates] = useState<State[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [showStateDialog, setShowStateDialog] = useState(false);
   const [showSessionDialog, setShowSessionDialog] = useState(false);
   const [stateForm, setStateForm] = useState<StateFormData>(DEFAULT_STATE_FORM);
+  const [activeView, setActiveView] = useState<'session' | 'state' | null>(null);
 
   const handleShowStateDialog = (show: boolean) => {
     setShowStateDialog(show);
     if (show) {
       setStateForm(DEFAULT_STATE_FORM);
+      setSuccess(null);
+      setError(null);
     }
   };
 
@@ -50,6 +54,8 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
     setShowSessionDialog(show);
     if (show) {
       setStateForm(DEFAULT_SESSION_FORM);
+      setSuccess(null);
+      setError(null);
     }
   };
 
@@ -102,6 +108,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
       const stateContent = await getMVSData(SimpleStory);
       
@@ -127,7 +134,8 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
         await handleApiError(stateResponse, 'Failed to create state');
       }
 
-      await stateResponse.json();
+      const data = await stateResponse.json();
+      setSuccess(`Successfully created state "${stateForm.title}" with ID: ${data.id}`);
       resetStateForm();
       setShowStateDialog(false);
       fetchData('state');
@@ -148,6 +156,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
       const sessionPayload = {
         type: 'session',
@@ -177,7 +186,8 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
         await handleApiError(sessionResponse, 'Failed to create session');
       }
 
-      await sessionResponse.json();
+      const data = await sessionResponse.json();
+      setSuccess(`Successfully created session "${stateForm.title}" with ID: ${data.id}`);
       resetStateForm(true);
       setShowSessionDialog(false);
       fetchData('session');
@@ -192,6 +202,8 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
   const fetchData = async (endpoint: string, visibility?: Visibility) => {
     setLoading(true);
     setError(null);
+    setSuccess(null);
+    setActiveView(endpoint as 'session' | 'state');
     try {
       const url = new URL(`https://mol-view-stories.dyn.cloud.e-infra.cz/api/${endpoint}`);
       if (visibility) {
@@ -231,9 +243,11 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
     states,
     loading,
     error,
+    success,
     showStateDialog,
     showSessionDialog,
     stateForm,
+    activeView,
     setShowStateDialog: handleShowStateDialog,
     setShowSessionDialog: handleShowSessionDialog,
     handleStateFormChange,

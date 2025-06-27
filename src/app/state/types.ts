@@ -52,11 +52,23 @@ export type CurrentView =
 
 export type Visibility = 'public' | 'private';
 
+export interface Creator {
+  email: string;
+  id: string;
+  name: string;
+}
+
 export interface BaseItem {
   id: string;
   type: string;
   visibility: Visibility;
   title: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  version: string;
+  creator: Creator;
+  tags: string[];
 }
 
 export interface Session extends BaseItem {
