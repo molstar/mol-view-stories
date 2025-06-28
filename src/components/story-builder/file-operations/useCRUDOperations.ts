@@ -20,14 +20,14 @@ export const DEFAULT_STATE_FORM: StateFormData = {
   filename: '1cbs-retinoic-acid.mvsj',
   visibility: 'private',
   title: '1CBS Retinoic Acid Complex',
-  description: 'Visualization of retinoic acid binding protein with ligand'
+  description: 'Visualization of retinoic acid binding protein with ligand',
 };
 
 export const DEFAULT_SESSION_FORM: StateFormData = {
   filename: 'default-story.js',
   visibility: 'private',
   title: 'Default Story',
-  description: 'Default molecular visualization story'
+  description: 'Default molecular visualization story',
 };
 
 export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOperationsProps) => {
@@ -64,9 +64,9 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
   };
 
   const handleStateFormChange = (field: keyof StateFormData, value: string) => {
-    setStateForm(prev => ({
+    setStateForm((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -84,7 +84,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
   const handleApiError = async (response: Response, context: string) => {
     const errorText = await response.text();
     let errorMessage = `${context}: ${response.statusText}`;
-    
+
     try {
       const errorJson = JSON.parse(errorText);
       if (errorJson.message) {
@@ -95,7 +95,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
         errorMessage = `${context}: ${errorText}`;
       }
     }
-    
+
     throw new Error(errorMessage);
   };
 
@@ -111,23 +111,23 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
     setSuccess(null);
     try {
       const stateContent = await getMVSData(SimpleStory);
-      
+
       const statePayload = {
         type: 'state',
         filename: stateForm.filename,
         visibility: stateForm.visibility,
         title: stateForm.title,
         description: stateForm.description,
-        data: stateContent
+        data: stateContent,
       };
 
       const stateResponse = await fetch('https://mol-view-stories.dyn.cloud.e-infra.cz/api/state', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(statePayload)
+        body: JSON.stringify(statePayload),
       });
 
       if (!stateResponse.ok) {
@@ -167,19 +167,19 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
         metadata: {
           pdbId: '1cbs',
           ligand: 'Retinoic Acid',
-          created: new Date().toISOString()
+          created: new Date().toISOString(),
         },
         states: [],
-        data: SimpleStory
+        data: SimpleStory,
       };
 
       const sessionResponse = await fetch('https://mol-view-stories.dyn.cloud.e-infra.cz/api/session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(sessionPayload)
+        body: JSON.stringify(sessionPayload),
       });
 
       if (!sessionResponse.ok) {
@@ -215,7 +215,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
 
       const response = await fetch(url.toString(), {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -224,7 +224,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
       }
 
       const data = await response.json();
-      
+
       if (endpoint === 'session') {
         setSessions(data);
       } else {
@@ -255,4 +255,4 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
     createExampleSession,
     fetchData,
   };
-}; 
+};

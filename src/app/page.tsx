@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/common';
+import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 
 function Features() {
@@ -114,9 +114,9 @@ function Features() {
 
 export default function Home() {
   return (
-    <div className='flex flex-col min-h-screen'>
-      <main className='flex-1'>
-        <Header />
+    <>
+      <Header />
+      <Main className='flex-1'>
         <section className='py-20 px-4 md:px-8 bg-gradient-to-br from-background to-muted/20'>
           <div className='max-w-4xl mx-auto text-center'>
             <h1 className='text-5xl md:text-6xl font-bold text-foreground mb-6'>
@@ -131,8 +131,6 @@ export default function Home() {
 
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mb-8'>
               <Link
-                // NOTE: this (and other links) will not work in the deployed version as it will be hosted on molstar.org/mol-view-stories/...
-                //       need to set this up with base prefix
                 href='/builder?template=Empty'
                 className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors'
               >
@@ -157,7 +155,7 @@ export default function Home() {
           </div>
         </section>
         <Features />
-      </main>
-    </div>
+      </Main>
+    </>
   );
 }
