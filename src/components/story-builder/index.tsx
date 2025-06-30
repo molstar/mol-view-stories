@@ -9,6 +9,7 @@ import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
 import { getMVSData } from '@/app/state/actions';
 import { generateStoriesHtml } from '@/app/state/template';
+import { StoryActionButtons } from './Actions';
 
 export default function StoryBuilderPage() {
   const store = useStore();
@@ -31,8 +32,8 @@ export default function StoryBuilderPage() {
   }, [store, templateName]);
 
   return (
-    <div className='flex flex-col min-h-screen'>
-      <Header>
+    <div className='flex flex-col h-screen'>
+      <Header actions={<StoryActionButtons />}>
         <StoryTitle />
       </Header>
       <main className='flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-[1600px] mx-auto w-full h-full'>
