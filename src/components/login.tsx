@@ -1,4 +1,5 @@
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '@/app/providers';
+import { useAtomValue } from 'jotai';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -11,9 +12,13 @@ import { useState } from 'react';
 import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { StoryAtom, CurrentViewAtom } from '@/app/state/atoms';
+import { startLogin } from '@/lib/auth-utils';
 
 export function LoginButton() {
   const auth = useAuth();
+  const story = useAtomValue(StoryAtom);
+  const currentView = useAtomValue(CurrentViewAtom);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   if (auth.isAuthenticated) {
@@ -38,7 +43,13 @@ export function LoginButton() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => auth.signoutRedirect()} className='gap-2'>
+          {/* using removeUser instead of signoutRedirect to avoid redirecting to the login page */}
+          <DropdownMenuItem 
+            onClick={() => {
+              auth.removeUser(); // This now handles all token clearing
+            }} 
+            className='gap-2'
+          >
             <LogOutIcon /> Log Out
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -49,7 +60,8 @@ export function LoginButton() {
   const login = async () => {
     setIsRedirecting(true);
     try {
-      await auth.signinRedirect();
+      // Use PKCE login flow that preserves state
+      await startLogin(story, currentView);
     } catch (error) {
       console.error('Login failed:', error);
       toast.error('Login failed. Please try again.', {
@@ -57,7 +69,6 @@ export function LoginButton() {
         closeButton: true,
         duration: 4000,
       });
-    } finally {
       setIsRedirecting(false);
     }
   };

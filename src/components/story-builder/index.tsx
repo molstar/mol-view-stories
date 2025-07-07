@@ -10,6 +10,7 @@ import { StoriesToolBar } from '@/components/story-builder/Toolbar';
 import { getMVSData } from '@/app/state/actions';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
+import { type LoginState } from '@/lib/auth-utils';
 
 export default function StoryBuilderPage() {
   const store = useStore();
@@ -17,6 +18,32 @@ export default function StoryBuilderPage() {
   const templateName = searchParams.get('template');
 
   useEffect(() => {
+    // First, check if we need to restore saved app state (from OAuth login)
+    const savedStateJson = sessionStorage.getItem('restore_app_state');
+    if (savedStateJson) {
+      try {
+        const savedState: LoginState = JSON.parse(savedStateJson);
+        
+        if (savedState.story) {
+          store.set(StoryAtom, savedState.story);
+        }
+        
+        if (savedState.currentView) {
+          store.set(CurrentViewAtom, savedState.currentView);
+        }
+        
+        // Clean up the saved state
+        sessionStorage.removeItem('restore_app_state');
+        
+        // Don't process template if we restored state
+        return;
+      } catch (error) {
+        console.error('Failed to restore app state:', error);
+        sessionStorage.removeItem('restore_app_state');
+      }
+    }
+
+    // Only process template if no saved state was restored
     if (!templateName) return;
 
     let story = ExampleStories[templateName as keyof typeof ExampleStories];
