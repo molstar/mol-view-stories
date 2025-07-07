@@ -11,7 +11,7 @@ const oidcConfig = {
   scope: 'openid profile email',
   response_type: 'code',
   // TODO: redirect to /my-stories (just .origin won't work for the deployed app due to /mol-view-stories prefix)
-  redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}` : '',
+  redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}/file-operations` : '',
   metadata: {
     issuer: process.env.NEXT_PUBLIC_OIDC_AUTHORITY,
     jwks_uri: `${process.env.NEXT_PUBLIC_OIDC_AUTHORITY}/jwk`,

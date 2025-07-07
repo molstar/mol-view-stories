@@ -153,6 +153,14 @@ export default function Home() {
               </Link>
             ))}
           </div>
+
+          {/* <div className='max-w-4xl mx-auto text-center'>
+            <h2 className='text-3xl md:text-3xl font-bold text-foreground mb-6'>Public Stories</h2>
+          </div>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
+            TODO: list last 10 shared stories
+            TODO: "view all" button
+          </div> */}
         </section>
         <Features />
       </Main>
