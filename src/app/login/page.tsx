@@ -47,7 +47,7 @@ export default function LoginPage() {
       <div className='min-h-screen flex items-center justify-center'>
         <div className='text-center'>
           <h2 className='text-xl font-semibold text-red-600'>Authentication Error</h2>
-          <p className='text-gray-600'>{auth.error.message}</p>
+          <p className='text-gray-600'>{auth.error}</p>
         </div>
       </div>
     );

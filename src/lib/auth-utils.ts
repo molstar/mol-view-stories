@@ -131,6 +131,60 @@ function triggerAuthRefresh() {
   }
 }
 
+// Debug utility to check token status
+export function getTokenStatus(): {
+  hasTokens: boolean;
+  isExpired: boolean;
+  expiresIn: number | null;
+  hasRefreshToken: boolean;
+  expiresAt: Date | null;
+} {
+  if (typeof window === 'undefined') {
+    return {
+      hasTokens: false,
+      isExpired: false,
+      expiresIn: null,
+      hasRefreshToken: false,
+      expiresAt: null,
+    };
+  }
+
+  try {
+    const saved = sessionStorage.getItem('oauth_tokens');
+    if (!saved) {
+      return {
+        hasTokens: false,
+        isExpired: false,
+        expiresIn: null,
+        hasRefreshToken: false,
+        expiresAt: null,
+      };
+    }
+
+    const tokens: AuthTokens = JSON.parse(saved);
+    const now = Date.now();
+    const isExpired = now >= tokens.expires_at;
+    const expiresIn = Math.max(0, tokens.expires_at - now);
+
+    return {
+      hasTokens: true,
+      isExpired,
+      expiresIn,
+      hasRefreshToken: !!tokens.refresh_token,
+      expiresAt: new Date(tokens.expires_at),
+    };
+  } catch (error) {
+    console.error('Failed to get token status:', error);
+    return {
+      hasTokens: false,
+      isExpired: false,
+      expiresIn: null,
+      hasRefreshToken: false,
+      expiresAt: null,
+    };
+  }
+}
+
 export function getTokens(): AuthTokens | null {
   if (typeof window === 'undefined') return null;
   
@@ -142,7 +196,7 @@ export function getTokens(): AuthTokens | null {
     
     // Check if tokens are expired
     if (Date.now() >= tokens.expires_at) {
-      clearTokens();
+      // Don't immediately clear - let the refresh attempt handle it
       return null;
     }
     
@@ -151,6 +205,92 @@ export function getTokens(): AuthTokens | null {
     console.warn('Failed to get tokens:', error);
     return null;
   }
+}
+
+// Enhanced token retrieval with automatic refresh
+export async function getValidTokens(): Promise<AuthTokens | null> {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const saved = sessionStorage.getItem('oauth_tokens');
+    if (!saved) return null;
+    
+    const tokens: AuthTokens = JSON.parse(saved);
+    
+    // Check if tokens are expired
+    if (Date.now() >= tokens.expires_at) {
+      console.log('Tokens expired, attempting refresh...');
+      
+      // Try to refresh tokens
+      const refreshedTokens = await refreshAccessToken();
+      if (refreshedTokens) {
+        console.log('Tokens refreshed successfully');
+        return refreshedTokens;
+      } else {
+        console.log('Token refresh failed, clearing tokens');
+        clearTokens();
+        return null;
+      }
+    }
+    
+    // Check if tokens will expire soon (within 5 minutes) and refresh proactively
+    const fiveMinutesFromNow = Date.now() + (5 * 60 * 1000);
+    if (tokens.refresh_token && fiveMinutesFromNow >= tokens.expires_at) {
+      console.log('Tokens expiring soon, refreshing proactively...');
+      
+      // Try to refresh tokens in background
+      refreshAccessToken().catch(error => {
+        console.warn('Proactive token refresh failed:', error);
+        // Don't clear tokens yet, let them expire naturally
+      });
+    }
+    
+    return tokens;
+  } catch (error) {
+    console.warn('Failed to get valid tokens:', error);
+    return null;
+  }
+}
+
+// Authenticated fetch wrapper with automatic token refresh
+export async function authenticatedFetch(
+  url: string, 
+  options: RequestInit = {}
+): Promise<Response> {
+  const makeRequest = async (tokens: AuthTokens | null): Promise<Response> => {
+    const headers = new Headers(options.headers);
+    
+    if (tokens?.access_token) {
+      headers.set('Authorization', `Bearer ${tokens.access_token}`);
+    }
+    
+    return fetch(url, {
+      ...options,
+      headers,
+    });
+  };
+  
+  // First attempt with current tokens
+  const tokens = await getValidTokens();
+  let response = await makeRequest(tokens);
+  
+  // If we get a 401 and have a refresh token, try to refresh and retry once
+  if (response.status === 401 && tokens?.refresh_token) {
+    console.log('Received 401, attempting token refresh...');
+    
+    const refreshedTokens = await refreshAccessToken();
+    if (refreshedTokens) {
+      console.log('Token refresh successful, retrying request...');
+      response = await makeRequest(refreshedTokens);
+    } else {
+      console.log('Token refresh failed');
+      clearTokens();
+      // Trigger auth context refresh to update UI
+      triggerAuthRefresh();
+    }
+  }
+  
+  return response;
 }
 
 export function clearTokens(): void {
@@ -395,4 +535,5 @@ export async function handleOAuthCallback(): Promise<{
       error: error instanceof Error ? error.message : 'Authentication failed',
     };
   }
-} 
+}
+

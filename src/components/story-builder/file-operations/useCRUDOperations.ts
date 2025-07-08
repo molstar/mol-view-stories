@@ -30,7 +30,7 @@ export const DEFAULT_SESSION_FORM: StateFormData = {
   description: 'Default molecular visualization story',
 };
 
-export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOperationsProps) => {
+export const useCRUDOperations = ({ token, userId }: CRUDOperationsProps) => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [loading, setLoading] = useState(false);
@@ -92,7 +92,7 @@ export const useCRUDOperations = ({ token, userId, publicOnly = false }: CRUDOpe
       }
     } catch (e) {
       if (errorText) {
-        errorMessage = `${context}: ${errorText}`;
+        errorMessage = `${context}: ${errorText}, ${e}`;
       }
     }
 

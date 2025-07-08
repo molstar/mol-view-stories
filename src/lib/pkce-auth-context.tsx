@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTokens, clearTokens, type AuthTokens } from './auth-utils';
+import { getTokens, getValidTokens, clearTokens, startLogin, type AuthTokens } from './auth-utils';
 
 // User profile type (extracted from id_token)
 export interface UserProfile {
@@ -12,6 +12,22 @@ export interface UserProfile {
   given_name?: string;
   family_name?: string;
   email_verified?: boolean;
+}
+
+// JWT payload interface
+interface JWTPayload {
+  sub: string;
+  email?: string;
+  name?: string;
+  preferred_username?: string;
+  given_name?: string;
+  family_name?: string;
+  email_verified?: boolean;
+  exp?: number;
+  iat?: number;
+  aud?: string | string[];
+  iss?: string;
+  [key: string]: unknown;
 }
 
 // Auth state interface 
@@ -31,6 +47,7 @@ export interface AuthContextType extends AuthState {
   // Methods
   removeUser: () => void;
   refreshAuth: () => Promise<void>;
+  signinRedirect: () => Promise<void>;
 }
 
 const PKCEAuthContext = createContext<AuthContextType | null>(null);
@@ -45,7 +62,7 @@ export function useAuth(): AuthContextType {
 }
 
 // Decode JWT payload to extract user profile
-function decodeJWTPayload(token: string): any {
+function decodeJWTPayload(token: string): JWTPayload | null {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -97,37 +114,46 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
     error: null,
   });
 
-  // Initialize auth state from stored tokens
-  const initializeAuth = useCallback(() => {
-    const tokens = getTokens();
-    
-    if (tokens) {
-      const user = tokensToUser(tokens);
-      if (user) {
-        setAuthState({
-          isAuthenticated: true,
-          isLoading: false,
-          user,
-          error: null,
-        });
-        return;
+  // Initialize auth state from stored tokens with automatic refresh
+  const initializeAuth = useCallback(async () => {
+    try {
+      const tokens = await getValidTokens();
+      
+      if (tokens) {
+        const user = tokensToUser(tokens);
+        if (user) {
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            user,
+            error: null,
+          });
+          return;
+        }
       }
+      
+      // No valid tokens
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        user: null,
+        error: null,
+      });
+    } catch (error) {
+      console.error('Auth initialization failed:', error);
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        user: null,
+        error: error instanceof Error ? error.message : 'Authentication failed',
+      });
     }
-    
-    // No valid tokens
-    setAuthState({
-      isAuthenticated: false,
-      isLoading: false,
-      user: null,
-      error: null,
-    });
   }, []);
 
   // Initialize on mount
   useEffect(() => {
-    // Small delay to ensure we're client-side
-    const timeoutId = setTimeout(initializeAuth, 100);
-    return () => clearTimeout(timeoutId);
+    // Initialize immediately - no delay needed
+    initializeAuth();
   }, [initializeAuth]);
 
   // Remove user (logout)
@@ -143,7 +169,7 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
 
   // Refresh authentication state (check for new tokens)
   const refreshAuth = useCallback(async () => {
-    initializeAuth();
+    await initializeAuth();
   }, [initializeAuth]);
 
   // Listen for storage events (token updates from other tabs)
@@ -168,10 +194,38 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('tokens-updated', handleTokenUpdate);
   }, [initializeAuth]);
 
+  // Periodic token refresh check
+  useEffect(() => {
+    if (!authState.isAuthenticated) return;
+
+    const checkTokenExpiry = async () => {
+      const tokens = getTokens();
+      if (!tokens) return;
+
+      // Check if tokens will expire in the next 10 minutes
+      const tenMinutesFromNow = Date.now() + (10 * 60 * 1000);
+      if (tokens.refresh_token && tenMinutesFromNow >= tokens.expires_at) {
+        console.log('Tokens expiring soon, refreshing...');
+        await initializeAuth(); // This will trigger refresh via getValidTokens
+      }
+    };
+
+    // Check every minute
+    const interval = setInterval(checkTokenExpiry, 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [authState.isAuthenticated, initializeAuth]);
+
+  // Start login flow
+  const signinRedirect = useCallback(async () => {
+    await startLogin();
+  }, []);
+
   const contextValue: AuthContextType = {
     ...authState,
     removeUser,
     refreshAuth,
+    signinRedirect,
   };
 
   return (
