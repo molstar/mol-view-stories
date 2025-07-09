@@ -12,12 +12,6 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('Auth state:', {
-      isLoading: auth.isLoading,
-      error: auth.error,
-      isAuthenticated: auth.isAuthenticated,
-    });
-
     // Redirect authenticated users to file operations
     if (auth.isAuthenticated) {
       router.push('/file-operations');
@@ -26,9 +20,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      console.log('Attempting signin...');
       await auth.signinRedirect();
-      console.log('Signin redirect called successfully');
     } catch (error) {
       console.error('Login failed:', error);
     }

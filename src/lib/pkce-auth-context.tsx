@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTokens, getValidTokens, clearTokens, startLogin, type AuthTokens } from './auth-utils';
+import { getValidTokens, clearTokens, startLogin, type AuthTokens } from './auth-utils';
 
 // User profile type (extracted from id_token)
 export interface UserProfile {
@@ -196,22 +196,63 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
 
   // Periodic token refresh check
   useEffect(() => {
-    if (!authState.isAuthenticated) return;
-
+    // Always run the check, even when not authenticated 
+    // (in case we have tokens but user appears logged out due to error)
     const checkTokenExpiry = async () => {
-      const tokens = getTokens();
-      if (!tokens) return;
-
-      // Check if tokens will expire in the next 10 minutes
-      const tenMinutesFromNow = Date.now() + (10 * 60 * 1000);
-      if (tokens.refresh_token && tenMinutesFromNow >= tokens.expires_at) {
-        console.log('Tokens expiring soon, refreshing...');
-        await initializeAuth(); // This will trigger refresh via getValidTokens
+      try {
+        // Check if we have any tokens in storage
+        const saved = sessionStorage.getItem('oauth_tokens');
+        if (!saved) return;
+        
+        const tokens = JSON.parse(saved);
+        const now = Date.now();
+        
+        // Check if tokens will expire in the next 15 minutes
+        const fifteenMinutesFromNow = now + (15 * 60 * 1000);
+        if (tokens.refresh_token && fifteenMinutesFromNow >= tokens.expires_at) {
+          // Use getValidTokens which handles the refresh logic
+          const validTokens = await getValidTokens();
+          if (validTokens) {
+            // Update auth state if needed
+            if (!authState.isAuthenticated) {
+              await initializeAuth();
+            }
+          } else {
+            // If we were authenticated but refresh failed, update state
+            if (authState.isAuthenticated) {
+              setAuthState({
+                isAuthenticated: false,
+                isLoading: false,
+                user: null,
+                error: 'Session expired',
+              });
+            }
+          }
+        }
+        
+        // Additional check: if tokens are already expired but we're still marked as authenticated
+        if (now >= tokens.expires_at && authState.isAuthenticated) {
+          const validTokens = await getValidTokens();
+          if (!validTokens) {
+            setAuthState({
+              isAuthenticated: false,
+              isLoading: false,
+              user: null,
+              error: 'Session expired',
+            });
+          }
+        }
+        
+      } catch (error) {
+        console.error('Periodic check error:', error);
       }
     };
 
-    // Check every minute
-    const interval = setInterval(checkTokenExpiry, 60 * 1000);
+    // Check every 30 seconds for more frequent monitoring
+    const interval = setInterval(checkTokenExpiry, 30 * 1000);
+    
+    // Also run immediately
+    checkTokenExpiry();
     
     return () => clearInterval(interval);
   }, [authState.isAuthenticated, initializeAuth]);

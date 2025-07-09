@@ -83,3 +83,30 @@ export interface ApiResponse<T> {
   data: T[];
   error?: string;
 }
+
+export interface UserQuota {
+  overall: {
+    any_limit_reached: boolean;
+    any_near_limit: boolean;
+    total_limit: number;
+    total_objects: number;
+  };
+  sessions: {
+    current: number;
+    limit: number;
+    limit_reached: boolean;
+    near_limit: boolean;
+    remaining: number;
+    usage_percent: number;
+  };
+  states: {
+    current: number;
+    limit: number;
+    limit_reached: boolean;
+    near_limit: boolean;
+    remaining: number;
+    usage_percent: number;
+  };
+  user_id: string;
+  user_name: string;
+}

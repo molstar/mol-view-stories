@@ -4,9 +4,16 @@ import { Story, CurrentView } from '@/app/state/types';
 export const OAUTH_CONFIG = {
   authority: process.env.NEXT_PUBLIC_OIDC_AUTHORITY || '',
   client_id: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID || '',
-  scope: 'openid profile email',
+  scope: 'openid profile email offline_access',
   redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}/file-operations` : '',
 } as const;
+
+// API Configuration
+export const API_CONFIG = {
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mol-view-stories.dyn.cloud.e-infra.cz',
+} as const;
+
+
 
 // PKCE utility functions
 export function generateCodeVerifier(): string {
@@ -131,82 +138,6 @@ function triggerAuthRefresh() {
   }
 }
 
-// Debug utility to check token status
-export function getTokenStatus(): {
-  hasTokens: boolean;
-  isExpired: boolean;
-  expiresIn: number | null;
-  hasRefreshToken: boolean;
-  expiresAt: Date | null;
-} {
-  if (typeof window === 'undefined') {
-    return {
-      hasTokens: false,
-      isExpired: false,
-      expiresIn: null,
-      hasRefreshToken: false,
-      expiresAt: null,
-    };
-  }
-
-  try {
-    const saved = sessionStorage.getItem('oauth_tokens');
-    if (!saved) {
-      return {
-        hasTokens: false,
-        isExpired: false,
-        expiresIn: null,
-        hasRefreshToken: false,
-        expiresAt: null,
-      };
-    }
-
-    const tokens: AuthTokens = JSON.parse(saved);
-    const now = Date.now();
-    const isExpired = now >= tokens.expires_at;
-    const expiresIn = Math.max(0, tokens.expires_at - now);
-
-    return {
-      hasTokens: true,
-      isExpired,
-      expiresIn,
-      hasRefreshToken: !!tokens.refresh_token,
-      expiresAt: new Date(tokens.expires_at),
-    };
-  } catch (error) {
-    console.error('Failed to get token status:', error);
-    return {
-      hasTokens: false,
-      isExpired: false,
-      expiresIn: null,
-      hasRefreshToken: false,
-      expiresAt: null,
-    };
-  }
-}
-
-export function getTokens(): AuthTokens | null {
-  if (typeof window === 'undefined') return null;
-  
-  try {
-    const saved = sessionStorage.getItem('oauth_tokens');
-    if (!saved) return null;
-    
-    const tokens: AuthTokens = JSON.parse(saved);
-    
-    // Check if tokens are expired
-    if (Date.now() >= tokens.expires_at) {
-      // Don't immediately clear - let the refresh attempt handle it
-      return null;
-    }
-    
-    return tokens;
-  } catch (error) {
-    console.warn('Failed to get tokens:', error);
-    return null;
-  }
-}
-
 // Enhanced token retrieval with automatic refresh
 export async function getValidTokens(): Promise<AuthTokens | null> {
   if (typeof window === 'undefined') return null;
@@ -216,32 +147,47 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
     if (!saved) return null;
     
     const tokens: AuthTokens = JSON.parse(saved);
+    const now = Date.now();
     
     // Check if tokens are expired
-    if (Date.now() >= tokens.expires_at) {
-      console.log('Tokens expired, attempting refresh...');
-      
+    if (now >= tokens.expires_at) {
       // Try to refresh tokens
       const refreshedTokens = await refreshAccessToken();
       if (refreshedTokens) {
-        console.log('Tokens refreshed successfully');
         return refreshedTokens;
       } else {
-        console.log('Token refresh failed, clearing tokens');
-        clearTokens();
         return null;
       }
     }
     
-    // Check if tokens will expire soon (within 5 minutes) and refresh proactively
-    const fiveMinutesFromNow = Date.now() + (5 * 60 * 1000);
+    // Check if tokens will expire soon (within 10 minutes) and refresh proactively
+    const tenMinutesFromNow = now + (10 * 60 * 1000);
+    if (tokens.refresh_token && tenMinutesFromNow >= tokens.expires_at) {
+      // Try to refresh tokens and wait for result
+      try {
+        const refreshedTokens = await refreshAccessToken();
+        if (refreshedTokens) {
+          return refreshedTokens;
+        } else {
+          return tokens; // Use current tokens if refresh fails
+        }
+      } catch (error) {
+        console.warn('Proactive token refresh error:', error);
+        return tokens; // Use current tokens if refresh fails
+      }
+    }
+    
+    // Check if tokens will expire soon (within 5 minutes) and refresh in background
+    const fiveMinutesFromNow = now + (5 * 60 * 1000);
     if (tokens.refresh_token && fiveMinutesFromNow >= tokens.expires_at) {
-      console.log('Tokens expiring soon, refreshing proactively...');
-      
-      // Try to refresh tokens in background
-      refreshAccessToken().catch(error => {
-        console.warn('Proactive token refresh failed:', error);
-        // Don't clear tokens yet, let them expire naturally
+      // Start background refresh but don't wait for it
+      refreshAccessToken().then(refreshedTokens => {
+        if (refreshedTokens) {
+          // Trigger auth context update
+          triggerAuthRefresh();
+        }
+      }).catch(error => {
+        console.warn('Background token refresh error:', error);
       });
     }
     
@@ -276,14 +222,10 @@ export async function authenticatedFetch(
   
   // If we get a 401 and have a refresh token, try to refresh and retry once
   if (response.status === 401 && tokens?.refresh_token) {
-    console.log('Received 401, attempting token refresh...');
-    
     const refreshedTokens = await refreshAccessToken();
     if (refreshedTokens) {
-      console.log('Token refresh successful, retrying request...');
       response = await makeRequest(refreshedTokens);
     } else {
-      console.log('Token refresh failed');
       clearTokens();
       // Trigger auth context refresh to update UI
       triggerAuthRefresh();
@@ -339,16 +281,35 @@ export async function exchangeCodeForTokens(
   
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('Token exchange failed:', response.status, errorText);
     throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
   }
   
   const tokens = await response.json();
+  
+  if (!tokens.refresh_token) {
+    console.warn('⚠️  No refresh_token in response! This means automatic token refresh will not work.');
+  }
+  
   return tokens;
 }
 
 // Refresh tokens using refresh_token
 export async function refreshAccessToken(): Promise<AuthTokens | null> {
-  const currentTokens = getTokens();
+  if (typeof window === 'undefined') return null;
+  
+  // Get tokens directly from storage, even if expired
+  let currentTokens: AuthTokens;
+  try {
+    const saved = sessionStorage.getItem('oauth_tokens');
+    if (!saved) {
+      return null;
+    }
+    currentTokens = JSON.parse(saved);
+  } catch (error) {
+    console.error('Failed to parse stored tokens:', error);
+    return null;
+  }
   
   if (!currentTokens?.refresh_token) {
     return null;
@@ -370,7 +331,12 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Token refresh failed:', response.status, errorText);
-      clearTokens();
+      
+      // Only clear tokens if it's a 400 error (invalid refresh token)
+      // For other errors (network, 500, etc.), keep the tokens and try again later
+      if (response.status === 400 || response.status === 401) {
+        clearTokens();
+      }
       return null;
     }
     
@@ -381,12 +347,15 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
       newTokens.refresh_token = currentTokens.refresh_token;
     }
     
+    // Save the new tokens
     saveTokens(newTokens);
-    return newTokens;
     
+    return {
+      ...newTokens,
+      expires_at: Date.now() + (newTokens.expires_in * 1000),
+    };
   } catch (error) {
-    console.error('Token refresh error:', error);
-    clearTokens();
+    console.error('Token refresh failed:', error);
     return null;
   }
 }

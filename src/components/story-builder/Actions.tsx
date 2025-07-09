@@ -5,10 +5,16 @@ import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useAuth } from '@/app/providers';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { SaveDialog } from './file-operations/SaveDialog';
+import { openSaveDialog } from '@/app/state/save-dialog-actions';
 
 export function StoryActionButtons() {
   const auth = useAuth();
   const story = useAtomValue(StoryAtom);
+
+  const handleSaveClick = () => {
+    openSaveDialog();
+  };
 
   return (
     <div className='flex gap-2'>
@@ -31,13 +37,14 @@ export function StoryActionButtons() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
           <Button
             variant='outline'
             size='sm'
             className='gap-1.5 text-sm font-medium'
-            onClick={() => alert('TODO')}
+            onClick={handleSaveClick}
             disabled={!auth.isAuthenticated}
           >
             <SaveIcon className='size-4' />
@@ -48,6 +55,7 @@ export function StoryActionButtons() {
           {auth.isAuthenticated ? 'Save your session to the cloud' : 'You must be logged in to save sessions'}
         </TooltipContent>
       </Tooltip>
+      
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
           <Button
@@ -66,6 +74,8 @@ export function StoryActionButtons() {
           {auth.isAuthenticated ? 'Share your session with others' : 'You must be logged in to share stories'}
         </TooltipContent>
       </Tooltip>
+
+      <SaveDialog />
     </div>
   );
 }

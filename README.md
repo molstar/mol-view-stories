@@ -10,6 +10,7 @@ This project requires several environment variables to be set up for authenticat
 ```env
 NEXT_PUBLIC_OIDC_AUTHORITY=<link to the IdP>
 NEXT_PUBLIC_OIDC_CLIENT_ID=<client ID>
+NEXT_PUBLIC_API_BASE_URL=<backend URL>
 ```
 2. Run
 ```bash

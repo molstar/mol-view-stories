@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Header, Main } from '@/components/common';
 import { useAuth } from '@/app/providers';
 import { Button } from '@/components/ui/button';
@@ -8,81 +8,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Session, State } from '@/app/state/types';
-import { ExternalLink, FileText, Database, Trash2, Calendar, User, Lock, Globe, Edit } from 'lucide-react';
-import { toast } from 'sonner';
+import { ExternalLink, FileText, Database, Trash2, Calendar, User, Lock, Globe, Edit, AlertTriangle, BarChart3, HardDrive, Tag } from 'lucide-react';
 import Link from 'next/link';
-import { authenticatedFetch } from '@/lib/auth-utils';
-
-// Extended session interface that may include story data
-interface SessionWithData extends Session {
-  data?: unknown;
-}
+import { useMyStoriesData } from './useMyStoriesData';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function MyStoriesPage() {
   const auth = useAuth();
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [states, setStates] = useState<State[]>([]);
-  const [publicSessions, setPublicSessions] = useState<Session[]>([]);
-  const [publicStates, setPublicStates] = useState<State[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const myStories = useMyStoriesData(auth.isAuthenticated);
+  
+  // State for confirmation dialogs
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    open: boolean;
+    type: 'session' | 'state' | 'all';
+    id?: string;
+    title?: string;
+  }>({ open: false, type: 'session' });
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchData = useCallback(async (endpoint: string, isPublic: boolean = false) => {
-    if (!auth.isAuthenticated) {
-      setError('Please log in to view your stories');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const url = isPublic 
-        ? `https://mol-view-stories.dyn.cloud.e-infra.cz/api/public/${endpoint}s`
-        : `https://mol-view-stories.dyn.cloud.e-infra.cz/api/${endpoint}`;
-
-      const response = await authenticatedFetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${endpoint}s: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      if (endpoint === 'session') {
-        if (isPublic) {
-          setPublicSessions(data);
-        } else {
-          setSessions(data);
-        }
-      } else {
-        if (isPublic) {
-          setPublicStates(data);
-        } else {
-          setStates(data);
-        }
-      }
-    } catch (err) {
-      console.error(`Error fetching ${endpoint}s:`, err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      toast.error(`Failed to load ${endpoint}s`);
-    } finally {
-      setLoading(false);
-    }
-  }, [auth.isAuthenticated]);
-
-  const loadAllData = useCallback(() => {
-    fetchData('session', false);
-    fetchData('state', false);
-    fetchData('session', true);
-    fetchData('state', true);
-  }, [fetchData]);
-
-  useEffect(() => {
-    if (auth.isAuthenticated) {
-      loadAllData();
-    }
-  }, [auth.isAuthenticated, loadAllData]);
+  // Filter public items to ensure only truly public items are shown
+  const filteredPublicSessions = myStories.publicSessions.filter(session => session.visibility === 'public');
+  const filteredPublicStates = myStories.publicStates.filter(state => state.visibility === 'public');
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -94,122 +40,194 @@ export default function MyStoriesPage() {
     });
   };
 
-  const handleOpenInBuilder = async (item: Session | State) => {
+  const handleDeleteClick = (item: Session | State) => {
+    setDeleteConfirm({
+      open: true,
+      type: item.type,
+      id: item.id,
+      title: item.title
+    });
+  };
+
+  const handleDeleteAllClick = () => {
+    setDeleteConfirm({
+      open: true,
+      type: 'all'
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
     try {
-      // For sessions, try to load story data into the builder
-      if (item.type === 'session') {
-        // Check if the session already contains story data
-        const sessionItem = item as SessionWithData;
-        
-        if (sessionItem.data) {
-          // Session already has story data, use it directly
-          sessionStorage.setItem('restore_app_state', JSON.stringify({
-            story: sessionItem.data,
-            currentView: { type: 'story-options', subview: 'story-metadata' },
-            timestamp: Date.now(),
-          }));
-          
-          // Navigate to the builder
-          window.location.href = '/builder';
-        } else {
-          // Fallback: try to fetch session data if not available
-          if (!auth.isAuthenticated) {
-            toast.error('Authentication required');
-            return;
-          }
-
-          const response = await authenticatedFetch(`https://mol-view-stories.dyn.cloud.e-infra.cz/api/session/${item.id}/data.js`);
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch session data: ${response.statusText}`);
-          }
-
-          const sessionResponse = await response.json();
-          const storyData = sessionResponse.data;
-          
-          if (storyData) {
-            sessionStorage.setItem('restore_app_state', JSON.stringify({
-              story: storyData,
-              currentView: { type: 'story-options', subview: 'story-metadata' },
-              timestamp: Date.now(),
-            }));
-            
-            window.location.href = '/builder';
-          } else {
-            throw new Error('No story data found in session');
-          }
-        }
-      } else if (item.type === 'state') {
-        // For states, open in external MVS Stories viewer (states are MVS data, not story format)
-        const url = `https://molstar.org/demos/mvs-stories/?story-url=https://mol-view-stories.dyn.cloud.e-infra.cz/api/${item.type}/${item.id}`;
-        window.open(url, '_blank');
-      } else {
-        toast.error('Unknown item type');
+      let success = false;
+      
+      if (deleteConfirm.type === 'all') {
+        success = await myStories.handleDeleteAllContent();
+      } else if (deleteConfirm.type === 'session' && deleteConfirm.id) {
+        success = await myStories.handleDeleteSession(deleteConfirm.id);
+      } else if (deleteConfirm.type === 'state' && deleteConfirm.id) {
+        success = await myStories.handleDeleteState(deleteConfirm.id);
       }
-    } catch (err) {
-      console.error('Error opening item:', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to open item');
+      
+      if (success) {
+        setDeleteConfirm({ open: false, type: 'session' });
+      }
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const ItemCard = ({ item, showCreator = false }: { item: Session | State; showCreator?: boolean }) => (
-    <Card className="mb-4">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
-              {item.type === 'session' ? <FileText className="h-5 w-5" /> : <Database className="h-5 w-5" />}
-              {item.title}
-              <Badge variant={item.visibility === 'public' ? 'default' : 'secondary'} className="ml-2">
-                {item.visibility === 'public' ? <Globe className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
-                {item.visibility}
-              </Badge>
-            </CardTitle>
-            {item.description && (
-              <CardDescription className="mt-1">{item.description}</CardDescription>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            {formatDate(item.created_at)}
-          </div>
-          {showCreator && (
-            <div className="flex items-center gap-1">
-              <User className="h-4 w-4" />
-              {item.creator.name}
+  const getDeleteDialogProps = () => {
+    if (deleteConfirm.type === 'all') {
+      return {
+        title: 'Delete All Content',
+        description: 'Are you sure you want to delete ALL your sessions and states? This action cannot be undone and will permanently remove all your content.',
+        confirmText: 'Delete All'
+      };
+    } else if (deleteConfirm.type === 'session') {
+      return {
+        title: 'Delete Session',
+        description: `Are you sure you want to delete the session "${deleteConfirm.title}"? This action cannot be undone.`,
+        confirmText: 'Delete Session'
+      };
+    } else {
+      return {
+        title: 'Delete State',
+        description: `Are you sure you want to delete the state "${deleteConfirm.title}"? This action cannot be undone.`,
+        confirmText: 'Delete State'
+      };
+    }
+  };
+
+  const ItemCard = ({ item, showCreator = false }: { item: Session | State; showCreator?: boolean }) => {
+    return (
+      <Card className="mb-4">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-lg flex items-center gap-2">
+                {item.type === 'session' ? <FileText className="h-5 w-5" /> : <Database className="h-5 w-5" />}
+                {item.title}
+                <Badge variant={item.visibility === 'public' ? 'default' : 'secondary'} className="ml-2">
+                  {item.visibility === 'public' ? <Globe className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+                  {item.visibility}
+                </Badge>
+              </CardTitle>
+              {item.description && (
+                <CardDescription className="mt-1">{item.description}</CardDescription>
+              )}
+              {item.tags && Array.isArray(item.tags) && item.tags.length > 0 && (
+                <div className="flex items-center gap-1 mt-2 flex-wrap">
+                  <Tag className="h-3 w-3 text-muted-foreground" />
+                  {item.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="text-xs px-2 py-0.5">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-          <Badge variant="outline">{item.type}</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleOpenInBuilder(item)}
-            className="flex items-center gap-1"
-          >
-            {item.type === 'session' ? <Edit className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
-            {item.type === 'session' ? 'Open in Builder' : 'Open in MVS'}
-          </Button>
-          {!showCreator && (
+          </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              {formatDate(item.created_at)}
+            </div>
+            {showCreator && (
+              <div className="flex items-center gap-1">
+                <User className="h-4 w-4" />
+                {item.creator.name}
+              </div>
+            )}
+            <Badge variant="outline">{item.type}</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-1 text-destructive hover:text-destructive"
-              disabled
+              onClick={() => myStories.handleOpenInBuilder(item)}
+              disabled={item.type === 'state' && item.visibility === 'private'}
+              className="flex items-center gap-1"
             >
-              <Trash2 className="h-4 w-4" />
-              Delete
+              {item.type === 'session' ? <Edit className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
+              {item.type === 'session' ? 'Open in Builder' : 'Open in Molstar'}
             </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+            {!showCreator && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 text-destructive hover:text-destructive"
+                onClick={() => handleDeleteClick(item)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getUsagePercentage = (used: number, limit: number) => {
+    if (limit === 0) return 0;
+    return Math.min((used / limit) * 100, 100);
+  };
+
+  const getUsageColor = (percentage: number) => {
+    if (percentage >= 90) return 'bg-red-500';
+    if (percentage >= 75) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+
+  const QuotaCard = ({ title, used, limit, unit = '', icon: Icon }: {
+    title: string;
+    used: number;
+    limit: number;
+    unit?: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }) => {
+    const percentage = getUsagePercentage(used, limit);
+    const colorClass = getUsageColor(percentage);
+    
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">{title}</span>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {used.toLocaleString()}{unit} / {limit.toLocaleString()}{unit}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="w-full bg-muted rounded-full h-2">
+              <div 
+                className={`h-2 rounded-full transition-all duration-300 ${colorClass}`}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{percentage.toFixed(1)}% used</span>
+              <span>{limit - used} remaining</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (auth.isLoading) {
     return (
@@ -261,15 +279,26 @@ export default function MyStoriesPage() {
                 Manage your molecular visualization stories and sessions
               </p>
             </div>
-            <Button onClick={loadAllData} disabled={loading}>
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteAllClick}
+                disabled={myStories.loading || (myStories.sessions.length === 0 && myStories.states.length === 0)}
+                className="flex items-center gap-1"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                Delete All
+              </Button>
+              <Button onClick={myStories.loadAllData} disabled={myStories.loading}>
+                {myStories.loading ? 'Refreshing...' : 'Refresh'}
+              </Button>
+            </div>
           </div>
 
-          {error && (
+          {myStories.error && (
             <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-lg">
               <strong className="font-medium">Error: </strong>
-              {error}
+              {myStories.error}
             </div>
           )}
 
@@ -285,18 +314,18 @@ export default function MyStoriesPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    My Sessions ({sessions.length})
+                    My Sessions ({myStories.sessions.length})
                   </h2>
-                  {loading ? (
+                  {myStories.loading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading sessions...</div>
-                  ) : sessions.length === 0 ? (
+                  ) : myStories.sessions.length === 0 ? (
                     <Card>
                       <CardContent className="text-center py-8">
                         <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                         <p className="text-muted-foreground">No sessions found</p>
                         <p className="text-sm text-muted-foreground mt-1">
                           Create sessions from the{' '}
-                          <Link href="/" className="text-primary hover:underline">
+                          <Link href="/builder" className="text-primary hover:underline">
                             Story Builder
                           </Link>
                         </p>
@@ -304,7 +333,7 @@ export default function MyStoriesPage() {
                     </Card>
                   ) : (
                     <div className="space-y-4">
-                      {sessions.map((session) => (
+                      {myStories.sessions.map((session) => (
                         <ItemCard key={session.id} item={session} />
                       ))}
                     </div>
@@ -314,18 +343,18 @@ export default function MyStoriesPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                     <Database className="h-5 w-5" />
-                    My States ({states.length})
+                    My States ({myStories.states.length})
                   </h2>
-                  {loading ? (
+                  {myStories.loading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading states...</div>
-                  ) : states.length === 0 ? (
+                  ) : myStories.states.length === 0 ? (
                     <Card>
                       <CardContent className="text-center py-8">
                         <Database className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                         <p className="text-muted-foreground">No states found</p>
                         <p className="text-sm text-muted-foreground mt-1">
                           Export states from the{' '}
-                          <Link href="/" className="text-primary hover:underline">
+                          <Link href="/builder" className="text-primary hover:underline">
                             Story Builder
                           </Link>
                         </p>
@@ -333,7 +362,7 @@ export default function MyStoriesPage() {
                     </Card>
                   ) : (
                     <div className="space-y-4">
-                      {states.map((state) => (
+                      {myStories.states.map((state) => (
                         <ItemCard key={state.id} item={state} />
                       ))}
                     </div>
@@ -347,11 +376,11 @@ export default function MyStoriesPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                     <Globe className="h-5 w-5" />
-                    Public Sessions ({publicSessions.length})
+                    Public Sessions ({filteredPublicSessions.length})
                   </h2>
-                  {loading ? (
+                  {myStories.loading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading public sessions...</div>
-                  ) : publicSessions.length === 0 ? (
+                  ) : filteredPublicSessions.length === 0 ? (
                     <Card>
                       <CardContent className="text-center py-8">
                         <Globe className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
@@ -360,7 +389,7 @@ export default function MyStoriesPage() {
                     </Card>
                   ) : (
                     <div className="space-y-4">
-                      {publicSessions.map((session) => (
+                      {filteredPublicSessions.map((session) => (
                         <ItemCard key={session.id} item={session} showCreator />
                       ))}
                     </div>
@@ -370,11 +399,11 @@ export default function MyStoriesPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                     <Globe className="h-5 w-5" />
-                    Public States ({publicStates.length})
+                    Public States ({filteredPublicStates.length})
                   </h2>
-                  {loading ? (
+                  {myStories.loading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading public states...</div>
-                  ) : publicStates.length === 0 ? (
+                  ) : filteredPublicStates.length === 0 ? (
                     <Card>
                       <CardContent className="text-center py-8">
                         <Globe className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
@@ -383,7 +412,7 @@ export default function MyStoriesPage() {
                     </Card>
                   ) : (
                     <div className="space-y-4">
-                      {publicStates.map((state) => (
+                      {filteredPublicStates.map((state) => (
                         <ItemCard key={state.id} item={state} showCreator />
                       ))}
                     </div>
@@ -395,34 +424,102 @@ export default function MyStoriesPage() {
             <TabsContent value="storage" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Storage Statistics</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Storage Statistics & Quota
+                  </CardTitle>
                   <CardDescription>View your storage usage and limits</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold">{sessions.length + states.length}</div>
-                        <div className="text-sm text-muted-foreground">Total Items</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold">{sessions.length}</div>
-                        <div className="text-sm text-muted-foreground">Sessions</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold">{states.length}</div>
-                        <div className="text-sm text-muted-foreground">States</div>
+                  <div className="space-y-6">
+                    {/* Current Statistics */}
+                    <div>
+                      <h3 className="text-sm font-medium mb-3">Current Usage</h3>
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold">{myStories.sessions.length + myStories.states.length}</div>
+                          <div className="text-sm text-muted-foreground">Total Items</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold">{myStories.sessions.length}</div>
+                          <div className="text-sm text-muted-foreground">Sessions</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold">{myStories.states.length}</div>
+                          <div className="text-sm text-muted-foreground">States</div>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-sm text-muted-foreground text-center">
-                      Detailed storage statistics will be available in a future update
-                    </div>
+
+                    {/* Quota Information */}
+                    {myStories.quotaLoading ? (
+                      <div className="text-center py-8 text-muted-foreground">Loading quota information...</div>
+                    ) : myStories.quotaError ? (
+                      <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-lg">
+                        <strong className="font-medium">Error loading quota: </strong>
+                        {myStories.quotaError}
+                      </div>
+                    ) : myStories.quota ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-medium">Account Limits</h3>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={myStories.loadQuota}
+                          >
+                            Refresh
+                          </Button>
+                        </div>
+                        
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+                          <QuotaCard
+                            title="Sessions"
+                            used={myStories.quota?.sessions?.current ?? 0}
+                            limit={myStories.quota?.sessions?.limit ?? 0}
+                            icon={FileText}
+                          />
+                          <QuotaCard
+                            title="States"
+                            used={myStories.quota?.states?.current ?? 0}
+                            limit={myStories.quota?.states?.limit ?? 0}
+                            icon={Database}
+                          />
+
+                        </div>
+
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p>Quota information not available</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={myStories.loadQuota}
+                        >
+                          Load Quota
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Confirmation Dialog */}
+        <ConfirmDialog
+          open={deleteConfirm.open}
+          onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, open })}
+          title={getDeleteDialogProps().title}
+          description={getDeleteDialogProps().description}
+          confirmText={getDeleteDialogProps().confirmText}
+          onConfirm={handleConfirmDelete}
+          isDestructive={true}
+          isLoading={isDeleting}
+        />
       </Main>
     </div>
   );

@@ -1,7 +1,43 @@
 import { ExampleStories } from '@/app/examples';
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
-import { CurrentView, Story } from './types';
+import { CurrentView, Story, Session, State, Visibility, UserQuota } from './types';
+
+// Re-export types for external use
+export type { Visibility } from './types';
+
+// Request State Types
+export type RequestState = 
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success' }
+  | { status: 'error'; error: string };
+
+// My Stories Data Structure - Unified approach
+export type MyStoriesDataKey = 
+  | 'sessions-private' 
+  | 'sessions-public' 
+  | 'states-private' 
+  | 'states-public';
+
+export type MyStoriesData = Record<MyStoriesDataKey, (Session | State)[]>;
+
+// SaveDialog Types
+export type SaveType = 'session' | 'state';
+
+export type SaveFormData = {
+  title: string;
+  description: string;
+  visibility: Visibility;
+  tags: string;
+};
+
+export type SaveDialogState = {
+  isOpen: boolean;
+  saveType: SaveType;
+  isSaving: boolean;
+  formData: SaveFormData;
+};
 
 // Core State Atoms
 export const StoryAtom = atom<Story>(ExampleStories.Empty);
@@ -30,3 +66,70 @@ export const ActiveSceneAtom = atom((get) => {
 
 // UI State Atoms
 export const OpenSessionAtom = atom<boolean>(false);
+
+// SaveDialog State Atoms
+export const SaveDialogAtom = atom<SaveDialogState>({
+  isOpen: false,
+  saveType: 'session',
+  isSaving: false,
+  formData: {
+    title: '',
+    description: '',
+    visibility: 'private',
+    tags: ''
+  }
+});
+
+// Derived atoms for SaveDialog
+export const SaveDialogFormDataAtom = atom(
+  (get) => get(SaveDialogAtom).formData,
+  (get, set, formData: SaveFormData) => {
+    const current = get(SaveDialogAtom);
+    set(SaveDialogAtom, { ...current, formData });
+  }
+);
+
+export const SaveDialogSaveTypeAtom = atom(
+  (get) => get(SaveDialogAtom).saveType,
+  (get, set, saveType: SaveType) => {
+    const current = get(SaveDialogAtom);
+    set(SaveDialogAtom, { ...current, saveType });
+  }
+);
+
+export const SaveDialogIsSavingAtom = atom(
+  (get) => get(SaveDialogAtom).isSaving,
+  (get, set, isSaving: boolean) => {
+    const current = get(SaveDialogAtom);
+    set(SaveDialogAtom, { ...current, isSaving });
+  }
+);
+
+export const SaveDialogIsOpenAtom = atom(
+  (get) => get(SaveDialogAtom).isOpen,
+  (get, set, isOpen: boolean) => {
+    const current = get(SaveDialogAtom);
+    set(SaveDialogAtom, { ...current, isOpen });
+  }
+);
+
+// My Stories State Atoms - Unified Data Structure
+export const MyStoriesDataAtom = atom<MyStoriesData>({
+  'sessions-private': [],
+  'sessions-public': [],
+  'states-private': [],
+  'states-public': []
+});
+
+// Unified request state
+export const MyStoriesRequestStateAtom = atom<RequestState>({ status: 'idle' });
+
+// Derived atoms for granular access
+export const MyStoriesSessionsAtom = atom((get) => get(MyStoriesDataAtom)['sessions-private'] as Session[]);
+export const MyStoriesStatesAtom = atom((get) => get(MyStoriesDataAtom)['states-private'] as State[]);
+export const MyStoriesPublicSessionsAtom = atom((get) => get(MyStoriesDataAtom)['sessions-public'] as Session[]);
+export const MyStoriesPublicStatesAtom = atom((get) => get(MyStoriesDataAtom)['states-public'] as State[]);
+
+// Quota State Atoms
+export const UserQuotaAtom = atom<UserQuota | null>(null);
+export const QuotaRequestStateAtom = atom<RequestState>({ status: 'idle' });
