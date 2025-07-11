@@ -7,18 +7,14 @@ import { CurrentView, Story, Session, State, Visibility, UserQuota } from './typ
 export type { Visibility } from './types';
 
 // Request State Types
-export type RequestState = 
+export type RequestState =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'success' }
   | { status: 'error'; error: string };
 
 // My Stories Data Structure - Unified approach
-export type MyStoriesDataKey = 
-  | 'sessions-private' 
-  | 'sessions-public' 
-  | 'states-private' 
-  | 'states-public';
+export type MyStoriesDataKey = 'sessions-private' | 'sessions-public' | 'states-private' | 'states-public';
 
 export type MyStoriesData = Record<MyStoriesDataKey, (Session | State)[]>;
 
@@ -35,11 +31,15 @@ export type SaveFormData = {
 export type SaveDialogState = {
   isOpen: boolean;
   saveType: SaveType;
+  sessionId?: string; // Optional for state saves
   isSaving: boolean;
   formData: SaveFormData;
 };
 
 // Core State Atoms
+
+export const IsSessionLoadingAtom = atom<boolean>(false);
+
 export const StoryAtom = atom<Story>(ExampleStories.Empty);
 
 export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options', subview: 'story-metadata' });
@@ -71,13 +71,14 @@ export const OpenSessionAtom = atom<boolean>(false);
 export const SaveDialogAtom = atom<SaveDialogState>({
   isOpen: false,
   saveType: 'session',
+  sessionId: undefined,
   isSaving: false,
   formData: {
     title: '',
     description: '',
     visibility: 'private',
-    tags: ''
-  }
+    tags: '',
+  },
 });
 
 // Derived atoms for SaveDialog
@@ -118,7 +119,7 @@ export const MyStoriesDataAtom = atom<MyStoriesData>({
   'sessions-private': [],
   'sessions-public': [],
   'states-private': [],
-  'states-public': []
+  'states-public': [],
 });
 
 // Unified request state

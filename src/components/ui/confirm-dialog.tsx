@@ -42,33 +42,23 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {isDestructive && <AlertTriangle className="h-5 w-5 text-destructive" />}
+          <DialogTitle className='flex items-center gap-2'>
+            {isDestructive && <AlertTriangle className='h-5 w-5 text-destructive' />}
             {title}
           </DialogTitle>
-          <DialogDescription>
-            {description}
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isLoading}
-          >
+          <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
             {cancelText}
           </Button>
-          <Button
-            variant={isDestructive ? 'destructive' : 'default'}
-            onClick={handleConfirm}
-            disabled={isLoading}
-          >
+          <Button variant={isDestructive ? 'destructive' : 'default'} onClick={handleConfirm} disabled={isLoading}>
             {isLoading ? 'Processing...' : confirmText}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-} 
+}

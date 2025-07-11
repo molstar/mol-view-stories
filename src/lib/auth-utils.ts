@@ -13,8 +13,6 @@ export const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mol-view-stories.dyn.cloud.e-infra.cz',
 } as const;
 
-
-
 // PKCE utility functions
 export function generateCodeVerifier(): string {
   const array = new Uint8Array(32);
@@ -31,11 +29,11 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
   if (typeof window === 'undefined') {
     throw new Error('generateCodeChallenge can only be called in browser');
   }
-  
+
   const encoder = new TextEncoder();
   const data = encoder.encode(codeVerifier);
   const digest = await crypto.subtle.digest('SHA-256', data);
-  
+
   return btoa(String.fromCharCode(...new Uint8Array(digest)))
     .replace(/=/g, '')
     .replace(/\+/g, '-')
@@ -52,17 +50,17 @@ export interface LoginState {
 
 export function saveLoginState(story?: Story, currentView?: CurrentView): void {
   if (typeof window === 'undefined') return;
-  
+
   // Get current path including search params
   const redirectPath = window.location.pathname + window.location.search;
-  
+
   const loginState: LoginState = {
     redirectPath,
     story,
     currentView,
     timestamp: Date.now(),
   };
-  
+
   try {
     sessionStorage.setItem('post_login_redirect', redirectPath);
     sessionStorage.setItem('login_app_state', JSON.stringify(loginState));
@@ -73,17 +71,17 @@ export function saveLoginState(story?: Story, currentView?: CurrentView): void {
 
 export function restoreLoginState(): LoginState | null {
   if (typeof window === 'undefined') return null;
-  
+
   try {
     const redirectPath = sessionStorage.getItem('post_login_redirect');
     const savedState = sessionStorage.getItem('login_app_state');
-    
+
     if (!redirectPath && !savedState) {
       return null;
     }
-    
+
     let loginState: LoginState | null = null;
-    
+
     if (savedState) {
       loginState = JSON.parse(savedState);
     } else if (redirectPath) {
@@ -93,11 +91,11 @@ export function restoreLoginState(): LoginState | null {
         timestamp: Date.now(),
       };
     }
-    
+
     // Clean up after restoration
     sessionStorage.removeItem('post_login_redirect');
     sessionStorage.removeItem('login_app_state');
-    
+
     return loginState;
   } catch (error) {
     console.error('Failed to restore login state:', error);
@@ -117,12 +115,12 @@ export interface AuthTokens {
 
 export function saveTokens(tokens: Omit<AuthTokens, 'expires_at'>): void {
   if (typeof window === 'undefined') return;
-  
+
   const tokensWithExpiry: AuthTokens = {
     ...tokens,
-    expires_at: Date.now() + (tokens.expires_in * 1000),
+    expires_at: Date.now() + tokens.expires_in * 1000,
   };
-  
+
   try {
     sessionStorage.setItem('oauth_tokens', JSON.stringify(tokensWithExpiry));
     triggerAuthRefresh();
@@ -141,14 +139,14 @@ function triggerAuthRefresh() {
 // Enhanced token retrieval with automatic refresh
 export async function getValidTokens(): Promise<AuthTokens | null> {
   if (typeof window === 'undefined') return null;
-  
+
   try {
     const saved = sessionStorage.getItem('oauth_tokens');
     if (!saved) return null;
-    
+
     const tokens: AuthTokens = JSON.parse(saved);
     const now = Date.now();
-    
+
     // Check if tokens are expired
     if (now >= tokens.expires_at) {
       // Try to refresh tokens
@@ -159,9 +157,9 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
         return null;
       }
     }
-    
+
     // Check if tokens will expire soon (within 10 minutes) and refresh proactively
-    const tenMinutesFromNow = now + (10 * 60 * 1000);
+    const tenMinutesFromNow = now + 10 * 60 * 1000;
     if (tokens.refresh_token && tenMinutesFromNow >= tokens.expires_at) {
       // Try to refresh tokens and wait for result
       try {
@@ -176,21 +174,23 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
         return tokens; // Use current tokens if refresh fails
       }
     }
-    
+
     // Check if tokens will expire soon (within 5 minutes) and refresh in background
-    const fiveMinutesFromNow = now + (5 * 60 * 1000);
+    const fiveMinutesFromNow = now + 5 * 60 * 1000;
     if (tokens.refresh_token && fiveMinutesFromNow >= tokens.expires_at) {
       // Start background refresh but don't wait for it
-      refreshAccessToken().then(refreshedTokens => {
-        if (refreshedTokens) {
-          // Trigger auth context update
-          triggerAuthRefresh();
-        }
-      }).catch(error => {
-        console.warn('Background token refresh error:', error);
-      });
+      refreshAccessToken()
+        .then((refreshedTokens) => {
+          if (refreshedTokens) {
+            // Trigger auth context update
+            triggerAuthRefresh();
+          }
+        })
+        .catch((error) => {
+          console.warn('Background token refresh error:', error);
+        });
     }
-    
+
     return tokens;
   } catch (error) {
     console.warn('Failed to get valid tokens:', error);
@@ -199,27 +199,24 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
 }
 
 // Authenticated fetch wrapper with automatic token refresh
-export async function authenticatedFetch(
-  url: string, 
-  options: RequestInit = {}
-): Promise<Response> {
+export async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const makeRequest = async (tokens: AuthTokens | null): Promise<Response> => {
     const headers = new Headers(options.headers);
-    
+
     if (tokens?.access_token) {
       headers.set('Authorization', `Bearer ${tokens.access_token}`);
     }
-    
+
     return fetch(url, {
       ...options,
       headers,
     });
   };
-  
+
   // First attempt with current tokens
   const tokens = await getValidTokens();
   let response = await makeRequest(tokens);
-  
+
   // If we get a 401 and have a refresh token, try to refresh and retry once
   if (response.status === 401 && tokens?.refresh_token) {
     const refreshedTokens = await refreshAccessToken();
@@ -231,13 +228,13 @@ export async function authenticatedFetch(
       triggerAuthRefresh();
     }
   }
-  
+
   return response;
 }
 
 export function clearTokens(): void {
   if (typeof window === 'undefined') return;
-  
+
   try {
     sessionStorage.removeItem('oauth_tokens');
     triggerAuthRefresh();
@@ -257,14 +254,11 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
     code_challenge_method: 'S256',
     ...(state && { state }),
   });
-  
+
   return `${OAUTH_CONFIG.authority}/authorize?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(
-  code: string,
-  codeVerifier: string
-): Promise<AuthTokens> {
+export async function exchangeCodeForTokens(code: string, codeVerifier: string): Promise<AuthTokens> {
   const response = await fetch(`${OAUTH_CONFIG.authority}/token`, {
     method: 'POST',
     headers: {
@@ -278,26 +272,26 @@ export async function exchangeCodeForTokens(
       code_verifier: codeVerifier,
     }),
   });
-  
+
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Token exchange failed:', response.status, errorText);
     throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
   }
-  
+
   const tokens = await response.json();
-  
+
   if (!tokens.refresh_token) {
     console.warn('⚠️  No refresh_token in response! This means automatic token refresh will not work.');
   }
-  
+
   return tokens;
 }
 
 // Refresh tokens using refresh_token
 export async function refreshAccessToken(): Promise<AuthTokens | null> {
   if (typeof window === 'undefined') return null;
-  
+
   // Get tokens directly from storage, even if expired
   let currentTokens: AuthTokens;
   try {
@@ -310,11 +304,11 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
     console.error('Failed to parse stored tokens:', error);
     return null;
   }
-  
+
   if (!currentTokens?.refresh_token) {
     return null;
   }
-  
+
   try {
     const response = await fetch(`${OAUTH_CONFIG.authority}/token`, {
       method: 'POST',
@@ -327,11 +321,11 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
         refresh_token: currentTokens.refresh_token,
       }),
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Token refresh failed:', response.status, errorText);
-      
+
       // Only clear tokens if it's a 400 error (invalid refresh token)
       // For other errors (network, 500, etc.), keep the tokens and try again later
       if (response.status === 400 || response.status === 401) {
@@ -339,20 +333,20 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
       }
       return null;
     }
-    
+
     const newTokens = await response.json();
-    
+
     // Preserve refresh token if not returned
     if (!newTokens.refresh_token && currentTokens.refresh_token) {
       newTokens.refresh_token = currentTokens.refresh_token;
     }
-    
+
     // Save the new tokens
     saveTokens(newTokens);
-    
+
     return {
       ...newTokens,
-      expires_at: Date.now() + (newTokens.expires_in * 1000),
+      expires_at: Date.now() + newTokens.expires_in * 1000,
     };
   } catch (error) {
     console.error('Token refresh failed:', error);
@@ -386,20 +380,19 @@ export async function startLogin(story?: Story, currentView?: CurrentView): Prom
   try {
     // Save current state
     saveLoginState(story, currentView);
-    
+
     // Generate PKCE parameters
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
-    
+
     // Save code verifier for later use
     saveCodeVerifier(codeVerifier);
-    
+
     // Build authorization URL and redirect
     const authUrl = buildAuthorizationUrl(codeChallenge);
-    
+
     // Redirect to authorization server
     window.location.href = authUrl;
-    
   } catch (error) {
     console.error('Login failed:', error);
     throw error;
@@ -415,18 +408,18 @@ export function tryRestoreAppState(): {
   if (typeof window === 'undefined') {
     return { wasRestored: false };
   }
-  
+
   try {
     const savedStateJson = sessionStorage.getItem('restore_app_state');
     if (!savedStateJson) {
       return { wasRestored: false };
     }
-    
+
     const savedState: LoginState = JSON.parse(savedStateJson);
-    
+
     // Clean up immediately
     sessionStorage.removeItem('restore_app_state');
-    
+
     return {
       story: savedState.story,
       currentView: savedState.currentView,
@@ -452,57 +445,55 @@ export async function handleOAuthCallback(): Promise<{
     const code = urlParams.get('code');
     const error = urlParams.get('error');
     const errorDescription = urlParams.get('error_description');
-    
+
     // Handle OAuth errors
     if (error) {
       throw new Error(errorDescription || error);
     }
-    
+
     // If no code, this is probably not a callback
     if (!code) {
       return { success: false, error: 'No authorization code found' };
     }
-    
+
     // Get stored code verifier
     const codeVerifier = getCodeVerifier();
     if (!codeVerifier) {
       throw new Error('No code verifier found in session');
     }
-    
+
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code, codeVerifier);
-    
+
     // Save tokens
     saveTokens(tokens);
-    
+
     // Get saved login state
     const loginState = restoreLoginState();
-    
+
     // Clean up PKCE data
     clearCodeVerifier();
-    
+
     // Clean URL (remove OAuth params)
     window.history.replaceState({}, document.title, window.location.pathname);
-    
+
     return {
       success: true,
       redirectPath: loginState?.redirectPath || '/',
       loginState: loginState || undefined,
     };
-    
   } catch (error) {
     console.error('OAuth callback handling failed:', error);
-    
+
     // Clean up on error
     clearCodeVerifier();
     clearTokens();
     sessionStorage.removeItem('post_login_redirect');
     sessionStorage.removeItem('login_app_state');
-    
+
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Authentication failed',
     };
   }
 }
-

@@ -2,22 +2,18 @@
 
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { 
-  MyStoriesDataAtom,
-  MyStoriesRequestStateAtom,
-  UserQuotaAtom,
-  QuotaRequestStateAtom
-} from '@/app/state/atoms';
-import { 
-  loadAllMyStoriesData, 
-  openItemInBuilder, 
-  deleteSession, 
-  deleteState, 
+import { MyStoriesDataAtom, MyStoriesRequestStateAtom, UserQuotaAtom, QuotaRequestStateAtom } from '@/app/state/atoms';
+import {
+  loadAllMyStoriesData,
+  openItemInBuilder,
+  deleteSession,
+  deleteState,
   deleteAllUserContent,
   fetchUserQuota,
-  type SessionWithData 
+  type SessionWithData,
 } from '@/app/state/actions';
 import { Session, State } from '@/app/state/types';
+import { useRouter } from 'next/navigation';
 
 export type { SessionWithData };
 
@@ -26,6 +22,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
   const [requestState] = useAtom(MyStoriesRequestStateAtom);
   const [quota] = useAtom(UserQuotaAtom);
   const [quotaRequestState] = useAtom(QuotaRequestStateAtom);
+  const router = useRouter();
 
   const loadAllData = () => {
     loadAllMyStoriesData(isAuthenticated);
@@ -37,7 +34,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
   };
 
   const handleOpenInBuilder = (item: Session | State) => {
-    openItemInBuilder(item, isAuthenticated);
+    openItemInBuilder(router, item);
   };
 
   const handleDeleteSession = async (sessionId: string) => {
@@ -90,4 +87,4 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     handleDeleteState,
     handleDeleteAllContent,
   };
-} 
+}

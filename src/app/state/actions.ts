@@ -7,23 +7,35 @@ import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode';
 import { download } from 'molstar/lib/mol-util/download';
 import { UUID } from 'molstar/lib/mol-util/uuid';
 import { ExampleStories } from '../examples';
-import { 
+import {
   ActiveSceneAtom,
   ActiveSceneIdAtom,
-  CurrentViewAtom, 
+  CurrentViewAtom,
   StoryAtom,
   MyStoriesDataAtom,
   MyStoriesRequestStateAtom,
   UserQuotaAtom,
-  QuotaRequestStateAtom
+  QuotaRequestStateAtom,
+  IsSessionLoadingAtom,
 } from './atoms';
-import { CameraData, SceneAsset, SceneData, SceneUpdate, Story, StoryContainer, StoryMetadata, Session, State } from './types';
+import {
+  CameraData,
+  SceneAsset,
+  SceneData,
+  SceneUpdate,
+  Story,
+  StoryContainer,
+  StoryMetadata,
+  Session,
+  State,
+} from './types';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
 import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 // Extended session interface that may include story data
 export interface SessionWithData extends Session {
@@ -170,7 +182,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
   }
 }
 
-export const SessionFileExtension = '..msgpack';
+export const SessionFileExtension = '.mvstory';
 
 export const exportState = async (story: Story) => {
   const container: StoryContainer = {
@@ -292,11 +304,11 @@ export async function fetchMyStoriesData(endpoint: string, isPublic: boolean = f
   try {
     const publicParam = isPublic ? '?public=true' : '';
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/${endpoint}${publicParam}`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (err) {
     console.error(`Error fetching ${endpoint}:`, err);
@@ -308,77 +320,66 @@ export async function fetchMyStoriesData(endpoint: string, isPublic: boolean = f
 
 export function loadAllMyStoriesData(isAuthenticated: boolean) {
   const store = getDefaultStore();
-  
+
   // Set loading state
   store.set(MyStoriesRequestStateAtom, { status: 'loading' });
-  
+
   // Fetch all data in parallel
   Promise.all([
     fetchMyStoriesData('session', false, isAuthenticated),
     fetchMyStoriesData('session', true, isAuthenticated),
     fetchMyStoriesData('state', false, isAuthenticated),
     fetchMyStoriesData('state', true, isAuthenticated),
-  ]).then(([sessionsPrivate, sessionsPublic, statesPrivate, statesPublic]) => {
-    store.set(MyStoriesDataAtom, {
-      'sessions-private': sessionsPrivate,
-      'sessions-public': sessionsPublic,
-      'states-private': statesPrivate,
-      'states-public': statesPublic,
+  ])
+    .then(([sessionsPrivate, sessionsPublic, statesPrivate, statesPublic]) => {
+      store.set(MyStoriesDataAtom, {
+        'sessions-private': sessionsPrivate,
+        'sessions-public': sessionsPublic,
+        'states-private': statesPrivate,
+        'states-public': statesPublic,
+      });
+      store.set(MyStoriesRequestStateAtom, { status: 'success' });
+    })
+    .catch((error) => {
+      console.error('Error loading my stories data:', error);
+      store.set(MyStoriesRequestStateAtom, { status: 'error', error: error.message });
     });
-    store.set(MyStoriesRequestStateAtom, { status: 'success' });
-  }).catch((error) => {
-    console.error('Error loading my stories data:', error);
-    store.set(MyStoriesRequestStateAtom, { status: 'error', error: error.message });
-  });
 }
 
-export async function openItemInBuilder(item: Session | State, isAuthenticated: boolean) {
+export async function loadSession(sessionId: string) {
+  const store = getDefaultStore();
+  try {
+    store.set(IsSessionLoadingAtom, true);
+
+    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch session data: ${response.statusText}`);
+    }
+
+    const sessionResponse = await response.json();
+    const storyData = sessionResponse;
+
+    if (storyData?.story) {
+      store.set(StoryAtom, storyData.story);
+      store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+    } else {
+      throw new Error('No story data found in session');
+    }
+  } catch (err) {
+    console.error('Error loading session:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
+    toast.error(errorMessage);
+  } finally {
+    store.set(IsSessionLoadingAtom, false);
+  }
+}
+
+export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: Session | State) {
   try {
     // For sessions, try to load story data into the builder
     if (item.type === 'session') {
-      // Check if the session already contains story data
-      const sessionItem = item as SessionWithData;
-      
-      if (sessionItem.data) {
-        // Session already has story data, use it directly
-        // Handle both Story object directly or StoryContainer object
-        const storyToRestore = (sessionItem.data as any)?.story ? (sessionItem.data as any).story : sessionItem.data;
-        sessionStorage.setItem('restore_app_state', JSON.stringify({
-          story: storyToRestore,
-          currentView: { type: 'story-options', subview: 'story-metadata' },
-          timestamp: Date.now(),
-        }));
-        
-        // Navigate to the builder
-        window.location.href = '/builder';
-      } else {
-        // Fallback: try to fetch session data if not available
-        if (!isAuthenticated) {
-          toast.error('Authentication required');
-          return;
-        }
-
-        const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${item.id}/data`);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch session data: ${response.statusText}`);
-        }
-
-        const sessionResponse = await response.json();
-        const storyData = sessionResponse;
-        
-        if (storyData && storyData.story) {
-          sessionStorage.setItem('restore_app_state', JSON.stringify({
-            story: storyData.story, // Extract just the story part from StoryContainer
-            currentView: { type: 'story-options', subview: 'story-metadata' },
-            timestamp: Date.now(),
-          }));
-          
-          window.location.href = '/builder';
-        } else {
-          throw new Error('No story data found in session');
-        }
-      }
+      router.push(`/builder/?sessionId=${item.id}`);
     } else if (item.type === 'state') {
       // For states, open in external MVS Stories viewer (states are MVS data, not story format)
       const url = `https://molstar.org/demos/mvs-stories/?story-url=${API_CONFIG.baseUrl}/api/${item.type}/${item.id}/data?format=mvsj`;
@@ -395,7 +396,7 @@ export async function openItemInBuilder(item: Session | State, isAuthenticated: 
 // Delete Actions
 export async function deleteSession(sessionId: string, isAuthenticated: boolean) {
   const store = getDefaultStore();
-  
+
   if (!isAuthenticated) {
     toast.error('Authentication required');
     return false;
@@ -403,7 +404,7 @@ export async function deleteSession(sessionId: string, isAuthenticated: boolean)
 
   try {
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
 
     if (!response.ok) {
@@ -412,11 +413,13 @@ export async function deleteSession(sessionId: string, isAuthenticated: boolean)
 
     // Remove from local state
     const currentData = store.get(MyStoriesDataAtom);
-    const updatedSessions = (currentData['sessions-private'] as Session[]).filter((session: Session) => session.id !== sessionId);
-    
+    const updatedSessions = (currentData['sessions-private'] as Session[]).filter(
+      (session: Session) => session.id !== sessionId
+    );
+
     store.set(MyStoriesDataAtom, {
       ...currentData,
-      'sessions-private': updatedSessions
+      'sessions-private': updatedSessions,
     });
 
     toast.success('Session deleted successfully');
@@ -431,7 +434,7 @@ export async function deleteSession(sessionId: string, isAuthenticated: boolean)
 
 export async function deleteState(stateId: string, isAuthenticated: boolean) {
   const store = getDefaultStore();
-  
+
   if (!isAuthenticated) {
     toast.error('Authentication required');
     return false;
@@ -439,7 +442,7 @@ export async function deleteState(stateId: string, isAuthenticated: boolean) {
 
   try {
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/state/${stateId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
 
     if (!response.ok) {
@@ -449,10 +452,10 @@ export async function deleteState(stateId: string, isAuthenticated: boolean) {
     // Remove from local state
     const currentData = store.get(MyStoriesDataAtom);
     const updatedStates = (currentData['states-private'] as State[]).filter((state: State) => state.id !== stateId);
-    
+
     store.set(MyStoriesDataAtom, {
       ...currentData,
-      'states-private': updatedStates
+      'states-private': updatedStates,
     });
 
     toast.success('State deleted successfully');
@@ -467,7 +470,7 @@ export async function deleteState(stateId: string, isAuthenticated: boolean) {
 
 export async function deleteAllUserContent(isAuthenticated: boolean) {
   const store = getDefaultStore();
-  
+
   if (!isAuthenticated) {
     toast.error('Authentication required');
     return false;
@@ -475,7 +478,7 @@ export async function deleteAllUserContent(isAuthenticated: boolean) {
 
   try {
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/user/delete-all`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
 
     if (!response.ok) {
@@ -487,7 +490,7 @@ export async function deleteAllUserContent(isAuthenticated: boolean) {
     store.set(MyStoriesDataAtom, {
       ...currentData,
       'sessions-private': [],
-      'states-private': []
+      'states-private': [],
     });
 
     toast.success('All content deleted successfully');
@@ -502,7 +505,7 @@ export async function deleteAllUserContent(isAuthenticated: boolean) {
 
 export async function fetchUserQuota(isAuthenticated: boolean) {
   const store = getDefaultStore();
-  
+
   if (!isAuthenticated) {
     store.set(UserQuotaAtom, null);
     store.set(QuotaRequestStateAtom, { status: 'idle' });
@@ -513,11 +516,11 @@ export async function fetchUserQuota(isAuthenticated: boolean) {
 
   try {
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/user/quota`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch quota: ${response.statusText}`);
     }
-    
+
     const quota = await response.json();
     store.set(UserQuotaAtom, quota);
     store.set(QuotaRequestStateAtom, { status: 'success' });
@@ -527,4 +530,3 @@ export async function fetchUserQuota(isAuthenticated: boolean) {
     store.set(QuotaRequestStateAtom, { status: 'error', error: errorMessage });
   }
 }
-

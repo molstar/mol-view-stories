@@ -6,9 +6,5 @@ import { PKCEAuthProvider } from '@/lib/pkce-auth-context';
 export { useAuth } from '@/lib/pkce-auth-context';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <PKCEAuthProvider>
-      {children}
-    </PKCEAuthProvider>
-  );
+  return <PKCEAuthProvider>{children}</PKCEAuthProvider>;
 }

@@ -3,7 +3,7 @@
 import { MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarTrigger } from '@/components/ui/menubar';
 import { newStory } from '@/app/state/actions';
 import { FileIcon } from 'lucide-react';
-import { ExportSessionButton, ImportSessionButton } from '../file-operations';
+import { ImportSessionButton } from '../file-operations';
 
 export function FileMenu() {
   return (
@@ -16,7 +16,6 @@ export function FileMenu() {
         <MenubarItem onClick={() => newStory()}>New Story</MenubarItem>
         <MenubarSeparator />
         <ImportSessionButton />
-        <ExportSessionButton />
       </MenubarContent>
     </MenubarMenu>
   );

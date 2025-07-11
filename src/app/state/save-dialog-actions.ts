@@ -3,34 +3,29 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
-import { 
-  StoryAtom,
-  SaveDialogAtom,
-  type SaveFormData,
-  type SaveType,
-  type Visibility
-} from './atoms';
+import { StoryAtom, SaveDialogAtom, type SaveFormData, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
 import { getMVSData } from './actions';
 
 // SaveDialog Actions
-export function openSaveDialog() {
+export function openSaveDialog(options: { saveType: SaveType; sessionId?: string }) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
-  
+
   const formData: SaveFormData = {
     title: story.metadata.title || '',
     description: '',
-    visibility: 'private' as Visibility,
-    tags: ''
+    visibility: options.saveType === 'session' ? 'private' : 'public',
+    tags: '',
   };
 
   store.set(SaveDialogAtom, {
     isOpen: true,
-    saveType: 'session',
+    saveType: options.saveType,
+    sessionId: options.sessionId,
     isSaving: false,
-    formData
+    formData,
   });
 }
 
@@ -43,10 +38,10 @@ export function closeSaveDialog() {
 export function updateSaveDialogFormField(field: keyof SaveFormData, value: string) {
   const store = getDefaultStore();
   const current = store.get(SaveDialogAtom);
-  
+
   store.set(SaveDialogAtom, {
     ...current,
-    formData: { ...current.formData, [field]: value }
+    formData: { ...current.formData, [field]: value },
   });
 }
 
@@ -67,13 +62,13 @@ async function prepareSessionData(story: Story): Promise<Uint8Array> {
   const deflated = await Task.create('Deflate Story Data', async (ctx) => {
     return await deflate(ctx, encoded, { level: 3 });
   }).run();
-  
+
   return deflated;
 }
 
 async function prepareStateData(story: Story): Promise<Uint8Array | string> {
   const mvsData = await getMVSData(story);
-  
+
   if (mvsData instanceof Uint8Array) {
     return mvsData;
   } else {
@@ -82,11 +77,7 @@ async function prepareStateData(story: Story): Promise<Uint8Array | string> {
   }
 }
 
-async function saveToAPI(
-  data: Uint8Array | string, 
-  endpoint: string, 
-  formData: SaveFormData
-) {
+async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: SaveFormData) {
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
@@ -97,7 +88,10 @@ async function saveToAPI(
     }
   };
 
-  const processedTags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+  const processedTags = formData.tags
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.length > 0);
 
   const requestBody = {
     title: formData.title.trim(),
@@ -106,9 +100,12 @@ async function saveToAPI(
     visibility: formData.visibility,
     tags: processedTags,
     // Handle data based on type
-    data: data instanceof Uint8Array 
-      ? btoa(String.fromCharCode(...data))  // Convert Uint8Array to base64 string
-      : (typeof data === 'string' ? JSON.parse(data) : data),  // Parse JSON string to object for states
+    data:
+      data instanceof Uint8Array
+        ? btoa(String.fromCharCode(...data)) // Convert Uint8Array to base64 string
+        : typeof data === 'string'
+          ? JSON.parse(data)
+          : data, // Parse JSON string to object for states
   };
 
   const url = `${API_CONFIG.baseUrl}/api/${endpoint}`;
@@ -134,7 +131,7 @@ export async function performSave() {
   const store = getDefaultStore();
   const saveDialog = store.get(SaveDialogAtom);
   const story = store.get(StoryAtom);
-  
+
   // Validate form
   if (!saveDialog.formData.title.trim()) {
     toast.error('Title is required');
@@ -156,19 +153,15 @@ export async function performSave() {
       endpoint = 'state';
     }
 
-    const result = await saveToAPI(
-      data, 
-      endpoint, 
-      saveDialog.formData
-    );
-    
+    const result = await saveToAPI(data, endpoint, saveDialog.formData);
+
     toast.success(`${saveDialog.saveType === 'session' ? 'Session' : 'State'} saved successfully!`, {
       description: `Saved as "${saveDialog.formData.title}"`,
     });
-    
+
     console.log('Save result:', result);
     closeSaveDialog();
-    
+
     return true;
   } catch (error) {
     console.error('Save failed:', error);
@@ -179,4 +172,4 @@ export async function performSave() {
     const current = store.get(SaveDialogAtom);
     store.set(SaveDialogAtom, { ...current, isSaving: false });
   }
-} 
+}

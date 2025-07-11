@@ -1,20 +1,25 @@
-import { StoryAtom, downloadStory } from '@/app/appstate';
+import { StoryAtom, downloadStory, exportState } from '@/app/appstate';
 import { useAtomValue } from 'jotai';
-import { DownloadIcon, ChevronDownIcon, LinkIcon, SaveIcon } from 'lucide-react';
+import { DownloadIcon, ChevronDownIcon, LinkIcon, CloudIcon } from 'lucide-react';
 import { Button } from '../ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import { useAuth } from '@/app/providers';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { SaveDialog } from './file-operations/SaveDialog';
 import { openSaveDialog } from '@/app/state/save-dialog-actions';
+import { useSearchParams } from 'next/navigation';
 
 export function StoryActionButtons() {
   const auth = useAuth();
   const story = useAtomValue(StoryAtom);
-
-  const handleSaveClick = () => {
-    openSaveDialog();
-  };
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('sessionId') ?? undefined;
 
   return (
     <div className='flex gap-2'>
@@ -29,25 +34,30 @@ export function StoryActionButtons() {
         <DropdownMenuContent align='end' className='min-w-[160px]'>
           <DropdownMenuItem onClick={() => downloadStory(story, 'state')} className='gap-2'>
             <DownloadIcon className='size-4' />
-            Download Story
+            Download MolViewSpec
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => downloadStory(story, 'html')} className='gap-2'>
             <DownloadIcon className='size-4' />
             Download HTML
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => exportState(story)} className='gap-2'>
+            <DownloadIcon className='size-4' />
+            Download Session
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      
+
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
           <Button
             variant='outline'
             size='sm'
             className='gap-1.5 text-sm font-medium'
-            onClick={handleSaveClick}
+            onClick={() => openSaveDialog({ saveType: 'session', sessionId })}
             disabled={!auth.isAuthenticated}
           >
-            <SaveIcon className='size-4' />
+            <CloudIcon className='size-4' />
             Save
           </Button>
         </TooltipTrigger>
@@ -55,14 +65,14 @@ export function StoryActionButtons() {
           {auth.isAuthenticated ? 'Save your session to the cloud' : 'You must be logged in to save sessions'}
         </TooltipContent>
       </Tooltip>
-      
+
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
           <Button
             variant='outline'
             size='sm'
             className='gap-1.5 text-sm font-medium'
-            onClick={() => alert('TODO')}
+            onClick={() => openSaveDialog({ saveType: 'state' })}
             disabled={!auth.isAuthenticated}
             title={!auth.isAuthenticated ? 'You must be logged in to share stories' : ''}
           >

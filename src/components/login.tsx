@@ -44,10 +44,10 @@ export function LoginButton() {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {/* using removeUser instead of signoutRedirect to avoid redirecting to the login page */}
-          <DropdownMenuItem 
+          <DropdownMenuItem
             onClick={() => {
               auth.removeUser(); // This now handles all token clearing
-            }} 
+            }}
             className='gap-2'
           >
             <LogOutIcon /> Log Out

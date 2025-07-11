@@ -1,5 +1,5 @@
 import { useAtomValue, useStore } from 'jotai/index';
-import { CurrentViewAtom, StoryAtom } from '@/app/state/atoms';
+import { CurrentViewAtom, IsSessionLoadingAtom, StoryAtom } from '@/app/state/atoms';
 import { SceneEditors } from '@/components/story-builder/SceneEditor';
 import { StoryOptions } from '@/components/story-builder/StoryOptions';
 import { useSearchParams } from 'next/navigation';
@@ -7,15 +7,17 @@ import { useEffect, useState } from 'react';
 import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
-import { getMVSData } from '@/app/state/actions';
+import { getMVSData, loadSession } from '@/app/state/actions';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
 import { type LoginState } from '@/lib/auth-utils';
 
 export default function StoryBuilderPage() {
   const store = useStore();
+  const isLoading = useAtomValue(IsSessionLoadingAtom);
   const searchParams = useSearchParams();
   const templateName = searchParams.get('template');
+  const sessionId = searchParams.get('sessionId');
 
   useEffect(() => {
     // First, check if we need to restore saved app state (from OAuth login)
@@ -23,24 +25,29 @@ export default function StoryBuilderPage() {
     if (savedStateJson) {
       try {
         const savedState: LoginState = JSON.parse(savedStateJson);
-        
+
         if (savedState.story) {
           store.set(StoryAtom, savedState.story);
         }
-        
+
         if (savedState.currentView) {
           store.set(CurrentViewAtom, savedState.currentView);
         }
-        
+
         // Clean up the saved state
         sessionStorage.removeItem('restore_app_state');
-        
+
         // Don't process template if we restored state
         return;
       } catch (error) {
         console.error('Failed to restore app state:', error);
         sessionStorage.removeItem('restore_app_state');
       }
+    }
+
+    if (sessionId) {
+      loadSession(sessionId);
+      return;
     }
 
     // Only process template if no saved state was restored
@@ -56,7 +63,7 @@ export default function StoryBuilderPage() {
     const url = new URL(window.location.href);
     url.searchParams.delete('template');
     window.history.replaceState({}, '', url.toString());
-  }, [store, templateName]);
+  }, [store, templateName, sessionId]);
 
   return (
     <div className='flex flex-col h-screen'>
@@ -64,17 +71,30 @@ export default function StoryBuilderPage() {
         <StoryTitle />
       </Header>
       <main className='flex-1 flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8 md:py-8 max-w-[1600px] mx-auto w-full h-full'>
-        <StoriesToolBar />
-        <div className='flex gap-6 lg:gap-8 flex-1 h-full min-h-0'>
-          <StoryBuilderRoot />
-        </div>
+        {isLoading && (
+          <div className='absolute inset-0 bg-white/80 flex items-center justify-center z-50'>
+            <div className='text-lg font-semibold'>Loading session...</div>
+          </div>
+        )}
+        {!isLoading && (
+          <>
+            <StoriesToolBar />
+            <div className='flex gap-6 lg:gap-8 flex-1 h-full min-h-0'>
+              <StoryBuilderRoot />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
 }
 
 function StoryTitle() {
+  const isLoading = useAtomValue(IsSessionLoadingAtom);
   const story = useAtomValue(StoryAtom);
+  if (isLoading) {
+    return <>Loading...</>;
+  }
   return <>{story.metadata.title || 'Untitled Story'}</>;
 }
 

@@ -30,11 +30,11 @@ interface JWTPayload {
   [key: string]: unknown;
 }
 
-// Auth state interface 
+// Auth state interface
 export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: { 
+  user: {
     profile: UserProfile;
     access_token: string;
     id_token?: string;
@@ -69,7 +69,7 @@ function decodeJWTPayload(token: string): JWTPayload | null {
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join('')
     );
     return JSON.parse(jsonPayload);
@@ -85,12 +85,12 @@ function tokensToUser(tokens: AuthTokens): AuthState['user'] | null {
     console.warn('No id_token available for user profile');
     return null;
   }
-  
+
   const payload = decodeJWTPayload(tokens.id_token);
   if (!payload) {
     return null;
   }
-  
+
   return {
     profile: {
       sub: payload.sub,
@@ -118,7 +118,7 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
   const initializeAuth = useCallback(async () => {
     try {
       const tokens = await getValidTokens();
-      
+
       if (tokens) {
         const user = tokensToUser(tokens);
         if (user) {
@@ -131,7 +131,7 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      
+
       // No valid tokens
       setAuthState({
         isAuthenticated: false,
@@ -196,19 +196,19 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
 
   // Periodic token refresh check
   useEffect(() => {
-    // Always run the check, even when not authenticated 
+    // Always run the check, even when not authenticated
     // (in case we have tokens but user appears logged out due to error)
     const checkTokenExpiry = async () => {
       try {
         // Check if we have any tokens in storage
         const saved = sessionStorage.getItem('oauth_tokens');
         if (!saved) return;
-        
+
         const tokens = JSON.parse(saved);
         const now = Date.now();
-        
+
         // Check if tokens will expire in the next 15 minutes
-        const fifteenMinutesFromNow = now + (15 * 60 * 1000);
+        const fifteenMinutesFromNow = now + 15 * 60 * 1000;
         if (tokens.refresh_token && fifteenMinutesFromNow >= tokens.expires_at) {
           // Use getValidTokens which handles the refresh logic
           const validTokens = await getValidTokens();
@@ -229,7 +229,7 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
         }
-        
+
         // Additional check: if tokens are already expired but we're still marked as authenticated
         if (now >= tokens.expires_at && authState.isAuthenticated) {
           const validTokens = await getValidTokens();
@@ -242,7 +242,6 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
             });
           }
         }
-        
       } catch (error) {
         console.error('Periodic check error:', error);
       }
@@ -250,10 +249,10 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check every 30 seconds for more frequent monitoring
     const interval = setInterval(checkTokenExpiry, 30 * 1000);
-    
+
     // Also run immediately
     checkTokenExpiry();
-    
+
     return () => clearInterval(interval);
   }, [authState.isAuthenticated, initializeAuth]);
 
@@ -269,11 +268,7 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
     signinRedirect,
   };
 
-  return (
-    <PKCEAuthContext.Provider value={contextValue}>
-      {children}
-    </PKCEAuthContext.Provider>
-  );
+  return <PKCEAuthContext.Provider value={contextValue}>{children}</PKCEAuthContext.Provider>;
 }
 
 // Helper function to trigger auth refresh after login
@@ -281,4 +276,4 @@ export function triggerAuthRefresh() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('tokens-updated'));
   }
-} 
+}
