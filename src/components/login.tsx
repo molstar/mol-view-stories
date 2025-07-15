@@ -8,22 +8,24 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
-import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd } from 'lucide-react';
+import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { startLogin } from '@/lib/auth-utils';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { PopupBlockedDialog } from './popup-blocked-dialog';
+import { exportState } from '@/app/state/actions';
+import { useAtomValue } from 'jotai';
+import { StoryAtom } from '@/app/state/atoms';
 
 export function LoginButton() {
   const auth = useAuth();
   const { hasUnsavedChanges } = useUnsavedChanges();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showPopupBlockedDialog, setShowPopupBlockedDialog] = useState(false);
   const pathname = usePathname();
-
-  // Determine if we should highlight the login button (encourage early login)
-  const shouldHighlight = !auth.isAuthenticated && !hasUnsavedChanges && pathname === '/builder/';
+  const story = useAtomValue(StoryAtom);
 
   if (auth.isAuthenticated) {
     const username = auth.user?.profile.preferred_username ?? auth.user?.profile.name ?? 'User';
@@ -63,9 +65,28 @@ export function LoginButton() {
 
   const login = async () => {
     setIsRedirecting(true);
+    
     try {
-      // Use PKCE login flow with redirect path preservation
-      await startLogin();
+      // Use popup-based login to preserve unsaved changes
+      const result = await auth.signinPopup();
+      
+      if (result.success) {
+        toast.success('Login successful!', {
+          position: 'top-center',
+          duration: 3000,
+        });
+      } else if (result.error === 'POPUP_BLOCKED') {
+        setShowPopupBlockedDialog(true);
+      } else {
+        // Don't show error for user cancellation
+        if (result.error && !result.error.includes('cancelled')) {
+          toast.error(result.error, {
+            position: 'top-center',
+            closeButton: true,
+            duration: 4000,
+          });
+        }
+      }
     } catch (error) {
       console.error('Login failed:', error);
       toast.error('Login failed. Please try again.', {
@@ -74,27 +95,47 @@ export function LoginButton() {
         duration: 4000,
       });
     } finally {
-      // Always reset redirecting state after a short delay
-      // If login succeeds and redirects, component will unmount so this won't matter
-      // If login is cancelled or fails, this ensures button is not stuck
-      setTimeout(() => setIsRedirecting(false), 100);
+      setIsRedirecting(false);
+    }
+  };
+
+  const handleExportFirst = async () => {
+    try {
+      await exportState(story);
+      toast.success('Work exported successfully!', {
+        position: 'top-center',
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export work', {
+        position: 'top-center',
+        duration: 3000,
+      });
     }
   };
 
   return (
-    <Button 
-      variant={shouldHighlight ? 'default' : 'outline'} 
-      onClick={login} 
-      disabled={isRedirecting} 
-      className={cn(
-        'cursor-pointer',
-        shouldHighlight && 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
-      )}
-    >
-      <LogInIcon />
-      {isRedirecting && 'Redirecting...'}
-      {!isRedirecting && shouldHighlight && 'Log in now to save changes to cloud later'}
-      {!isRedirecting && !shouldHighlight && 'Log in'}
-    </Button>
+    <>
+      <Button 
+        variant={'default'}
+        onClick={login} 
+        disabled={isRedirecting} 
+        className={cn(
+          'cursor-pointer'
+        )}
+      >
+        <LogInIcon />
+        {isRedirecting && 'Opening login...'}
+        {!isRedirecting && 'Log in'}
+      </Button>
+
+      <PopupBlockedDialog
+        isOpen={showPopupBlockedDialog}
+        onClose={() => setShowPopupBlockedDialog(false)}
+        hasUnsavedChanges={hasUnsavedChanges}
+        onExportFirst={handleExportFirst}
+      />
+    </>
   );
 }

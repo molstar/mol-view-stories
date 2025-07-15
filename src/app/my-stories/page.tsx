@@ -25,7 +25,7 @@ import {
 import Link from 'next/link';
 import { useMyStoriesData } from './useMyStoriesData';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { handleOAuthCallback } from '@/lib/auth-utils';
+import { handleOAuthCallback, handlePopupCallback } from '@/lib/auth-utils';
 import { useRouter } from 'next/navigation';
 
 export default function MyStoriesPage() {
@@ -42,6 +42,13 @@ export default function MyStoriesPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const hasCode = urlParams.has('code');
     setHasOAuthCode(hasCode);
+    
+    // Check if this is a popup window with OAuth callback
+    if (hasCode && window.opener) {
+      // This is a popup callback - handle it and close
+      handlePopupCallback();
+      return;
+    }
     
     // Early check: if we have OAuth code and likely came from builder, show redirecting state
     if (hasCode) {

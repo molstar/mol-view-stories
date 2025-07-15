@@ -12,6 +12,12 @@ function getRedirectUri(): string {
   return `${window.location.origin}/my-stories`;
 }
 
+// Helper function to get popup redirect URI (use same as regular to match OAuth config)
+function getPopupRedirectUri(): string {
+  if (typeof window === 'undefined') return '';
+  return `${window.location.origin}/my-stories`;
+}
+
 // API Configuration
 export const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mol-view-stories.dyn.cloud.e-infra.cz',
@@ -215,12 +221,12 @@ export function clearTokens(): void {
 }
 
 // OAuth2 flow utilities
-export function buildAuthorizationUrl(codeChallenge: string, state?: string): string {
+export function buildAuthorizationUrl(codeChallenge: string, state?: string, usePopup = false): string {
   const params = new URLSearchParams({
     client_id: OAUTH_CONFIG.client_id,
     response_type: 'code',
     scope: OAUTH_CONFIG.scope,
-    redirect_uri: getRedirectUri(),
+    redirect_uri: usePopup ? getPopupRedirectUri() : getRedirectUri(),
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     ...(state && { state }),
@@ -229,12 +235,12 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
   return `${OAUTH_CONFIG.authority}/authorize?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string, codeVerifier: string): Promise<AuthTokens> {
+export async function exchangeCodeForTokens(code: string, codeVerifier: string, usePopup = false): Promise<AuthTokens> {
   const requestBody = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,
     code,
-    redirect_uri: getRedirectUri(),
+    redirect_uri: usePopup ? getPopupRedirectUri() : getRedirectUri(),
     code_verifier: codeVerifier,
   });
 
@@ -331,6 +337,8 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
 export const PKCE_KEYS = {
   CODE_VERIFIER: 'oauth_code_verifier',
   STATE: 'oauth_state',
+  POPUP_CODE_VERIFIER: 'oauth_popup_code_verifier', // Separate key for popup flow
+  POPUP_STATE: 'oauth_popup_state',
 } as const;
 
 export function saveCodeVerifier(codeVerifier: string): void {
@@ -348,7 +356,136 @@ export function clearCodeVerifier(): void {
   sessionStorage.removeItem(PKCE_KEYS.CODE_VERIFIER);
 }
 
-// Main login function - starts the OAuth flow
+export function savePopupCodeVerifier(codeVerifier: string): void {
+  if (typeof window === 'undefined') return;
+  sessionStorage.setItem(PKCE_KEYS.POPUP_CODE_VERIFIER, codeVerifier);
+}
+
+export function getPopupCodeVerifier(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem(PKCE_KEYS.POPUP_CODE_VERIFIER);
+}
+
+export function clearPopupCodeVerifier(): void {
+  if (typeof window === 'undefined') return;
+  sessionStorage.removeItem(PKCE_KEYS.POPUP_CODE_VERIFIER);
+}
+
+// Popup-based authentication flow
+export async function startPopupLogin(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  return new Promise(async (resolve) => {
+    try {
+      // Generate PKCE parameters
+      const codeVerifier = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const state = generateCodeVerifier(); // Use as random state
+
+      // Save code verifier for later use
+      savePopupCodeVerifier(codeVerifier);
+      
+      // Build authorization URL for popup
+      const authUrl = buildAuthorizationUrl(codeChallenge, state, true);
+
+      // Open popup window
+      const popup = window.open(
+        authUrl,
+        'oauth-popup',
+        'width=500,height=700,scrollbars=yes,resizable=yes,centerscreen=yes'
+      );
+
+      if (!popup || popup.closed) {
+        throw new Error('POPUP_BLOCKED');
+      }
+
+      // Additional check for popup blocking after a short delay
+      setTimeout(() => {
+        if (popup.closed) {
+          window.removeEventListener('message', messageHandler);
+          clearPopupCodeVerifier();
+          resolve({ 
+            success: false, 
+            error: 'POPUP_BLOCKED'
+          });
+        }
+      }, 100);
+
+      // Listen for messages from popup
+      const messageHandler = async (event: MessageEvent) => {
+        // Verify origin for security
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+
+        const { type, success, code, error, state: returnedState } = event.data;
+
+        if (type === 'OAUTH_RESULT') {
+          // Clean up
+          window.removeEventListener('message', messageHandler);
+          
+          if (!success) {
+            clearPopupCodeVerifier();
+            resolve({ success: false, error: error || 'Authentication failed' });
+            return;
+          }
+
+          try {
+            // Verify state matches (basic CSRF protection)
+            if (returnedState !== state) {
+              throw new Error('Invalid state parameter');
+            }
+
+            // Get stored code verifier
+            const storedCodeVerifier = getPopupCodeVerifier();
+            if (!storedCodeVerifier) {
+              throw new Error('No code verifier found in session');
+            }
+
+            // Exchange code for tokens
+            const tokens = await exchangeCodeForTokens(code, storedCodeVerifier, true);
+
+            // Save tokens
+            saveTokens(tokens);
+
+            // Clean up PKCE data
+            clearPopupCodeVerifier();
+
+            resolve({ success: true });
+          } catch (error) {
+            clearPopupCodeVerifier();
+            resolve({
+              success: false,
+              error: error instanceof Error ? error.message : 'Token exchange failed'
+            });
+          }
+        }
+      };
+
+      // Handle popup being closed manually
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', messageHandler);
+          clearPopupCodeVerifier();
+          resolve({ success: false, error: 'Authentication was cancelled' });
+        }
+      }, 1000);
+
+      window.addEventListener('message', messageHandler);
+
+    } catch (error) {
+      clearPopupCodeVerifier();
+      resolve({
+        success: false,
+        error: error instanceof Error ? error.message : 'Authentication failed'
+      });
+    }
+  });
+}
+
+// Main login function - starts the OAuth flow (redirect-based)
 export async function startLogin(): Promise<void> {
   try {
     // Save current redirect path
@@ -372,7 +509,59 @@ export async function startLogin(): Promise<void> {
   }
 }
 
-// Handle OAuth callback - to be used in /file-operations
+// Handle OAuth callback for popup flow - to be used in /my-stories when window.opener exists
+export function handlePopupCallback(): void {
+  try {
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    const state = urlParams.get('state');
+
+    // Send result to parent window
+    if (window.opener) {
+      if (error) {
+        window.opener.postMessage({
+          type: 'OAUTH_RESULT',
+          success: false,
+          error: errorDescription || error
+        }, window.location.origin);
+      } else if (code) {
+        window.opener.postMessage({
+          type: 'OAUTH_RESULT',
+          success: true,
+          code,
+          state
+        }, window.location.origin);
+      } else {
+        window.opener.postMessage({
+          type: 'OAUTH_RESULT',
+          success: false,
+          error: 'No authorization code received'
+        }, window.location.origin);
+      }
+    }
+
+    // Close popup
+    window.close();
+  } catch (error) {
+    console.error('Popup callback handling failed:', error);
+    
+    // Send error to parent
+    if (window.opener) {
+      window.opener.postMessage({
+        type: 'OAUTH_RESULT',
+        success: false,
+        error: error instanceof Error ? error.message : 'Callback handling failed'
+      }, window.location.origin);
+    }
+    
+    window.close();
+  }
+}
+
+// Handle OAuth callback - to be used in /my-stories (redirect-based)
 export async function handleOAuthCallback(): Promise<{
   success: boolean;
   redirectPath?: string;

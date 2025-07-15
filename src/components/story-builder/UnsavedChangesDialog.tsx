@@ -8,7 +8,7 @@ import { useAuth } from '@/app/providers';
 import { openSaveDialog } from '@/app/state/save-dialog-actions';
 import { exportState, discardChanges, resetInitialStoryState } from '@/app/state/actions';
 import { StoryAtom } from '@/app/state/atoms';
-import { startLogin } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 interface UnsavedChangesDialogProps {
   isOpen: boolean;
@@ -35,10 +35,17 @@ export function UnsavedChangesDialog({
 
   const handleLoginAndSave = async () => {
     try {
-      await startLogin();
-      onLoginAndSave?.();
+      const result = await auth.signinPopup();
+      
+      if (result.success) {
+        toast.success('Login successful! You can now save your changes to the cloud.');
+        onLoginAndSave?.();
+      } else if (result.error && !result.error.includes('cancelled')) {
+        toast.error(result.error);
+      }
     } catch (error) {
       console.error('Login failed:', error);
+      toast.error('Login failed. Please try again.');
     }
   };
 

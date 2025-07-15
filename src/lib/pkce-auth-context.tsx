@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getValidTokens, clearTokens, startLogin, PKCE_KEYS, type AuthTokens } from './auth-utils';
+import { getValidTokens, clearTokens, startLogin, startPopupLogin, PKCE_KEYS, type AuthTokens } from './auth-utils';
 
 // User profile type (extracted from id_token)
 export interface UserProfile {
@@ -48,6 +48,7 @@ export interface AuthContextType extends AuthState {
   removeUser: () => void;
   refreshAuth: () => Promise<void>;
   signinRedirect: () => Promise<void>;
+  signinPopup: () => Promise<{ success: boolean; error?: string }>;
 }
 
 const PKCEAuthContext = createContext<AuthContextType | null>(null);
@@ -291,11 +292,22 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
     await startLogin();
   }, []);
 
+  // Start popup-based login flow
+  const signinPopup = useCallback(async () => {
+    const result = await startPopupLogin();
+    if (result.success) {
+      // Refresh auth state after successful popup login
+      await initializeAuth();
+    }
+    return result;
+  }, [initializeAuth]);
+
   const contextValue: AuthContextType = {
     ...authState,
     removeUser,
     refreshAuth,
     signinRedirect,
+    signinPopup,
   };
 
   return <PKCEAuthContext.Provider value={contextValue}>{children}</PKCEAuthContext.Provider>;
