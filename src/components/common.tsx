@@ -42,7 +42,7 @@ function PreviewBanner() {
   );
 }
 
-export function Header({ children, actions }: { children?: React.ReactNode; actions?: React.ReactNode }) {
+export function Header({ children, actions, hideAutoLogin = false }: { children?: React.ReactNode; actions?: React.ReactNode; hideAutoLogin?: boolean }) {
   return (
     <header className='bg-gray-50 border-b border-border sticky top-0'>
       <PreviewBanner />
@@ -53,7 +53,7 @@ export function Header({ children, actions }: { children?: React.ReactNode; acti
         </div>
 
         <div className='flex items-center gap-2'>
-          <LoginButton />
+          {!hideAutoLogin && <LoginButton />}
           {actions}
         </div>
       </div>
