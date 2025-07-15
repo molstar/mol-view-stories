@@ -5,7 +5,7 @@ export const OAUTH_CONFIG = {
   authority: process.env.NEXT_PUBLIC_OIDC_AUTHORITY || '',
   client_id: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID || '',
   scope: 'openid profile email offline_access',
-  redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}/file-operations` : '',
+  redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}/my-stories` : '',
 } as const;
 
 // API Configuration
@@ -40,15 +40,13 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
     .replace(/\//g, '_');
 }
 
-// Enhanced login state preservation
+// Simplified login state preservation - only stores redirect path
 export interface LoginState {
   redirectPath: string;
-  story?: Story;
-  currentView?: CurrentView;
   timestamp: number;
 }
 
-export function saveLoginState(story?: Story, currentView?: CurrentView): void {
+export function saveLoginState(): void {
   if (typeof window === 'undefined') return;
 
   // Get current path including search params
@@ -56,8 +54,6 @@ export function saveLoginState(story?: Story, currentView?: CurrentView): void {
 
   const loginState: LoginState = {
     redirectPath,
-    story,
-    currentView,
     timestamp: Date.now(),
   };
 
@@ -259,27 +255,50 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
 }
 
 export async function exchangeCodeForTokens(code: string, codeVerifier: string): Promise<AuthTokens> {
+  const requestBody = new URLSearchParams({
+    grant_type: 'authorization_code',
+    client_id: OAUTH_CONFIG.client_id,
+    code,
+    redirect_uri: OAUTH_CONFIG.redirect_uri,
+    code_verifier: codeVerifier,
+  });
+
+  console.log('[DEBUG TOKEN EXCHANGE] Request details:', {
+    url: `${OAUTH_CONFIG.authority}/token`,
+    grant_type: 'authorization_code',
+    client_id: OAUTH_CONFIG.client_id,
+    redirect_uri: OAUTH_CONFIG.redirect_uri,
+    code: code.substring(0, 10) + '...', // Log partial code for security
+    code_verifier: codeVerifier.substring(0, 10) + '...', // Log partial verifier for security
+  });
+
   const response = await fetch(`${OAUTH_CONFIG.authority}/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: OAUTH_CONFIG.client_id,
-      code,
-      redirect_uri: OAUTH_CONFIG.redirect_uri,
-      code_verifier: codeVerifier,
-    }),
+    body: requestBody,
   });
+
+  console.log('[DEBUG TOKEN EXCHANGE] Response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Token exchange failed:', response.status, errorText);
+    console.error('[DEBUG TOKEN EXCHANGE] Error response:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+    });
     throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
   }
 
   const tokens = await response.json();
+  console.log('[DEBUG TOKEN EXCHANGE] Success:', {
+    hasAccessToken: !!tokens.access_token,
+    hasRefreshToken: !!tokens.refresh_token,
+    hasIdToken: !!tokens.id_token,
+    expiresIn: tokens.expires_in,
+  });
 
   if (!tokens.refresh_token) {
     console.warn('⚠️  No refresh_token in response! This means automatic token refresh will not work.');
@@ -376,10 +395,10 @@ export function clearCodeVerifier(): void {
 }
 
 // Main login function - starts the OAuth flow
-export async function startLogin(story?: Story, currentView?: CurrentView): Promise<void> {
+export async function startLogin(): Promise<void> {
   try {
-    // Save current state
-    saveLoginState(story, currentView);
+    // Save current redirect path
+    saveLoginState();
 
     // Generate PKCE parameters
     const codeVerifier = generateCodeVerifier();
@@ -400,36 +419,23 @@ export async function startLogin(story?: Story, currentView?: CurrentView): Prom
 }
 
 // Utility function to restore app state from sessionStorage (for use on any page)
+// Note: App state restoration has been removed for reliability. Only redirect path is preserved.
 export function tryRestoreAppState(): {
-  story?: Story;
-  currentView?: CurrentView;
   wasRestored: boolean;
 } {
   if (typeof window === 'undefined') {
     return { wasRestored: false };
   }
 
+  // Clean up any legacy state that might exist
   try {
-    const savedStateJson = sessionStorage.getItem('restore_app_state');
-    if (!savedStateJson) {
-      return { wasRestored: false };
-    }
-
-    const savedState: LoginState = JSON.parse(savedStateJson);
-
-    // Clean up immediately
     sessionStorage.removeItem('restore_app_state');
-
-    return {
-      story: savedState.story,
-      currentView: savedState.currentView,
-      wasRestored: true,
-    };
   } catch (error) {
-    console.error('Failed to restore app state:', error);
-    sessionStorage.removeItem('restore_app_state');
-    return { wasRestored: false };
+    console.warn('Failed to clean up legacy app state:', error);
   }
+
+  // No app state restoration - return empty state
+  return { wasRestored: false };
 }
 
 // Handle OAuth callback - to be used in /file-operations
@@ -439,12 +445,22 @@ export async function handleOAuthCallback(): Promise<{
   loginState?: LoginState;
   error?: string;
 }> {
+  console.log('[DEBUG CALLBACK] Starting OAuth callback handling...');
+  
   try {
     // Check if this is an OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const error = urlParams.get('error');
     const errorDescription = urlParams.get('error_description');
+
+    console.log('[DEBUG CALLBACK] URL params:', {
+      hasCode: !!code,
+      codeLength: code?.length,
+      hasError: !!error,
+      error,
+      errorDescription,
+    });
 
     // Handle OAuth errors
     if (error) {
@@ -453,23 +469,35 @@ export async function handleOAuthCallback(): Promise<{
 
     // If no code, this is probably not a callback
     if (!code) {
+      console.log('[DEBUG CALLBACK] No authorization code found');
       return { success: false, error: 'No authorization code found' };
     }
 
     // Get stored code verifier
     const codeVerifier = getCodeVerifier();
+    console.log('[DEBUG CALLBACK] Code verifier check:', {
+      hasCodeVerifier: !!codeVerifier,
+      verifierLength: codeVerifier?.length,
+    });
+    
     if (!codeVerifier) {
       throw new Error('No code verifier found in session');
     }
 
+    console.log('[DEBUG CALLBACK] Attempting token exchange...');
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code, codeVerifier);
 
+    console.log('[DEBUG CALLBACK] Token exchange successful, saving tokens...');
     // Save tokens
     saveTokens(tokens);
 
     // Get saved login state
     const loginState = restoreLoginState();
+    console.log('[DEBUG CALLBACK] Login state restored:', {
+      hasLoginState: !!loginState,
+      redirectPath: loginState?.redirectPath,
+    });
 
     // Clean up PKCE data
     clearCodeVerifier();
@@ -477,13 +505,14 @@ export async function handleOAuthCallback(): Promise<{
     // Clean URL (remove OAuth params)
     window.history.replaceState({}, document.title, window.location.pathname);
 
+    console.log('[DEBUG CALLBACK] Callback completed successfully');
     return {
       success: true,
       redirectPath: loginState?.redirectPath || '/',
       loginState: loginState || undefined,
     };
   } catch (error) {
-    console.error('OAuth callback handling failed:', error);
+    console.error('[DEBUG CALLBACK] OAuth callback handling failed:', error);
 
     // Clean up on error
     clearCodeVerifier();

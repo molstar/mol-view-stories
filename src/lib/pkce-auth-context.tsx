@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getValidTokens, clearTokens, startLogin, type AuthTokens } from './auth-utils';
+import { getValidTokens, clearTokens, startLogin, PKCE_KEYS, type AuthTokens } from './auth-utils';
 
 // User profile type (extracted from id_token)
 export interface UserProfile {
@@ -81,8 +81,8 @@ function decodeJWTPayload(token: string): JWTPayload | null {
 
 // Convert tokens to user object
 function tokensToUser(tokens: AuthTokens): AuthState['user'] | null {
+  
   if (!tokens.id_token) {
-    console.warn('No id_token available for user profile');
     return null;
   }
 
@@ -91,7 +91,7 @@ function tokensToUser(tokens: AuthTokens): AuthState['user'] | null {
     return null;
   }
 
-  return {
+  const user = {
     profile: {
       sub: payload.sub,
       email: payload.email,
@@ -104,6 +104,8 @@ function tokensToUser(tokens: AuthTokens): AuthState['user'] | null {
     access_token: tokens.access_token,
     id_token: tokens.id_token,
   };
+  
+  return user;
 }
 
 export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
@@ -165,6 +167,35 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
       user: null,
       error: null,
     });
+    
+    // Redirect to home page and clear any OAuth parameters from URL
+    if (typeof window !== 'undefined') {
+      // Clean up any OAuth-related session storage
+      sessionStorage.removeItem('post_login_redirect');
+      sessionStorage.removeItem('login_app_state');
+      sessionStorage.removeItem('oauth_code_verifier');
+      sessionStorage.removeItem('oauth_state');
+      
+      // If we're on the my-stories page or have OAuth params, redirect to home
+      const currentPath = window.location.pathname;
+      const hasOAuthParams = window.location.search.includes('code=') || 
+                            window.location.search.includes('state=') ||
+                            window.location.search.includes('error=');
+      
+      if (currentPath === '/my-stories' || hasOAuthParams) {
+        window.location.href = '/';
+      } else {
+        // Just clean the URL if we have OAuth params but are on a different page
+        if (hasOAuthParams) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('code');
+          url.searchParams.delete('state');
+          url.searchParams.delete('error');
+          url.searchParams.delete('error_description');
+          window.history.replaceState({}, document.title, url.toString());
+        }
+      }
+    }
   }, []);
 
   // Refresh authentication state (check for new tokens)

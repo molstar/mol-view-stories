@@ -1,5 +1,4 @@
 import { useAuth } from '@/app/providers';
-import { useAtomValue } from 'jotai';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -12,13 +11,10 @@ import { useState } from 'react';
 import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { StoryAtom, CurrentViewAtom } from '@/app/state/atoms';
 import { startLogin } from '@/lib/auth-utils';
 
 export function LoginButton() {
   const auth = useAuth();
-  const story = useAtomValue(StoryAtom);
-  const currentView = useAtomValue(CurrentViewAtom);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   if (auth.isAuthenticated) {
@@ -60,8 +56,8 @@ export function LoginButton() {
   const login = async () => {
     setIsRedirecting(true);
     try {
-      // Use PKCE login flow that preserves state
-      await startLogin(story, currentView);
+      // Use PKCE login flow with redirect path preservation
+      await startLogin();
     } catch (error) {
       console.error('Login failed:', error);
       toast.error('Login failed. Please try again.', {
@@ -77,7 +73,7 @@ export function LoginButton() {
     <Button variant='outline' onClick={login} disabled={isRedirecting} className='cursor-pointer'>
       <LogInIcon />
       {isRedirecting && 'Redirecting...'}
-      {!isRedirecting && 'Login with Life Science AAI'}
+      {!isRedirecting && 'Log in with Life Science AAI'}
     </Button>
   );
 }

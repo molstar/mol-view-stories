@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header, Main } from '@/components/common';
 import { useAuth } from '@/app/providers';
 import { Button } from '@/components/ui/button';
@@ -25,10 +25,72 @@ import {
 import Link from 'next/link';
 import { useMyStoriesData } from './useMyStoriesData';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { handleOAuthCallback } from '@/lib/auth-utils';
 
 export default function MyStoriesPage() {
   const auth = useAuth();
   const myStories = useMyStoriesData(auth.isAuthenticated);
+  const [isProcessingCallback, setIsProcessingCallback] = useState(false);
+  const [callbackProcessed, setCallbackProcessed] = useState(false);
+
+  // Check if we have an OAuth callback URL on mount
+  const [hasOAuthCode] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasCode = urlParams.has('code');
+    console.log('[DEBUG] Initial OAuth code check:', hasCode);
+    return hasCode;
+  });
+
+  // Handle OAuth callback if present
+  useEffect(() => {
+    const processOAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      // Only process if we have a code and haven't processed it yet
+      if (code && !callbackProcessed && !isProcessingCallback) {
+        console.log('[DEBUG] Processing OAuth callback...');
+        setIsProcessingCallback(true);
+        setCallbackProcessed(true);
+        
+        try {
+          const result = await handleOAuthCallback();
+          console.log('[DEBUG] Callback result:', result);
+          
+          if (result.success) {
+            console.log('[DEBUG] Callback successful, refreshing auth...');
+            // Refresh the auth state after successful token exchange
+            await auth.refreshAuth();
+          } else {
+            console.error('[DEBUG] Callback failed:', result.error);
+            // Reset so user can try again if needed
+            setCallbackProcessed(false);
+          }
+        } catch (error) {
+          console.error('[DEBUG] Callback processing error:', error);
+          // Reset so user can try again if needed
+          setCallbackProcessed(false);
+        } finally {
+          setIsProcessingCallback(false);
+        }
+      }
+    };
+    
+    processOAuthCallback();
+  }, [auth, callbackProcessed, isProcessingCallback]);
+
+  // Debug auth state changes
+  useEffect(() => {
+    console.log('[DEBUG] Auth state changed:', {
+      isAuthenticated: auth.isAuthenticated,
+      isLoading: auth.isLoading,
+      hasUser: !!auth.user,
+      isProcessingCallback,
+      hasOAuthCode,
+      callbackProcessed,
+    });
+  }, [auth.isAuthenticated, auth.isLoading, auth.user, isProcessingCallback, hasOAuthCode, callbackProcessed]);
 
   // State for confirmation dialogs
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -253,14 +315,17 @@ export default function MyStoriesPage() {
     );
   };
 
-  if (auth.isLoading) {
+  // Show loading during auth initialization, callback processing, or if we have OAuth code but haven't processed it yet
+  if (auth.isLoading || isProcessingCallback || (hasOAuthCode && !auth.isAuthenticated)) {
     return (
       <div className='flex flex-col h-screen'>
         <Header>My Stories</Header>
         <Main>
           <div className='flex items-center justify-center h-full'>
             <div className='text-center'>
-              <div className='text-lg text-muted-foreground'>Loading...</div>
+              <div className='text-lg text-muted-foreground'>
+                {isProcessingCallback || hasOAuthCode ? 'Completing sign-in...' : 'Loading...'}
+              </div>
             </div>
           </div>
         </Main>
@@ -273,15 +338,15 @@ export default function MyStoriesPage() {
       <div className='flex flex-col h-screen'>
         <Header>My Stories</Header>
         <Main>
-          <div className='flex items-center justify-center h-full'>
-            <Card className='w-full max-w-md'>
-              <CardHeader className='text-center'>
-                <CardTitle>Authentication Required</CardTitle>
+          <div className='container max-w-2xl mx-auto py-8'>
+            <Card className='w-full max-w-md mx-auto'>
+              <CardHeader className='text-center pb-4'>
+                <CardTitle className='text-xl'>Authentication Required</CardTitle>
                 <CardDescription>Please log in to view your stories and sessions</CardDescription>
               </CardHeader>
-              <CardContent className='text-center'>
+              <CardContent className='text-center pt-0'>
                 <p className='text-sm text-muted-foreground'>
-                  Use the login button in the top navigation to sign in with Life Science AAI.
+                  Use the login button in the top navigation to log in with Life Science AAI.
                 </p>
               </CardContent>
             </Card>
