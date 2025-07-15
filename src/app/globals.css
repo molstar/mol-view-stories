@@ -137,4 +137,19 @@
   [data-slot='card-header'].px-6 {
     padding-bottom: 0.5rem !important;
   }
+
+  /* Toast description styling fixes */
+  [data-sonner-toast] [data-description] {
+    color: hsl(var(--foreground)) !important;
+    opacity: 0.95 !important;
+    font-weight: 500 !important;
+  }
+
+  /* Additional sonner toast styling */
+  .toaster [data-sonner-toast] [data-description],
+  .toaster [data-sonner-toast] [data-title] + [data-description] {
+    color: hsl(var(--foreground)) !important;
+    opacity: 0.9 !important;
+    font-weight: 500 !important;
+  }
 }

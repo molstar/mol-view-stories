@@ -67,7 +67,7 @@ function Options() {
   return (
     <div className='flex flex-col gap-2'>
       <div className='space-y-2'>
-        <Label htmlFor='scene-header'>Title</Label>
+        <Label htmlFor='story-title'>Title</Label>
         <StatefulInput
           id='story-title'
           value={story.metadata.title}

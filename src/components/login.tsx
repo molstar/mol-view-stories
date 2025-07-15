@@ -12,10 +12,18 @@ import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd } from 'lu
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { startLogin } from '@/lib/auth-utils';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 export function LoginButton() {
   const auth = useAuth();
+  const { hasUnsavedChanges } = useUnsavedChanges();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const pathname = usePathname();
+
+  // Determine if we should highlight the login button (encourage early login)
+  const shouldHighlight = !auth.isAuthenticated && !hasUnsavedChanges && pathname === '/builder/';
 
   if (auth.isAuthenticated) {
     const username = auth.user?.profile.preferred_username ?? auth.user?.profile.name ?? 'User';
@@ -65,15 +73,28 @@ export function LoginButton() {
         closeButton: true,
         duration: 4000,
       });
-      setIsRedirecting(false);
+    } finally {
+      // Always reset redirecting state after a short delay
+      // If login succeeds and redirects, component will unmount so this won't matter
+      // If login is cancelled or fails, this ensures button is not stuck
+      setTimeout(() => setIsRedirecting(false), 100);
     }
   };
 
   return (
-    <Button variant='outline' onClick={login} disabled={isRedirecting} className='cursor-pointer'>
+    <Button 
+      variant={shouldHighlight ? 'default' : 'outline'} 
+      onClick={login} 
+      disabled={isRedirecting} 
+      className={cn(
+        'cursor-pointer',
+        shouldHighlight && 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+      )}
+    >
       <LogInIcon />
       {isRedirecting && 'Redirecting...'}
-      {!isRedirecting && 'Log in with Life Science AAI'}
+      {!isRedirecting && shouldHighlight && 'Log in now to save changes to cloud later'}
+      {!isRedirecting && !shouldHighlight && 'Log in'}
     </Button>
   );
 }

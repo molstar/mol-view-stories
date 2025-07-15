@@ -15,8 +15,19 @@ const Toaster = ({ ...props }: ToasterProps) => {
           '--normal-bg': 'var(--popover)',
           '--normal-text': 'var(--popover-foreground)',
           '--normal-border': 'var(--border)',
+          // Custom style for description text to make it more readable
+          '--description-text': 'var(--foreground)',
         } as React.CSSProperties
       }
+      toastOptions={{
+        style: {
+          // Make description text darker and more readable
+          '--description-color': 'var(--foreground)',
+        } as React.CSSProperties,
+        classNames: {
+          description: 'text-foreground opacity-90 font-medium',
+        },
+      }}
       {...props}
     />
   );

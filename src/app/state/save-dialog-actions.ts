@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { StoryAtom, SaveDialogAtom, type SaveFormData, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
-import { getMVSData } from './actions';
+import { getMVSData, resetInitialStoryState } from './actions';
 
 // SaveDialog Actions
 export function openSaveDialog(options: { saveType: SaveType; sessionId?: string }) {
@@ -160,6 +160,10 @@ export async function performSave() {
     });
 
     console.log('Save result:', result);
+    
+    // Reset initial state to mark as saved
+    resetInitialStoryState();
+    
     closeSaveDialog();
 
     return true;

@@ -26,21 +26,35 @@ import Link from 'next/link';
 import { useMyStoriesData } from './useMyStoriesData';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { handleOAuthCallback } from '@/lib/auth-utils';
+import { useRouter } from 'next/navigation';
 
 export default function MyStoriesPage() {
   const auth = useAuth();
+  const router = useRouter();
   const myStories = useMyStoriesData(auth.isAuthenticated);
   const [isProcessingCallback, setIsProcessingCallback] = useState(false);
   const [callbackProcessed, setCallbackProcessed] = useState(false);
+  const [hasOAuthCode, setHasOAuthCode] = useState(false);
+  const [isRedirectingToBuilder, setIsRedirectingToBuilder] = useState(false);
 
-  // Check if we have an OAuth callback URL on mount
-  const [hasOAuthCode] = useState(() => {
-    if (typeof window === 'undefined') return false;
+  // Check for OAuth callback URL after mount to avoid hydration issues
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const hasCode = urlParams.has('code');
-    console.log('[DEBUG] Initial OAuth code check:', hasCode);
-    return hasCode;
-  });
+    setHasOAuthCode(hasCode);
+    
+    // Early check: if we have OAuth code and likely came from builder, show redirecting state
+    if (hasCode) {
+      try {
+        const savedRedirectPath = sessionStorage.getItem('post_login_redirect');
+        if (savedRedirectPath?.startsWith('/builder')) {
+          setIsRedirectingToBuilder(true);
+        }
+      } catch (error) {
+        // sessionStorage might not be available
+      }
+    }
+  }, []);
 
   // Handle OAuth callback if present
   useEffect(() => {
@@ -50,27 +64,34 @@ export default function MyStoriesPage() {
       
       // Only process if we have a code and haven't processed it yet
       if (code && !callbackProcessed && !isProcessingCallback) {
-        console.log('[DEBUG] Processing OAuth callback...');
         setIsProcessingCallback(true);
         setCallbackProcessed(true);
         
         try {
           const result = await handleOAuthCallback();
-          console.log('[DEBUG] Callback result:', result);
           
           if (result.success) {
-            console.log('[DEBUG] Callback successful, refreshing auth...');
             // Refresh the auth state after successful token exchange
             await auth.refreshAuth();
+            
+            // Check if user should be redirected back to builder
+            if (result.loginState?.redirectPath?.startsWith('/builder')) {
+              // Redirect back to builder if that's where they logged in from
+              router.push(result.loginState.redirectPath);
+              return;
+            }
+            
+            // If we're not redirecting, clear the redirecting state
+            setIsRedirectingToBuilder(false);
           } else {
-            console.error('[DEBUG] Callback failed:', result.error);
             // Reset so user can try again if needed
             setCallbackProcessed(false);
+            setIsRedirectingToBuilder(false);
           }
         } catch (error) {
-          console.error('[DEBUG] Callback processing error:', error);
           // Reset so user can try again if needed
           setCallbackProcessed(false);
+          setIsRedirectingToBuilder(false);
         } finally {
           setIsProcessingCallback(false);
         }
@@ -82,14 +103,6 @@ export default function MyStoriesPage() {
 
   // Debug auth state changes
   useEffect(() => {
-    console.log('[DEBUG] Auth state changed:', {
-      isAuthenticated: auth.isAuthenticated,
-      isLoading: auth.isLoading,
-      hasUser: !!auth.user,
-      isProcessingCallback,
-      hasOAuthCode,
-      callbackProcessed,
-    });
   }, [auth.isAuthenticated, auth.isLoading, auth.user, isProcessingCallback, hasOAuthCode, callbackProcessed]);
 
   // State for confirmation dialogs
@@ -316,7 +329,7 @@ export default function MyStoriesPage() {
   };
 
   // Show loading during auth initialization, callback processing, or if we have OAuth code but haven't processed it yet
-  if (auth.isLoading || isProcessingCallback || (hasOAuthCode && !auth.isAuthenticated)) {
+  if (auth.isLoading || isProcessingCallback || (hasOAuthCode && !auth.isAuthenticated) || isRedirectingToBuilder) {
     return (
       <div className='flex flex-col h-screen'>
         <Header>My Stories</Header>
@@ -324,7 +337,8 @@ export default function MyStoriesPage() {
           <div className='flex items-center justify-center h-full'>
             <div className='text-center'>
               <div className='text-lg text-muted-foreground'>
-                {isProcessingCallback || hasOAuthCode ? 'Completing sign-in...' : 'Loading...'}
+                {isRedirectingToBuilder ? 'Redirecting to builder...' : 
+                 isProcessingCallback || hasOAuthCode ? 'Completing  login...' : 'Loading...'}
               </div>
             </div>
           </div>

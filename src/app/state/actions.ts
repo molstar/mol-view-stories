@@ -17,6 +17,8 @@ import {
   UserQuotaAtom,
   QuotaRequestStateAtom,
   IsSessionLoadingAtom,
+  InitialStoryAtom,
+  HasUnsavedChangesAtom,
 } from './atoms';
 import {
   CameraData,
@@ -73,6 +75,7 @@ export function newStory() {
   const store = getDefaultStore();
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
+  setInitialStoryState(ExampleStories.Empty);
 }
 
 const createStateProvider = (code: string) => {
@@ -216,6 +219,7 @@ export const importState = async (file: File) => {
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
+  setInitialStoryState(decoded.story);
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {
@@ -363,6 +367,7 @@ export async function loadSession(sessionId: string) {
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+      setInitialStoryState(storyData.story);
     } else {
       throw new Error('No story data found in session');
     }
@@ -529,4 +534,38 @@ export async function fetchUserQuota(isAuthenticated: boolean) {
     const errorMessage = err instanceof Error ? err.message : 'Failed to fetch quota';
     store.set(QuotaRequestStateAtom, { status: 'error', error: errorMessage });
   }
+}
+
+// Unsaved Changes Tracking Utilities
+
+// Set the initial story state (call when loading a story from session or creating new)
+export function setInitialStoryState(story: Story) {
+  const store = getDefaultStore();
+  // Deep clone to avoid reference issues
+  store.set(InitialStoryAtom, JSON.parse(JSON.stringify(story)));
+}
+
+// Reset initial state to current state (call after successful save)
+export function resetInitialStoryState() {
+  const store = getDefaultStore();
+  const currentStory = store.get(StoryAtom);
+  store.set(InitialStoryAtom, JSON.parse(JSON.stringify(currentStory)));
+}
+
+// Check if there are unsaved changes
+export function hasUnsavedChanges(): boolean {
+  const store = getDefaultStore();
+  return store.get(HasUnsavedChangesAtom);
+}
+
+// Discard changes by reverting to initial state
+export function discardChanges() {
+  const store = getDefaultStore();
+  const initialStory = store.get(InitialStoryAtom);
+  
+  // Revert to initial state
+  store.set(StoryAtom, JSON.parse(JSON.stringify(initialStory)));
+  
+  // Reset initial state to mark as "saved" (no unsaved changes)
+  resetInitialStoryState();
 }

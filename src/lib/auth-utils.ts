@@ -1,12 +1,16 @@
-import { Story, CurrentView } from '@/app/state/types';
-
 // Life Science AAI OAuth2 endpoints
 export const OAUTH_CONFIG = {
   authority: process.env.NEXT_PUBLIC_OIDC_AUTHORITY || '',
   client_id: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID || '',
   scope: 'openid profile email offline_access',
-  redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}/my-stories` : '',
+  redirect_uri: '', // Will be set dynamically when needed
 } as const;
+
+// Helper function to get the redirect URI dynamically
+function getRedirectUri(): string {
+  if (typeof window === 'undefined') return '';
+  return `${window.location.origin}/my-stories`;
+}
 
 // API Configuration
 export const API_CONFIG = {
@@ -245,7 +249,7 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
     client_id: OAUTH_CONFIG.client_id,
     response_type: 'code',
     scope: OAUTH_CONFIG.scope,
-    redirect_uri: OAUTH_CONFIG.redirect_uri,
+    redirect_uri: getRedirectUri(),
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     ...(state && { state }),
@@ -259,17 +263,8 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string):
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,
     code,
-    redirect_uri: OAUTH_CONFIG.redirect_uri,
+    redirect_uri: getRedirectUri(),
     code_verifier: codeVerifier,
-  });
-
-  console.log('[DEBUG TOKEN EXCHANGE] Request details:', {
-    url: `${OAUTH_CONFIG.authority}/token`,
-    grant_type: 'authorization_code',
-    client_id: OAUTH_CONFIG.client_id,
-    redirect_uri: OAUTH_CONFIG.redirect_uri,
-    code: code.substring(0, 10) + '...', // Log partial code for security
-    code_verifier: codeVerifier.substring(0, 10) + '...', // Log partial verifier for security
   });
 
   const response = await fetch(`${OAUTH_CONFIG.authority}/token`, {
@@ -280,25 +275,13 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string):
     body: requestBody,
   });
 
-  console.log('[DEBUG TOKEN EXCHANGE] Response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('[DEBUG TOKEN EXCHANGE] Error response:', {
-      status: response.status,
-      statusText: response.statusText,
-      body: errorText,
-    });
     throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
   }
 
   const tokens = await response.json();
-  console.log('[DEBUG TOKEN EXCHANGE] Success:', {
-    hasAccessToken: !!tokens.access_token,
-    hasRefreshToken: !!tokens.refresh_token,
-    hasIdToken: !!tokens.id_token,
-    expiresIn: tokens.expires_in,
-  });
 
   if (!tokens.refresh_token) {
     console.warn('⚠️  No refresh_token in response! This means automatic token refresh will not work.');
@@ -427,13 +410,6 @@ export function tryRestoreAppState(): {
     return { wasRestored: false };
   }
 
-  // Clean up any legacy state that might exist
-  try {
-    sessionStorage.removeItem('restore_app_state');
-  } catch (error) {
-    console.warn('Failed to clean up legacy app state:', error);
-  }
-
   // No app state restoration - return empty state
   return { wasRestored: false };
 }
@@ -445,7 +421,6 @@ export async function handleOAuthCallback(): Promise<{
   loginState?: LoginState;
   error?: string;
 }> {
-  console.log('[DEBUG CALLBACK] Starting OAuth callback handling...');
   
   try {
     // Check if this is an OAuth callback
@@ -454,14 +429,6 @@ export async function handleOAuthCallback(): Promise<{
     const error = urlParams.get('error');
     const errorDescription = urlParams.get('error_description');
 
-    console.log('[DEBUG CALLBACK] URL params:', {
-      hasCode: !!code,
-      codeLength: code?.length,
-      hasError: !!error,
-      error,
-      errorDescription,
-    });
-
     // Handle OAuth errors
     if (error) {
       throw new Error(errorDescription || error);
@@ -469,35 +436,25 @@ export async function handleOAuthCallback(): Promise<{
 
     // If no code, this is probably not a callback
     if (!code) {
-      console.log('[DEBUG CALLBACK] No authorization code found');
       return { success: false, error: 'No authorization code found' };
     }
 
     // Get stored code verifier
     const codeVerifier = getCodeVerifier();
-    console.log('[DEBUG CALLBACK] Code verifier check:', {
-      hasCodeVerifier: !!codeVerifier,
-      verifierLength: codeVerifier?.length,
-    });
+;
     
     if (!codeVerifier) {
       throw new Error('No code verifier found in session');
     }
 
-    console.log('[DEBUG CALLBACK] Attempting token exchange...');
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code, codeVerifier);
 
-    console.log('[DEBUG CALLBACK] Token exchange successful, saving tokens...');
     // Save tokens
     saveTokens(tokens);
 
     // Get saved login state
     const loginState = restoreLoginState();
-    console.log('[DEBUG CALLBACK] Login state restored:', {
-      hasLoginState: !!loginState,
-      redirectPath: loginState?.redirectPath,
-    });
 
     // Clean up PKCE data
     clearCodeVerifier();
@@ -505,14 +462,12 @@ export async function handleOAuthCallback(): Promise<{
     // Clean URL (remove OAuth params)
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    console.log('[DEBUG CALLBACK] Callback completed successfully');
     return {
       success: true,
       redirectPath: loginState?.redirectPath || '/',
       loginState: loginState || undefined,
     };
   } catch (error) {
-    console.error('[DEBUG CALLBACK] OAuth callback handling failed:', error);
 
     // Clean up on error
     clearCodeVerifier();

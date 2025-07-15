@@ -134,3 +134,18 @@ export const MyStoriesPublicStatesAtom = atom((get) => get(MyStoriesDataAtom)['s
 // Quota State Atoms
 export const UserQuotaAtom = atom<UserQuota | null>(null);
 export const QuotaRequestStateAtom = atom<RequestState>({ status: 'idle' });
+
+// Unsaved Changes Tracking Atoms
+export const InitialStoryAtom = atom<Story>(ExampleStories.Empty);
+
+// Derived atom to detect unsaved changes by comparing current story with initial state
+export const HasUnsavedChangesAtom = atom((get) => {
+  const currentStory = get(StoryAtom);
+  const initialStory = get(InitialStoryAtom);
+  
+  // Deep comparison of stories
+  return JSON.stringify(currentStory) !== JSON.stringify(initialStory);
+});
+
+// Atom to track if we should show unsaved changes warning
+export const ShowUnsavedChangesWarningAtom = atom<boolean>(false);

@@ -7,10 +7,10 @@ import { useEffect, useState } from 'react';
 import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
-import { getMVSData, loadSession } from '@/app/state/actions';
+import { getMVSData, loadSession, setInitialStoryState } from '@/app/state/actions';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
-import { type LoginState } from '@/lib/auth-utils';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export default function StoryBuilderPage() {
   const store = useStore();
@@ -18,32 +18,18 @@ export default function StoryBuilderPage() {
   const searchParams = useSearchParams();
   const templateName = searchParams.get('template');
   const sessionId = searchParams.get('sessionId');
+  const [mounted, setMounted] = useState(false);
+  
+  // Enable unsaved changes tracking and beforeunload warning
+  useUnsavedChanges();
+
+  // Ensure component is mounted to avoid hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    // First, check if we need to restore saved app state (from OAuth login)
-    const savedStateJson = sessionStorage.getItem('restore_app_state');
-    if (savedStateJson) {
-      try {
-        const savedState: LoginState = JSON.parse(savedStateJson);
-
-        if (savedState.story) {
-          store.set(StoryAtom, savedState.story);
-        }
-
-        if (savedState.currentView) {
-          store.set(CurrentViewAtom, savedState.currentView);
-        }
-
-        // Clean up the saved state
-        sessionStorage.removeItem('restore_app_state');
-
-        // Don't process template if we restored state
-        return;
-      } catch (error) {
-        console.error('Failed to restore app state:', error);
-        sessionStorage.removeItem('restore_app_state');
-      }
-    }
+    if (!mounted) return;
 
     if (sessionId) {
       loadSession(sessionId);
@@ -58,12 +44,34 @@ export default function StoryBuilderPage() {
 
     store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
+    
+    // Initialize unsaved changes tracking
+    setInitialStoryState(story);
 
     // clear search params
-    const url = new URL(window.location.href);
-    url.searchParams.delete('template');
-    window.history.replaceState({}, '', url.toString());
-  }, [store, templateName, sessionId]);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('template');
+      window.history.replaceState({}, '', url.toString());
+    } catch (error) {
+      // window APIs might not be available
+      console.warn('Failed to clear search params:', error);
+    }
+  }, [store, templateName, sessionId, mounted]);
+
+  // Don't render anything until mounted to avoid hydration issues
+  if (!mounted) {
+    return (
+      <div className='flex flex-col h-screen'>
+        <Header>
+          <span>Loading...</span>
+        </Header>
+        <main className='flex-1 flex items-center justify-center'>
+          <div className='text-lg font-semibold'>Loading...</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className='flex flex-col h-screen'>
@@ -113,26 +121,40 @@ function StoryBuilderRoot() {
 function StoryPreview() {
   const story = useAtomValue(StoryAtom);
   const [src, setSrc] = useState<string | undefined>(undefined);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
+    let isMounted = true;
 
     async function build() {
-      const data = await getMVSData(story);
-      if (!mounted) return;
-      const htmlContent = generateStoriesHtml(data);
-      const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));
-      setSrc(src);
+      try {
+        const data = await getMVSData(story);
+        if (!isMounted) return;
+        
+        const htmlContent = generateStoriesHtml(data);
+        if (typeof window !== 'undefined') {
+          const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));
+          setSrc(src);
+        }
+      } catch (error) {
+        console.error('Failed to build preview:', error);
+      }
     }
 
     build();
     return () => {
-      mounted = false;
+      isMounted = false;
     };
-  }, [story]);
+  }, [story, mounted]);
 
-  if (!src) {
-    return <div className='w-full h-full flex items-center justify-center'>Loading...</div>;
+  if (!mounted || !src) {
+    return <div className='w-full h-full flex items-center justify-center'>Loading preview...</div>;
   }
 
   // TODO: figure out how to do 100% height for the iframe (wasn't working and ran out of time)
