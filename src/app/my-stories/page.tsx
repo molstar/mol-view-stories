@@ -75,9 +75,9 @@ export default function MyStoriesPage() {
             await auth.refreshAuth();
             
             // Check if user should be redirected back to builder
-            if (result.loginState?.redirectPath?.startsWith('/builder')) {
+            if (result.redirectPath?.startsWith('/builder')) {
               // Redirect back to builder if that's where they logged in from
-              router.push(result.loginState.redirectPath);
+              router.push(result.redirectPath);
               return;
             }
             

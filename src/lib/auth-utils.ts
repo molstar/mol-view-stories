@@ -44,62 +44,33 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
     .replace(/\//g, '_');
 }
 
-// Simplified login state preservation - only stores redirect path
-export interface LoginState {
-  redirectPath: string;
-  timestamp: number;
-}
-
-export function saveLoginState(): void {
+// Simple redirect path preservation for OAuth flow
+export function saveRedirectPath(): void {
   if (typeof window === 'undefined') return;
 
   // Get current path including search params
   const redirectPath = window.location.pathname + window.location.search;
 
-  const loginState: LoginState = {
-    redirectPath,
-    timestamp: Date.now(),
-  };
-
   try {
     sessionStorage.setItem('post_login_redirect', redirectPath);
-    sessionStorage.setItem('login_app_state', JSON.stringify(loginState));
   } catch (error) {
-    console.warn('Failed to save login state:', error);
+    console.warn('Failed to save redirect path:', error);
   }
 }
 
-export function restoreLoginState(): LoginState | null {
-  if (typeof window === 'undefined') return null;
+export function getAndClearRedirectPath(): string {
+  if (typeof window === 'undefined') return '/';
 
   try {
     const redirectPath = sessionStorage.getItem('post_login_redirect');
-    const savedState = sessionStorage.getItem('login_app_state');
-
-    if (!redirectPath && !savedState) {
-      return null;
-    }
-
-    let loginState: LoginState | null = null;
-
-    if (savedState) {
-      loginState = JSON.parse(savedState);
-    } else if (redirectPath) {
-      // Fallback if only redirect path is stored
-      loginState = {
-        redirectPath,
-        timestamp: Date.now(),
-      };
-    }
-
-    // Clean up after restoration
+    
+    // Clean up after retrieval
     sessionStorage.removeItem('post_login_redirect');
-    sessionStorage.removeItem('login_app_state');
-
-    return loginState;
+    
+    return redirectPath || '/';
   } catch (error) {
-    console.error('Failed to restore login state:', error);
-    return null;
+    console.warn('Failed to get redirect path:', error);
+    return '/';
   }
 }
 
@@ -381,7 +352,7 @@ export function clearCodeVerifier(): void {
 export async function startLogin(): Promise<void> {
   try {
     // Save current redirect path
-    saveLoginState();
+    saveRedirectPath();
 
     // Generate PKCE parameters
     const codeVerifier = generateCodeVerifier();
@@ -401,24 +372,10 @@ export async function startLogin(): Promise<void> {
   }
 }
 
-// Utility function to restore app state from sessionStorage (for use on any page)
-// Note: App state restoration has been removed for reliability. Only redirect path is preserved.
-export function tryRestoreAppState(): {
-  wasRestored: boolean;
-} {
-  if (typeof window === 'undefined') {
-    return { wasRestored: false };
-  }
-
-  // No app state restoration - return empty state
-  return { wasRestored: false };
-}
-
 // Handle OAuth callback - to be used in /file-operations
 export async function handleOAuthCallback(): Promise<{
   success: boolean;
   redirectPath?: string;
-  loginState?: LoginState;
   error?: string;
 }> {
   
@@ -453,8 +410,8 @@ export async function handleOAuthCallback(): Promise<{
     // Save tokens
     saveTokens(tokens);
 
-    // Get saved login state
-    const loginState = restoreLoginState();
+    // Get saved redirect path
+    const redirectPath = getAndClearRedirectPath();
 
     // Clean up PKCE data
     clearCodeVerifier();
@@ -464,8 +421,7 @@ export async function handleOAuthCallback(): Promise<{
 
     return {
       success: true,
-      redirectPath: loginState?.redirectPath || '/',
-      loginState: loginState || undefined,
+      redirectPath: redirectPath,
     };
   } catch (error) {
 
@@ -473,7 +429,6 @@ export async function handleOAuthCallback(): Promise<{
     clearCodeVerifier();
     clearTokens();
     sessionStorage.removeItem('post_login_redirect');
-    sessionStorage.removeItem('login_app_state');
 
     return {
       success: false,

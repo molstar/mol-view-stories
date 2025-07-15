@@ -172,7 +172,6 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       // Clean up any OAuth-related session storage
       sessionStorage.removeItem('post_login_redirect');
-      sessionStorage.removeItem('login_app_state');
       sessionStorage.removeItem('oauth_code_verifier');
       sessionStorage.removeItem('oauth_state');
       
