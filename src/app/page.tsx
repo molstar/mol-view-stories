@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
+import { useAuth } from './providers';
+import { User, Lock } from 'lucide-react';
 
 function Features() {
   const features = [
@@ -113,6 +115,8 @@ function Features() {
 }
 
 export default function Home() {
+  const auth = useAuth();
+
   return (
     <>
       <Header />
@@ -152,6 +156,30 @@ export default function Home() {
                 {example.name}
               </Link>
             ))}
+          </div>
+
+          <div className='max-w-4xl mx-auto text-center mt-4'>
+            <div className='flex justify-center'>
+              {auth.isAuthenticated ? (
+                <Link
+                  href='/my-stories'
+                  className='bg-primary/10 border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                >
+                  <User className='w-4 h-4' />
+                  My Stories
+                </Link>
+              ) : (
+                <div className='text-center'>
+                  <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed mb-0.5 flex items-center gap-2 justify-center'>
+                    <Lock className='w-4 h-4' />
+                    My Stories
+                  </div>
+                  <p className='text-sm text-muted-foreground'>
+                    Log in to access your stories
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* <div className='max-w-4xl mx-auto text-center'>

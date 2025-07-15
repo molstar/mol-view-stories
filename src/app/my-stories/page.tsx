@@ -57,9 +57,9 @@ export default function MyStoriesPage() {
         if (savedRedirectPath?.startsWith('/builder')) {
           setIsRedirectingToBuilder(true);
         }
-      } catch (error) {
-        // sessionStorage might not be available
-      }
+              } catch {
+          // sessionStorage might not be available
+        }
     }
   }, []);
 
@@ -95,7 +95,7 @@ export default function MyStoriesPage() {
             setCallbackProcessed(false);
             setIsRedirectingToBuilder(false);
           }
-        } catch (error) {
+        } catch {
           // Reset so user can try again if needed
           setCallbackProcessed(false);
           setIsRedirectingToBuilder(false);
@@ -110,7 +110,8 @@ export default function MyStoriesPage() {
 
   // Debug auth state changes
   useEffect(() => {
-  }, [auth.isAuthenticated, auth.isLoading, auth.user, isProcessingCallback, hasOAuthCode, callbackProcessed]);
+    // Empty effect for debugging auth state changes
+  }, [auth.isAuthenticated, auth.isLoading, auth.user, isProcessingCallback, hasOAuthCode, callbackProcessed, router]);
 
   // State for confirmation dialogs
   const [deleteConfirm, setDeleteConfirm] = useState<{

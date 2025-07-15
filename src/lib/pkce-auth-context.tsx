@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getValidTokens, clearTokens, startLogin, startPopupLogin, PKCE_KEYS, type AuthTokens } from './auth-utils';
+import { getValidTokens, clearTokens, startLogin, startPopupLogin, type AuthTokens } from './auth-utils';
 
 // User profile type (extracted from id_token)
 export interface UserProfile {

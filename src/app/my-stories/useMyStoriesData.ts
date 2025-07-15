@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { MyStoriesDataAtom, MyStoriesRequestStateAtom, UserQuotaAtom, QuotaRequestStateAtom } from '@/app/state/atoms';
 import {
@@ -24,10 +24,10 @@ export function useMyStoriesData(isAuthenticated: boolean) {
   const [quotaRequestState] = useAtom(QuotaRequestStateAtom);
   const router = useRouter();
 
-  const loadAllData = () => {
+  const loadAllData = useCallback(() => {
     loadAllMyStoriesData(isAuthenticated);
     fetchUserQuota(isAuthenticated);
-  };
+  }, [isAuthenticated]);
 
   const loadQuota = () => {
     fetchUserQuota(isAuthenticated);
@@ -68,7 +68,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     if (isAuthenticated) {
       loadAllData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loadAllData]);
 
   return {
     sessions: myStoriesData['sessions-private'] as Session[],

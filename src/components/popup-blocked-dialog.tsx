@@ -51,7 +51,7 @@ export function PopupBlockedDialog({
             <div className="font-medium text-blue-800 mb-1">How to enable popups (recommended):</div>
             <div className="text-blue-700 text-xs space-y-1">
               <div>• Click the popup blocked icon in your address bar</div>
-              <div>• Select "Always allow popups from this site"</div>
+              <div>• Select &quot;Always allow popups from this site&quot;</div>
               <div>• Try logging in again</div>
             </div>
           </div>

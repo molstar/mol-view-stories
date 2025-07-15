@@ -8,12 +8,11 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
-import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd, AlertTriangle } from 'lucide-react';
+import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
 import { PopupBlockedDialog } from './popup-blocked-dialog';
 import { exportState } from '@/app/state/actions';
 import { useAtomValue } from 'jotai';
@@ -24,7 +23,6 @@ export function LoginButton() {
   const { hasUnsavedChanges } = useUnsavedChanges();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showPopupBlockedDialog, setShowPopupBlockedDialog] = useState(false);
-  const pathname = usePathname();
   const story = useAtomValue(StoryAtom);
 
   if (auth.isAuthenticated) {
