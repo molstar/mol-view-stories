@@ -189,6 +189,21 @@ export const MyStoriesPublicStatesAtom = atom((get) => get(MyStoriesDataAtom)['s
 export const UserQuotaAtom = atom<UserQuota | null>(null);
 export const QuotaRequestStateAtom = atom<RequestState>({ status: 'idle' });
 
+// Share Modal State Atoms
+export interface ShareModalData {
+  isOpen: boolean;
+  itemId: string | null;
+  itemTitle: string;
+  itemType: 'state' | 'session';
+}
+
+export const ShareModalAtom = atom<ShareModalData>({
+  isOpen: false,
+  itemId: null,
+  itemTitle: '',
+  itemType: 'state',
+});
+
 // Unsaved Changes Tracking Atoms
 export const InitialStoryAtom = atom<Story>(ExampleStories.Empty);
 

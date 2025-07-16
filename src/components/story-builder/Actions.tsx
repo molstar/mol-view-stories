@@ -10,8 +10,8 @@ import {
 } from '../ui/dropdown-menu';
 import { useAuth } from '@/app/providers';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import { SaveDialog } from './file-operations/SaveDialog';
-import { openSaveDialog } from '@/app/state/save-dialog-actions';
+import { SaveDialog, ShareModal } from './file-operations';
+import { openSaveDialog, shareStory } from '@/app/state/save-dialog-actions';
 import { useSearchParams } from 'next/navigation';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
@@ -127,7 +127,7 @@ export function StoryActionButtons() {
             variant='outline'
             size='sm'
             className='gap-1.5 text-sm font-medium'
-            onClick={() => openSaveDialog({ saveType: 'state' })}
+            onClick={() => shareStory()}
             disabled={!auth.isAuthenticated}
             title={!auth.isAuthenticated ? 'You must be logged in to share stories' : ''}
           >
@@ -141,6 +141,7 @@ export function StoryActionButtons() {
       </Tooltip>
 
       <SaveDialog />
+      <ShareModal />
       
       <UnsavedChangesDialog
         isOpen={showUnsavedDialog}

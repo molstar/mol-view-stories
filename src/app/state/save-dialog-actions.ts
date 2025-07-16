@@ -3,7 +3,7 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
-import { StoryAtom, SaveDialogAtom, CurrentSessionIdAtom, type SaveFormData, type SaveType } from './atoms';
+import { StoryAtom, SaveDialogAtom, CurrentSessionIdAtom, ShareModalAtom, type SaveFormData, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
 import { getMVSData, resetInitialStoryState } from './actions';
@@ -55,6 +55,52 @@ export function setSaveDialogType(saveType: SaveType) {
   const store = getDefaultStore();
   const current = store.get(SaveDialogAtom);
   store.set(SaveDialogAtom, { ...current, saveType });
+}
+
+// Direct share story function - saves as public state and shows share modal
+export async function shareStory(): Promise<boolean> {
+  const store = getDefaultStore();
+  const story = store.get(StoryAtom);
+
+  // Prepare form data for state save
+  const formData: SaveFormData = {
+    title: story.metadata.title || 'Untitled Story',
+    description: '',
+    visibility: 'public',
+  };
+
+  try {
+    // Prepare state data
+    const data = await prepareStateData(story);
+    
+    // Save to API
+    const result = await saveToAPI(data, 'state', formData);
+    
+    toast.success('Story shared successfully!', {
+      description: `Shared as "${formData.title}"`,
+    });
+
+    console.log('Share result:', result);
+    
+    // Reset initial state to mark as saved
+    resetInitialStoryState();
+
+    // Show the share modal
+    if (result.id) {
+      store.set(ShareModalAtom, {
+        isOpen: true,
+        itemId: result.id,
+        itemTitle: formData.title,
+        itemType: 'state',
+      });
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Share failed:', error);
+    toast.error(error instanceof Error ? error.message : 'Failed to share story');
+    return false;
+  }
 }
 
 async function prepareSessionData(story: Story): Promise<Uint8Array> {
@@ -180,6 +226,16 @@ export async function performSave() {
     resetInitialStoryState();
     
     closeSaveDialog();
+
+    // If this was a state save, show the share modal
+    if (saveDialog.saveType === 'state' && result.id) {
+      store.set(ShareModalAtom, {
+        isOpen: true,
+        itemId: result.id,
+        itemTitle: saveDialog.formData.title,
+        itemType: 'state',
+      });
+    }
 
     return true;
   } catch (error) {
