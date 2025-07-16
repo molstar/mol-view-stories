@@ -1,21 +1,10 @@
-// Life Science AAI OAuth2 endpoints
-export const OAUTH_CONFIG = {
-  authority: process.env.NEXT_PUBLIC_OIDC_AUTHORITY || '',
-  client_id: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID || '',
-  scope: 'openid profile email offline_access',
-  redirect_uri: '', // Will be set dynamically when needed
-} as const;
+import { OAUTH_CONFIG, PKCE_KEYS } from './config';
 
 // Helper function to get the redirect URI dynamically (used for both popup and redirect flows)
 function getRedirectUri(): string {
   if (typeof window === 'undefined') return '';
   return `${window.location.origin}/my-stories`;
 }
-
-// API Configuration
-export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mol-view-stories.dyn.cloud.e-infra.cz',
-} as const;
 
 // Global refresh promise to prevent race conditions
 let refreshPromise: Promise<AuthTokens | null> | null = null;
@@ -389,14 +378,6 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
     return null;
   }
 }
-
-// PKCE session storage keys
-export const PKCE_KEYS = {
-  CODE_VERIFIER: 'oauth_code_verifier',
-  STATE: 'oauth_state',
-  POPUP_CODE_VERIFIER: 'oauth_popup_code_verifier', // Separate key for popup flow
-  POPUP_STATE: 'oauth_popup_state',
-} as const;
 
 export function saveCodeVerifier(codeVerifier: string): void {
   if (typeof window === 'undefined') return;

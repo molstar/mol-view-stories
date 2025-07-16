@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ShareModalAtom } from '@/app/state/atoms';
-import { API_CONFIG } from '@/lib/auth-utils';
+import { API_CONFIG } from '@/lib/config';
 import { Copy, ExternalLink, CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';

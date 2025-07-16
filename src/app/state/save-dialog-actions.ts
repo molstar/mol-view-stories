@@ -5,7 +5,8 @@ import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
 import { StoryAtom, SaveDialogAtom, CurrentSessionIdAtom, ShareModalAtom, type SaveFormData, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
-import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
+import { authenticatedFetch } from '@/lib/auth-utils';
+import { API_CONFIG } from '@/lib/config';
 import { getMVSData, resetInitialStoryState } from './actions';
 
 // SaveDialog Actions
@@ -213,6 +214,10 @@ export async function performSave() {
     
     toast.success(`${saveDialog.saveType === 'session' ? 'Session' : 'State'} ${actionText} successfully!`, {
       description: `${isUpdate ? 'Updated' : 'Saved as'} "${saveDialog.formData.title}"`,
+      action: {
+        label: 'View My Stories →',
+        onClick: () => window.location.href = '/my-stories',
+      },
     });
 
     console.log('Save result:', result);

@@ -36,7 +36,8 @@ import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
 import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
-import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
+import { authenticatedFetch } from '@/lib/auth-utils';
+import { API_CONFIG } from '@/lib/config';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 

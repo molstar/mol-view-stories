@@ -26,6 +26,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         } as React.CSSProperties,
         classNames: {
           description: 'text-foreground opacity-90 font-medium',
+          actionButton: 'action-button-below',
         },
       }}
       {...props}
