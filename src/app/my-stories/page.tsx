@@ -248,16 +248,18 @@ export default function MyStoriesPage() {
                 </h2>
               </div>
               
-              {/* Search Bar */}
-              <div className='relative max-w-xs'>
-                <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
-                <Input
-                  placeholder='Search by title or description...'
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className='pl-8 h-8 text-sm'
-                />
-              </div>
+              {/* Search Bar - only show if there are items to search through */}
+              {(myStories.sessions.length > 0 || myStories.states.length > 0) && (
+                <div className='relative max-w-xs'>
+                  <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
+                  <Input
+                    placeholder='Search by title or description...'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className='pl-8 h-8 text-sm'
+                  />
+                </div>
+              )}
 
               {myStories.loading ? (
                 <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>

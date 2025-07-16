@@ -6,6 +6,7 @@ import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
 import { User, Lock } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 function Features() {
   const features = [
@@ -169,15 +170,17 @@ export default function Home() {
                   My Stories
                 </Link>
               ) : (
-                <div className='text-center'>
-                  <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed mb-0.5 flex items-center gap-2 justify-center'>
-                    <Lock className='w-4 h-4' />
-                    My Stories
-                  </div>
-                  <p className='text-sm text-muted-foreground'>
-                    Log in to access your stories
-                  </p>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
+                      <Lock className='w-4 h-4' />
+                      My Stories
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Log in to access your stories</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
           </div>

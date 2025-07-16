@@ -238,19 +238,23 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
         const tokens = JSON.parse(saved);
         const now = Date.now();
 
-        // Check if tokens will expire in the next 15 minutes
-        const fifteenMinutesFromNow = now + 15 * 60 * 1000;
-        if (tokens.refresh_token && fifteenMinutesFromNow >= tokens.expires_at) {
-          // Use getValidTokens which handles the refresh logic
+        // Reduced frequency check - only check if tokens will expire in the next 20 minutes
+        // This prevents interference with the automatic refresh logic in getValidTokens
+        const twentyMinutesFromNow = now + 20 * 60 * 1000;
+        if (tokens.refresh_token && twentyMinutesFromNow >= tokens.expires_at) {
+          console.log('🔄 Auth context: Checking token validity (expires soon)...');
+          // Use getValidTokens which handles the refresh logic with race condition protection
           const validTokens = await getValidTokens();
           if (validTokens) {
             // Update auth state if needed
             if (!authState.isAuthenticated) {
+              console.log('🔄 Auth context: Tokens valid, updating auth state');
               await initializeAuth();
             }
           } else {
             // If we were authenticated but refresh failed, update state
             if (authState.isAuthenticated) {
+              console.log('❌ Auth context: Token validation failed, marking as unauthenticated');
               setAuthState({
                 isAuthenticated: false,
                 isLoading: false,
@@ -263,14 +267,18 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
 
         // Additional check: if tokens are already expired but we're still marked as authenticated
         if (now >= tokens.expires_at && authState.isAuthenticated) {
+          console.log('🔄 Auth context: Tokens already expired, checking validity...');
           const validTokens = await getValidTokens();
           if (!validTokens) {
+            console.log('❌ Auth context: Expired tokens could not be refreshed');
             setAuthState({
               isAuthenticated: false,
               isLoading: false,
               user: null,
               error: 'Session expired',
             });
+          } else {
+            console.log('✅ Auth context: Expired tokens were successfully refreshed');
           }
         }
       } catch (error) {
@@ -278,8 +286,8 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Check every 30 seconds for more frequent monitoring
-    const interval = setInterval(checkTokenExpiry, 30 * 1000);
+    // Reduced frequency: Check every 60 seconds instead of 30 to reduce interference
+    const interval = setInterval(checkTokenExpiry, 60 * 1000);
 
     // Also run immediately
     checkTokenExpiry();

@@ -6,14 +6,8 @@ export const OAUTH_CONFIG = {
   redirect_uri: '', // Will be set dynamically when needed
 } as const;
 
-// Helper function to get the redirect URI dynamically
+// Helper function to get the redirect URI dynamically (used for both popup and redirect flows)
 function getRedirectUri(): string {
-  if (typeof window === 'undefined') return '';
-  return `${window.location.origin}/my-stories`;
-}
-
-// Helper function to get popup redirect URI (use same as regular to match OAuth config)
-function getPopupRedirectUri(): string {
   if (typeof window === 'undefined') return '';
   return `${window.location.origin}/my-stories`;
 }
@@ -22,6 +16,12 @@ function getPopupRedirectUri(): string {
 export const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mol-view-stories.dyn.cloud.e-infra.cz',
 } as const;
+
+// Global refresh promise to prevent race conditions
+let refreshPromise: Promise<AuthTokens | null> | null = null;
+
+// Debounce timer for refresh attempts
+let refreshDebounceTimer: NodeJS.Timeout | null = null;
 
 // PKCE utility functions
 export function generateCodeVerifier(): string {
@@ -101,6 +101,7 @@ export function saveTokens(tokens: Omit<AuthTokens, 'expires_at'>): void {
   try {
     sessionStorage.setItem('oauth_tokens', JSON.stringify(tokensWithExpiry));
     triggerAuthRefresh();
+    console.log('✅ Tokens saved successfully, expires at:', new Date(tokensWithExpiry.expires_at).toISOString());
   } catch (error) {
     console.warn('Failed to save tokens:', error);
   }
@@ -113,7 +114,7 @@ function triggerAuthRefresh() {
   }
 }
 
-// Enhanced token retrieval with automatic refresh
+// Enhanced token retrieval with automatic refresh and race condition protection
 export async function getValidTokens(): Promise<AuthTokens | null> {
   if (typeof window === 'undefined') return null;
 
@@ -126,11 +127,14 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
 
     // Check if tokens are expired
     if (now >= tokens.expires_at) {
-      // Try to refresh tokens
-      const refreshedTokens = await refreshAccessToken();
+      console.log('🔄 Tokens expired, attempting refresh...');
+      // Try to refresh tokens with race condition protection
+      const refreshedTokens = await refreshAccessTokenWithProtection();
       if (refreshedTokens) {
+        console.log('✅ Token refresh successful');
         return refreshedTokens;
       } else {
+        console.log('❌ Token refresh failed');
         return null;
       }
     }
@@ -138,12 +142,15 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
     // Check if tokens will expire soon (within 10 minutes) and refresh proactively
     const tenMinutesFromNow = now + 10 * 60 * 1000;
     if (tokens.refresh_token && tenMinutesFromNow >= tokens.expires_at) {
+      console.log('🔄 Tokens expiring soon, proactive refresh...');
       // Try to refresh tokens and wait for result
       try {
-        const refreshedTokens = await refreshAccessToken();
+        const refreshedTokens = await refreshAccessTokenWithProtection();
         if (refreshedTokens) {
+          console.log('✅ Proactive token refresh successful');
           return refreshedTokens;
         } else {
+          console.log('⚠️ Proactive token refresh failed, using current tokens');
           return tokens; // Use current tokens if refresh fails
         }
       } catch (error) {
@@ -155,12 +162,16 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
     // Check if tokens will expire soon (within 5 minutes) and refresh in background
     const fiveMinutesFromNow = now + 5 * 60 * 1000;
     if (tokens.refresh_token && fiveMinutesFromNow >= tokens.expires_at) {
+      console.log('🔄 Starting background token refresh...');
       // Start background refresh but don't wait for it
-      refreshAccessToken()
+      refreshAccessTokenWithProtection()
         .then((refreshedTokens) => {
           if (refreshedTokens) {
+            console.log('✅ Background token refresh successful');
             // Trigger auth context update
             triggerAuthRefresh();
+          } else {
+            console.log('⚠️ Background token refresh failed');
           }
         })
         .catch((error) => {
@@ -172,6 +183,32 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
   } catch (error) {
     console.warn('Failed to get valid tokens:', error);
     return null;
+  }
+}
+
+// Race condition protected wrapper for refreshAccessToken
+async function refreshAccessTokenWithProtection(): Promise<AuthTokens | null> {
+  // If there's already a refresh in progress, wait for it
+  if (refreshPromise) {
+    console.log('🔄 Refresh already in progress, waiting...');
+    return await refreshPromise;
+  }
+
+  // Clear any existing debounce timer
+  if (refreshDebounceTimer) {
+    clearTimeout(refreshDebounceTimer);
+    refreshDebounceTimer = null;
+  }
+
+  // Start new refresh promise
+  refreshPromise = refreshAccessToken();
+
+  try {
+    const result = await refreshPromise;
+    return result;
+  } finally {
+    // Clear the promise after completion
+    refreshPromise = null;
   }
 }
 
@@ -196,10 +233,13 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
 
   // If we get a 401 and have a refresh token, try to refresh and retry once
   if (response.status === 401 && tokens?.refresh_token) {
-    const refreshedTokens = await refreshAccessToken();
+    console.log('🔄 401 response, attempting token refresh...');
+    const refreshedTokens = await refreshAccessTokenWithProtection();
     if (refreshedTokens) {
+      console.log('✅ Token refresh after 401 successful, retrying request');
       response = await makeRequest(refreshedTokens);
     } else {
+      console.log('❌ Token refresh after 401 failed, clearing tokens');
       clearTokens();
       // Trigger auth context refresh to update UI
       triggerAuthRefresh();
@@ -215,6 +255,7 @@ export function clearTokens(): void {
   try {
     sessionStorage.removeItem('oauth_tokens');
     triggerAuthRefresh();
+    console.log('🔄 Tokens cleared');
   } catch (error) {
     console.warn('Failed to clear tokens:', error);
   }
@@ -226,7 +267,7 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string, use
     client_id: OAUTH_CONFIG.client_id,
     response_type: 'code',
     scope: OAUTH_CONFIG.scope,
-    redirect_uri: usePopup ? getPopupRedirectUri() : getRedirectUri(),
+    redirect_uri: getRedirectUri(),
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     ...(state && { state }),
@@ -240,7 +281,7 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string, 
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,
     code,
-    redirect_uri: usePopup ? getPopupRedirectUri() : getRedirectUri(),
+    redirect_uri: getRedirectUri(),
     code_verifier: codeVerifier,
   });
 
@@ -251,7 +292,6 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string, 
     },
     body: requestBody,
   });
-
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -267,7 +307,7 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string, 
   return tokens;
 }
 
-// Refresh tokens using refresh_token
+// Refresh tokens using refresh_token with improved error handling
 export async function refreshAccessToken(): Promise<AuthTokens | null> {
   if (typeof window === 'undefined') return null;
 
@@ -276,6 +316,7 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
   try {
     const saved = sessionStorage.getItem('oauth_tokens');
     if (!saved) {
+      console.log('❌ No tokens found in storage for refresh');
       return null;
     }
     currentTokens = JSON.parse(saved);
@@ -285,8 +326,11 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
   }
 
   if (!currentTokens?.refresh_token) {
+    console.log('❌ No refresh token available');
     return null;
   }
+
+  console.log('🔄 Attempting to refresh access token...');
 
   try {
     const response = await fetch(`${OAUTH_CONFIG.authority}/token`, {
@@ -305,10 +349,21 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
       const errorText = await response.text();
       console.error('Token refresh failed:', response.status, errorText);
 
-      // Only clear tokens if it's a 400 error (invalid refresh token)
-      // For other errors (network, 500, etc.), keep the tokens and try again later
-      if (response.status === 400 || response.status === 401) {
+      // Be more selective about when to clear tokens
+      // Only clear tokens for specific error conditions that indicate permanent failure
+      if (response.status === 400 && (
+        errorText.includes('invalid_grant') || 
+        errorText.includes('invalid_refresh_token') ||
+        errorText.includes('EXPIRED_AUTHORIZATION_CREDENTIAL')
+      )) {
+        console.log('❌ Refresh token is permanently invalid, clearing tokens');
         clearTokens();
+      } else if (response.status === 401 && errorText.includes('INVALID_GRANT')) {
+        console.log('❌ Refresh token is permanently invalid, clearing tokens');
+        clearTokens();
+      } else {
+        // For temporary errors (network, 500, etc.), don't clear tokens
+        console.log('⚠️ Temporary error during token refresh, keeping tokens');
       }
       return null;
     }
@@ -323,12 +378,14 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
     // Save the new tokens
     saveTokens(newTokens);
 
+    console.log('✅ Token refresh successful');
     return {
       ...newTokens,
       expires_at: Date.now() + newTokens.expires_in * 1000,
     };
   } catch (error) {
     console.error('Token refresh failed:', error);
+    // Don't clear tokens on network errors - keep them for retry
     return null;
   }
 }
@@ -624,4 +681,55 @@ export async function handleOAuthCallback(): Promise<{
       error: error instanceof Error ? error.message : 'Authentication failed',
     };
   }
+}
+
+// Debug utility to check current token state
+export function debugTokenState(): void {
+  if (typeof window === 'undefined') {
+    console.log('🔍 Token debug: Not in browser environment');
+    return;
+  }
+
+  try {
+    const saved = sessionStorage.getItem('oauth_tokens');
+    if (!saved) {
+      console.log('🔍 Token debug: No tokens in storage');
+      return;
+    }
+
+    const tokens: AuthTokens = JSON.parse(saved);
+    const now = Date.now();
+    const expiresAt = new Date(tokens.expires_at);
+    const timeUntilExpiry = tokens.expires_at - now;
+    const minutesUntilExpiry = Math.floor(timeUntilExpiry / (1000 * 60));
+
+    console.log('🔍 Token debug:', {
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      expiresAt: expiresAt.toISOString(),
+      minutesUntilExpiry,
+      isExpired: now >= tokens.expires_at,
+      refreshInProgress: !!refreshPromise
+    });
+  } catch (error) {
+    console.error('🔍 Token debug error:', error);
+  }
+}
+
+// Utility to manually trigger token refresh (for testing)
+export async function manualTokenRefresh(): Promise<boolean> {
+  console.log('🔧 Manual token refresh triggered');
+  const result = await refreshAccessTokenWithProtection();
+  return !!result;
+}
+
+// Expose debugging utilities to global window object for easy testing
+if (typeof window !== 'undefined') {
+  (window as any).authDebug = {
+    debugTokenState,
+    manualTokenRefresh,
+    clearTokens: clearTokens,
+    getValidTokens: getValidTokens
+  };
+  console.log('🔧 Auth debugging utilities available at window.authDebug');
 }

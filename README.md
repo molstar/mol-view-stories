@@ -27,7 +27,7 @@ MolViewStories uses OAuth2 with PKCE for secure authentication via Life Science 
 **Login Process:**
 1. User clicks "Log in" 
 2. Current work (story, scenes, view state) is automatically saved
-3. User is redirected to Life Science AAI for authentication
+3. User authenticates via popup window (with redirect fallback if popups are blocked)
 4. After login, user returns to exactly where they left off with all work restored
 
 **State Preservation:**
@@ -43,6 +43,12 @@ MolViewStories uses OAuth2 with PKCE for secure authentication via Life Science 
 - Automatic token refresh when possible
 - Login status synchronized across browser tabs
 - Sessions expire automatically when tokens become invalid
+
+### Authentication Methods
+
+**Primary:** Popup-based authentication for seamless user experience
+**Fallback:** Redirect-based authentication when popups are blocked
+**Hybrid:** System automatically detects popup blocking and offers redirect option
 
 ### Logout
 
