@@ -393,8 +393,21 @@ export async function openItemInBuilder(router: ReturnType<typeof useRouter>, it
       router.push(`/builder/?sessionId=${item.id}`);
     } else if (item.type === 'state') {
       // For states, open in external MVS Stories viewer (states are MVS data, not story format)
-      const url = `https://molstar.org/demos/mvs-stories/?story-url=${API_CONFIG.baseUrl}/api/${item.type}/${item.id}/data?format=mvsj`;
-      window.open(url, '_blank');
+      let stateUrl: string;
+      
+      if (item.public_uri) {
+        // Use the backend-provided public_uri if available
+        stateUrl = item.public_uri;
+      } else if (item.visibility === 'public') {
+        // For public states, use the public API endpoint
+        stateUrl = `${API_CONFIG.baseUrl}/api/public/state/${item.id}`;
+      } else {
+        // For private states, use the authenticated endpoint with data format
+        stateUrl = `${API_CONFIG.baseUrl}/api/state/${item.id}/data?format=mvsj`;
+      }
+      
+      const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(stateUrl)}`;
+      window.open(molstarUrl, '_blank');
     } else {
       toast.error('Unknown item type');
     }

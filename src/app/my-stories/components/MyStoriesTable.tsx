@@ -79,7 +79,7 @@ export function MyStoriesTable({
         <TableRow className='h-8'>
           <SortableTableHead field='title' className='h-8 px-1 w-[20%]'>Title</SortableTableHead>
           <SortableTableHead field='type' className='h-8 px-1 w-[8%]'>Type</SortableTableHead>
-          <TableHead className='h-8 px-1 w-[25%] text-sm'>Description</TableHead>
+          <TableHead className='h-8 px-1 w-[25%] text-sm'>Note</TableHead>
           <TableHead className='h-8 px-1 w-[8%] text-sm'>Visibility</TableHead>
           <SortableTableHead field='created_at' className='h-8 px-1 w-[10%]'>Created</SortableTableHead>
           <SortableTableHead field='updated_at' className='h-8 px-1 w-[10%]'>Updated</SortableTableHead>

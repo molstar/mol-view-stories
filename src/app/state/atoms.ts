@@ -195,6 +195,7 @@ export interface ShareModalData {
   itemId: string | null;
   itemTitle: string;
   itemType: 'state' | 'session';
+  publicUri?: string;
 }
 
 export const ShareModalAtom = atom<ShareModalData>({
@@ -202,6 +203,7 @@ export const ShareModalAtom = atom<ShareModalData>({
   itemId: null,
   itemTitle: '',
   itemType: 'state',
+  publicUri: undefined,
 });
 
 // Unsaved Changes Tracking Atoms

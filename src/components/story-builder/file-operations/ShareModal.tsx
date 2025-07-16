@@ -23,6 +23,7 @@ export function ShareModal() {
       itemId: null,
       itemTitle: '',
       itemType: 'state',
+      publicUri: undefined,
     });
   };
 
@@ -41,7 +42,8 @@ export function ShareModal() {
   const openInMolstar = () => {
     if (!shareModal.itemId) return;
     
-    const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
+    const publicUrl = shareModal.publicUri || `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
+    const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(publicUrl)}`;
     window.open(molstarUrl, '_blank');
   };
 
@@ -49,8 +51,8 @@ export function ShareModal() {
     return null;
   }
 
-  const publicUrl = `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
-  const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
+  const publicUrl = shareModal.publicUri || `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
+  const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(publicUrl)}`;
 
   return (
     <Dialog open={shareModal.isOpen} onOpenChange={(open) => !open && handleClose()}>

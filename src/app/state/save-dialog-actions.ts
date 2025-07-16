@@ -9,6 +9,22 @@ import { authenticatedFetch } from '@/lib/auth-utils';
 import { API_CONFIG } from '@/lib/config';
 import { getMVSData, resetInitialStoryState } from './actions';
 
+// Helper function to safely encode large Uint8Array to base64
+function encodeUint8ArrayToBase64(data: Uint8Array): Promise<string> {
+  const blob = new Blob([data], { type: 'application/octet-stream' });
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(',')[1]; // Remove data: prefix
+      resolve(base64);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
 // SaveDialog Actions
 export function openSaveDialog(options: { saveType: SaveType; sessionId?: string; saveAsNew?: boolean }) {
   const store = getDefaultStore();
@@ -93,6 +109,7 @@ export async function shareStory(): Promise<boolean> {
         itemId: result.id,
         itemTitle: formData.title,
         itemType: 'state',
+        publicUri: result.public_uri,
       });
     }
 
@@ -134,7 +151,7 @@ async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: 
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
-      return '.msgpack';
+      return '.mvstory';
     } else {
       // For states, use .mvsj for JSON data, .mvsx for binary data
       return data instanceof Uint8Array ? '.mvsx' : '.mvsj';
@@ -145,14 +162,17 @@ async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: 
     title: formData.title.trim(),
     description: formData.description.trim(),
     visibility: formData.visibility,
-    // Handle data based on type
-    data:
-      data instanceof Uint8Array
-        ? btoa(String.fromCharCode(...data)) // Convert Uint8Array to base64 string
-        : typeof data === 'string'
-          ? JSON.parse(data)
-          : data, // Parse JSON string to object for states
+    data: undefined, // to be filled below
   };
+
+  // Handle data based on type - async for Uint8Array
+  if (data instanceof Uint8Array) {
+    requestBody.data = await encodeUint8ArrayToBase64(data);
+  } else if (typeof data === 'string') {
+    requestBody.data = JSON.parse(data);
+  } else {
+    requestBody.data = data;
+  }
 
   // Only include filename for new sessions (POST), not updates (PUT)
   if (!sessionId) {
@@ -239,6 +259,7 @@ export async function performSave() {
         itemId: result.id,
         itemTitle: saveDialog.formData.title,
         itemType: 'state',
+        publicUri: result.public_uri,
       });
     }
 

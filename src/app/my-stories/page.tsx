@@ -253,7 +253,7 @@ export default function MyStoriesPage() {
                 <div className='relative max-w-xs'>
                   <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
                   <Input
-                    placeholder='Search by title or description...'
+                    placeholder='Search by title or note...'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className='pl-8 h-8 text-sm'

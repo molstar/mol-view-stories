@@ -76,6 +76,7 @@ export interface Session extends BaseItem {
 
 export interface State extends BaseItem {
   type: 'state';
+  public_uri?: string;
 }
 
 export interface ApiResponse<T> {
