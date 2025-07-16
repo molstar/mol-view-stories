@@ -20,6 +20,7 @@ import {
   InitialStoryAtom,
   HasUnsavedChangesAtom,
   CurrentSessionIdAtom,
+  SharedStoryAtom,
 } from './atoms';
 import {
   CameraData,
@@ -30,7 +31,7 @@ import {
   StoryContainer,
   StoryMetadata,
   Session,
-  State,
+  StoryItem,
 } from './types';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
@@ -306,12 +307,11 @@ export function removeStoryAsset(assetName: string) {
   store.set(StoryAtom, { ...story, assets: updatedAssets });
 }
 
-export async function fetchMyStoriesData(endpoint: string, isPublic: boolean = false, isAuthenticated: boolean) {
+export async function fetchMyStoriesData(endpoint: string, isAuthenticated: boolean) {
   if (!isAuthenticated) return [];
 
   try {
-    const publicParam = isPublic ? '?public=true' : '';
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/${endpoint}${publicParam}`);
+    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/${endpoint}`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
@@ -334,19 +334,18 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
 
   // Fetch all data in parallel
   Promise.all([
-    fetchMyStoriesData('session', false, isAuthenticated),
-    fetchMyStoriesData('session', true, isAuthenticated),
-    fetchMyStoriesData('state', false, isAuthenticated),
-    fetchMyStoriesData('state', true, isAuthenticated),
+    fetchMyStoriesData('session', isAuthenticated), // Sessions are always private, require auth
+    fetchMyStoriesData('story', isAuthenticated),   // Stories are always public, but we still need auth to create/manage them
   ])
-    .then(([sessionsPrivate, sessionsPublic, statesPrivate, statesPublic]) => {
+    .then(([sessionsPrivate, storiesPublic]) => {
       store.set(MyStoriesDataAtom, {
         'sessions-private': sessionsPrivate,
-        'sessions-public': sessionsPublic,
-        'states-private': statesPrivate,
-        'states-public': statesPublic,
+        'stories-public': storiesPublic,
       });
       store.set(MyStoriesRequestStateAtom, { status: 'success' });
+      
+      // Check if current story matches any shared stories
+      checkIfCurrentStoryIsShared(storiesPublic);
     })
     .catch((error) => {
       console.error('Error loading my stories data:', error);
@@ -386,27 +385,24 @@ export async function loadSession(sessionId: string) {
   }
 }
 
-export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: Session | State) {
+export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: Session | StoryItem) {
   try {
     // For sessions, try to load story data into the builder
     if (item.type === 'session') {
       router.push(`/builder/?sessionId=${item.id}`);
-    } else if (item.type === 'state') {
-      // For states, open in external MVS Stories viewer (states are MVS data, not story format)
-      let stateUrl: string;
+    } else if (item.type === 'story') {
+      // For stories, open in external MVS Stories viewer (stories are MVS data, not story format)
+      let storyUrl: string;
       
       if (item.public_uri) {
         // Use the backend-provided public_uri if available
-        stateUrl = item.public_uri;
-      } else if (item.visibility === 'public') {
-        // For public states, use the public API endpoint
-        stateUrl = `${API_CONFIG.baseUrl}/api/public/state/${item.id}`;
+        storyUrl = item.public_uri;
       } else {
-        // For private states, use the authenticated endpoint with data format
-        stateUrl = `${API_CONFIG.baseUrl}/api/state/${item.id}/data?format=mvsj`;
+        // Stories are always public, use the public API endpoint
+        storyUrl = `${API_CONFIG.baseUrl}/api/story/${item.id}/data`;
       }
       
-      const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(stateUrl)}`;
+      const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(storyUrl)}`;
       window.open(molstarUrl, '_blank');
     } else {
       toast.error('Unknown item type');
@@ -414,6 +410,31 @@ export async function openItemInBuilder(router: ReturnType<typeof useRouter>, it
   } catch (err) {
     console.error('Error opening item:', err);
     toast.error(err instanceof Error ? err.message : 'Failed to open item');
+  }
+}
+
+// Check if the current story matches any of the user's shared stories
+function checkIfCurrentStoryIsShared(sharedStories: StoryItem[]) {
+  const store = getDefaultStore();
+  const currentStory = store.get(StoryAtom);
+  
+  // Find a matching shared story by comparing metadata and content
+  const matchingStory = sharedStories.find(sharedStory => {
+    // For now, we'll do a simple comparison based on title
+    // In a more robust implementation, you might want to compare the actual story content
+    return sharedStory.title === currentStory.metadata.title;
+  });
+  
+  if (matchingStory) {
+    // Use the public_uri from response and append /data?format=mvsj
+    const correctPublicUri = matchingStory.public_uri ? `${matchingStory.public_uri}/data?format=mvsj` : `${API_CONFIG.baseUrl}/api/story/${matchingStory.id}/data?format=mvsj`;
+    
+    store.set(SharedStoryAtom, {
+      isShared: true,
+      storyId: matchingStory.id,
+      publicUri: correctPublicUri,
+      title: matchingStory.title,
+    });
   }
 }
 
@@ -456,7 +477,7 @@ export async function deleteSession(sessionId: string, isAuthenticated: boolean)
   }
 }
 
-export async function deleteState(stateId: string, isAuthenticated: boolean) {
+export async function deleteStory(storyId: string, isAuthenticated: boolean) {
   const store = getDefaultStore();
 
   if (!isAuthenticated) {
@@ -465,28 +486,28 @@ export async function deleteState(stateId: string, isAuthenticated: boolean) {
   }
 
   try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/state/${stateId}`, {
+    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/story/${storyId}`, {
       method: 'DELETE',
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to delete state: ${response.statusText}`);
+      throw new Error(`Failed to delete story: ${response.statusText}`);
     }
 
     // Remove from local state
     const currentData = store.get(MyStoriesDataAtom);
-    const updatedStates = (currentData['states-private'] as State[]).filter((state: State) => state.id !== stateId);
+    const updatedStories = (currentData['stories-public'] as StoryItem[]).filter((story: StoryItem) => story.id !== storyId);
 
     store.set(MyStoriesDataAtom, {
       ...currentData,
-      'states-private': updatedStates,
+      'stories-public': updatedStories,
     });
 
-    toast.success('State deleted successfully');
+    toast.success('Story deleted successfully');
     return true;
   } catch (err) {
-    console.error('Error deleting state:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to delete state';
+    console.error('Error deleting story:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Failed to delete story';
     toast.error(errorMessage);
     return false;
   }
@@ -514,7 +535,7 @@ export async function deleteAllUserContent(isAuthenticated: boolean) {
     store.set(MyStoriesDataAtom, {
       ...currentData,
       'sessions-private': [],
-      'states-private': [],
+      'stories-public': [],
     });
 
     toast.success('All content deleted successfully');
@@ -582,6 +603,20 @@ export function setInitialStoryState(story: Story) {
   const store = getDefaultStore();
   // Use optimized clone to avoid expensive JSON operations on binary assets
   store.set(InitialStoryAtom, cloneStory(story));
+  
+  // Reset shared story state when loading a new story
+  store.set(SharedStoryAtom, {
+    isShared: false,
+    storyId: undefined,
+    publicUri: undefined,
+    title: undefined,
+  });
+  
+  // Check if this story matches any of the user's shared stories
+  const myStoriesData = store.get(MyStoriesDataAtom);
+  if (myStoriesData['stories-public'].length > 0) {
+    checkIfCurrentStoryIsShared(myStoriesData['stories-public'] as StoryItem[]);
+  }
 }
 
 // Reset initial state to current state (call after successful save)

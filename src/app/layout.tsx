@@ -12,9 +12,9 @@ const inter = Inter({ subsets: ['latin'] });
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Disable Redux DevTools extension to avoid Invalid frameId for foreground error
-    if (typeof window !== 'undefined' && (window as any).__REDUX_DEVTOOLS_EXTENSION__) {
-      (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ = undefined;
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__ = undefined;
+    if (typeof window !== 'undefined' && (window as { __REDUX_DEVTOOLS_EXTENSION__?: unknown }).__REDUX_DEVTOOLS_EXTENSION__) {
+      (window as { __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: unknown }).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ = undefined;
+      (window as { __REDUX_DEVTOOLS_EXTENSION__?: unknown }).__REDUX_DEVTOOLS_EXTENSION__ = undefined;
     }
   }, []);
 

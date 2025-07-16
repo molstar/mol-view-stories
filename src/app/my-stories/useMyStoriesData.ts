@@ -7,12 +7,12 @@ import {
   loadAllMyStoriesData,
   openItemInBuilder,
   deleteSession,
-  deleteState,
+  deleteStory,
   deleteAllUserContent,
   fetchUserQuota,
   type SessionWithData,
 } from '@/app/state/actions';
-import { Session, State } from '@/app/state/types';
+import { Session, StoryItem } from '@/app/state/types';
 import { useRouter } from 'next/navigation';
 
 export type { SessionWithData };
@@ -33,7 +33,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     fetchUserQuota(isAuthenticated);
   };
 
-  const handleOpenInBuilder = (item: Session | State) => {
+  const handleOpenInBuilder = (item: Session | StoryItem) => {
     openItemInBuilder(router, item);
   };
 
@@ -46,8 +46,8 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     return success;
   };
 
-  const handleDeleteState = async (stateId: string) => {
-    const success = await deleteState(stateId, isAuthenticated);
+  const handleDeleteStory = async (storyId: string) => {
+    const success = await deleteStory(storyId, isAuthenticated);
     if (success) {
       // Refresh quota after successful deletion
       fetchUserQuota(isAuthenticated);
@@ -72,9 +72,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
 
   return {
     sessions: myStoriesData['sessions-private'] as Session[],
-    states: myStoriesData['states-private'] as State[],
-    publicSessions: myStoriesData['sessions-public'] as Session[],
-    publicStates: myStoriesData['states-public'] as State[],
+    stories: myStoriesData['stories-public'] as StoryItem[],
     loading: requestState.status === 'loading',
     error: requestState.status === 'error' ? requestState.error : null,
     quota,
@@ -84,7 +82,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     loadQuota,
     handleOpenInBuilder,
     handleDeleteSession,
-    handleDeleteState,
+    handleDeleteStory,
     handleDeleteAllContent,
   };
 }

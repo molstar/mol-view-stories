@@ -10,6 +10,7 @@ export const OAUTH_CONFIG = {
 } as const;
 
 // API Configuration
+// Note: Should point to stories.molstar.org, not mol-view-stories.dyn.cloud.e-infra.cz
 export const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://stories.molstar.org',
 } as const;

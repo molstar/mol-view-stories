@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Input } from './ui/input';
 
 export function StatefulInput({
@@ -80,35 +80,31 @@ export function DebouncedInput({
   delay?: number;
 }) {
   const [current, setCurrent] = useState(value);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     setCurrent(value);
   }, [value]);
 
-  // Debounced onChange handler
-  const debouncedOnChange = useCallback(
-    (() => {
-      let timeoutId: NodeJS.Timeout;
-      return (newValue: string) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          onChange(newValue);
-        }, delay);
-      };
-    })(),
-    [onChange, delay]
-  );
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setCurrent(newValue);
-    debouncedOnChange(newValue);
-  };
+    
+    // Clear previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Set new timeout
+    timeoutRef.current = setTimeout(() => {
+      onChange(newValue);
+    }, delay);
+  }, [onChange, delay]);
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     // Immediate update on blur to ensure consistency
     onChange(current);
-  };
+  }, [onChange, current]);
 
   return (
     <Input

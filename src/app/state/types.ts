@@ -50,8 +50,6 @@ export type CurrentView =
   | { type: 'scene'; id: string; subview: 'scene-options' | '3d-view' }
   | { type: 'preview'; previous?: CurrentView };
 
-export type Visibility = 'public' | 'private';
-
 export interface Creator {
   email: string;
   id: string;
@@ -61,7 +59,6 @@ export interface Creator {
 export interface BaseItem {
   id: string;
   type: string;
-  visibility: Visibility;
   title: string;
   description: string;
   created_at: string;
@@ -74,8 +71,8 @@ export interface Session extends BaseItem {
   type: 'session';
 }
 
-export interface State extends BaseItem {
-  type: 'state';
+export interface StoryItem extends BaseItem {
+  type: 'story';
   public_uri?: string;
 }
 

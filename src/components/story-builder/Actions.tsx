@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { DownloadIcon, ChevronDownIcon, LinkIcon, CloudIcon, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
@@ -12,17 +12,18 @@ import { useAuth } from '@/app/providers';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { SaveDialog, ShareModal } from './file-operations';
 import { openSaveDialog, shareStory } from '@/app/state/save-dialog-actions';
-import { useSearchParams } from 'next/navigation';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { StoryAtom } from '@/app/state/atoms';
+import { StoryAtom, SharedStoryAtom, ShareModalAtom } from '@/app/state/atoms';
 import { downloadStory, exportState, resetInitialStoryState } from '@/app/state/actions';
 
 export function StoryActionButtons() {
   const auth = useAuth();
   const story = useAtomValue(StoryAtom);
+  const sharedStory = useAtomValue(SharedStoryAtom);
+  const setShareModal = useSetAtom(ShareModalAtom);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   
   const { hasUnsavedChanges } = useUnsavedChanges();
@@ -45,6 +46,22 @@ export function StoryActionButtons() {
       resetInitialStoryState();
     } catch (error) {
       console.error('Export session failed:', error);
+    }
+  };
+
+  const handleShareClick = async () => {
+    if (sharedStory.isShared && !hasUnsavedChanges) {
+      // Story is already shared and no changes have been made, show the share modal directly
+      setShareModal({
+        isOpen: true,
+        itemId: sharedStory.storyId!,
+        itemTitle: sharedStory.title!,
+        itemType: 'story',
+        publicUri: sharedStory.publicUri,
+      });
+    } else {
+      // Story is not shared yet, or has been modified since last share, trigger the share process
+      await shareStory();
     }
   };
 
@@ -124,19 +141,31 @@ export function StoryActionButtons() {
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
           <Button
-            variant='outline'
+            variant={sharedStory.isShared && !hasUnsavedChanges ? 'default' : 'outline'}
             size='sm'
-            className='gap-1.5 text-sm font-medium'
-            onClick={() => shareStory()}
+            className={cn(
+              'gap-1.5 text-sm font-medium',
+              sharedStory.isShared && !hasUnsavedChanges && 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+            )}
+            onClick={handleShareClick}
             disabled={!auth.isAuthenticated}
             title={!auth.isAuthenticated ? 'You must be logged in to share stories' : ''}
           >
             <LinkIcon className='size-4' />
-            Share
+            {sharedStory.isShared && !hasUnsavedChanges ? 'View Share' : 'Share'}
+            {sharedStory.isShared && !hasUnsavedChanges && <span className='w-2 h-2 bg-white rounded-full' />}
+            {hasUnsavedChanges && sharedStory.isShared && <span className='w-2 h-2 bg-amber-500 rounded-full' />}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          {auth.isAuthenticated ? 'Share your session with others' : 'You must be logged in to share stories'}
+          {auth.isAuthenticated 
+            ? sharedStory.isShared && !hasUnsavedChanges
+              ? `View sharing options for "${sharedStory.title}"` 
+              : hasUnsavedChanges && sharedStory.isShared
+              ? 'Story has been modified since last share. Click to share updated version.'
+              : 'Share your session with others'
+            : 'You must be logged in to share stories'
+          }
         </TooltipContent>
       </Tooltip>
 

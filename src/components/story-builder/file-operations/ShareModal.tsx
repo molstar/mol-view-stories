@@ -22,7 +22,7 @@ export function ShareModal() {
       isOpen: false,
       itemId: null,
       itemTitle: '',
-      itemType: 'state',
+      itemType: 'story',
       publicUri: undefined,
     });
   };
@@ -34,7 +34,7 @@ export function ShareModal() {
       toast.success(`${label} copied to clipboard!`);
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedUrl(null), 2000);
-    } catch (error) {
+    } catch {
       toast.error(`Failed to copy ${label.toLowerCase()}`);
     }
   };
@@ -60,7 +60,7 @@ export function ShareModal() {
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <ExternalLink className='size-5' />
-            Share "{shareModal.itemTitle}"
+            Share &ldquo;{shareModal.itemTitle}&rdquo;
           </DialogTitle>
           <DialogDescription>
             Your {shareModal.itemType} has been saved and is now publicly accessible. 

@@ -6,7 +6,7 @@ import { useAuth } from '@/app/providers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Session, State } from '@/app/state/types';
+import { Session, StoryItem } from '@/app/state/types';
 import { AlertTriangle, FileText, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMyStoriesData } from './useMyStoriesData';
@@ -44,7 +44,7 @@ export default function MyStoriesPage() {
   // State for confirmation dialogs
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
-    type: 'session' | 'state' | 'all';
+    type: 'session' | 'story' | 'all';
     id?: string;
     title?: string;
   }>({ open: false, type: 'session' });
@@ -132,10 +132,10 @@ export default function MyStoriesPage() {
     return sortItems(filtered, sortField, sortDirection);
   }, [myStories.sessions, searchQuery, sortField, sortDirection]);
 
-  const filteredAndSortedStates = useMemo(() => {
-    const filtered = filterItems(myStories.states, searchQuery);
+  const filteredAndSortedStories = useMemo(() => {
+    const filtered = filterItems(myStories.stories, searchQuery);
     return sortItems(filtered, sortField, sortDirection);
-  }, [myStories.states, searchQuery, sortField, sortDirection]);
+  }, [myStories.stories, searchQuery, sortField, sortDirection]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -146,7 +146,7 @@ export default function MyStoriesPage() {
     }
   };
 
-  const handleDeleteClick = (item: Session | State) => {
+  const handleDeleteClick = (item: Session | StoryItem) => {
     setDeleteConfirm({
       open: true,
       type: item.type,
@@ -171,8 +171,8 @@ export default function MyStoriesPage() {
         success = await myStories.handleDeleteAllContent();
       } else if (deleteConfirm.type === 'session' && deleteConfirm.id) {
         success = await myStories.handleDeleteSession(deleteConfirm.id);
-      } else if (deleteConfirm.type === 'state' && deleteConfirm.id) {
-        success = await myStories.handleDeleteState(deleteConfirm.id);
+      } else if (deleteConfirm.type === 'story' && deleteConfirm.id) {
+        success = await myStories.handleDeleteStory(deleteConfirm.id);
       }
 
       if (success) {
@@ -210,7 +210,7 @@ export default function MyStoriesPage() {
               variant='destructive'
               size='sm'
               onClick={handleDeleteAllClick}
-              disabled={myStories.loading || (myStories.sessions.length === 0 && myStories.states.length === 0)}
+              disabled={myStories.loading || (myStories.sessions.length === 0 && myStories.stories.length === 0)}
               className='flex items-center gap-1 h-8 px-3 text-sm'
             >
               <AlertTriangle className='h-3 w-3' />
@@ -244,12 +244,12 @@ export default function MyStoriesPage() {
               <div className='flex items-center justify-between'>
                 <h2 className='text-xl font-semibold flex items-center gap-2'>
                   <FileText className='h-4 w-4' />
-                  Found {filteredAndSortedSessions.length + filteredAndSortedStates.length} items
+                  Found {filteredAndSortedSessions.length + filteredAndSortedStories.length} items
                 </h2>
               </div>
               
               {/* Search Bar - only show if there are items to search through */}
-              {(myStories.sessions.length > 0 || myStories.states.length > 0) && (
+              {(myStories.sessions.length > 0 || myStories.stories.length > 0) && (
                 <div className='relative max-w-xs'>
                   <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
                   <Input
@@ -263,7 +263,7 @@ export default function MyStoriesPage() {
 
               {myStories.loading ? (
                 <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>
-              ) : (filteredAndSortedSessions.length === 0 && filteredAndSortedStates.length === 0) ? (
+              ) : (filteredAndSortedSessions.length === 0 && filteredAndSortedStories.length === 0) ? (
                 <div className='max-w-2xl mx-auto'>
                   <Card>
                     <CardContent className='text-center py-4'>
@@ -280,7 +280,7 @@ export default function MyStoriesPage() {
                 </div>
               ) : (
                 <MyStoriesTable 
-                  items={[...filteredAndSortedSessions, ...filteredAndSortedStates]} 
+                  items={[...filteredAndSortedSessions, ...filteredAndSortedStories]} 
                   showCreator={false}
                   sortField={sortField}
                   sortDirection={sortDirection}

@@ -1,7 +1,7 @@
-import { Session, State } from '@/app/state/types';
+import { Session, StoryItem } from '@/app/state/types';
 import { SortField, SortDirection } from './MyStoriesTable';
 
-export function filterItems(items: (Session | State)[], query: string): (Session | State)[] {
+export function filterItems(items: (Session | StoryItem)[], query: string): (Session | StoryItem)[] {
   if (!query.trim()) return items;
   const lowercaseQuery = query.toLowerCase();
   return items.filter(
@@ -11,7 +11,7 @@ export function filterItems(items: (Session | State)[], query: string): (Session
   );
 }
 
-export function sortItems(items: (Session | State)[], field: SortField, direction: SortDirection): (Session | State)[] {
+export function sortItems(items: (Session | StoryItem)[], field: SortField, direction: SortDirection): (Session | StoryItem)[] {
   return [...items].sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
@@ -44,14 +44,14 @@ export function sortItems(items: (Session | State)[], field: SortField, directio
 }
 
 export function getDeleteDialogProps(
-  type: 'session' | 'state' | 'all',
+  type: 'session' | 'story' | 'all',
   title?: string
 ): { title: string; description: string; confirmText: string } {
   if (type === 'all') {
     return {
       title: 'Delete All Content',
       description:
-        'Are you sure you want to delete ALL your sessions and states? This action cannot be undone and will permanently remove all your content.',
+        'Are you sure you want to delete ALL your sessions and stories? This action cannot be undone and will permanently remove all your content.',
       confirmText: 'Delete All',
     };
   } else if (type === 'session') {

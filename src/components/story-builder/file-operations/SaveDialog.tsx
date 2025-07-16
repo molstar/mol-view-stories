@@ -46,7 +46,7 @@ export function SaveDialog() {
           <DialogTitle>{saveDialog.saveType === 'session' ? 'Save Session' : 'Share Story'}</DialogTitle>
           <DialogDescription>
             {saveDialog.saveType === 'session' && 'Save your session to the cloud for later access'}
-            {saveDialog.saveType === 'state' && 'Share your story with the world'}
+            {saveDialog.saveType === 'story' && 'Share your story with the world'}
           </DialogDescription>
         </DialogHeader>
 
@@ -66,7 +66,7 @@ export function SaveDialog() {
               <Label htmlFor='description'>Note</Label>
               <Textarea
                 id='description'
-                placeholder='Enter session description'
+                placeholder=''
                 value={saveDialog.formData.description}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   handleFieldChange('description', e.target.value)
@@ -76,7 +76,7 @@ export function SaveDialog() {
           </div>
         )}
 
-        {saveDialog.saveType === 'state' && (
+        {saveDialog.saveType === 'story' && (
           <div className='space-y-4'>
             <div className='space-y-2'>
               <Label htmlFor='title'>Title</Label>

@@ -1,10 +1,10 @@
 import { ExampleStories } from '@/app/examples';
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
-import { CurrentView, Story, Session, State, Visibility, UserQuota } from './types';
+import { CurrentView, Story, Session, StoryItem, UserQuota } from './types';
 
 // Re-export types for external use
-export type { Visibility } from './types';
+export type { CurrentView, Story, Session, StoryItem, UserQuota } from './types';
 
 // Request State Types
 export type RequestState =
@@ -14,17 +14,17 @@ export type RequestState =
   | { status: 'error'; error: string };
 
 // My Stories Data Structure - Unified approach
-export type MyStoriesDataKey = 'sessions-private' | 'sessions-public' | 'states-private' | 'states-public';
+export type MyStoriesDataKey = 'sessions-private' | 'stories-public';
 
-export type MyStoriesData = Record<MyStoriesDataKey, (Session | State)[]>;
+export type MyStoriesData = Record<MyStoriesDataKey, (Session | StoryItem)[]>;
 
 // SaveDialog Types
-export type SaveType = 'session' | 'state';
+export type SaveType = 'session' | 'story';
 
 export type SaveFormData = {
   title: string;
   description: string;
-  visibility: Visibility;
+  // Note: No visibility field - sessions are always private, stories are always public
 };
 
 export type SaveDialogState = {
@@ -131,7 +131,6 @@ export const SaveDialogAtom = atom<SaveDialogState>({
   formData: {
     title: '',
     description: '',
-    visibility: 'private',
   },
 });
 
@@ -171,9 +170,7 @@ export const SaveDialogIsOpenAtom = atom(
 // My Stories State Atoms - Unified Data Structure
 export const MyStoriesDataAtom = atom<MyStoriesData>({
   'sessions-private': [],
-  'sessions-public': [],
-  'states-private': [],
-  'states-public': [],
+  'stories-public': [],
 });
 
 // Unified request state
@@ -181,9 +178,7 @@ export const MyStoriesRequestStateAtom = atom<RequestState>({ status: 'idle' });
 
 // Derived atoms for granular access
 export const MyStoriesSessionsAtom = atom((get) => get(MyStoriesDataAtom)['sessions-private'] as Session[]);
-export const MyStoriesStatesAtom = atom((get) => get(MyStoriesDataAtom)['states-private'] as State[]);
-export const MyStoriesPublicSessionsAtom = atom((get) => get(MyStoriesDataAtom)['sessions-public'] as Session[]);
-export const MyStoriesPublicStatesAtom = atom((get) => get(MyStoriesDataAtom)['states-public'] as State[]);
+export const MyStoriesStoriesAtom = atom((get) => get(MyStoriesDataAtom)['stories-public'] as StoryItem[]);
 
 // Quota State Atoms
 export const UserQuotaAtom = atom<UserQuota | null>(null);
@@ -194,7 +189,7 @@ export interface ShareModalData {
   isOpen: boolean;
   itemId: string | null;
   itemTitle: string;
-  itemType: 'state' | 'session';
+  itemType: 'story' | 'session';
   publicUri?: string;
 }
 
@@ -202,8 +197,23 @@ export const ShareModalAtom = atom<ShareModalData>({
   isOpen: false,
   itemId: null,
   itemTitle: '',
-  itemType: 'state',
+  itemType: 'story',
   publicUri: undefined,
+});
+
+// Track if current story is shared
+export interface SharedStoryState {
+  isShared: boolean;
+  storyId?: string;
+  publicUri?: string;
+  title?: string;
+}
+
+export const SharedStoryAtom = atom<SharedStoryState>({
+  isShared: false,
+  storyId: undefined,
+  publicUri: undefined,
+  title: undefined,
 });
 
 // Unsaved Changes Tracking Atoms

@@ -251,7 +251,8 @@ export function clearTokens(): void {
 }
 
 // OAuth2 flow utilities
-export function buildAuthorizationUrl(codeChallenge: string, state?: string, usePopup = false): string {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function buildAuthorizationUrl(codeChallenge: string, state?: string, _usePopup = false): string {
   const params = new URLSearchParams({
     client_id: OAUTH_CONFIG.client_id,
     response_type: 'code',
@@ -265,7 +266,8 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string, use
   return `${OAUTH_CONFIG.authority}/authorize?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string, codeVerifier: string, usePopup = false): Promise<AuthTokens> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function exchangeCodeForTokens(code: string, codeVerifier: string, _usePopup = false): Promise<AuthTokens> {
   const requestBody = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,
@@ -706,7 +708,7 @@ export async function manualTokenRefresh(): Promise<boolean> {
 
 // Expose debugging utilities to global window object for easy testing
 if (typeof window !== 'undefined') {
-  (window as any).authDebug = {
+  (window as unknown as Record<string, unknown>).authDebug = {
     debugTokenState,
     manualTokenRefresh,
     clearTokens: clearTokens,
