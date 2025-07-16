@@ -92,6 +92,9 @@ function compareStories(currentStory: Story, initialStory: Story): boolean {
 
 export const IsSessionLoadingAtom = atom<boolean>(false);
 
+// Track the session ID if editing an existing saved story
+export const CurrentSessionIdAtom = atom<string | null>(null);
+
 export const StoryAtom = atom<Story>(ExampleStories.Empty);
 
 export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options', subview: 'story-metadata' });

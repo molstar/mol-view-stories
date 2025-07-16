@@ -23,8 +23,6 @@ import { downloadStory, exportState, resetInitialStoryState } from '@/app/state/
 export function StoryActionButtons() {
   const auth = useAuth();
   const story = useAtomValue(StoryAtom);
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get('sessionId') ?? undefined;
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   
   const { hasUnsavedChanges } = useUnsavedChanges();
@@ -35,7 +33,7 @@ export function StoryActionButtons() {
       setShowUnsavedDialog(true);
     } else if (auth.isAuthenticated) {
       // Always allow direct save for authenticated users
-      openSaveDialog({ saveType: 'session', sessionId });
+      openSaveDialog({ saveType: 'session' });
     }
     // Note: If !auth.isAuthenticated && !hasUnsavedChanges, button is disabled
   };

@@ -19,6 +19,7 @@ import {
   IsSessionLoadingAtom,
   InitialStoryAtom,
   HasUnsavedChangesAtom,
+  CurrentSessionIdAtom,
 } from './atoms';
 import {
   CameraData,
@@ -75,6 +76,7 @@ export function newStory() {
   const store = getDefaultStore();
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
+  store.set(CurrentSessionIdAtom, null); // Clear session ID for new story
   setInitialStoryState(ExampleStories.Empty);
 }
 
@@ -219,6 +221,7 @@ export const importState = async (file: File) => {
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
+  store.set(CurrentSessionIdAtom, null); // Clear session ID for imported stories (treat as new)
   setInitialStoryState(decoded.story);
 };
 
@@ -367,6 +370,7 @@ export async function loadSession(sessionId: string) {
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+      store.set(CurrentSessionIdAtom, sessionId); // Track that we're editing an existing session
       setInitialStoryState(storyData.story);
     } else {
       throw new Error('No story data found in session');
@@ -375,6 +379,7 @@ export async function loadSession(sessionId: string) {
     console.error('Error loading session:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
     toast.error(errorMessage);
+    store.set(CurrentSessionIdAtom, null); // Clear session ID on error
   } finally {
     store.set(IsSessionLoadingAtom, false);
   }

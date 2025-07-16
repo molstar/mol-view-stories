@@ -73,7 +73,7 @@ function Options() {
           value={story.metadata.title}
           placeholder='Story Title'
           onChange={(value) => {
-            modifySceneMetadata({ title: value.trim() });
+            modifySceneMetadata({ title: value });
           }}
         />
       </div>
@@ -92,7 +92,7 @@ function AssetEditor() {
             placeholder='Asset Name'
             onChange={(value) => {
               const newAssets = [...story.assets];
-              newAssets[index] = { ...newAssets[index], name: value.trim() };
+              newAssets[index] = { ...newAssets[index], name: value };
               setStory((prev) => ({ ...prev, assets: newAssets }));
             }}
           />

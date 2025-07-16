@@ -3,15 +3,16 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
-import { StoryAtom, SaveDialogAtom, type SaveFormData, type SaveType } from './atoms';
+import { StoryAtom, SaveDialogAtom, CurrentSessionIdAtom, type SaveFormData, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch, API_CONFIG } from '@/lib/auth-utils';
 import { getMVSData, resetInitialStoryState } from './actions';
 
 // SaveDialog Actions
-export function openSaveDialog(options: { saveType: SaveType; sessionId?: string }) {
+export function openSaveDialog(options: { saveType: SaveType; sessionId?: string; saveAsNew?: boolean }) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
+  const currentSessionId = store.get(CurrentSessionIdAtom);
 
   const formData: SaveFormData = {
     title: story.metadata.title || '',
@@ -19,10 +20,16 @@ export function openSaveDialog(options: { saveType: SaveType; sessionId?: string
     visibility: options.saveType === 'session' ? 'private' : 'public',
   };
 
+  // Determine the session ID: use provided sessionId, or current session (unless saveAsNew is true)
+  let sessionId = options.sessionId;
+  if (!sessionId && !options.saveAsNew && options.saveType === 'session') {
+    sessionId = currentSessionId || undefined;
+  }
+
   store.set(SaveDialogAtom, {
     isOpen: true,
     saveType: options.saveType,
-    sessionId: options.sessionId,
+    sessionId: sessionId,
     isSaving: false,
     formData,
   });
@@ -76,7 +83,7 @@ async function prepareStateData(story: Story): Promise<Uint8Array | string> {
   }
 }
 
-async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: SaveFormData) {
+async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: SaveFormData, sessionId?: string) {
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
@@ -87,9 +94,8 @@ async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: 
     }
   };
 
-  const requestBody = {
+  const requestBody: any = {
     title: formData.title.trim(),
-    filename: formData.title.trim() + getFileExtension(endpoint, data),
     description: formData.description.trim(),
     visibility: formData.visibility,
     // Handle data based on type
@@ -101,8 +107,16 @@ async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: 
           : data, // Parse JSON string to object for states
   };
 
-  const url = `${API_CONFIG.baseUrl}/api/${endpoint}`;
-  const method = 'POST';
+  // Only include filename for new sessions (POST), not updates (PUT)
+  if (!sessionId) {
+    requestBody.filename = formData.title.trim() + getFileExtension(endpoint, data);
+  }
+
+  // If sessionId is provided, update existing session; otherwise create new
+  const url = sessionId 
+    ? `${API_CONFIG.baseUrl}/api/${endpoint}/${sessionId}`
+    : `${API_CONFIG.baseUrl}/api/${endpoint}`;
+  const method = sessionId ? 'PUT' : 'POST';
 
   const response = await authenticatedFetch(url, {
     method,
@@ -146,13 +160,21 @@ export async function performSave() {
       endpoint = 'state';
     }
 
-    const result = await saveToAPI(data, endpoint, saveDialog.formData);
+    const result = await saveToAPI(data, endpoint, saveDialog.formData, saveDialog.sessionId);
 
-    toast.success(`${saveDialog.saveType === 'session' ? 'Session' : 'State'} saved successfully!`, {
-      description: `Saved as "${saveDialog.formData.title}"`,
+    const isUpdate = !!saveDialog.sessionId;
+    const actionText = isUpdate ? 'updated' : 'saved';
+    
+    toast.success(`${saveDialog.saveType === 'session' ? 'Session' : 'State'} ${actionText} successfully!`, {
+      description: `${isUpdate ? 'Updated' : 'Saved as'} "${saveDialog.formData.title}"`,
     });
 
     console.log('Save result:', result);
+    
+    // If this was a new session save, update the current session ID
+    if (saveDialog.saveType === 'session' && !saveDialog.sessionId && result.id) {
+      store.set(CurrentSessionIdAtom, result.id);
+    }
     
     // Reset initial state to mark as saved
     resetInitialStoryState();

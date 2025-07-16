@@ -15,7 +15,7 @@ export function OptionsEditor() {
           value={scene?.header || ''}
           placeholder='Scene Title'
           onChange={(value) => {
-            modifyCurrentScene({ header: value.trim() });
+            modifyCurrentScene({ header: value });
           }}
         />
       </div>
@@ -26,7 +26,7 @@ export function OptionsEditor() {
           value={scene?.key || ''}
           placeholder='Scene Key'
           onChange={(value) => {
-            modifyCurrentScene({ key: value.trim() ? value : undefined });
+            modifyCurrentScene({ key: value.trim() ? value.trim() : undefined });
           }}
         />
       </div>

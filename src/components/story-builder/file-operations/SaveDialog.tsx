@@ -1,6 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
+import { getDefaultStore } from 'jotai';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,26 @@ export function SaveDialog() {
   const handleFieldChange = (field: keyof SaveFormData, value: string) => {
     updateSaveDialogFormField(field, value);
   };
+
+  const handleSaveAs = async () => {
+    // Temporarily clear sessionId to force creating a new session, then save immediately
+    const store = getDefaultStore();
+    const currentSaveDialog = store.get(SaveDialogAtom);
+    
+    // Temporarily clear sessionId to create new session
+    store.set(SaveDialogAtom, { ...currentSaveDialog, sessionId: undefined });
+    
+    // Perform the save immediately
+    const success = await performSave();
+    
+    // If save failed, restore the original sessionId
+    if (!success) {
+      store.set(SaveDialogAtom, { ...currentSaveDialog });
+    }
+  };
+
+  // Check if we're updating an existing session
+  const isEditingExistingSession = saveDialog.saveType === 'session' && !!saveDialog.sessionId;
 
   return (
     <Dialog open={saveDialog.isOpen} onOpenChange={closeSaveDialog}>
@@ -85,9 +106,18 @@ export function SaveDialog() {
           <Button variant='outline' onClick={closeSaveDialog} disabled={saveDialog.isSaving}>
             Cancel
           </Button>
+          
+          {isEditingExistingSession && (
+            <Button variant='outline' onClick={handleSaveAs} disabled={saveDialog.isSaving || !auth.isAuthenticated}>
+              Save As New
+            </Button>
+          )}
+          
           <Button onClick={performSave} disabled={saveDialog.isSaving || !auth.isAuthenticated}>
             {saveDialog.isSaving
               ? 'Saving...'
+              : isEditingExistingSession
+              ? 'Update Session'
               : `${saveDialog.saveType === 'session' ? 'Save Session' : 'Share Story'}`}
           </Button>
         </div>
