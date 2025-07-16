@@ -81,7 +81,6 @@ export function MyStoriesTable({
           <SortableTableHead field='type' className='h-8 px-1 w-[8%]'>Type</SortableTableHead>
           <TableHead className='h-8 px-1 w-[25%] text-sm'>Description</TableHead>
           <TableHead className='h-8 px-1 w-[8%] text-sm'>Visibility</TableHead>
-          <TableHead className='h-8 px-1 w-[12%] text-sm'>Tags</TableHead>
           <SortableTableHead field='created_at' className='h-8 px-1 w-[10%]'>Created</SortableTableHead>
           <SortableTableHead field='updated_at' className='h-8 px-1 w-[10%]'>Updated</SortableTableHead>
           {showCreator && <TableHead className='h-8 px-1 w-[12%] text-sm'>Creator</TableHead>}
@@ -110,24 +109,6 @@ export function MyStoriesTable({
                 )}
                 {item.visibility}
               </Badge>
-            </TableCell>
-            <TableCell className='px-1 py-0.5'>
-              {item.tags && Array.isArray(item.tags) && item.tags.length > 0 ? (
-                <div className='flex flex-wrap gap-0.5'>
-                  {item.tags.slice(0, 1).map((tag, index) => (
-                    <Badge key={index} variant='outline' className='text-sm px-1.5 py-0 truncate max-w-16'>
-                      {tag}
-                    </Badge>
-                  ))}
-                  {item.tags.length > 1 && (
-                    <Badge variant='outline' className='text-sm px-1.5 py-0'>
-                      +{item.tags.length - 1}
-                    </Badge>
-                  )}
-                </div>
-              ) : (
-                <span className='text-sm text-muted-foreground'>-</span>
-              )}
             </TableCell>
             <TableCell className='text-sm text-muted-foreground px-1 py-0.5 truncate'>
               {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}

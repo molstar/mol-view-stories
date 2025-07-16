@@ -25,7 +25,6 @@ export type SaveFormData = {
   title: string;
   description: string;
   visibility: Visibility;
-  tags: string;
 };
 
 export type SaveDialogState = {
@@ -36,17 +35,38 @@ export type SaveDialogState = {
   formData: SaveFormData;
 };
 
-// Optimized story comparison function that avoids expensive JSON.stringify on binary assets
+// Optimized story comparison function that ignores scene IDs (used for navigation only)
 function compareStories(currentStory: Story, initialStory: Story): boolean {
   // Fast path: reference equality
   if (currentStory === initialStory) return true;
   
-  // Compare non-asset properties with JSON (lightweight)
-  const currentLight = { ...currentStory, assets: [] };
-  const initialLight = { ...initialStory, assets: [] };
-  
-  if (JSON.stringify(currentLight) !== JSON.stringify(initialLight)) {
+  // Compare metadata and javascript
+  if (JSON.stringify(currentStory.metadata) !== JSON.stringify(initialStory.metadata)) {
     return false;
+  }
+  if (currentStory.javascript !== initialStory.javascript) {
+    return false;
+  }
+  
+  // Compare scenes (excluding IDs which are for navigation only)
+  if (currentStory.scenes.length !== initialStory.scenes.length) {
+    return false;
+  }
+  
+  for (let i = 0; i < currentStory.scenes.length; i++) {
+    const currentScene = currentStory.scenes[i];
+    const initialScene = initialStory.scenes[i];
+    
+    // Compare all scene properties except ID
+    if (currentScene.header !== initialScene.header ||
+        currentScene.key !== initialScene.key ||
+        currentScene.description !== initialScene.description ||
+        currentScene.javascript !== initialScene.javascript ||
+        currentScene.linger_duration_ms !== initialScene.linger_duration_ms ||
+        currentScene.transition_duration_ms !== initialScene.transition_duration_ms ||
+        JSON.stringify(currentScene.camera) !== JSON.stringify(initialScene.camera)) {
+      return false;
+    }
   }
   
   // Compare assets separately to avoid expensive JSON.stringify on Uint8Arrays
@@ -109,7 +129,6 @@ export const SaveDialogAtom = atom<SaveDialogState>({
     title: '',
     description: '',
     visibility: 'private',
-    tags: '',
   },
 });
 

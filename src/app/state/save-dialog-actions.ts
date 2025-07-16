@@ -17,7 +17,6 @@ export function openSaveDialog(options: { saveType: SaveType; sessionId?: string
     title: story.metadata.title || '',
     description: '',
     visibility: options.saveType === 'session' ? 'private' : 'public',
-    tags: '',
   };
 
   store.set(SaveDialogAtom, {
@@ -88,17 +87,11 @@ async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: 
     }
   };
 
-  const processedTags = formData.tags
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter((tag) => tag.length > 0);
-
   const requestBody = {
     title: formData.title.trim(),
     filename: formData.title.trim() + getFileExtension(endpoint, data),
     description: formData.description.trim(),
     visibility: formData.visibility,
-    tags: processedTags,
     // Handle data based on type
     data:
       data instanceof Uint8Array

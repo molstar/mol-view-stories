@@ -68,7 +68,6 @@ export interface BaseItem {
   updated_at: string;
   version: string;
   creator: Creator;
-  tags: string[];
 }
 
 export interface Session extends BaseItem {

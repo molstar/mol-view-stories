@@ -52,16 +52,6 @@ export function SaveDialog() {
                 }
               />
             </div>
-
-            <div className='space-y-2'>
-              <Label htmlFor='tags'>Tags</Label>
-              <Input
-                id='tags'
-                placeholder='Enter tags separated by commas'
-                value={saveDialog.formData.tags}
-                onChange={(e) => handleFieldChange('tags', e.target.value)}
-              />
-            </div>
           </div>
         )}
 
@@ -86,16 +76,6 @@ export function SaveDialog() {
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   handleFieldChange('description', e.target.value)
                 }
-              />
-            </div>
-
-            <div className='space-y-2'>
-              <Label htmlFor='tags'>Tags</Label>
-              <Input
-                id='tags'
-                placeholder='Enter tags separated by commas'
-                value={saveDialog.formData.tags}
-                onChange={(e) => handleFieldChange('tags', e.target.value)}
               />
             </div>
           </div>
