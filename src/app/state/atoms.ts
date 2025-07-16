@@ -36,6 +36,38 @@ export type SaveDialogState = {
   formData: SaveFormData;
 };
 
+// Optimized story comparison function that avoids expensive JSON.stringify on binary assets
+function compareStories(currentStory: Story, initialStory: Story): boolean {
+  // Fast path: reference equality
+  if (currentStory === initialStory) return true;
+  
+  // Compare non-asset properties with JSON (lightweight)
+  const currentLight = { ...currentStory, assets: [] };
+  const initialLight = { ...initialStory, assets: [] };
+  
+  if (JSON.stringify(currentLight) !== JSON.stringify(initialLight)) {
+    return false;
+  }
+  
+  // Compare assets separately to avoid expensive JSON.stringify on Uint8Arrays
+  if (currentStory.assets.length !== initialStory.assets.length) {
+    return false;
+  }
+  
+  return currentStory.assets.every((currentAsset, i) => {
+    const initialAsset = initialStory.assets[i];
+    if (currentAsset.name !== initialAsset.name) return false;
+    if (currentAsset.content.length !== initialAsset.content.length) return false;
+    
+    // Byte-by-byte comparison for binary content
+    for (let j = 0; j < currentAsset.content.length; j++) {
+      if (currentAsset.content[j] !== initialAsset.content[j]) return false;
+    }
+    
+    return true;
+  });
+}
+
 // Core State Atoms
 
 export const IsSessionLoadingAtom = atom<boolean>(false);
@@ -138,13 +170,13 @@ export const QuotaRequestStateAtom = atom<RequestState>({ status: 'idle' });
 // Unsaved Changes Tracking Atoms
 export const InitialStoryAtom = atom<Story>(ExampleStories.Empty);
 
-// Derived atom to detect unsaved changes by comparing current story with initial state
+// Optimized derived atom to detect unsaved changes
 export const HasUnsavedChangesAtom = atom((get) => {
   const currentStory = get(StoryAtom);
   const initialStory = get(InitialStoryAtom);
   
-  // Deep comparison of stories
-  return JSON.stringify(currentStory) !== JSON.stringify(initialStory);
+  // Use optimized comparison that handles binary assets efficiently
+  return !compareStories(currentStory, initialStory);
 });
 
 // Atom to track if we should show unsaved changes warning

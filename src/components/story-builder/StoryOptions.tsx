@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAtom, useAtomValue } from 'jotai';
 import { Upload, Wrench, X, FileText, Code, FolderUp } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
-import { StatefulInput } from '../controls';
+import { ImmediateInput } from '../controls';
 import { Label } from '../ui/label';
 import { StoryCodeEditor } from './editors/StoryCodeEditor';
 import { Button } from '../ui/button';
@@ -68,7 +68,7 @@ function Options() {
     <div className='flex flex-col gap-2'>
       <div className='space-y-2'>
         <Label htmlFor='story-title'>Title</Label>
-        <StatefulInput
+        <ImmediateInput
           id='story-title'
           value={story.metadata.title}
           placeholder='Story Title'
@@ -87,7 +87,7 @@ function AssetEditor() {
     <div className='max-h-[200px] overflow-y-auto space-y-2'>
       {story.assets.map((asset, index) => (
         <div key={index} className='flex items-center gap-2'>
-          <StatefulInput
+          <ImmediateInput
             value={asset.name}
             placeholder='Asset Name'
             onChange={(value) => {

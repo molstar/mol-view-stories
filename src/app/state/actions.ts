@@ -537,19 +537,39 @@ export async function fetchUserQuota(isAuthenticated: boolean) {
 }
 
 // Unsaved Changes Tracking Utilities
+function cloneStory(story: Story): Story {
+  return {
+    metadata: { ...story.metadata },
+    javascript: story.javascript,
+    scenes: story.scenes.map(scene => ({
+      id: scene.id,
+      header: scene.header,
+      key: scene.key,
+      description: scene.description,
+      javascript: scene.javascript,
+      camera: scene.camera ? { ...scene.camera } : scene.camera,
+      linger_duration_ms: scene.linger_duration_ms,
+      transition_duration_ms: scene.transition_duration_ms,
+    })),
+    assets: story.assets.map(asset => ({
+      name: asset.name,
+      content: new Uint8Array(asset.content), // Properly clone binary data
+    })),
+  };
+}
 
 // Set the initial story state (call when loading a story from session or creating new)
 export function setInitialStoryState(story: Story) {
   const store = getDefaultStore();
-  // Deep clone to avoid reference issues
-  store.set(InitialStoryAtom, JSON.parse(JSON.stringify(story)));
+  // Use optimized clone to avoid expensive JSON operations on binary assets
+  store.set(InitialStoryAtom, cloneStory(story));
 }
 
 // Reset initial state to current state (call after successful save)
 export function resetInitialStoryState() {
   const store = getDefaultStore();
   const currentStory = store.get(StoryAtom);
-  store.set(InitialStoryAtom, JSON.parse(JSON.stringify(currentStory)));
+  store.set(InitialStoryAtom, cloneStory(currentStory));
 }
 
 // Check if there are unsaved changes
@@ -563,8 +583,8 @@ export function discardChanges() {
   const store = getDefaultStore();
   const initialStory = store.get(InitialStoryAtom);
   
-  // Revert to initial state
-  store.set(StoryAtom, JSON.parse(JSON.stringify(initialStory)));
+  // Revert to initial state (clone to avoid reference issues)
+  store.set(StoryAtom, cloneStory(initialStory));
   
   // Reset initial state to mark as "saved" (no unsaved changes)
   resetInitialStoryState();
