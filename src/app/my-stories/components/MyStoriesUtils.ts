@@ -32,10 +32,6 @@ export function sortItems(
         aValue = new Date(a.updated_at).getTime();
         bValue = new Date(b.updated_at).getTime();
         break;
-      case 'type':
-        aValue = a.type;
-        bValue = b.type;
-        break;
       default:
         return 0;
     }
@@ -47,8 +43,9 @@ export function sortItems(
 }
 
 export function getDeleteDialogProps(
-  type: 'session' | 'story' | 'all',
-  title?: string
+  type: 'session' | 'story' | 'all' | 'all-sessions' | 'all-stories',
+  title?: string,
+  count?: number
 ): { title: string; description: string; confirmText: string } {
   if (type === 'all') {
     return {
@@ -56,6 +53,20 @@ export function getDeleteDialogProps(
       description:
         'Are you sure you want to delete ALL your sessions and stories? This action cannot be undone and will permanently remove all your content.',
       confirmText: 'Delete All',
+    };
+  } else if (type === 'all-sessions') {
+    const sessionCount = count || 0;
+    return {
+      title: 'Delete All Sessions',
+      description: `Are you sure you want to delete ALL ${sessionCount} session${sessionCount === 1 ? '' : 's'}? This action cannot be undone and will permanently remove all your sessions.`,
+      confirmText: 'Delete All Sessions',
+    };
+  } else if (type === 'all-stories') {
+    const storyCount = count || 0;
+    return {
+      title: 'Delete All Stories',
+      description: `Are you sure you want to delete ALL ${storyCount} stor${storyCount === 1 ? 'y' : 'ies'}? This action cannot be undone and will permanently remove all your stories.`,
+      confirmText: 'Delete All Stories',
     };
   } else if (type === 'session') {
     return {
@@ -65,9 +76,9 @@ export function getDeleteDialogProps(
     };
   } else {
     return {
-      title: 'Delete State',
-      description: `Are you sure you want to delete the state "${title}"? This action cannot be undone.`,
-      confirmText: 'Delete State',
+      title: 'Delete Story',
+      description: `Are you sure you want to delete the story "${title}"? This action cannot be undone.`,
+      confirmText: 'Delete Story',
     };
   }
 }

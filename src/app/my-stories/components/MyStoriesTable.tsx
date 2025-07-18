@@ -1,13 +1,12 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Session, StoryItem } from '@/app/state/types';
 import { ArrowUpDown, ArrowUp, ArrowDown, FileText, Database, Edit, ExternalLink, Trash2, User } from 'lucide-react';
 import Link from 'next/link';
 
-export type SortField = 'title' | 'created_at' | 'updated_at' | 'type';
+export type SortField = 'title' | 'created_at' | 'updated_at';
 export type SortDirection = 'asc' | 'desc';
 
 interface MyStoriesTableProps {
@@ -53,6 +52,18 @@ export function MyStoriesTable({
     </TableHead>
   );
 
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  };
+
   if (items.length === 0) {
     return (
       <div className='text-center py-4 text-muted-foreground'>
@@ -73,21 +84,18 @@ export function MyStoriesTable({
     <Table>
       <TableHeader>
         <TableRow className='h-8'>
-          <SortableTableHead field='title' className='h-8 px-1 w-[20%]'>
+          <SortableTableHead field='title' className='h-8 px-1 w-[25%]'>
             Title
           </SortableTableHead>
-          <SortableTableHead field='type' className='h-8 px-1 w-[8%]'>
-            Type
-          </SortableTableHead>
-          <TableHead className='h-8 px-1 w-[33%] text-sm'>Note</TableHead>
-          <SortableTableHead field='created_at' className='h-8 px-1 w-[12%]'>
+          <TableHead className='h-8 px-1 w-[35%] text-sm'>Note</TableHead>
+          <SortableTableHead field='created_at' className='h-8 px-1 w-[15%]'>
             Created
           </SortableTableHead>
-          <SortableTableHead field='updated_at' className='h-8 px-1 w-[12%]'>
+          <SortableTableHead field='updated_at' className='h-8 px-1 w-[15%]'>
             Updated
           </SortableTableHead>
           {showCreator && <TableHead className='h-8 px-1 w-[12%] text-sm'>Creator</TableHead>}
-          <TableHead className='h-8 px-1 w-[7%] text-sm'>Actions</TableHead>
+          <TableHead className='h-8 px-1 w-[10%] text-sm'>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -103,25 +111,12 @@ export function MyStoriesTable({
                 <span className='text-sm truncate'>{item.title}</span>
               </div>
             </TableCell>
-            <TableCell className='px-1 py-0.5'>
-              <Badge variant='outline' className='text-sm px-1.5 py-0.5'>
-                {item.type}
-              </Badge>
-            </TableCell>
             <TableCell className='px-1 py-0.5 text-sm truncate max-w-0'>{item.description || '-'}</TableCell>
             <TableCell className='text-sm text-muted-foreground px-1 py-0.5 truncate'>
-              {new Date(item.created_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: '2-digit',
-              })}
+              {formatDateTime(item.created_at)}
             </TableCell>
             <TableCell className='text-sm text-muted-foreground px-1 py-0.5 truncate'>
-              {new Date(item.updated_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: '2-digit',
-              })}
+              {formatDateTime(item.updated_at)}
             </TableCell>
             {showCreator && (
               <TableCell className='text-sm px-1 py-0.5 truncate'>

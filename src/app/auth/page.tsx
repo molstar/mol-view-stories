@@ -16,9 +16,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { handleOAuthCallback, handlePopupCallback } from '@/lib/auth-utils';
+import { handleOAuthCallback, handlePopupCallback } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, AlertCircle, Home, RefreshCw, Loader2 } from 'lucide-react';
@@ -30,7 +30,56 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [timeoutReached, setTimeoutReached] = useState(false);
 
+  const processAuth = useCallback(async () => {
+    try {
+      setStatus('loading');
+      setMessage('Processing authentication...');
+      setTimeoutReached(false);
+
+      // Check if this is a popup window
+      if (window.opener) {
+        // Handle popup callback
+        handlePopupCallback();
+        setStatus('success');
+        setMessage('Authentication successful! Closing popup...');
+        // Close popup after a short delay
+        setTimeout(() => {
+          window.close();
+        }, 1500);
+      } else {
+        // Handle redirect callback
+        const result = await handleOAuthCallback();
+
+        if (result.success) {
+          setStatus('success');
+          setMessage('Authentication successful! Redirecting...');
+
+          // Redirect to saved path or home page
+          setTimeout(() => {
+            router.push(result.redirectPath || '/');
+          }, 1500);
+        } else {
+          setStatus('error');
+          setError(result.error || 'Authentication failed');
+          setMessage('Authentication failed');
+        }
+      }
+    } catch (err) {
+      setStatus('error');
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      setMessage('Authentication failed');
+    }
+  }, [router]);
+
   useEffect(() => {
+    // Check if this is an OAuth callback by looking for code parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    
+    console.log('🔍 Auth page: URL params:', { code: !!code, error: !!error, search: window.location.search });
+
     // Set a timeout for the loading state
     const timeout = setTimeout(() => {
       if (status === 'loading') {
@@ -38,53 +87,6 @@ export default function AuthPage() {
         setMessage('Taking longer than expected...');
       }
     }, 10000); // 10 seconds
-
-    const processAuth = async () => {
-      try {
-        setStatus('loading');
-        setMessage('Processing authentication...');
-        setTimeoutReached(false);
-
-        // Check if this is a popup window
-        if (window.opener) {
-          // Handle popup callback
-          handlePopupCallback();
-          setStatus('success');
-          setMessage('Authentication successful! Closing popup...');
-          // Close popup after a short delay
-          setTimeout(() => {
-            window.close();
-          }, 1500);
-        } else {
-          // Handle redirect callback
-          const result = await handleOAuthCallback();
-
-          if (result.success) {
-            setStatus('success');
-            setMessage('Authentication successful! Redirecting...');
-
-            // Redirect to saved path or home page
-            setTimeout(() => {
-              router.push(result.redirectPath || '/');
-            }, 1500);
-          } else {
-            setStatus('error');
-            setError(result.error || 'Authentication failed');
-            setMessage('Authentication failed');
-          }
-        }
-      } catch (err) {
-        setStatus('error');
-        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-        setError(errorMessage);
-        setMessage('Authentication failed');
-      }
-    };
-
-    // Check if this is an OAuth callback by looking for code parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const error = urlParams.get('error');
 
     if (error) {
       // Handle OAuth error
@@ -96,14 +98,13 @@ export default function AuthPage() {
       // Process OAuth callback
       processAuth();
     } else {
-      // No OAuth parameters, show login option
-      setStatus('error');
-      setError('No authentication parameters found');
-      setMessage('Invalid authentication request');
+      setTimeout(() => {
+        router.push('/');
+      }, 10);
     }
 
     return () => clearTimeout(timeout);
-  }, [router, status]);
+  }, [router, status, processAuth]);
 
   const getStatusIcon = () => {
     switch (status) {

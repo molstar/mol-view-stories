@@ -8,14 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/app/providers';
-import { SaveDialogAtom, SaveFormData } from '@/app/state/atoms';
+import { SaveDialogAtom } from '@/app/state/atoms';
 import { closeSaveDialog, updateSaveDialogFormField, performSave } from '@/app/state/save-dialog-actions';
 
 export function SaveDialog() {
   const auth = useAuth();
   const saveDialog = useAtomValue(SaveDialogAtom);
 
-  const handleFieldChange = (field: keyof SaveFormData, value: string) => {
+  const handleFieldChange = (field: 'title' | 'description', value: string) => {
     updateSaveDialogFormField(field, value);
   };
 
@@ -38,6 +38,7 @@ export function SaveDialog() {
 
   // Check if we're updating an existing session
   const isEditingExistingSession = saveDialog.saveType === 'session' && !!saveDialog.sessionId;
+  const isSaving = saveDialog.status === 'saving';
 
   return (
     <Dialog open={saveDialog.isOpen} onOpenChange={closeSaveDialog}>
@@ -94,18 +95,18 @@ export function SaveDialog() {
         )}
 
         <div className='flex justify-end space-x-2'>
-          <Button variant='outline' onClick={closeSaveDialog} disabled={saveDialog.isSaving}>
+          <Button variant='outline' onClick={closeSaveDialog} disabled={isSaving}>
             Cancel
           </Button>
 
           {isEditingExistingSession && (
-            <Button variant='outline' onClick={handleSaveAs} disabled={saveDialog.isSaving || !auth.isAuthenticated}>
+            <Button variant='outline' onClick={handleSaveAs} disabled={isSaving || !auth.isAuthenticated}>
               Save As New
             </Button>
           )}
 
-          <Button onClick={performSave} disabled={saveDialog.isSaving || !auth.isAuthenticated}>
-            {saveDialog.isSaving
+          <Button onClick={performSave} disabled={isSaving || !auth.isAuthenticated}>
+            {isSaving
               ? 'Saving...'
               : isEditingExistingSession
                 ? 'Update Session'

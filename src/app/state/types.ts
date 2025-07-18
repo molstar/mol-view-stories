@@ -1,5 +1,39 @@
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 
+// Unified Async Status Types - replaces granular loading/error patterns
+export type AsyncStatus<T = void, E = string> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: E };
+
+// UI Interaction Status - replaces multiple boolean flags
+export type UIStatus = 
+  | 'idle'
+  | 'loading' 
+  | 'processing'
+  | 'success'
+  | 'error';
+
+// Modal/Dialog State - unified pattern for all modal interactions
+export interface ModalState<T = unknown> {
+  isOpen: boolean;
+  status: UIStatus;
+  data?: T;
+  error?: string;
+}
+
+// Confirmation Dialog State - replaces scattered confirmation states
+export interface ConfirmationState {
+  isOpen: boolean;
+  type: string;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  data?: unknown;
+}
+
 export type StoryContainer = {
   version: 1;
   story: Story;
@@ -96,7 +130,7 @@ export interface UserQuota {
     remaining: number;
     usage_percent: number;
   };
-  states: {
+  stories: {
     current: number;
     limit: number;
     limit_reached: boolean;

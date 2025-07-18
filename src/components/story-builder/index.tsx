@@ -3,11 +3,12 @@ import { CurrentViewAtom, IsSessionLoadingAtom, StoryAtom, CurrentSessionIdAtom 
 import { SceneEditors } from '@/components/story-builder/SceneEditor';
 import { StoryOptions } from '@/components/story-builder/StoryOptions';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
-import { getMVSData, loadSession, setInitialStoryState } from '@/app/state/actions';
+import { getMVSData, setInitialStoryState, checkCurrentStoryAgainstSharedStories } from '@/app/state/actions';
+import { loadSession } from '@/lib/my-stories-api';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
@@ -18,21 +19,35 @@ export default function StoryBuilderPage() {
   const searchParams = useSearchParams();
   const templateName = searchParams.get('template');
   const sessionId = searchParams.get('sessionId');
-  const [mounted, setMounted] = useState(false);
 
   // Enable unsaved changes tracking and beforeunload warning
   useUnsavedChanges();
 
-  // Ensure component is mounted to avoid hydration issues
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
+  // Client-side initialization - runs immediately after mount
+  useLayoutEffect(() => {
+    // First, try to restore session context from storage if no URL params
+    if (!sessionId && !templateName) {
+      try {
+        const savedSessionId = sessionStorage.getItem('currentSessionId');
+        if (savedSessionId) {
+          store.set(CurrentSessionIdAtom, savedSessionId);
+        }
+      } catch {
+        // sessionStorage not available (SSR)
+      }
+    }
 
     if (sessionId) {
       loadSession(sessionId);
+      
+      // Clean URL after loading to prevent refresh issues
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('sessionId');
+        window.history.replaceState({}, '', url.toString());
+      } catch (error) {
+        console.warn('Failed to clean sessionId from URL:', error);
+      }
       return;
     }
 
@@ -48,6 +63,16 @@ export default function StoryBuilderPage() {
 
     // Initialize unsaved changes tracking
     setInitialStoryState(story);
+    
+    // Check if this story matches any shared stories
+    checkCurrentStoryAgainstSharedStories();
+
+    // Clear persisted session context when loading template
+    try {
+      sessionStorage.removeItem('currentSessionId');
+    } catch {
+      // sessionStorage not available (SSR)
+    }
 
     // clear search params
     try {
@@ -58,21 +83,7 @@ export default function StoryBuilderPage() {
       // window APIs might not be available
       console.warn('Failed to clear search params:', error);
     }
-  }, [store, templateName, sessionId, mounted]);
-
-  // Don't render anything until mounted to avoid hydration issues
-  if (!mounted) {
-    return (
-      <div className='flex flex-col h-screen'>
-        <Header>
-          <span>Loading...</span>
-        </Header>
-        <main className='flex-1 flex items-center justify-center'>
-          <div className='text-lg font-semibold'>Loading...</div>
-        </main>
-      </div>
-    );
-  }
+  }, [store, templateName, sessionId]);
 
   return (
     <div className='flex flex-col h-screen'>
@@ -122,15 +133,8 @@ function StoryBuilderRoot() {
 function StoryPreview() {
   const story = useAtomValue(StoryAtom);
   const [src, setSrc] = useState<string | undefined>(undefined);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
+  useLayoutEffect(() => {
     let isMounted = true;
 
     async function build() {
@@ -152,9 +156,9 @@ function StoryPreview() {
     return () => {
       isMounted = false;
     };
-  }, [story, mounted]);
+  }, [story]);
 
-  if (!mounted || !src) {
+  if (!src) {
     return <div className='w-full h-full flex items-center justify-center'>Loading preview...</div>;
   }
 

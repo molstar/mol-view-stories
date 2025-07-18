@@ -13,10 +13,6 @@ import {
   CurrentViewAtom,
   StoryAtom,
   MyStoriesDataAtom,
-  MyStoriesRequestStateAtom,
-  UserQuotaAtom,
-  QuotaRequestStateAtom,
-  IsSessionLoadingAtom,
   InitialStoryAtom,
   HasUnsavedChangesAtom,
   CurrentSessionIdAtom,
@@ -38,26 +34,7 @@ import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
 import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
-import { authenticatedFetch } from '@/lib/auth-utils';
-import { API_CONFIG } from '@/lib/config';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-
-// Helper function to safely encode large Uint8Array to base64
-function encodeUint8ArrayToBase64(data: Uint8Array): Promise<string> {
-  const blob = new Blob([data], { type: 'application/octet-stream' });
-  const reader = new FileReader();
-
-  return new Promise((resolve, reject) => {
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(',')[1]; // Remove data: prefix
-      resolve(base64);
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
+import { checkIfCurrentStoryIsShared } from '@/lib/data-utils';
 
 // Extended session interface that may include story data
 export interface SessionWithData extends Session {
@@ -97,6 +74,11 @@ export function newStory() {
   store.set(StoryAtom, ExampleStories.Empty);
   store.set(CurrentSessionIdAtom, null); // Clear session ID for new story
   setInitialStoryState(ExampleStories.Empty);
+  
+  // Clear persisted session context when starting fresh
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem('currentSessionId');
+  }
 }
 
 const createStateProvider = (code: string) => {
@@ -242,6 +224,11 @@ export const importState = async (file: File) => {
   store.set(StoryAtom, decoded.story);
   store.set(CurrentSessionIdAtom, null); // Clear session ID for imported stories (treat as new)
   setInitialStoryState(decoded.story);
+  
+  // Clear persisted session context when importing
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem('currentSessionId');
+  }
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {
@@ -324,402 +311,6 @@ export function removeStoryAsset(assetName: string) {
   store.set(StoryAtom, { ...story, assets: updatedAssets });
 }
 
-export async function fetchMyStoriesData(endpoint: string, isAuthenticated: boolean) {
-  if (!isAuthenticated) return [];
-
-  try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/${endpoint}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
-    }
-
-    return await response.json();
-  } catch (err) {
-    console.error(`Error fetching ${endpoint}:`, err);
-    const errorMessage = err instanceof Error ? err.message : `Failed to fetch ${endpoint}`;
-    toast.error(errorMessage);
-    return [];
-  }
-}
-
-export function loadAllMyStoriesData(isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  // Set loading state
-  store.set(MyStoriesRequestStateAtom, { status: 'loading' });
-
-  // Fetch all data in parallel
-  Promise.all([
-    fetchMyStoriesData('session', isAuthenticated), // Sessions are always private, require auth
-    fetchMyStoriesData('story', isAuthenticated), // Stories are always public, but we still need auth to create/manage them
-  ])
-    .then(([sessionsPrivate, storiesPublic]) => {
-      store.set(MyStoriesDataAtom, {
-        'sessions-private': sessionsPrivate,
-        'stories-public': storiesPublic,
-      });
-      store.set(MyStoriesRequestStateAtom, { status: 'success' });
-
-      // Check if current story matches any shared stories
-      checkIfCurrentStoryIsShared(storiesPublic);
-    })
-    .catch((error) => {
-      console.error('Error loading my stories data:', error);
-      store.set(MyStoriesRequestStateAtom, { status: 'error', error: error.message });
-    });
-}
-
-export async function loadSession(sessionId: string) {
-  const store = getDefaultStore();
-  try {
-    store.set(IsSessionLoadingAtom, true);
-
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch session data: ${response.statusText}`);
-    }
-
-    const sessionResponse = await response.json();
-    const storyData = sessionResponse;
-
-    if (storyData?.story) {
-      store.set(StoryAtom, storyData.story);
-      store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
-      store.set(CurrentSessionIdAtom, sessionId); // Track that we're editing an existing session
-      setInitialStoryState(storyData.story);
-    } else {
-      throw new Error('No story data found in session');
-    }
-  } catch (err) {
-    console.error('Error loading session:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
-    toast.error(errorMessage);
-    store.set(CurrentSessionIdAtom, null); // Clear session ID on error
-  } finally {
-    store.set(IsSessionLoadingAtom, false);
-  }
-}
-
-export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: Session | StoryItem) {
-  try {
-    // For sessions, try to load story data into the builder
-    if (item.type === 'session') {
-      router.push(`/builder/?sessionId=${item.id}`);
-    } else if (item.type === 'story') {
-      // For stories, open in external MVS Stories viewer (stories are MVS data, not story format)
-      let storyUrl: string;
-
-      if (item.public_uri) {
-        // Use the backend-provided public_uri if available
-        storyUrl = item.public_uri;
-      } else {
-        // Stories are always public, use the public API endpoint
-        storyUrl = `${API_CONFIG.baseUrl}/api/story/${item.id}/data`;
-      }
-
-      const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(storyUrl)}`;
-      window.open(molstarUrl, '_blank');
-    } else {
-      toast.error('Unknown item type');
-    }
-  } catch (err) {
-    console.error('Error opening item:', err);
-    toast.error(err instanceof Error ? err.message : 'Failed to open item');
-  }
-}
-
-// Check if the current story matches any of the user's shared stories
-function checkIfCurrentStoryIsShared(sharedStories: StoryItem[]) {
-  const store = getDefaultStore();
-  const currentStory = store.get(StoryAtom);
-
-  // Find a matching shared story by comparing metadata and content
-  const matchingStory = sharedStories.find((sharedStory) => {
-    // For now, we'll do a simple comparison based on title
-    // In a more robust implementation, you might want to compare the actual story content
-    return sharedStory.title === currentStory.metadata.title;
-  });
-
-  if (matchingStory) {
-    // Use the public_uri from response and append /data?format=mvsj
-    const correctPublicUri = matchingStory.public_uri
-      ? `${matchingStory.public_uri}/data?format=mvsj`
-      : `${API_CONFIG.baseUrl}/api/story/${matchingStory.id}/data?format=mvsj`;
-
-    store.set(SharedStoryAtom, {
-      isShared: true,
-      storyId: matchingStory.id,
-      publicUri: correctPublicUri,
-      title: matchingStory.title,
-    });
-
-    // Set the last shared story to current state when a match is found
-    store.set(LastSharedStoryAtom, cloneStory(currentStory));
-  }
-}
-
-// Delete Actions
-export async function deleteSession(sessionId: string, isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  if (!isAuthenticated) {
-    toast.error('Authentication required');
-    return false;
-  }
-
-  try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete session: ${response.statusText}`);
-    }
-
-    // Remove from local state
-    const currentData = store.get(MyStoriesDataAtom);
-    const updatedSessions = (currentData['sessions-private'] as Session[]).filter(
-      (session: Session) => session.id !== sessionId
-    );
-
-    store.set(MyStoriesDataAtom, {
-      ...currentData,
-      'sessions-private': updatedSessions,
-    });
-
-    toast.success('Session deleted successfully');
-    return true;
-  } catch (err) {
-    console.error('Error deleting session:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to delete session';
-    toast.error(errorMessage);
-    return false;
-  }
-}
-
-export async function deleteStory(storyId: string, isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  if (!isAuthenticated) {
-    toast.error('Authentication required');
-    return false;
-  }
-
-  try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/story/${storyId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete story: ${response.statusText}`);
-    }
-
-    // Remove from local state
-    const currentData = store.get(MyStoriesDataAtom);
-    const updatedStories = (currentData['stories-public'] as StoryItem[]).filter(
-      (story: StoryItem) => story.id !== storyId
-    );
-
-    store.set(MyStoriesDataAtom, {
-      ...currentData,
-      'stories-public': updatedStories,
-    });
-
-    toast.success('Story deleted successfully');
-    return true;
-  } catch (err) {
-    console.error('Error deleting story:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to delete story';
-    toast.error(errorMessage);
-    return false;
-  }
-}
-
-export async function unshareStory(storyId: string, isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  if (!isAuthenticated) {
-    toast.error('Authentication required');
-    return false;
-  }
-
-  try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/story/${storyId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to unshare story: ${response.statusText}`);
-    }
-
-    // Remove from local state
-    const currentData = store.get(MyStoriesDataAtom);
-    const updatedStories = (currentData['stories-public'] as StoryItem[]).filter(
-      (story: StoryItem) => story.id !== storyId
-    );
-
-    store.set(MyStoriesDataAtom, {
-      ...currentData,
-      'stories-public': updatedStories,
-    });
-
-    // Reset shared story state if this was the currently shared story
-    const sharedStory = store.get(SharedStoryAtom);
-    if (sharedStory.storyId === storyId) {
-      store.set(SharedStoryAtom, {
-        isShared: false,
-        storyId: undefined,
-        publicUri: undefined,
-        title: undefined,
-      });
-    }
-
-    toast.success('Story share removed successfully');
-    return true;
-  } catch (err) {
-    console.error('Error unsharing story:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to remove story share';
-    toast.error(errorMessage);
-    return false;
-  }
-}
-
-export async function updateSharedStory(storyId: string, isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  if (!isAuthenticated) {
-    toast.error('Authentication required');
-    return false;
-  }
-
-  try {
-    const story = store.get(StoryAtom);
-
-    // Prepare story data for update
-    const data = await getMVSData(story);
-
-    // Prepare request body for story update
-    const requestBody: {
-      title: string;
-      description: string;
-      data: unknown;
-    } = {
-      title: story.metadata.title || 'Untitled Story',
-      description: '',
-      data: undefined, // to be filled below
-    };
-
-    // Handle data based on type
-    if (data instanceof Uint8Array) {
-      requestBody.data = await encodeUint8ArrayToBase64(data);
-    } else if (typeof data === 'string') {
-      requestBody.data = JSON.parse(data);
-    } else {
-      requestBody.data = data;
-    }
-
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/story/${storyId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to update story: ${response.statusText}`);
-    }
-
-    // Set the last shared story to current state (but don't reset initial story state)
-    store.set(LastSharedStoryAtom, cloneStory(story));
-
-    // Update shared story state with new title
-    const sharedStory = store.get(SharedStoryAtom);
-    if (sharedStory.storyId === storyId) {
-      store.set(SharedStoryAtom, {
-        ...sharedStory,
-        title: requestBody.title,
-      });
-    }
-
-    toast.success('Story updated successfully!', {
-      description: `Updated "${requestBody.title}"`,
-    });
-
-    return true;
-  } catch (err) {
-    console.error('Error updating story:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to update story';
-    toast.error(errorMessage);
-    return false;
-  }
-}
-
-export async function deleteAllUserContent(isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  if (!isAuthenticated) {
-    toast.error('Authentication required');
-    return false;
-  }
-
-  try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/user/delete-all`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete all content: ${response.statusText}`);
-    }
-
-    // Clear local state
-    const currentData = store.get(MyStoriesDataAtom);
-    store.set(MyStoriesDataAtom, {
-      ...currentData,
-      'sessions-private': [],
-      'stories-public': [],
-    });
-
-    toast.success('All content deleted successfully');
-    return true;
-  } catch (err) {
-    console.error('Error deleting all content:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to delete all content';
-    toast.error(errorMessage);
-    return false;
-  }
-}
-
-export async function fetchUserQuota(isAuthenticated: boolean) {
-  const store = getDefaultStore();
-
-  if (!isAuthenticated) {
-    store.set(UserQuotaAtom, null);
-    store.set(QuotaRequestStateAtom, { status: 'idle' });
-    return;
-  }
-
-  store.set(QuotaRequestStateAtom, { status: 'loading' });
-
-  try {
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/user/quota`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch quota: ${response.statusText}`);
-    }
-
-    const quota = await response.json();
-    store.set(UserQuotaAtom, quota);
-    store.set(QuotaRequestStateAtom, { status: 'success' });
-  } catch (err) {
-    console.error('Error fetching quota:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to fetch quota';
-    store.set(QuotaRequestStateAtom, { status: 'error', error: errorMessage });
-  }
-}
-
 // Unsaved Changes Tracking Utilities
 export function cloneStory(story: Story): Story {
   return {
@@ -758,8 +349,11 @@ export function setInitialStoryState(story: Story) {
 
   // Reset last shared story state when loading a new story
   store.set(LastSharedStoryAtom, null);
+}
 
-  // Check if this story matches any of the user's shared stories
+// Check if current story matches any shared stories (call explicitly when needed)
+export function checkCurrentStoryAgainstSharedStories() {
+  const store = getDefaultStore();
   const myStoriesData = store.get(MyStoriesDataAtom);
   if (myStoriesData['stories-public'].length > 0) {
     checkIfCurrentStoryIsShared(myStoriesData['stories-public'] as StoryItem[]);

@@ -3,7 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { BarChart3, FileText, Database } from 'lucide-react';
+import { BarChart3, FileText, BookOpen } from 'lucide-react';
 import { UserQuota } from '@/app/state/types';
 import { getUsagePercentage, getUsageColor } from './MyStoriesUtils';
 
@@ -95,10 +95,10 @@ export function StorageDialog({
                   icon={FileText}
                 />
                 <QuotaCard
-                  title='States'
-                  used={quota.states?.current ?? 0}
-                  limit={quota.states?.limit ?? 0}
-                  icon={Database}
+                  title='Stories'
+                  used={quota.stories?.current ?? 0}
+                  limit={quota.stories?.limit ?? 0}
+                  icon={BookOpen}
                 />
               </div>
               {onRefreshQuota && (

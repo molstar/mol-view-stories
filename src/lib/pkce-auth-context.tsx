@@ -1,7 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getValidTokens, clearTokens, startLogin, startPopupLogin, type AuthTokens } from './auth-utils';
+import { getValidTokens, clearTokens, startLogin, startPopupLogin, type AuthTokens } from './auth';
+import { getDefaultStore } from 'jotai';
+import { AuthStateAtom } from '@/app/state/atoms';
 
 // User profile type (extracted from id_token)
 export interface UserProfile {
@@ -124,31 +126,40 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
       if (tokens) {
         const user = tokensToUser(tokens);
         if (user) {
-          setAuthState({
+          const newAuthState = {
             isAuthenticated: true,
             isLoading: false,
             user,
             error: null,
-          });
+          };
+          setAuthState(newAuthState);
+          // Sync with atom
+          getDefaultStore().set(AuthStateAtom, { isAuthenticated: true });
           return;
         }
       }
 
       // No valid tokens
-      setAuthState({
+      const newAuthState = {
         isAuthenticated: false,
         isLoading: false,
         user: null,
         error: null,
-      });
+      };
+      setAuthState(newAuthState);
+      // Sync with atom
+      getDefaultStore().set(AuthStateAtom, { isAuthenticated: false });
     } catch (error) {
       console.error('Auth initialization failed:', error);
-      setAuthState({
+      const newAuthState = {
         isAuthenticated: false,
         isLoading: false,
         user: null,
         error: error instanceof Error ? error.message : 'Authentication failed',
-      });
+      };
+      setAuthState(newAuthState);
+      // Sync with atom
+      getDefaultStore().set(AuthStateAtom, { isAuthenticated: false });
     }
   }, []);
 
@@ -161,12 +172,15 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
   // Remove user (logout)
   const removeUser = useCallback(() => {
     clearTokens();
-    setAuthState({
+    const newAuthState = {
       isAuthenticated: false,
       isLoading: false,
       user: null,
       error: null,
-    });
+    };
+    setAuthState(newAuthState);
+    // Sync with atom
+    getDefaultStore().set(AuthStateAtom, { isAuthenticated: false });
 
     // Redirect to home page and clear any OAuth parameters from URL
     if (typeof window !== 'undefined') {

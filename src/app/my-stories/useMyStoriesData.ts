@@ -2,16 +2,13 @@
 
 import { useEffect, useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { MyStoriesDataAtom, MyStoriesRequestStateAtom, UserQuotaAtom, QuotaRequestStateAtom } from '@/app/state/atoms';
+import { MyStoriesDataAtom, MyStoriesStatusAtom, UserQuotaAtom } from '@/app/state/atoms';
 import {
-  loadAllMyStoriesData,
-  openItemInBuilder,
-  deleteSession,
-  deleteStory,
-  deleteAllUserContent,
-  fetchUserQuota,
   type SessionWithData,
 } from '@/app/state/actions';
+import { loadAllMyStoriesData, openItemInBuilder } from '@/lib/my-stories-api';
+import { deleteSession, deleteStory, deleteAllUserContent, deleteAllSessions, deleteAllStories } from '@/lib/content-crud';
+import { loadUserQuota } from '@/lib/storage-api';
 import { Session, StoryItem } from '@/app/state/types';
 import { useRouter } from 'next/navigation';
 
@@ -19,18 +16,17 @@ export type { SessionWithData };
 
 export function useMyStoriesData(isAuthenticated: boolean) {
   const [myStoriesData] = useAtom(MyStoriesDataAtom);
-  const [requestState] = useAtom(MyStoriesRequestStateAtom);
-  const [quota] = useAtom(UserQuotaAtom);
-  const [quotaRequestState] = useAtom(QuotaRequestStateAtom);
+  const [myStoriesStatus] = useAtom(MyStoriesStatusAtom);
+  const [quotaStatus] = useAtom(UserQuotaAtom);
   const router = useRouter();
 
   const loadAllData = useCallback(() => {
     loadAllMyStoriesData(isAuthenticated);
-    fetchUserQuota(isAuthenticated);
+    loadUserQuota();
   }, [isAuthenticated]);
 
   const loadQuota = () => {
-    fetchUserQuota(isAuthenticated);
+    loadUserQuota();
   };
 
   const handleOpenInBuilder = (item: Session | StoryItem) => {
@@ -41,7 +37,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     const success = await deleteSession(sessionId, isAuthenticated);
     if (success) {
       // Refresh quota after successful deletion
-      fetchUserQuota(isAuthenticated);
+      loadUserQuota();
     }
     return success;
   };
@@ -50,7 +46,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     const success = await deleteStory(storyId, isAuthenticated);
     if (success) {
       // Refresh quota after successful deletion
-      fetchUserQuota(isAuthenticated);
+      loadUserQuota();
     }
     return success;
   };
@@ -59,7 +55,25 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     const success = await deleteAllUserContent(isAuthenticated);
     if (success) {
       // Refresh quota after successful deletion
-      fetchUserQuota(isAuthenticated);
+      loadUserQuota();
+    }
+    return success;
+  };
+
+  const handleDeleteAllSessions = async () => {
+    const success = await deleteAllSessions(isAuthenticated);
+    if (success) {
+      // Refresh quota after successful deletion
+      loadUserQuota();
+    }
+    return success;
+  };
+
+  const handleDeleteAllStories = async () => {
+    const success = await deleteAllStories(isAuthenticated);
+    if (success) {
+      // Refresh quota after successful deletion
+      loadUserQuota();
     }
     return success;
   };
@@ -73,16 +87,18 @@ export function useMyStoriesData(isAuthenticated: boolean) {
   return {
     sessions: myStoriesData['sessions-private'] as Session[],
     stories: myStoriesData['stories-public'] as StoryItem[],
-    loading: requestState.status === 'loading',
-    error: requestState.status === 'error' ? requestState.error : null,
-    quota,
-    quotaLoading: quotaRequestState.status === 'loading',
-    quotaError: quotaRequestState.status === 'error' ? quotaRequestState.error : null,
+    loading: myStoriesStatus.status === 'loading',
+    error: myStoriesStatus.status === 'error' ? myStoriesStatus.error : null,
+    quota: quotaStatus.status === 'success' ? quotaStatus.data : null,
+    quotaLoading: quotaStatus.status === 'loading',
+    quotaError: quotaStatus.status === 'error' ? quotaStatus.error : null,
     loadAllData,
     loadQuota,
     handleOpenInBuilder,
     handleDeleteSession,
     handleDeleteStory,
     handleDeleteAllContent,
+    handleDeleteAllSessions,
+    handleDeleteAllStories,
   };
 }

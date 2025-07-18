@@ -10,29 +10,15 @@ import {
   ShareModalAtom,
   SharedStoryAtom,
   LastSharedStoryAtom,
-  type SaveFormData,
   type SaveType,
 } from './atoms';
 import { type Story, type StoryContainer } from './types';
-import { authenticatedFetch } from '@/lib/auth-utils';
+import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
+import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
 import { getMVSData, resetInitialStoryState, cloneStory } from './actions';
 
-// Helper function to safely encode large Uint8Array to base64
-function encodeUint8ArrayToBase64(data: Uint8Array): Promise<string> {
-  const blob = new Blob([data], { type: 'application/octet-stream' });
-  const reader = new FileReader();
-
-  return new Promise((resolve, reject) => {
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(',')[1]; // Remove data: prefix
-      resolve(base64);
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
+// encodeUint8ArrayToBase64 is imported from @/lib/data-utils
 
 // SaveDialog Actions
 export function openSaveDialog(options: { saveType: SaveType; sessionId?: string; saveAsNew?: boolean }) {
@@ -40,10 +26,9 @@ export function openSaveDialog(options: { saveType: SaveType; sessionId?: string
   const story = store.get(StoryAtom);
   const currentSessionId = store.get(CurrentSessionIdAtom);
 
-  const formData: SaveFormData = {
+  const formData = {
     title: story.metadata.title || 'Untitled Session',
     description: '',
-    // Note: No visibility field - sessions are always private, stories are always public
   };
 
   // Determine the session ID: use provided sessionId, or current session (unless saveAsNew is true)
@@ -54,9 +39,9 @@ export function openSaveDialog(options: { saveType: SaveType; sessionId?: string
 
   store.set(SaveDialogAtom, {
     isOpen: true,
+    status: 'idle',
     saveType: options.saveType,
     sessionId: sessionId,
-    isSaving: false,
     formData,
   });
 }
@@ -67,7 +52,7 @@ export function closeSaveDialog() {
   store.set(SaveDialogAtom, { ...current, isOpen: false });
 }
 
-export function updateSaveDialogFormField(field: keyof SaveFormData, value: string) {
+export function updateSaveDialogFormField(field: keyof { title: string; description: string }, value: string) {
   const store = getDefaultStore();
   const current = store.get(SaveDialogAtom);
 
@@ -94,7 +79,7 @@ export async function shareStory(): Promise<boolean> {
   const story = store.get(StoryAtom);
 
   // Prepare form data for story save
-  const formData: SaveFormData = {
+  const formData = {
     title: story.metadata.title || 'Untitled Story',
     description: '',
     // Note: No visibility field needed - stories are always public
@@ -128,10 +113,13 @@ export async function shareStory(): Promise<boolean> {
 
       store.set(ShareModalAtom, {
         isOpen: true,
-        itemId: result.id,
-        itemTitle: formData.title,
-        itemType: 'story',
-        publicUri: correctPublicUri,
+        status: 'success',
+        data: {
+          itemId: result.id,
+          itemTitle: formData.title,
+          itemType: 'story',
+          publicUri: correctPublicUri,
+        },
       });
 
       // Update shared story state
@@ -177,7 +165,7 @@ async function prepareStateData(story: Story): Promise<Uint8Array | string> {
   }
 }
 
-async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: SaveFormData, sessionId?: string) {
+async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: { title: string; description: string }, sessionId?: string) {
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
@@ -257,7 +245,7 @@ export async function performSave() {
   }
 
   // Set saving state
-  store.set(SaveDialogAtom, { ...saveDialog, isSaving: true });
+  store.set(SaveDialogAtom, { ...saveDialog, status: 'saving' });
 
   try {
     let data: Uint8Array | string;
@@ -294,6 +282,16 @@ export async function performSave() {
     // Reset initial state to mark as saved
     resetInitialStoryState();
 
+    // Clear shared story state for sessions (sessions are private, not shared)
+    if (saveDialog.saveType === 'session') {
+      store.set(SharedStoryAtom, {
+        isShared: false,
+        storyId: undefined,
+        publicUri: undefined,
+        title: undefined,
+      });
+    }
+
     closeSaveDialog();
 
     // If this was a story save, show the share modal
@@ -305,10 +303,13 @@ export async function performSave() {
 
       store.set(ShareModalAtom, {
         isOpen: true,
-        itemId: result.id,
-        itemTitle: saveDialog.formData.title,
-        itemType: 'story',
-        publicUri: correctPublicUri,
+        status: 'success',
+        data: {
+          itemId: result.id,
+          itemTitle: saveDialog.formData.title,
+          itemType: 'story',
+          publicUri: correctPublicUri,
+        },
       });
 
       // Update shared story state
@@ -328,6 +329,6 @@ export async function performSave() {
   } finally {
     // Reset saving state
     const current = store.get(SaveDialogAtom);
-    store.set(SaveDialogAtom, { ...current, isSaving: false });
+    store.set(SaveDialogAtom, { ...current, status: 'idle' });
   }
 }

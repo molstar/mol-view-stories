@@ -23,16 +23,14 @@ import { SaveDialog, ShareModal } from './file-operations';
 import { openSaveDialog, shareStory } from '@/app/state/save-dialog-actions';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { StoryAtom, SharedStoryAtom, ShareModalAtom, HasStoryChangesSinceShareAtom } from '@/app/state/atoms';
+import { StoryAtom, SharedStoryAtom, ShareModalAtom, HasStoryChangesSinceShareAtom, ConfirmationDialogAtom } from '@/app/state/atoms';
 import {
   downloadStory,
   exportState,
   resetInitialStoryState,
-  unshareStory,
-  updateSharedStory,
 } from '@/app/state/actions';
+import { unshareStory, updateSharedStory } from '@/lib/content-crud';
 import { ConfirmDialog } from '../ui/confirm-dialog';
 
 export function StoryActionButtons() {
@@ -40,89 +38,124 @@ export function StoryActionButtons() {
   const story = useAtomValue(StoryAtom);
   const sharedStory = useAtomValue(SharedStoryAtom);
   const setShareModal = useSetAtom(ShareModalAtom);
-  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [showUnshareConfirm, setShowUnshareConfirm] = useState(false);
-  const [isUnsharing, setIsUnsharing] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const confirmationDialog = useAtomValue(ConfirmationDialogAtom);
+  const setConfirmationDialog = useSetAtom(ConfirmationDialogAtom);
 
   const { hasUnsavedChanges } = useUnsavedChanges();
   const hasStoryChangesSinceShare = useAtomValue(HasStoryChangesSinceShareAtom);
 
   const handleSaveClick = () => {
-    if (!auth.isAuthenticated && hasUnsavedChanges) {
-      // Show dialog that guides through local save → login → import flow
-      setShowUnsavedDialog(true);
-    } else if (auth.isAuthenticated) {
-      // Always allow direct save for authenticated users
+    if (!auth.isAuthenticated) {
+      setConfirmationDialog({
+        isOpen: true,
+        type: 'unsaved-changes',
+        title: 'Unsaved Changes',
+        message: 'You have unsaved changes. Choose how to preserve your work.',
+        confirmText: 'Save to Cloud',
+        cancelText: 'Cancel',
+        data: { hasUnsavedChanges: true },
+      });
+    } else {
       openSaveDialog({ saveType: 'session' });
-    }
-    // Note: If !auth.isAuthenticated && !hasUnsavedChanges, button is disabled
-  };
-
-  const handleExportSession = async () => {
-    try {
-      await exportState(story);
-      // Mark changes as saved since user has successfully exported
-      resetInitialStoryState();
-    } catch (error) {
-      console.error('Export session failed:', error);
     }
   };
 
   const handleShareClick = async () => {
     if (sharedStory.isShared) {
-      // Story is already shared, always show the share modal
       setShareModal({
         isOpen: true,
-        itemId: sharedStory.storyId!,
-        itemTitle: sharedStory.title!,
-        itemType: 'story',
-        publicUri: sharedStory.publicUri,
+        status: 'idle',
+        data: {
+          itemId: sharedStory.storyId!,
+          itemTitle: sharedStory.title!,
+          itemType: 'story',
+          publicUri: sharedStory.publicUri,
+        },
       });
     } else {
-      // Story is not shared yet, trigger the share process
       await shareStory();
     }
   };
 
-  const handleUnshare = async () => {
-    if (!sharedStory.storyId || !auth.isAuthenticated) return;
+  const handleViewShare = () => {
+    setShareModal({
+      isOpen: true,
+      status: 'idle',
+      data: {
+        itemId: sharedStory.storyId!,
+        itemTitle: sharedStory.title!,
+        itemType: 'story',
+        publicUri: sharedStory.publicUri,
+      },
+    });
+  };
 
-    setIsUnsharing(true);
-    try {
-      const success = await unshareStory(sharedStory.storyId, auth.isAuthenticated);
-      if (success) {
-        setShowUnshareConfirm(false);
-      }
-    } finally {
-      setIsUnsharing(false);
-    }
+  const handleUnshareConfirm = () => {
+    setConfirmationDialog({
+      isOpen: true,
+      type: 'unshare-story',
+      title: 'Remove',
+      message: `Are you sure you want to remove the share for "${sharedStory.title}"? This will permanently delete the public link and the story will no longer be accessible to others. Your saved session will be unaffected.`,
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      data: { storyId: sharedStory.storyId },
+    });
   };
 
   const handleUpdateShare = async () => {
     if (!sharedStory.storyId || !auth.isAuthenticated) return;
 
-    setIsUpdating(true);
+    setConfirmationDialog(prev => ({ ...prev, data: { ...(prev.data as object || {}), isUpdating: true } }));
     try {
       const success = await updateSharedStory(sharedStory.storyId, auth.isAuthenticated);
       if (success) {
-        // Close the share modal if it's open
-        setShareModal({
-          isOpen: false,
-          itemId: null,
-          itemTitle: '',
-          itemType: 'story',
-          publicUri: undefined,
-        });
+        // Success is handled by the action
       }
+    } catch (error) {
+      console.error('Update failed:', error);
     } finally {
-      setIsUpdating(false);
+      setConfirmationDialog(prev => ({ ...prev, data: { ...(prev.data as object || {}), isUpdating: false } }));
     }
   };
 
+  const handleConfirmationAction = async () => {
+    if (confirmationDialog.type === 'unshare-story') {
+      const storyId = (confirmationDialog.data as { storyId?: string })?.storyId;
+      if (!storyId || !auth.isAuthenticated) return;
+
+      setConfirmationDialog(prev => ({ ...prev, data: { ...(prev.data as object || {}), isLoading: true } }));
+      try {
+        const success = await unshareStory(storyId, auth.isAuthenticated);
+        if (success) {
+          setConfirmationDialog(prev => ({ ...prev, isOpen: false }));
+        }
+      } catch (error) {
+        console.error('Unshare failed:', error);
+      } finally {
+        setConfirmationDialog(prev => ({ ...prev, data: { ...(prev.data as object || {}), isLoading: false } }));
+      }
+    } else if (confirmationDialog.type === 'unsaved-changes') {
+      // Handle unsaved changes confirmation
+      if (!auth.isAuthenticated) {
+        try {
+          const result = await auth.signinPopup();
+          if (result.success) {
+            openSaveDialog({ saveType: 'session' });
+            setConfirmationDialog(prev => ({ ...prev, isOpen: false }));
+          }
+        } catch (error) {
+          console.error('Login failed:', error);
+        }
+      }
+    }
+  };
+
+  const isUpdating = (confirmationDialog.data as { isUpdating?: boolean })?.isUpdating || false;
+  const isUnsharing = (confirmationDialog.data as { isLoading?: boolean })?.isLoading || false;
+
   return (
     <div className='flex gap-2'>
-      {/* Unsaved changes indicator */}
+      {/* Unsaved changes indicator button */}
       {hasUnsavedChanges && (
         <Tooltip delayDuration={250}>
           <TooltipTrigger asChild>
@@ -133,7 +166,7 @@ export function StoryActionButtons() {
                 'gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700',
                 'hover:bg-amber-50 border border-amber-200'
               )}
-              onClick={() => setShowUnsavedDialog(true)}
+              onClick={handleSaveClick}
             >
               <AlertCircle className='size-4' />
               Unsaved Changes
@@ -143,43 +176,22 @@ export function StoryActionButtons() {
         </Tooltip>
       )}
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant='outline' size='sm' className='gap-1.5 text-sm font-medium'>
-            <DownloadIcon className='size-4' />
-            Export
-            <ChevronDownIcon className='size-3.5 opacity-60' />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end' className='min-w-[160px]'>
-          <DropdownMenuItem onClick={() => downloadStory(story, 'state')} className='gap-2'>
-            <DownloadIcon className='size-4' />
-            Download MolViewSpec
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => downloadStory(story, 'html')} className='gap-2'>
-            <DownloadIcon className='size-4' />
-            Download HTML
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExportSession} className='gap-2'>
-            <DownloadIcon className='size-4' />
-            Download Session
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
+      {/* Save button with yellow dot indicator for unsaved changes */}
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
           <Button
-            variant='outline'
-            size='sm'
-            className='gap-1.5 text-sm font-medium'
             onClick={handleSaveClick}
-            disabled={!auth.isAuthenticated}
+            size='sm'
+            className={cn(
+              'relative',
+              hasUnsavedChanges && 'pr-7' // Add padding for dot
+            )}
           >
-            <CloudIcon className='size-4' />
+            <CloudIcon className='size-4 mr-1.5' />
             Save
-            {hasUnsavedChanges && <span className='w-2 h-2 bg-amber-500 rounded-full' />}
+            {hasUnsavedChanges && (
+              <div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-background' />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -191,60 +203,47 @@ export function StoryActionButtons() {
         </TooltipContent>
       </Tooltip>
 
-      {sharedStory.isShared ? (
-        // Dropdown menu for shared stories
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant='default'
-              size='sm'
-              className='gap-1.5 text-sm font-medium bg-green-600 hover:bg-green-700 text-white border-green-600'
-              disabled={!auth.isAuthenticated}
-            >
-              <LinkIcon className='size-4' />
-              View Share
-              <span className='w-2 h-2 bg-white rounded-full' />
-              {hasStoryChangesSinceShare && <span className='w-2 h-2 bg-amber-500 rounded-full' />}
-              <ChevronDownIcon className='size-3.5 opacity-60' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='min-w-[160px]'>
-            <DropdownMenuItem onClick={handleShareClick} className='gap-2'>
-              <ScanEyeIcon className='size-4' />
-              View
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleUpdateShare}
-              disabled={isUpdating || !hasStoryChangesSinceShare}
-              className='gap-2'
-              title={!hasStoryChangesSinceShare ? 'No changes to update' : ''}
-            >
-              <ArrowUpFromLineIcon className='size-4' />
-              {isUpdating ? 'Updating...' : 'Update'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setShowUnshareConfirm(true)}
-              className='gap-2 text-destructive focus:text-destructive'
-            >
-              <Trash2 className='size-4' />
-              Remove
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        // Regular button for unshared stories
+      {/* Export dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='outline' size='sm'>
+            <DownloadIcon className='size-4 mr-1.5' />
+            Export
+            <ChevronDownIcon className='size-3 ml-1' />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuItem
+            onClick={async () => {
+              try {
+                await exportState(story);
+                resetInitialStoryState();
+              } catch (error) {
+                console.error('Export failed:', error);
+              }
+            }}
+          >
+            <DownloadIcon className='size-4 mr-2' />
+            Export Session (.mvs)
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => downloadStory(story, 'html')}>
+            <ArrowUpFromLineIcon className='size-4 mr-2' />
+            Export Story (.html)
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Share button - Green when shared, with yellow dot for changes */}
+      {!sharedStory.isShared ? (
         <Tooltip delayDuration={250}>
           <TooltipTrigger asChild>
             <Button
+              onClick={handleShareClick}
               variant='outline'
               size='sm'
-              className='gap-1.5 text-sm font-medium'
-              onClick={handleShareClick}
               disabled={!auth.isAuthenticated}
-              title={!auth.isAuthenticated ? 'You must be logged in to share stories' : ''}
             >
-              <LinkIcon className='size-4' />
+              <LinkIcon className='size-4 mr-1.5' />
               Share
             </Button>
           </TooltipTrigger>
@@ -252,32 +251,75 @@ export function StoryActionButtons() {
             {auth.isAuthenticated ? 'Share your session with others' : 'You must be logged in to share stories'}
           </TooltipContent>
         </Tooltip>
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size='sm'
+              className={cn(
+                'bg-green-600 hover:bg-green-700 text-white relative',
+                hasStoryChangesSinceShare && 'pr-7' // Add padding for dot
+              )}
+            >
+              <LinkIcon className='size-4 mr-1.5' />
+              Shared
+              <ChevronDownIcon className='size-3 ml-1' />
+              {hasStoryChangesSinceShare && (
+                <div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-background' />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem onClick={handleViewShare} className='gap-2'>
+              <ScanEyeIcon className='size-4' />
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleUpdateShare}
+              disabled={isUpdating || !hasStoryChangesSinceShare}
+              className='gap-2'
+            >
+              <ArrowUpFromLineIcon className='size-4' />
+              {isUpdating ? 'Updating...' : 'Update'}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleUnshareConfirm}
+              className='gap-2 text-destructive focus:text-destructive'
+            >
+              <Trash2 className='size-4' />
+              Remove
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
 
       <SaveDialog />
       <ShareModal />
 
+      {/* Unified Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmationDialog.isOpen}
+        onOpenChange={(open) => setConfirmationDialog(prev => ({ ...prev, isOpen: open }))}
+        title={confirmationDialog.title}
+        description={confirmationDialog.message}
+        confirmText={confirmationDialog.confirmText}
+        cancelText={confirmationDialog.cancelText}
+        onConfirm={handleConfirmationAction}
+        isDestructive={confirmationDialog.type === 'unshare-story'}
+        isLoading={isUnsharing}
+      />
+
+      {/* Unsaved Changes Dialog - Custom component for complex unsaved changes flow */}
       <UnsavedChangesDialog
-        isOpen={showUnsavedDialog}
-        onClose={() => setShowUnsavedDialog(false)}
+        isOpen={confirmationDialog.isOpen && confirmationDialog.type === 'unsaved-changes'}
+        onClose={() => setConfirmationDialog(prev => ({ ...prev, isOpen: false }))}
         onExportLocally={() => {
           // Export is handled in the dialog
         }}
         onDiscardChanges={() => {
           // Changes are now properly discarded in the dialog
         }}
-      />
-
-      <ConfirmDialog
-        open={showUnshareConfirm}
-        onOpenChange={setShowUnshareConfirm}
-        title='Remove'
-        description={`Are you sure you want to remove the share for "${sharedStory.title}"? This will permanently delete the public link and the story will no longer be accessible to others. Your saved session will be unaffected.`}
-        confirmText='Remove'
-        cancelText='Cancel'
-        onConfirm={handleUnshare}
-        isDestructive={true}
-        isLoading={isUnsharing}
       />
     </div>
   );
