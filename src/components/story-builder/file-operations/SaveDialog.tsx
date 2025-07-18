@@ -23,13 +23,13 @@ export function SaveDialog() {
     // Temporarily clear sessionId to force creating a new session, then save immediately
     const store = getDefaultStore();
     const currentSaveDialog = store.get(SaveDialogAtom);
-    
+
     // Temporarily clear sessionId to create new session
     store.set(SaveDialogAtom, { ...currentSaveDialog, sessionId: undefined });
-    
+
     // Perform the save immediately
     const success = await performSave();
-    
+
     // If save failed, restore the original sessionId
     if (!success) {
       store.set(SaveDialogAtom, { ...currentSaveDialog });
@@ -45,7 +45,8 @@ export function SaveDialog() {
         <DialogHeader>
           <DialogTitle>{saveDialog.saveType === 'session' ? 'Save Session' : 'Share Story'}</DialogTitle>
           <DialogDescription>
-            {saveDialog.saveType === 'session' && 'Save your session to the cloud for later access'}
+            {saveDialog.saveType === 'session' &&
+              'Save your session to the cloud for later access. You can add a note to help you remember what this session contains.'}
             {saveDialog.saveType === 'story' && 'Share your story with the world'}
           </DialogDescription>
         </DialogHeader>
@@ -53,20 +54,10 @@ export function SaveDialog() {
         {saveDialog.saveType === 'session' && (
           <div className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='title'>Title</Label>
-              <Input
-                id='title'
-                placeholder='Enter session title'
-                value={saveDialog.formData.title}
-                onChange={(e) => handleFieldChange('title', e.target.value)}
-              />
-            </div>
-
-            <div className='space-y-2'>
               <Label htmlFor='description'>Note</Label>
               <Textarea
                 id='description'
-                placeholder=''
+                placeholder='Add a note to help you remember what this session contains (optional)'
                 value={saveDialog.formData.description}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   handleFieldChange('description', e.target.value)
@@ -106,19 +97,19 @@ export function SaveDialog() {
           <Button variant='outline' onClick={closeSaveDialog} disabled={saveDialog.isSaving}>
             Cancel
           </Button>
-          
+
           {isEditingExistingSession && (
             <Button variant='outline' onClick={handleSaveAs} disabled={saveDialog.isSaving || !auth.isAuthenticated}>
               Save As New
             </Button>
           )}
-          
+
           <Button onClick={performSave} disabled={saveDialog.isSaving || !auth.isAuthenticated}>
             {saveDialog.isSaving
               ? 'Saving...'
               : isEditingExistingSession
-              ? 'Update Session'
-              : `${saveDialog.saveType === 'session' ? 'Save Session' : 'Share Story'}`}
+                ? 'Update Session'
+                : `${saveDialog.saveType === 'session' ? 'Save Session' : 'Share Story'}`}
           </Button>
         </div>
       </DialogContent>

@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { unshareStory, updateSharedStory } from '@/app/state/actions';
 import { useAuth } from '@/app/providers';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export function ShareModal() {
   const shareModal = useAtomValue(ShareModalAtom);
@@ -24,7 +23,6 @@ export function ShareModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showUnshareConfirm, setShowUnshareConfirm] = useState(false);
   const auth = useAuth();
-  const { hasUnsavedChanges } = useUnsavedChanges();
   const hasStoryChangesSinceShare = useAtomValue(HasStoryChangesSinceShareAtom);
 
   const handleClose = () => {
@@ -52,15 +50,16 @@ export function ShareModal() {
 
   const openInMolstar = () => {
     if (!shareModal.itemId) return;
-    
-    const publicUrl = shareModal.publicUri || `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
+
+    const publicUrl =
+      shareModal.publicUri || `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
     const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(publicUrl)}`;
     window.open(molstarUrl, '_blank');
   };
 
   const handleUnshare = async () => {
     if (!shareModal.itemId || !auth.isAuthenticated) return;
-    
+
     setIsUnsharing(true);
     try {
       const success = await unshareStory(shareModal.itemId, auth.isAuthenticated);
@@ -74,7 +73,7 @@ export function ShareModal() {
 
   const handleUpdateShare = async () => {
     if (!shareModal.itemId || !auth.isAuthenticated) return;
-    
+
     setIsUpdating(true);
     try {
       const success = await updateSharedStory(shareModal.itemId, auth.isAuthenticated);
@@ -90,7 +89,8 @@ export function ShareModal() {
     return null;
   }
 
-  const publicUrl = shareModal.publicUri || `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
+  const publicUrl =
+    shareModal.publicUri || `${API_CONFIG.baseUrl}/api/${shareModal.itemType}/${shareModal.itemId}/data?format=mvsj`;
   const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(publicUrl)}`;
 
   return (
@@ -102,8 +102,8 @@ export function ShareModal() {
             &ldquo;{shareModal.itemTitle}&rdquo; Story
           </DialogTitle>
           <DialogDescription>
-            This {shareModal.itemType} has been saved and is now publicly accessible. 
-            Share the URL below or open it directly in Mol*. You can also update the shared content with your current changes.
+            This {shareModal.itemType} has been saved and is now publicly accessible. Share the URL below or open it
+            directly in Mol*. You can also update the shared content with your current changes.
           </DialogDescription>
         </DialogHeader>
 
@@ -111,12 +111,7 @@ export function ShareModal() {
           <div className='space-y-2'>
             <Label htmlFor='public-url'>Public URL</Label>
             <div className='flex gap-2'>
-              <Input
-                id='public-url'
-                value={publicUrl}
-                readOnly
-                className='font-mono text-sm'
-              />
+              <Input id='public-url' value={publicUrl} readOnly className='font-mono text-sm' />
               <Button
                 variant='outline'
                 size='sm'
@@ -130,20 +125,13 @@ export function ShareModal() {
                 )}
               </Button>
             </div>
-            <p className='text-xs text-muted-foreground'>
-              This URL provides direct access to the molecular data
-            </p>
+            <p className='text-xs text-muted-foreground'>This URL provides direct access to the molecular data</p>
           </div>
 
           <div className='space-y-2'>
             <Label htmlFor='molstar-url'>Mol* Viewer URL</Label>
             <div className='flex gap-2'>
-              <Input
-                id='molstar-url'
-                value={molstarUrl}
-                readOnly
-                className='font-mono text-sm'
-              />
+              <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
               <Button
                 variant='outline'
                 size='sm'
@@ -157,9 +145,7 @@ export function ShareModal() {
                 )}
               </Button>
             </div>
-            <p className='text-xs text-muted-foreground'>
-              Opens the story in the interactive Molstar viewer
-            </p>
+            <p className='text-xs text-muted-foreground'>Opens the story in the interactive Molstar viewer</p>
           </div>
         </div>
 
@@ -168,11 +154,11 @@ export function ShareModal() {
             <ExternalLink className='size-4' />
             Open in Mol*
           </Button>
-          
+
           <div className='flex gap-2'>
             <Tooltip delayDuration={250}>
               <TooltipTrigger asChild>
-                <Button 
+                <Button
                   variant='outline'
                   onClick={handleUpdateShare}
                   disabled={isUpdating || !auth.isAuthenticated || !hasStoryChangesSinceShare}
@@ -183,17 +169,16 @@ export function ShareModal() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {!auth.isAuthenticated 
+                {!auth.isAuthenticated
                   ? 'You must be logged in to update stories'
                   : !hasStoryChangesSinceShare
-                  ? 'No changes to update'
-                  : 'Update the shared story with your current changes'
-                }
+                    ? 'No changes to update'
+                    : 'Update the shared story with your current changes'}
               </TooltipContent>
             </Tooltip>
-            
-            <Button 
-              variant='destructive' 
+
+            <Button
+              variant='destructive'
               onClick={() => setShowUnshareConfirm(true)}
               disabled={!auth.isAuthenticated}
               className='gap-2'
@@ -201,25 +186,23 @@ export function ShareModal() {
               <Trash2 className='size-4' />
               Remove
             </Button>
-            
-            <Button onClick={handleClose}>
-              Done
-            </Button>
+
+            <Button onClick={handleClose}>Done</Button>
           </div>
         </div>
       </DialogContent>
-      
+
       <ConfirmDialog
         open={showUnshareConfirm}
         onOpenChange={setShowUnshareConfirm}
-        title="Remove"
+        title='Remove'
         description={`Are you sure you want to remove the share for "${shareModal.itemTitle}"? This will permanently delete the public link and the story will no longer be accessible to others. Your saved session will not be affected.`}
-        confirmText="Remove"
-        cancelText="Cancel"
+        confirmText='Remove'
+        cancelText='Cancel'
         onConfirm={handleUnshare}
         isDestructive={true}
         isLoading={isUnsharing}
       />
     </Dialog>
   );
-} 
+}

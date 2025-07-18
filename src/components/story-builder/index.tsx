@@ -19,7 +19,7 @@ export default function StoryBuilderPage() {
   const templateName = searchParams.get('template');
   const sessionId = searchParams.get('sessionId');
   const [mounted, setMounted] = useState(false);
-  
+
   // Enable unsaved changes tracking and beforeunload warning
   useUnsavedChanges();
 
@@ -45,7 +45,7 @@ export default function StoryBuilderPage() {
     store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
     store.set(CurrentSessionIdAtom, null); // Clear session ID for template stories
-    
+
     // Initialize unsaved changes tracking
     setInitialStoryState(story);
 
@@ -130,14 +130,14 @@ function StoryPreview() {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     let isMounted = true;
 
     async function build() {
       try {
         const data = await getMVSData(story);
         if (!isMounted) return;
-        
+
         const htmlContent = generateStoriesHtml(data);
         if (typeof window !== 'undefined') {
           const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));

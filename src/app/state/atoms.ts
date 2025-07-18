@@ -39,7 +39,7 @@ export type SaveDialogState = {
 function compareStories(currentStory: Story, initialStory: Story): boolean {
   // Fast path: reference equality
   if (currentStory === initialStory) return true;
-  
+
   // Compare metadata and javascript
   if (JSON.stringify(currentStory.metadata) !== JSON.stringify(initialStory.metadata)) {
     return false;
@@ -47,43 +47,45 @@ function compareStories(currentStory: Story, initialStory: Story): boolean {
   if (currentStory.javascript !== initialStory.javascript) {
     return false;
   }
-  
+
   // Compare scenes (excluding IDs which are for navigation only)
   if (currentStory.scenes.length !== initialStory.scenes.length) {
     return false;
   }
-  
+
   for (let i = 0; i < currentStory.scenes.length; i++) {
     const currentScene = currentStory.scenes[i];
     const initialScene = initialStory.scenes[i];
-    
+
     // Compare all scene properties except ID
-    if (currentScene.header !== initialScene.header ||
-        currentScene.key !== initialScene.key ||
-        currentScene.description !== initialScene.description ||
-        currentScene.javascript !== initialScene.javascript ||
-        currentScene.linger_duration_ms !== initialScene.linger_duration_ms ||
-        currentScene.transition_duration_ms !== initialScene.transition_duration_ms ||
-        JSON.stringify(currentScene.camera) !== JSON.stringify(initialScene.camera)) {
+    if (
+      currentScene.header !== initialScene.header ||
+      currentScene.key !== initialScene.key ||
+      currentScene.description !== initialScene.description ||
+      currentScene.javascript !== initialScene.javascript ||
+      currentScene.linger_duration_ms !== initialScene.linger_duration_ms ||
+      currentScene.transition_duration_ms !== initialScene.transition_duration_ms ||
+      JSON.stringify(currentScene.camera) !== JSON.stringify(initialScene.camera)
+    ) {
       return false;
     }
   }
-  
+
   // Compare assets separately to avoid expensive JSON.stringify on Uint8Arrays
   if (currentStory.assets.length !== initialStory.assets.length) {
     return false;
   }
-  
+
   return currentStory.assets.every((currentAsset, i) => {
     const initialAsset = initialStory.assets[i];
     if (currentAsset.name !== initialAsset.name) return false;
     if (currentAsset.content.length !== initialAsset.content.length) return false;
-    
+
     // Byte-by-byte comparison for binary content
     for (let j = 0; j < currentAsset.content.length; j++) {
       if (currentAsset.content[j] !== initialAsset.content[j]) return false;
     }
-    
+
     return true;
   });
 }
@@ -226,7 +228,7 @@ export const LastSharedStoryAtom = atom<Story | null>(null);
 export const HasUnsavedChangesAtom = atom((get) => {
   const currentStory = get(StoryAtom);
   const initialStory = get(InitialStoryAtom);
-  
+
   // Use optimized comparison that handles binary assets efficiently
   return !compareStories(currentStory, initialStory);
 });
@@ -235,11 +237,11 @@ export const HasUnsavedChangesAtom = atom((get) => {
 export const HasStoryChangesSinceShareAtom = atom((get) => {
   const currentStory = get(StoryAtom);
   const lastSharedStory = get(LastSharedStoryAtom);
-  
+
   if (!lastSharedStory) {
     return false; // No story has been shared yet
   }
-  
+
   // Use optimized comparison that handles binary assets efficiently
   return !compareStories(currentStory, lastSharedStory);
 });

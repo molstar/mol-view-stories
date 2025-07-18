@@ -21,4 +21,4 @@ export const PKCE_KEYS = {
   STATE: 'oauth_state',
   POPUP_CODE_VERIFIER: 'oauth_popup_code_verifier', // Separate key for popup flow
   POPUP_STATE: 'oauth_popup_state',
-} as const; 
+} as const;

@@ -17,8 +17,11 @@ export function LoadingScreen({ isRedirectingToBuilder, isProcessingCallback, ha
         <div className='flex items-center justify-center h-full'>
           <div className='text-center'>
             <div className='text-lg text-muted-foreground'>
-              {isRedirectingToBuilder ? 'Redirecting to builder...' : 
-               isProcessingCallback || hasOAuthCode ? 'Completing login...' : 'Loading...'}
+              {isRedirectingToBuilder
+                ? 'Redirecting to builder...'
+                : isProcessingCallback || hasOAuthCode
+                  ? 'Completing login...'
+                  : 'Loading...'}
             </div>
           </div>
         </div>
@@ -48,4 +51,4 @@ export function AuthRequiredScreen() {
       </Main>
     </div>
   );
-} 
+}

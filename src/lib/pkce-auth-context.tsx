@@ -82,7 +82,6 @@ function decodeJWTPayload(token: string): JWTPayload | null {
 
 // Convert tokens to user object
 function tokensToUser(tokens: AuthTokens): AuthState['user'] | null {
-  
   if (!tokens.id_token) {
     return null;
   }
@@ -105,7 +104,7 @@ function tokensToUser(tokens: AuthTokens): AuthState['user'] | null {
     access_token: tokens.access_token,
     id_token: tokens.id_token,
   };
-  
+
   return user;
 }
 
@@ -168,21 +167,22 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
       user: null,
       error: null,
     });
-    
+
     // Redirect to home page and clear any OAuth parameters from URL
     if (typeof window !== 'undefined') {
       // Clean up any OAuth-related session storage
       sessionStorage.removeItem('post_login_redirect');
       sessionStorage.removeItem('oauth_code_verifier');
       sessionStorage.removeItem('oauth_state');
-      
-      // If we're on the my-stories page or have OAuth params, redirect to home
+
+      // If we're on the auth page or have OAuth params, redirect to home
       const currentPath = window.location.pathname;
-      const hasOAuthParams = window.location.search.includes('code=') || 
-                            window.location.search.includes('state=') ||
-                            window.location.search.includes('error=');
-      
-      if (currentPath === '/my-stories' || hasOAuthParams) {
+      const hasOAuthParams =
+        window.location.search.includes('code=') ||
+        window.location.search.includes('state=') ||
+        window.location.search.includes('error=');
+
+      if (currentPath === '/auth' || hasOAuthParams) {
         window.location.href = '/';
       } else {
         // Just clean the URL if we have OAuth params but are on a different page

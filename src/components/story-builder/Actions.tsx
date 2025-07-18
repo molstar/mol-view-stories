@@ -1,5 +1,14 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { DownloadIcon, ArrowUpFromLineIcon,ChevronDownIcon, LinkIcon, CloudIcon, AlertCircle, Trash2, ScanEyeIcon } from 'lucide-react';
+import {
+  DownloadIcon,
+  ArrowUpFromLineIcon,
+  ChevronDownIcon,
+  LinkIcon,
+  CloudIcon,
+  AlertCircle,
+  Trash2,
+  ScanEyeIcon,
+} from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -17,7 +26,13 @@ import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { StoryAtom, SharedStoryAtom, ShareModalAtom, HasStoryChangesSinceShareAtom } from '@/app/state/atoms';
-import { downloadStory, exportState, resetInitialStoryState, unshareStory, updateSharedStory } from '@/app/state/actions';
+import {
+  downloadStory,
+  exportState,
+  resetInitialStoryState,
+  unshareStory,
+  updateSharedStory,
+} from '@/app/state/actions';
 import { ConfirmDialog } from '../ui/confirm-dialog';
 
 export function StoryActionButtons() {
@@ -29,7 +44,7 @@ export function StoryActionButtons() {
   const [showUnshareConfirm, setShowUnshareConfirm] = useState(false);
   const [isUnsharing, setIsUnsharing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  
+
   const { hasUnsavedChanges } = useUnsavedChanges();
   const hasStoryChangesSinceShare = useAtomValue(HasStoryChangesSinceShareAtom);
 
@@ -72,7 +87,7 @@ export function StoryActionButtons() {
 
   const handleUnshare = async () => {
     if (!sharedStory.storyId || !auth.isAuthenticated) return;
-    
+
     setIsUnsharing(true);
     try {
       const success = await unshareStory(sharedStory.storyId, auth.isAuthenticated);
@@ -86,7 +101,7 @@ export function StoryActionButtons() {
 
   const handleUpdateShare = async () => {
     if (!sharedStory.storyId || !auth.isAuthenticated) return;
-    
+
     setIsUpdating(true);
     try {
       const success = await updateSharedStory(sharedStory.storyId, auth.isAuthenticated);
@@ -124,9 +139,7 @@ export function StoryActionButtons() {
               Unsaved Changes
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            You have unsaved changes. Log in to save or export.
-          </TooltipContent>
+          <TooltipContent>You have unsaved changes. Log in to save or export.</TooltipContent>
         </Tooltip>
       )}
 
@@ -173,8 +186,8 @@ export function StoryActionButtons() {
           {auth.isAuthenticated
             ? 'Save your session to the cloud'
             : hasUnsavedChanges
-            ? 'Save your changes locally first, then log in to upload to cloud'
-            : 'You must be logged in to save sessions'}
+              ? 'Save your changes locally first, then log in to upload to cloud'
+              : 'You must be logged in to save sessions'}
         </TooltipContent>
       </Tooltip>
 
@@ -200,7 +213,7 @@ export function StoryActionButtons() {
               <ScanEyeIcon className='size-4' />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={handleUpdateShare}
               disabled={isUpdating || !hasStoryChangesSinceShare}
               className='gap-2'
@@ -210,8 +223,8 @@ export function StoryActionButtons() {
               {isUpdating ? 'Updating...' : 'Update'}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => setShowUnshareConfirm(true)} 
+            <DropdownMenuItem
+              onClick={() => setShowUnshareConfirm(true)}
               className='gap-2 text-destructive focus:text-destructive'
             >
               <Trash2 className='size-4' />
@@ -236,24 +249,17 @@ export function StoryActionButtons() {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {auth.isAuthenticated 
-              ? 'Share your session with others'
-              : 'You must be logged in to share stories'
-            }
+            {auth.isAuthenticated ? 'Share your session with others' : 'You must be logged in to share stories'}
           </TooltipContent>
         </Tooltip>
       )}
 
       <SaveDialog />
       <ShareModal />
-      
+
       <UnsavedChangesDialog
         isOpen={showUnsavedDialog}
         onClose={() => setShowUnsavedDialog(false)}
-        onLoginAndSave={() => {
-          // After login, the user can manually save
-          setShowUnsavedDialog(false);
-        }}
         onExportLocally={() => {
           // Export is handled in the dialog
         }}
@@ -261,14 +267,14 @@ export function StoryActionButtons() {
           // Changes are now properly discarded in the dialog
         }}
       />
-      
+
       <ConfirmDialog
         open={showUnshareConfirm}
         onOpenChange={setShowUnshareConfirm}
-        title="Remove"
+        title='Remove'
         description={`Are you sure you want to remove the share for "${sharedStory.title}"? This will permanently delete the public link and the story will no longer be accessible to others. Your saved session will be unaffected.`}
-        confirmText="Remove"
-        cancelText="Cancel"
+        confirmText='Remove'
+        cancelText='Cancel'
         onConfirm={handleUnshare}
         isDestructive={true}
         isLoading={isUnsharing}

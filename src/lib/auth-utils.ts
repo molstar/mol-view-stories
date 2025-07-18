@@ -3,7 +3,7 @@ import { OAUTH_CONFIG, PKCE_KEYS } from './config';
 // Helper function to get the redirect URI dynamically (used for both popup and redirect flows)
 function getRedirectUri(): string {
   if (typeof window === 'undefined') return '';
-  return `${window.location.origin}/my-stories`;
+  return `${window.location.origin}/auth`;
 }
 
 // Global refresh promise to prevent race conditions
@@ -58,10 +58,10 @@ export function getAndClearRedirectPath(): string {
 
   try {
     const redirectPath = sessionStorage.getItem('post_login_redirect');
-    
+
     // Clean up after retrieval
     sessionStorage.removeItem('post_login_redirect');
-    
+
     return redirectPath || '/';
   } catch (error) {
     console.warn('Failed to get redirect path:', error);
@@ -267,7 +267,11 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string, _us
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function exchangeCodeForTokens(code: string, codeVerifier: string, _usePopup = false): Promise<AuthTokens> {
+export async function exchangeCodeForTokens(
+  code: string,
+  codeVerifier: string,
+  _usePopup = false
+): Promise<AuthTokens> {
   const requestBody = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,
@@ -342,11 +346,12 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
 
       // Be more selective about when to clear tokens
       // Only clear tokens for specific error conditions that indicate permanent failure
-      if (response.status === 400 && (
-        errorText.includes('invalid_grant') || 
-        errorText.includes('invalid_refresh_token') ||
-        errorText.includes('EXPIRED_AUTHORIZATION_CREDENTIAL')
-      )) {
+      if (
+        response.status === 400 &&
+        (errorText.includes('invalid_grant') ||
+          errorText.includes('invalid_refresh_token') ||
+          errorText.includes('EXPIRED_AUTHORIZATION_CREDENTIAL'))
+      ) {
         console.log('❌ Refresh token is permanently invalid, clearing tokens');
         clearTokens();
       } else if (response.status === 401 && errorText.includes('INVALID_GRANT')) {
@@ -425,7 +430,7 @@ export async function startPopupLogin(): Promise<{
 
       // Save code verifier for later use
       savePopupCodeVerifier(codeVerifier);
-      
+
       // Build authorization URL for popup
       const authUrl = buildAuthorizationUrl(codeChallenge, state, true);
 
@@ -445,9 +450,9 @@ export async function startPopupLogin(): Promise<{
         if (popup.closed) {
           window.removeEventListener('message', messageHandler);
           clearPopupCodeVerifier();
-          resolve({ 
-            success: false, 
-            error: 'POPUP_BLOCKED'
+          resolve({
+            success: false,
+            error: 'POPUP_BLOCKED',
           });
         }
       }, 100);
@@ -464,7 +469,7 @@ export async function startPopupLogin(): Promise<{
         if (type === 'OAUTH_RESULT') {
           // Clean up
           window.removeEventListener('message', messageHandler);
-          
+
           if (!success) {
             clearPopupCodeVerifier();
             resolve({ success: false, error: error || 'Authentication failed' });
@@ -497,7 +502,7 @@ export async function startPopupLogin(): Promise<{
             clearPopupCodeVerifier();
             resolve({
               success: false,
-              error: error instanceof Error ? error.message : 'Token exchange failed'
+              error: error instanceof Error ? error.message : 'Token exchange failed',
             });
           }
         }
@@ -514,12 +519,11 @@ export async function startPopupLogin(): Promise<{
       }, 1000);
 
       window.addEventListener('message', messageHandler);
-
     } catch (error) {
       clearPopupCodeVerifier();
       resolve({
         success: false,
-        error: error instanceof Error ? error.message : 'Authentication failed'
+        error: error instanceof Error ? error.message : 'Authentication failed',
       });
     }
   });
@@ -549,7 +553,7 @@ export async function startLogin(): Promise<void> {
   }
 }
 
-// Handle OAuth callback for popup flow - to be used in /my-stories when window.opener exists
+// Handle OAuth callback for popup flow - to be used in /auth when window.opener exists
 export function handlePopupCallback(): void {
   try {
     // Get URL parameters
@@ -562,24 +566,33 @@ export function handlePopupCallback(): void {
     // Send result to parent window
     if (window.opener) {
       if (error) {
-        window.opener.postMessage({
-          type: 'OAUTH_RESULT',
-          success: false,
-          error: errorDescription || error
-        }, window.location.origin);
+        window.opener.postMessage(
+          {
+            type: 'OAUTH_RESULT',
+            success: false,
+            error: errorDescription || error,
+          },
+          window.location.origin
+        );
       } else if (code) {
-        window.opener.postMessage({
-          type: 'OAUTH_RESULT',
-          success: true,
-          code,
-          state
-        }, window.location.origin);
+        window.opener.postMessage(
+          {
+            type: 'OAUTH_RESULT',
+            success: true,
+            code,
+            state,
+          },
+          window.location.origin
+        );
       } else {
-        window.opener.postMessage({
-          type: 'OAUTH_RESULT',
-          success: false,
-          error: 'No authorization code received'
-        }, window.location.origin);
+        window.opener.postMessage(
+          {
+            type: 'OAUTH_RESULT',
+            success: false,
+            error: 'No authorization code received',
+          },
+          window.location.origin
+        );
       }
     }
 
@@ -587,27 +600,29 @@ export function handlePopupCallback(): void {
     window.close();
   } catch (error) {
     console.error('Popup callback handling failed:', error);
-    
+
     // Send error to parent
     if (window.opener) {
-      window.opener.postMessage({
-        type: 'OAUTH_RESULT',
-        success: false,
-        error: error instanceof Error ? error.message : 'Callback handling failed'
-      }, window.location.origin);
+      window.opener.postMessage(
+        {
+          type: 'OAUTH_RESULT',
+          success: false,
+          error: error instanceof Error ? error.message : 'Callback handling failed',
+        },
+        window.location.origin
+      );
     }
-    
+
     window.close();
   }
 }
 
-// Handle OAuth callback - to be used in /my-stories (redirect-based)
+// Handle OAuth callback - to be used in /auth (redirect-based)
 export async function handleOAuthCallback(): Promise<{
   success: boolean;
   redirectPath?: string;
   error?: string;
 }> {
-  
   try {
     // Check if this is an OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
@@ -627,8 +642,7 @@ export async function handleOAuthCallback(): Promise<{
 
     // Get stored code verifier
     const codeVerifier = getCodeVerifier();
-;
-    
+
     if (!codeVerifier) {
       throw new Error('No code verifier found in session');
     }
@@ -653,7 +667,6 @@ export async function handleOAuthCallback(): Promise<{
       redirectPath: redirectPath,
     };
   } catch (error) {
-
     // Clean up on error
     clearCodeVerifier();
     clearTokens();
@@ -692,7 +705,7 @@ export function debugTokenState(): void {
       expiresAt: expiresAt.toISOString(),
       minutesUntilExpiry,
       isExpired: now >= tokens.expires_at,
-      refreshInProgress: !!refreshPromise
+      refreshInProgress: !!refreshPromise,
     });
   } catch (error) {
     console.error('🔍 Token debug error:', error);
@@ -712,7 +725,7 @@ if (typeof window !== 'undefined') {
     debugTokenState,
     manualTokenRefresh,
     clearTokens: clearTokens,
-    getValidTokens: getValidTokens
+    getValidTokens: getValidTokens,
   };
   console.log('🔧 Auth debugging utilities available at window.authDebug');
 }

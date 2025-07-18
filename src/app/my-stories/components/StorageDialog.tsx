@@ -1,13 +1,7 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { BarChart3, FileText, Database } from 'lucide-react';
 import { UserQuota } from '@/app/state/types';
@@ -72,7 +66,7 @@ export function StorageDialog({
   quotaLoading,
   quotaError,
   onRefreshQuota,
-  }: StorageDialogProps) {
+}: StorageDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-md'>
@@ -81,9 +75,7 @@ export function StorageDialog({
             <BarChart3 className='h-5 w-5' />
             Storage & Quota
           </DialogTitle>
-          <DialogDescription className='text-base'>
-            View your storage usage and account limits
-          </DialogDescription>
+          <DialogDescription className='text-base'>View your storage usage and account limits</DialogDescription>
         </DialogHeader>
         <div className='space-y-4'>
           {quotaLoading ? (
@@ -131,4 +123,4 @@ export function StorageDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

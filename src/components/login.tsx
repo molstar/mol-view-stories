@@ -81,11 +81,11 @@ export function LoginButton() {
 
   const login = async () => {
     setIsRedirecting(true);
-    
+
     try {
       // Use popup-based login to preserve unsaved changes
       const result = await auth.signinPopup();
-      
+
       if (result.success) {
         toast.success('Login successful!', {
           position: 'top-center',
@@ -133,14 +133,7 @@ export function LoginButton() {
 
   return (
     <>
-      <Button 
-        variant={'default'}
-        onClick={login} 
-        disabled={isRedirecting} 
-        className={cn(
-          'cursor-pointer'
-        )}
-      >
+      <Button variant={'default'} onClick={login} disabled={isRedirecting} className={cn('cursor-pointer')}>
         <LogInIcon />
         {isRedirecting && 'Opening login...'}
         {!isRedirecting && 'Log in'}

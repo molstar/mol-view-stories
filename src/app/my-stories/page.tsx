@@ -15,15 +15,15 @@ import { handleOAuthCallback, handlePopupCallback } from '@/lib/auth-utils';
 import { useRouter } from 'next/navigation';
 
 // Import new components
-import { 
-  MyStoriesTable, 
-  LoadingScreen, 
+import {
+  MyStoriesTable,
+  LoadingScreen,
   AuthRequiredScreen,
-  filterItems, 
-  sortItems, 
+  filterItems,
+  sortItems,
   getDeleteDialogProps,
-  SortField, 
-  SortDirection 
+  SortField,
+  SortDirection,
 } from './components';
 import { LoginButton } from '@/components/login';
 
@@ -55,14 +55,14 @@ export default function MyStoriesPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const hasCode = urlParams.has('code');
     setHasOAuthCode(hasCode);
-    
+
     // Check if this is a popup window with OAuth callback
     if (hasCode && window.opener) {
       // This is a popup callback - handle it and close
       handlePopupCallback();
       return;
     }
-    
+
     // Early check: if we have OAuth code and likely came from builder, show redirecting state
     if (hasCode) {
       try {
@@ -81,26 +81,26 @@ export default function MyStoriesPage() {
     const processOAuthCallback = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
-      
+
       // Only process if we have a code and haven't processed it yet
       if (code && !callbackProcessed && !isProcessingCallback) {
         setIsProcessingCallback(true);
         setCallbackProcessed(true);
-        
+
         try {
           const result = await handleOAuthCallback();
-          
+
           if (result.success) {
             // Refresh the auth state after successful token exchange
             await auth.refreshAuth();
-            
+
             // Check if user should be redirected back to builder
             if (result.redirectPath?.startsWith('/builder')) {
               // Redirect back to builder if that's where they logged in from
               router.push(result.redirectPath);
               return;
             }
-            
+
             // If we're not redirecting, clear the redirecting state
             setIsRedirectingToBuilder(false);
           } else {
@@ -117,7 +117,7 @@ export default function MyStoriesPage() {
         }
       }
     };
-    
+
     processOAuthCallback();
   }, [auth, callbackProcessed, isProcessingCallback, router]);
 
@@ -186,7 +186,7 @@ export default function MyStoriesPage() {
   // Show loading during auth initialization, callback processing, or if we have OAuth code but haven't processed it yet
   if (auth.isLoading || isProcessingCallback || (hasOAuthCode && !auth.isAuthenticated) || isRedirectingToBuilder) {
     return (
-      <LoadingScreen 
+      <LoadingScreen
         isRedirectingToBuilder={isRedirectingToBuilder}
         isProcessingCallback={isProcessingCallback}
         hasOAuthCode={hasOAuthCode}
@@ -202,7 +202,7 @@ export default function MyStoriesPage() {
 
   return (
     <div className='flex flex-col h-screen'>
-      <Header 
+      <Header
         hideAutoLogin={true}
         actions={
           <div className='flex gap-1'>
@@ -216,12 +216,7 @@ export default function MyStoriesPage() {
               <AlertTriangle className='h-3 w-3' />
               Delete All
             </Button>
-            <Button 
-              size='sm' 
-              onClick={myStories.loadAllData} 
-              disabled={myStories.loading}
-              className='h-8 px-3 text-sm'
-            >
+            <Button size='sm' onClick={myStories.loadAllData} disabled={myStories.loading} className='h-8 px-3 text-sm'>
               {myStories.loading ? 'Refreshing...' : 'Refresh'}
             </Button>
             <LoginButton />
@@ -247,7 +242,7 @@ export default function MyStoriesPage() {
                   Found {filteredAndSortedSessions.length + filteredAndSortedStories.length} items
                 </h2>
               </div>
-              
+
               {/* Search Bar - only show if there are items to search through */}
               {(myStories.sessions.length > 0 || myStories.stories.length > 0) && (
                 <div className='relative max-w-xs'>
@@ -263,7 +258,7 @@ export default function MyStoriesPage() {
 
               {myStories.loading ? (
                 <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>
-              ) : (filteredAndSortedSessions.length === 0 && filteredAndSortedStories.length === 0) ? (
+              ) : filteredAndSortedSessions.length === 0 && filteredAndSortedStories.length === 0 ? (
                 <div className='max-w-2xl mx-auto'>
                   <Card>
                     <CardContent className='text-center py-4'>
@@ -279,8 +274,8 @@ export default function MyStoriesPage() {
                   </Card>
                 </div>
               ) : (
-                <MyStoriesTable 
-                  items={[...filteredAndSortedSessions, ...filteredAndSortedStories]} 
+                <MyStoriesTable
+                  items={[...filteredAndSortedSessions, ...filteredAndSortedStories]}
                   showCreator={false}
                   sortField={sortField}
                   sortDirection={sortDirection}

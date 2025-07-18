@@ -6,12 +6,15 @@ export function filterItems(items: (Session | StoryItem)[], query: string): (Ses
   const lowercaseQuery = query.toLowerCase();
   return items.filter(
     (item) =>
-      item.title.toLowerCase().includes(lowercaseQuery) ||
-      item.description.toLowerCase().includes(lowercaseQuery)
+      item.title.toLowerCase().includes(lowercaseQuery) || item.description.toLowerCase().includes(lowercaseQuery)
   );
 }
 
-export function sortItems(items: (Session | StoryItem)[], field: SortField, direction: SortDirection): (Session | StoryItem)[] {
+export function sortItems(
+  items: (Session | StoryItem)[],
+  field: SortField,
+  direction: SortDirection
+): (Session | StoryItem)[] {
   return [...items].sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
@@ -78,4 +81,4 @@ export function getUsageColor(percentage: number): string {
   if (percentage >= 90) return 'bg-red-500';
   if (percentage >= 75) return 'bg-yellow-500';
   return 'bg-green-500';
-} 
+}

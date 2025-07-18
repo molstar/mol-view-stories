@@ -81,25 +81,28 @@ export function DebouncedInput({
 }) {
   const [current, setCurrent] = useState(value);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     setCurrent(value);
   }, [value]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setCurrent(newValue);
-    
-    // Clear previous timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    // Set new timeout
-    timeoutRef.current = setTimeout(() => {
-      onChange(newValue);
-    }, delay);
-  }, [onChange, delay]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setCurrent(newValue);
+
+      // Clear previous timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      // Set new timeout
+      timeoutRef.current = setTimeout(() => {
+        onChange(newValue);
+      }, delay);
+    },
+    [onChange, delay]
+  );
 
   const handleBlur = useCallback(() => {
     // Immediate update on blur to ensure consistency

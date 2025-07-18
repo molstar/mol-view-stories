@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 interface UnsavedChangesDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginAndSave?: () => void;
   onExportLocally?: () => void;
   onDiscardChanges?: () => void;
 }
@@ -21,7 +20,6 @@ interface UnsavedChangesDialogProps {
 export function UnsavedChangesDialog({
   isOpen,
   onClose,
-  onLoginAndSave,
   onExportLocally,
   onDiscardChanges,
 }: UnsavedChangesDialogProps) {
@@ -32,7 +30,7 @@ export function UnsavedChangesDialog({
     if (!auth.isAuthenticated) {
       try {
         const result = await auth.signinPopup();
-        
+
         if (result.success) {
           toast.success('Login successful! Opening save dialog...');
           openSaveDialog({ saveType: 'session' });
@@ -53,10 +51,10 @@ export function UnsavedChangesDialog({
   const handleExportLocally = async () => {
     try {
       await exportState(story);
-      
+
       // Mark changes as saved since user has successfully exported
       resetInitialStoryState();
-      
+
       onExportLocally?.();
       onClose();
     } catch (error) {
@@ -78,9 +76,7 @@ export function UnsavedChangesDialog({
             <AlertTriangle className='h-5 w-5 text-amber-500' />
             Unsaved Changes
           </DialogTitle>
-          <DialogDescription>
-            You have unsaved changes to your story. What would you like to do?
-          </DialogDescription>
+          <DialogDescription>You have unsaved changes to your story. What would you like to do?</DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4 pt-4'>
@@ -92,13 +88,8 @@ export function UnsavedChangesDialog({
                 {auth.isAuthenticated ? 'Recommended' : 'Login required'}
               </span>
             </Button>
-            
-            <Button
-              onClick={handleExportLocally}
-              variant='outline'
-              className='w-full justify-start'
-              size='lg'
-            >
+
+            <Button onClick={handleExportLocally} variant='outline' className='w-full justify-start' size='lg'>
               <Download className='mr-2 h-4 w-4' />
               Export Locally
             </Button>
@@ -123,13 +114,13 @@ export function UnsavedChangesDialog({
 
         <div className='text-xs text-muted-foreground mt-4 p-3 bg-muted rounded-md'>
           <p>
-            <strong>Tip:</strong> {auth.isAuthenticated 
+            <strong>Tip:</strong>{' '}
+            {auth.isAuthenticated
               ? 'Cloud saves are accessible from any device and can be shared with others. Local exports create a file on your computer for backup or offline use.'
-              : 'Cloud saves require login but are accessible from any device. Local exports create a file on your computer for backup or offline use.'
-            }
+              : 'Cloud saves require login but are accessible from any device. Local exports create a file on your computer for backup or offline use.'}
           </p>
         </div>
       </DialogContent>
     </Dialog>
   );
-} 
+}
