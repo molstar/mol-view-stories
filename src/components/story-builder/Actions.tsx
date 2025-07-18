@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { DownloadIcon, ChevronDownIcon, LinkIcon, CloudIcon, AlertCircle } from 'lucide-react';
+import { DownloadIcon, ArrowUpFromLineIcon,ChevronDownIcon, LinkIcon, CloudIcon, AlertCircle, Trash2, ScanEyeIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -16,8 +16,9 @@ import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { StoryAtom, SharedStoryAtom, ShareModalAtom } from '@/app/state/atoms';
-import { downloadStory, exportState, resetInitialStoryState } from '@/app/state/actions';
+import { StoryAtom, SharedStoryAtom, ShareModalAtom, HasStoryChangesSinceShareAtom } from '@/app/state/atoms';
+import { downloadStory, exportState, resetInitialStoryState, unshareStory, updateSharedStory } from '@/app/state/actions';
+import { ConfirmDialog } from '../ui/confirm-dialog';
 
 export function StoryActionButtons() {
   const auth = useAuth();
@@ -25,8 +26,12 @@ export function StoryActionButtons() {
   const sharedStory = useAtomValue(SharedStoryAtom);
   const setShareModal = useSetAtom(ShareModalAtom);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [showUnshareConfirm, setShowUnshareConfirm] = useState(false);
+  const [isUnsharing, setIsUnsharing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   
   const { hasUnsavedChanges } = useUnsavedChanges();
+  const hasStoryChangesSinceShare = useAtomValue(HasStoryChangesSinceShareAtom);
 
   const handleSaveClick = () => {
     if (!auth.isAuthenticated && hasUnsavedChanges) {
@@ -50,8 +55,8 @@ export function StoryActionButtons() {
   };
 
   const handleShareClick = async () => {
-    if (sharedStory.isShared && !hasUnsavedChanges) {
-      // Story is already shared and no changes have been made, show the share modal directly
+    if (sharedStory.isShared) {
+      // Story is already shared, always show the share modal
       setShareModal({
         isOpen: true,
         itemId: sharedStory.storyId!,
@@ -60,8 +65,43 @@ export function StoryActionButtons() {
         publicUri: sharedStory.publicUri,
       });
     } else {
-      // Story is not shared yet, or has been modified since last share, trigger the share process
+      // Story is not shared yet, trigger the share process
       await shareStory();
+    }
+  };
+
+  const handleUnshare = async () => {
+    if (!sharedStory.storyId || !auth.isAuthenticated) return;
+    
+    setIsUnsharing(true);
+    try {
+      const success = await unshareStory(sharedStory.storyId, auth.isAuthenticated);
+      if (success) {
+        setShowUnshareConfirm(false);
+      }
+    } finally {
+      setIsUnsharing(false);
+    }
+  };
+
+  const handleUpdateShare = async () => {
+    if (!sharedStory.storyId || !auth.isAuthenticated) return;
+    
+    setIsUpdating(true);
+    try {
+      const success = await updateSharedStory(sharedStory.storyId, auth.isAuthenticated);
+      if (success) {
+        // Close the share modal if it's open
+        setShareModal({
+          isOpen: false,
+          itemId: null,
+          itemTitle: '',
+          itemType: 'story',
+          publicUri: undefined,
+        });
+      }
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -85,7 +125,7 @@ export function StoryActionButtons() {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            You have unsaved changes. Click to save or export.
+            You have unsaved changes. Log in to save or export.
           </TooltipContent>
         </Tooltip>
       )}
@@ -138,36 +178,71 @@ export function StoryActionButtons() {
         </TooltipContent>
       </Tooltip>
 
-      <Tooltip delayDuration={250}>
-        <TooltipTrigger asChild>
-          <Button
-            variant={sharedStory.isShared && !hasUnsavedChanges ? 'default' : 'outline'}
-            size='sm'
-            className={cn(
-              'gap-1.5 text-sm font-medium',
-              sharedStory.isShared && !hasUnsavedChanges && 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-            )}
-            onClick={handleShareClick}
-            disabled={!auth.isAuthenticated}
-            title={!auth.isAuthenticated ? 'You must be logged in to share stories' : ''}
-          >
-            <LinkIcon className='size-4' />
-            {sharedStory.isShared && !hasUnsavedChanges ? 'View Share' : 'Share'}
-            {sharedStory.isShared && !hasUnsavedChanges && <span className='w-2 h-2 bg-white rounded-full' />}
-            {hasUnsavedChanges && sharedStory.isShared && <span className='w-2 h-2 bg-amber-500 rounded-full' />}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          {auth.isAuthenticated 
-            ? sharedStory.isShared && !hasUnsavedChanges
-              ? `View sharing options for "${sharedStory.title}"` 
-              : hasUnsavedChanges && sharedStory.isShared
-              ? 'Story has been modified since last share. Click to share updated version.'
-              : 'Share your session with others'
-            : 'You must be logged in to share stories'
-          }
-        </TooltipContent>
-      </Tooltip>
+      {sharedStory.isShared ? (
+        // Dropdown menu for shared stories
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant='default'
+              size='sm'
+              className='gap-1.5 text-sm font-medium bg-green-600 hover:bg-green-700 text-white border-green-600'
+              disabled={!auth.isAuthenticated}
+            >
+              <LinkIcon className='size-4' />
+              View Share
+              <span className='w-2 h-2 bg-white rounded-full' />
+              {hasStoryChangesSinceShare && <span className='w-2 h-2 bg-amber-500 rounded-full' />}
+              <ChevronDownIcon className='size-3.5 opacity-60' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end' className='min-w-[160px]'>
+            <DropdownMenuItem onClick={handleShareClick} className='gap-2'>
+              <ScanEyeIcon className='size-4' />
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={handleUpdateShare}
+              disabled={isUpdating || !hasStoryChangesSinceShare}
+              className='gap-2'
+              title={!hasStoryChangesSinceShare ? 'No changes to update' : ''}
+            >
+              <ArrowUpFromLineIcon className='size-4' />
+              {isUpdating ? 'Updating...' : 'Update'}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => setShowUnshareConfirm(true)} 
+              className='gap-2 text-destructive focus:text-destructive'
+            >
+              <Trash2 className='size-4' />
+              Remove
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        // Regular button for unshared stories
+        <Tooltip delayDuration={250}>
+          <TooltipTrigger asChild>
+            <Button
+              variant='outline'
+              size='sm'
+              className='gap-1.5 text-sm font-medium'
+              onClick={handleShareClick}
+              disabled={!auth.isAuthenticated}
+              title={!auth.isAuthenticated ? 'You must be logged in to share stories' : ''}
+            >
+              <LinkIcon className='size-4' />
+              Share
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {auth.isAuthenticated 
+              ? 'Share your session with others'
+              : 'You must be logged in to share stories'
+            }
+          </TooltipContent>
+        </Tooltip>
+      )}
 
       <SaveDialog />
       <ShareModal />
@@ -185,6 +260,18 @@ export function StoryActionButtons() {
         onDiscardChanges={() => {
           // Changes are now properly discarded in the dialog
         }}
+      />
+      
+      <ConfirmDialog
+        open={showUnshareConfirm}
+        onOpenChange={setShowUnshareConfirm}
+        title="Remove"
+        description={`Are you sure you want to remove the share for "${sharedStory.title}"? This will permanently delete the public link and the story will no longer be accessible to others. Your saved session will be unaffected.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleUnshare}
+        isDestructive={true}
+        isLoading={isUnsharing}
       />
     </div>
   );

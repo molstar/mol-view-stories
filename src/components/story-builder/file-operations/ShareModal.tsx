@@ -6,15 +6,26 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShareModalAtom } from '@/app/state/atoms';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ShareModalAtom, HasStoryChangesSinceShareAtom } from '@/app/state/atoms';
 import { API_CONFIG } from '@/lib/config';
-import { Copy, ExternalLink, CheckIcon } from 'lucide-react';
+import { Copy, ExternalLink, CheckIcon, Trash2, LinkIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { unshareStory, updateSharedStory } from '@/app/state/actions';
+import { useAuth } from '@/app/providers';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export function ShareModal() {
   const shareModal = useAtomValue(ShareModalAtom);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [isUnsharing, setIsUnsharing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [showUnshareConfirm, setShowUnshareConfirm] = useState(false);
+  const auth = useAuth();
+  const { hasUnsavedChanges } = useUnsavedChanges();
+  const hasStoryChangesSinceShare = useAtomValue(HasStoryChangesSinceShareAtom);
 
   const handleClose = () => {
     const store = getDefaultStore();
@@ -47,6 +58,34 @@ export function ShareModal() {
     window.open(molstarUrl, '_blank');
   };
 
+  const handleUnshare = async () => {
+    if (!shareModal.itemId || !auth.isAuthenticated) return;
+    
+    setIsUnsharing(true);
+    try {
+      const success = await unshareStory(shareModal.itemId, auth.isAuthenticated);
+      if (success) {
+        handleClose();
+      }
+    } finally {
+      setIsUnsharing(false);
+    }
+  };
+
+  const handleUpdateShare = async () => {
+    if (!shareModal.itemId || !auth.isAuthenticated) return;
+    
+    setIsUpdating(true);
+    try {
+      const success = await updateSharedStory(shareModal.itemId, auth.isAuthenticated);
+      if (success) {
+        handleClose();
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   if (!shareModal.isOpen || !shareModal.itemId) {
     return null;
   }
@@ -60,11 +99,11 @@ export function ShareModal() {
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <ExternalLink className='size-5' />
-            Share &ldquo;{shareModal.itemTitle}&rdquo;
+            &ldquo;{shareModal.itemTitle}&rdquo; Story
           </DialogTitle>
           <DialogDescription>
-            Your {shareModal.itemType} has been saved and is now publicly accessible. 
-            Share the URL below or open it directly in Molstar.
+            This {shareModal.itemType} has been saved and is now publicly accessible. 
+            Share the URL below or open it directly in Mol*. You can also update the shared content with your current changes.
           </DialogDescription>
         </DialogHeader>
 
@@ -97,7 +136,7 @@ export function ShareModal() {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='molstar-url'>Molstar Viewer URL</Label>
+            <Label htmlFor='molstar-url'>Mol* Viewer URL</Label>
             <div className='flex gap-2'>
               <Input
                 id='molstar-url'
@@ -127,14 +166,60 @@ export function ShareModal() {
         <div className='flex justify-between pt-4'>
           <Button variant='outline' onClick={openInMolstar} className='gap-2'>
             <ExternalLink className='size-4' />
-            Open in Molstar
+            Open in Mol*
           </Button>
           
-          <Button onClick={handleClose}>
-            Done
-          </Button>
+          <div className='flex gap-2'>
+            <Tooltip delayDuration={250}>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant='outline'
+                  onClick={handleUpdateShare}
+                  disabled={isUpdating || !auth.isAuthenticated || !hasStoryChangesSinceShare}
+                  className='gap-2'
+                >
+                  <LinkIcon className='size-4' />
+                  {isUpdating ? 'Updating...' : 'Update'}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {!auth.isAuthenticated 
+                  ? 'You must be logged in to update stories'
+                  : !hasStoryChangesSinceShare
+                  ? 'No changes to update'
+                  : 'Update the shared story with your current changes'
+                }
+              </TooltipContent>
+            </Tooltip>
+            
+            <Button 
+              variant='destructive' 
+              onClick={() => setShowUnshareConfirm(true)}
+              disabled={!auth.isAuthenticated}
+              className='gap-2'
+            >
+              <Trash2 className='size-4' />
+              Remove
+            </Button>
+            
+            <Button onClick={handleClose}>
+              Done
+            </Button>
+          </div>
         </div>
       </DialogContent>
+      
+      <ConfirmDialog
+        open={showUnshareConfirm}
+        onOpenChange={setShowUnshareConfirm}
+        title="Remove"
+        description={`Are you sure you want to remove the share for "${shareModal.itemTitle}"? This will permanently delete the public link and the story will no longer be accessible to others. Your saved session will not be affected.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleUnshare}
+        isDestructive={true}
+        isLoading={isUnsharing}
+      />
     </Dialog>
   );
 } 

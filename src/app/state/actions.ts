@@ -21,6 +21,7 @@ import {
   HasUnsavedChangesAtom,
   CurrentSessionIdAtom,
   SharedStoryAtom,
+  LastSharedStoryAtom,
 } from './atoms';
 import {
   CameraData,
@@ -41,6 +42,24 @@ import { authenticatedFetch } from '@/lib/auth-utils';
 import { API_CONFIG } from '@/lib/config';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+
+// Helper function to safely encode large Uint8Array to base64
+function encodeUint8ArrayToBase64(data: Uint8Array): Promise<string> {
+  const blob = new Blob([data], { type: 'application/octet-stream' });
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(',')[1]; // Remove data: prefix
+      resolve(base64);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
+
 
 // Extended session interface that may include story data
 export interface SessionWithData extends Session {
@@ -435,6 +454,9 @@ function checkIfCurrentStoryIsShared(sharedStories: StoryItem[]) {
       publicUri: correctPublicUri,
       title: matchingStory.title,
     });
+    
+    // Set the last shared story to current state when a match is found
+    store.set(LastSharedStoryAtom, cloneStory(currentStory));
   }
 }
 
@@ -513,6 +535,126 @@ export async function deleteStory(storyId: string, isAuthenticated: boolean) {
   }
 }
 
+export async function unshareStory(storyId: string, isAuthenticated: boolean) {
+  const store = getDefaultStore();
+
+  if (!isAuthenticated) {
+    toast.error('Authentication required');
+    return false;
+  }
+
+  try {
+    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/story/${storyId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to unshare story: ${response.statusText}`);
+    }
+
+    // Remove from local state
+    const currentData = store.get(MyStoriesDataAtom);
+    const updatedStories = (currentData['stories-public'] as StoryItem[]).filter((story: StoryItem) => story.id !== storyId);
+
+    store.set(MyStoriesDataAtom, {
+      ...currentData,
+      'stories-public': updatedStories,
+    });
+
+    // Reset shared story state if this was the currently shared story
+    const sharedStory = store.get(SharedStoryAtom);
+    if (sharedStory.storyId === storyId) {
+      store.set(SharedStoryAtom, {
+        isShared: false,
+        storyId: undefined,
+        publicUri: undefined,
+        title: undefined,
+      });
+    }
+
+    toast.success('Story share removed successfully');
+    return true;
+  } catch (err) {
+    console.error('Error unsharing story:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Failed to remove story share';
+    toast.error(errorMessage);
+    return false;
+  }
+}
+
+export async function updateSharedStory(storyId: string, isAuthenticated: boolean) {
+  const store = getDefaultStore();
+
+  if (!isAuthenticated) {
+    toast.error('Authentication required');
+    return false;
+  }
+
+  try {
+    const story = store.get(StoryAtom);
+    
+    // Prepare story data for update
+    const data = await getMVSData(story);
+    
+    // Prepare request body for story update
+    const requestBody: {
+      title: string;
+      description: string;
+      data: unknown;
+    } = {
+      title: story.metadata.title || 'Untitled Story',
+      description: '',
+      data: undefined, // to be filled below
+    };
+
+    // Handle data based on type
+    if (data instanceof Uint8Array) {
+      requestBody.data = await encodeUint8ArrayToBase64(data);
+    } else if (typeof data === 'string') {
+      requestBody.data = JSON.parse(data);
+    } else {
+      requestBody.data = data;
+    }
+
+    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/story/${storyId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update story: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    // Set the last shared story to current state (but don't reset initial story state)
+    store.set(LastSharedStoryAtom, cloneStory(story));
+
+    // Update shared story state with new title
+    const sharedStory = store.get(SharedStoryAtom);
+    if (sharedStory.storyId === storyId) {
+      store.set(SharedStoryAtom, {
+        ...sharedStory,
+        title: requestBody.title,
+      });
+    }
+
+    toast.success('Story updated successfully!', {
+      description: `Updated "${requestBody.title}"`,
+    });
+
+    return true;
+  } catch (err) {
+    console.error('Error updating story:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Failed to update story';
+    toast.error(errorMessage);
+    return false;
+  }
+}
+
 export async function deleteAllUserContent(isAuthenticated: boolean) {
   const store = getDefaultStore();
 
@@ -577,7 +719,7 @@ export async function fetchUserQuota(isAuthenticated: boolean) {
 }
 
 // Unsaved Changes Tracking Utilities
-function cloneStory(story: Story): Story {
+export function cloneStory(story: Story): Story {
   return {
     metadata: { ...story.metadata },
     javascript: story.javascript,
@@ -611,6 +753,9 @@ export function setInitialStoryState(story: Story) {
     publicUri: undefined,
     title: undefined,
   });
+  
+  // Reset last shared story state when loading a new story
+  store.set(LastSharedStoryAtom, null);
   
   // Check if this story matches any of the user's shared stories
   const myStoriesData = store.get(MyStoriesDataAtom);

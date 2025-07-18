@@ -3,7 +3,7 @@
 import { useAtomValue } from 'jotai';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertTriangle, Cloud, Download, LogIn } from 'lucide-react';
+import { AlertTriangle, Cloud, Download } from 'lucide-react';
 import { useAuth } from '@/app/providers';
 import { openSaveDialog } from '@/app/state/save-dialog-actions';
 import { exportState, discardChanges, resetInitialStoryState } from '@/app/state/actions';
@@ -28,24 +28,25 @@ export function UnsavedChangesDialog({
   const auth = useAuth();
   const story = useAtomValue(StoryAtom);
 
-  const handleSaveToCloud = () => {
-    openSaveDialog({ saveType: 'session' });
-    onClose();
-  };
-
-  const handleLoginAndSave = async () => {
-    try {
-      const result = await auth.signinPopup();
-      
-      if (result.success) {
-        toast.success('Login successful! You can now save your changes to the cloud.');
-        onLoginAndSave?.();
-      } else if (result.error && !result.error.includes('cancelled')) {
-        toast.error(result.error);
+  const handleSaveToCloud = async () => {
+    if (!auth.isAuthenticated) {
+      try {
+        const result = await auth.signinPopup();
+        
+        if (result.success) {
+          toast.success('Login successful! Opening save dialog...');
+          openSaveDialog({ saveType: 'session' });
+          onClose();
+        } else if (result.error && !result.error.includes('cancelled')) {
+          toast.error(result.error);
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+        toast.error('Login failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Login failed:', error);
-      toast.error('Login failed. Please try again.');
+    } else {
+      openSaveDialog({ saveType: 'session' });
+      onClose();
     }
   };
 
@@ -83,59 +84,25 @@ export function UnsavedChangesDialog({
         </DialogHeader>
 
         <div className='space-y-4 pt-4'>
-          {auth.isAuthenticated ? (
-            <div className='space-y-3'>
-              <Button onClick={handleSaveToCloud} className='w-full justify-start' size='lg'>
-                <Cloud className='mr-2 h-4 w-4' />
-                Save to Cloud
-                <span className='ml-auto text-xs text-muted-foreground'>Recommended</span>
-              </Button>
-              
-              <Button
-                onClick={handleExportLocally}
-                variant='outline'
-                className='w-full justify-start'
-                size='lg'
-              >
-                <Download className='mr-2 h-4 w-4' />
-                Export Locally
-                <span className='ml-auto text-xs text-muted-foreground'>Backup option</span>
-              </Button>
-            </div>
-          ) : (
-            <div className='space-y-3'>
-              <Button
-                onClick={handleExportLocally}
-                className='w-full justify-start'
-                size='lg'
-              >
-                <Download className='mr-2 h-4 w-4' />
-                Export Locally
-                <span className='ml-auto text-xs text-muted-foreground'>Recommended</span>
-              </Button>
-              
-              <div className='p-3 bg-blue-50 border border-blue-200 rounded-md text-sm'>
-                <p className='text-blue-800 font-medium mb-1'>Want to save to cloud?</p>
-                <p className='text-blue-700'>
-                  1. Export your work locally first (button above)<br/>
-                  2. Log in<br/>
-                  3. Import your exported file (File → Import)<br/>
-                  4. Save to cloud
-                </p>
-              </div>
-
-              <Button
-                onClick={handleLoginAndSave}
-                variant='outline'
-                className='w-full justify-start'
-                size='lg'
-              >
-                <LogIn className='mr-2 h-4 w-4' />
-                Log In (changes will be lost)
-                <span className='ml-auto text-xs text-muted-foreground'>Not recommended</span>
-              </Button>
-            </div>
-          )}
+          <div className='space-y-3'>
+            <Button onClick={handleSaveToCloud} className='w-full justify-start' size='lg'>
+              <Cloud className='mr-2 h-4 w-4' />
+              Save to Cloud
+              <span className='ml-auto text-xs text-muted-foreground'>
+                {auth.isAuthenticated ? 'Recommended' : 'Login required'}
+              </span>
+            </Button>
+            
+            <Button
+              onClick={handleExportLocally}
+              variant='outline'
+              className='w-full justify-start'
+              size='lg'
+            >
+              <Download className='mr-2 h-4 w-4' />
+              Export Locally
+            </Button>
+          </div>
 
           <div className='pt-2 border-t'>
             <Button
@@ -158,7 +125,7 @@ export function UnsavedChangesDialog({
           <p>
             <strong>Tip:</strong> {auth.isAuthenticated 
               ? 'Cloud saves are accessible from any device and can be shared with others. Local exports create a file on your computer for backup or offline use.'
-              : 'Export your work locally to keep it safe, then log in and import it to save to the cloud. This prevents losing your changes during the login process.'
+              : 'Cloud saves require login but are accessible from any device. Local exports create a file on your computer for backup or offline use.'
             }
           </p>
         </div>

@@ -3,11 +3,11 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
-import { StoryAtom, SaveDialogAtom, CurrentSessionIdAtom, ShareModalAtom, SharedStoryAtom, type SaveFormData, type SaveType } from './atoms';
+import { StoryAtom, SaveDialogAtom, CurrentSessionIdAtom, ShareModalAtom, SharedStoryAtom, LastSharedStoryAtom, type SaveFormData, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch } from '@/lib/auth-utils';
 import { API_CONFIG } from '@/lib/config';
-import { getMVSData, resetInitialStoryState } from './actions';
+import { getMVSData, resetInitialStoryState, cloneStory } from './actions';
 
 // Helper function to safely encode large Uint8Array to base64
 function encodeUint8ArrayToBase64(data: Uint8Array): Promise<string> {
@@ -101,6 +101,9 @@ export async function shareStory(): Promise<boolean> {
     
     // Reset initial state to mark as saved
     resetInitialStoryState();
+
+    // Set the last shared story to current state
+    store.set(LastSharedStoryAtom, cloneStory(story));
 
     // Show the share modal
     if (result.id) {

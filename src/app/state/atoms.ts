@@ -219,6 +219,9 @@ export const SharedStoryAtom = atom<SharedStoryState>({
 // Unsaved Changes Tracking Atoms
 export const InitialStoryAtom = atom<Story>(ExampleStories.Empty);
 
+// Track the story state when it was last shared (for story-specific unsaved changes)
+export const LastSharedStoryAtom = atom<Story | null>(null);
+
 // Optimized derived atom to detect unsaved changes
 export const HasUnsavedChangesAtom = atom((get) => {
   const currentStory = get(StoryAtom);
@@ -226,6 +229,19 @@ export const HasUnsavedChangesAtom = atom((get) => {
   
   // Use optimized comparison that handles binary assets efficiently
   return !compareStories(currentStory, initialStory);
+});
+
+// Derived atom to detect story changes since last share
+export const HasStoryChangesSinceShareAtom = atom((get) => {
+  const currentStory = get(StoryAtom);
+  const lastSharedStory = get(LastSharedStoryAtom);
+  
+  if (!lastSharedStory) {
+    return false; // No story has been shared yet
+  }
+  
+  // Use optimized comparison that handles binary assets efficiently
+  return !compareStories(currentStory, lastSharedStory);
 });
 
 // Atom to track if we should show unsaved changes warning
