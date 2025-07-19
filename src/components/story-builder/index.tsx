@@ -2,7 +2,6 @@ import { useAtomValue, useStore } from 'jotai/index';
 import { CurrentViewAtom, IsSessionLoadingAtom, StoryAtom } from '@/app/state/atoms';
 import { SceneEditors } from '@/components/story-builder/SceneEditor';
 import { StoryOptions } from '@/components/story-builder/StoryOptions';
-import { useSearchParams } from 'next/navigation';
 import { useLayoutEffect, useState } from 'react';
 import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
@@ -15,12 +14,13 @@ import { StoryActionButtons } from './Actions';
 export default function StoryBuilderPage() {
   const store = useStore();
   const isLoading = useAtomValue(IsSessionLoadingAtom);
-  const searchParams = useSearchParams();
-  const templateName = searchParams.get('template');
-  const sessionId = searchParams.get('sessionId');
 
   // Client-side initialization - runs immediately after mount
   useLayoutEffect(() => {
+    const searchParams = new URL(window.location.href).searchParams;
+    const sessionId = searchParams.get('sessionId');
+    const templateName = searchParams.get('template');
+
     if (sessionId) {
       loadSession(sessionId);
       return;
@@ -44,7 +44,7 @@ export default function StoryBuilderPage() {
       // window APIs might not be available
       console.warn('Failed to clear search params:', error);
     }
-  }, [store, templateName, sessionId]);
+  }, [store]);
 
   return (
     <div className='flex flex-col h-screen'>
@@ -103,7 +103,9 @@ function StoryPreview() {
         const data = await getMVSData(story);
         if (!isMounted) return;
 
-        const htmlContent = generateStoriesHtml(data);
+        const htmlContent = generateStoriesHtml(data, {
+          title: story.metadata.title,
+        });
         if (typeof window !== 'undefined') {
           const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));
           setSrc(src);

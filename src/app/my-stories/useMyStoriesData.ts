@@ -4,7 +4,7 @@ import { useEffect, useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { MyStoriesDataAtom, MyStoriesStatusAtom, UserQuotaAtom } from '@/app/state/atoms';
 import { type SessionWithData } from '@/app/state/actions';
-import { loadAllMyStoriesData, openItemInBuilder } from '@/lib/my-stories-api';
+import { loadAllMyStoriesData, navigateToMyStoriesItem } from '@/lib/my-stories-api';
 import {
   deleteSession,
   deleteStory,
@@ -34,7 +34,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
   };
 
   const handleOpenInBuilder = (item: SessionItem | StoryItem) => {
-    openItemInBuilder(router, item);
+    navigateToMyStoriesItem(router, item);
   };
 
   const handleDeleteSession = async (sessionId: string) => {

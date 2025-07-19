@@ -1,9 +1,10 @@
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { LoginButton } from './login';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 function HeaderLogo() {
   return (
@@ -84,5 +85,22 @@ export function PressToSave() {
       </span>{' '}
       to save
     </div>
+  );
+}
+
+export function TooltipWrapper({
+  children,
+  tooltip,
+  side,
+}: {
+  children: ReactNode;
+  tooltip: ReactNode;
+  side?: 'top' | 'right' | 'bottom' | 'left';
+}) {
+  return (
+    <Tooltip delayDuration={250}>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side={side}>{tooltip}</TooltipContent>
+    </Tooltip>
   );
 }

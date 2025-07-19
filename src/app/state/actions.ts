@@ -75,6 +75,10 @@ export function newStory() {
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
   setIsDirty(false);
+
+  const url = new URL(window.location.href);
+  url.searchParams.delete('sessionId');
+  window.history.replaceState({}, '', url.toString());
 }
 
 const createStateProvider = (code: string) => {
@@ -164,7 +168,9 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
     let blob: Blob;
     let filename: string;
     if (how === 'html') {
-      const htmlContent = generateStoriesHtml(data);
+      const htmlContent = generateStoriesHtml(data, {
+        title: story.metadata.title,
+      });
       blob = new Blob([htmlContent], { type: 'text/html' });
       filename = `story-${Date.now()}.html`;
     } else if (how === 'state') {

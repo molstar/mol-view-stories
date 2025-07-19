@@ -90,18 +90,11 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
 /**
  * Load a specific session by ID into the story builder
  * Updates global state with the session's story data
- *
- * Session Context Persistence Strategy:
- * - Stores sessionId in sessionStorage to survive page refreshes
- * - URL params are cleaned after loading to prevent browser history issues
- * - Session context is restored on component mount if no URL params present
- * - Context is cleared when starting fresh (new story, template, import, error)
  */
 export async function loadSession(sessionId: string) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
-
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`);
 
     if (!response.ok) {
@@ -114,8 +107,6 @@ export async function loadSession(sessionId: string) {
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
-      // Check if this story matches any shared stories
-      checkCurrentStoryAgainstSharedStories();
     } else {
       throw new Error('No story data found in session');
     }
@@ -132,7 +123,7 @@ export async function loadSession(sessionId: string) {
  * Open a session or story item in the appropriate viewer
  * Sessions open in the builder, stories open in external MVS viewer
  */
-export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: SessionItem | StoryItem) {
+export async function navigateToMyStoriesItem(router: ReturnType<typeof useRouter>, item: SessionItem | StoryItem) {
   try {
     // For sessions, try to load story data into the builder
     if (item.type === 'session') {

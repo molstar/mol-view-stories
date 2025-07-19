@@ -20,7 +20,6 @@ export function PublishModal() {
   const story = useAtomValue(StoryAtom);
   const [publishModal, setState] = useAtom(PublishModalAtom);
   const auth = useAuth();
-  // const hasStoryChangesSinceShare = useAtomValue(HasStoryChangesSinceShareAtom);
 
   const handleClose = () => {
     setState((prev) => ({ ...prev, isOpen: false }));
@@ -53,7 +52,7 @@ export function PublishModal() {
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>Publish Story</DialogTitle>
           <DialogDescription>
-            Publish <b>{story.metadata.title}</b> to the cloud and make it accessible to anyone a link.
+            Publish <b>{story.metadata.title}</b> to the cloud to make it accessible to anyone with a link
           </DialogDescription>
         </DialogHeader>
 
@@ -63,12 +62,7 @@ export function PublishModal() {
         </div>
 
         <DialogFooter>
-          <Button
-            variant='default'
-            onClick={publish}
-            disabled={publishModal.status === 'processing'}
-            className='flex-1'
-          >
+          <Button variant='default' onClick={publish} disabled={publishModal.status === 'processing'}>
             <Share2 className='size-4' />
             Publish
           </Button>

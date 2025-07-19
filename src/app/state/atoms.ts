@@ -32,21 +32,6 @@ export type MyStoriesDataKey = 'sessions-private' | 'stories-public';
 
 export type MyStoriesData = Record<MyStoriesDataKey, (SessionItem | StoryItem)[]>;
 
-// SaveDialog Types - Simplified structure
-export type SaveType = 'session' | 'story';
-
-export interface SaveDialogState {
-  isOpen: boolean;
-  status: 'idle' | 'saving' | 'success' | 'error';
-  saveType: SaveType;
-  sessionId?: string;
-  formData: {
-    title: string;
-    description: string;
-  };
-  error?: string;
-}
-
 // Optimized story comparison function that ignores scene IDs (used for navigation only)
 export function compareStories(currentStory: Story, initialStory: Story): boolean {
   // Fast path: reference equality
@@ -133,18 +118,6 @@ export const ActiveSceneAtom = atom((get) => {
 // UI State Atoms
 export const OpenSessionAtom = atom<boolean>(false);
 
-// SaveDialog State Atoms
-export const SaveDialogAtom = atom<SaveDialogState>({
-  isOpen: false,
-  status: 'idle',
-  saveType: 'session',
-  sessionId: undefined,
-  formData: {
-    title: '',
-    description: '',
-  },
-});
-
 // My Stories State Atoms - Unified Data Structure with AsyncStatus
 export const MyStoriesDataAtom = atom<MyStoriesData>({
   'sessions-private': [],
@@ -160,6 +133,18 @@ export const MyStoriesStoriesAtom = atom((get) => get(MyStoriesDataAtom)['storie
 
 // Quota State with unified AsyncStatus
 export const UserQuotaAtom = atom<AsyncStatus<UserQuota>>({ status: 'idle' });
+
+export interface SaveDialogData {
+  sessionId?: string;
+  note: string;
+}
+
+// SaveDialog State Atoms
+export const SaveDialogAtom = atom<ModalState<SaveDialogData>>({
+  isOpen: false,
+  status: 'idle',
+  data: { note: '' },
+});
 
 // Share Modal State - using unified ModalState pattern
 export interface PublishedStoryModalData {
