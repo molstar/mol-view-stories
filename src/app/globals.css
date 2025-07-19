@@ -158,11 +158,11 @@
     flex-direction: column !important;
     align-items: flex-start !important;
   }
-  
+
   .toaster [data-sonner-toast] [data-content] {
     width: 100% !important;
   }
-  
+
   .toaster [data-sonner-toast] button[data-button],
   .toaster [data-sonner-toast] .action-button-below {
     margin-top: 0.75rem !important;

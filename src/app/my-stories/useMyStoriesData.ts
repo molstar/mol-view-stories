@@ -3,13 +3,17 @@
 import { useEffect, useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { MyStoriesDataAtom, MyStoriesStatusAtom, UserQuotaAtom } from '@/app/state/atoms';
-import {
-  type SessionWithData,
-} from '@/app/state/actions';
+import { type SessionWithData } from '@/app/state/actions';
 import { loadAllMyStoriesData, openItemInBuilder } from '@/lib/my-stories-api';
-import { deleteSession, deleteStory, deleteAllUserContent, deleteAllSessions, deleteAllStories } from '@/lib/content-crud';
+import {
+  deleteSession,
+  deleteStory,
+  deleteAllUserContent,
+  deleteAllSessions,
+  deleteAllStories,
+} from '@/lib/content-crud';
 import { loadUserQuota } from '@/lib/storage-api';
-import { Session, StoryItem } from '@/app/state/types';
+import { SessionItem, StoryItem } from '@/app/state/types';
 import { useRouter } from 'next/navigation';
 
 export type { SessionWithData };
@@ -29,7 +33,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     loadUserQuota();
   };
 
-  const handleOpenInBuilder = (item: Session | StoryItem) => {
+  const handleOpenInBuilder = (item: SessionItem | StoryItem) => {
     openItemInBuilder(router, item);
   };
 
@@ -85,7 +89,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
   }, [isAuthenticated, loadAllData]);
 
   return {
-    sessions: myStoriesData['sessions-private'] as Session[],
+    sessions: myStoriesData['sessions-private'] as SessionItem[],
     stories: myStoriesData['stories-public'] as StoryItem[],
     loading: myStoriesStatus.status === 'loading',
     error: myStoriesStatus.status === 'error' ? myStoriesStatus.error : null,

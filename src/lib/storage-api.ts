@@ -45,17 +45,18 @@ export async function fetchUserQuota(): Promise<StorageApiResponse<UserQuota>> {
   } catch (err) {
     console.error('Error fetching quota:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to fetch quota';
-    
+
     // Check if it's a network/auth related error
-    const isAuthError = errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('Unauthorized');
-    
+    const isAuthError =
+      errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('Unauthorized');
+
     return {
       success: false,
       error: errorMessage,
       isAuthError,
     };
   }
-} 
+}
 
 /**
  * Fetch and update user quota in global state
@@ -63,10 +64,10 @@ export async function fetchUserQuota(): Promise<StorageApiResponse<UserQuota>> {
  */
 export function loadUserQuota() {
   const store = getDefaultStore();
-  
+
   // Set loading state
   store.set(UserQuotaAtom, { status: 'loading' });
-  
+
   // Fetch quota and update state
   fetchUserQuota()
     .then((result) => {
@@ -80,4 +81,4 @@ export function loadUserQuota() {
       console.error('Error loading quota:', error);
       store.set(UserQuotaAtom, { status: 'error', error: error.message || 'Failed to fetch quota' });
     });
-} 
+}

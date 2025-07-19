@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/app/providers';
 import { SaveDialogAtom } from '@/app/state/atoms';
 import { closeSaveDialog, updateSaveDialogFormField, performSave } from '@/app/state/save-dialog-actions';
+import { setIsDirty } from '@/app/state/actions';
 
 export function SaveDialog() {
   const auth = useAuth();
@@ -33,6 +34,8 @@ export function SaveDialog() {
     // If save failed, restore the original sessionId
     if (!success) {
       store.set(SaveDialogAtom, { ...currentSaveDialog });
+    } else {
+      setIsDirty(false); // Reset dirty state after successful save
     }
   };
 

@@ -1,8 +1,7 @@
-import { useAtomValue } from 'jotai';
-import { useCallback, useEffect } from 'react';
-import { HasUnsavedChangesAtom, StoryAtom } from '@/app/state/atoms';
-import { setInitialStoryState } from '@/app/state/actions';
 import { useAuth } from '@/app/providers';
+import { IsDirtyAtom } from '@/app/state/atoms';
+import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 
 export interface UnsavedChangesOptions {
   onUnsavedChanges?: (hasChanges: boolean) => void;
@@ -11,8 +10,7 @@ export interface UnsavedChangesOptions {
 
 export function useUnsavedChanges(options: UnsavedChangesOptions = {}) {
   const { onUnsavedChanges, enableBeforeUnload = true } = options;
-  const hasUnsavedChanges = useAtomValue(HasUnsavedChangesAtom);
-  const story = useAtomValue(StoryAtom);
+  const hasUnsavedChanges = useAtomValue(IsDirtyAtom);
   const auth = useAuth();
 
   // Call the callback when unsaved changes state changes
@@ -36,16 +34,10 @@ export function useUnsavedChanges(options: UnsavedChangesOptions = {}) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges, enableBeforeUnload]);
 
-  // Function to mark current state as saved (useful when initializing from templates)
-  const markAsSaved = useCallback(() => {
-    setInitialStoryState(story);
-  }, [story]);
-
   return {
     hasUnsavedChanges,
     isAuthenticated: auth.isAuthenticated,
     canSaveToCloud: auth.isAuthenticated && hasUnsavedChanges,
     canExportLocally: hasUnsavedChanges,
-    markAsSaved,
   };
 }

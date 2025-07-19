@@ -8,12 +8,7 @@ export type AsyncStatus<T = void, E = string> =
   | { status: 'error'; error: E };
 
 // UI Interaction Status - replaces multiple boolean flags
-export type UIStatus = 
-  | 'idle'
-  | 'loading' 
-  | 'processing'
-  | 'success'
-  | 'error';
+export type UIStatus = 'idle' | 'loading' | 'processing' | 'success' | 'error';
 
 // Modal/Dialog State - unified pattern for all modal interactions
 export interface ModalState<T = unknown> {
@@ -101,13 +96,12 @@ export interface BaseItem {
   creator: Creator;
 }
 
-export interface Session extends BaseItem {
+export interface SessionItem extends BaseItem {
   type: 'session';
 }
 
 export interface StoryItem extends BaseItem {
   type: 'story';
-  public_uri?: string;
 }
 
 export interface ApiResponse<T> {

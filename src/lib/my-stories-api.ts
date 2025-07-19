@@ -3,17 +3,34 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { authenticatedFetch } from './auth/token-manager';
 import { API_CONFIG } from './config';
-import { checkIfCurrentStoryIsShared } from './data-utils';
+import { tryFindIfStoryIsShared } from './data-utils';
 import {
   MyStoriesDataAtom,
   MyStoriesStatusAtom,
   StoryAtom,
   CurrentViewAtom,
-  CurrentSessionIdAtom,
   IsSessionLoadingAtom,
+  PublishedStoryModalAtom,
 } from '@/app/state/atoms';
-import { setInitialStoryState, checkCurrentStoryAgainstSharedStories } from '@/app/state/actions';
-import { Session, StoryItem } from '@/app/state/types';
+import { checkCurrentStoryAgainstSharedStories } from '@/app/state/actions';
+import { SessionItem, StoryItem } from '@/app/state/types';
+import { VERSION as STORIES_APP_VERSION } from 'molstar/lib/apps/mvs-stories/version';
+
+export function resolvePublicStoryUrl(storyId: string) {
+  // TODO: how to handle the format?
+  return `${API_CONFIG.baseUrl}/api/story/${storyId}/data`;
+}
+
+export function resolveViewerUrl(storyId: string, storyFormat: 'mvsx' | 'mvsj') {
+  const appPrefix = `https://molstar.org/stories-viewer/v${STORIES_APP_VERSION}`;
+
+  if (API_CONFIG.baseUrl === 'https://stories.molstar.org') {
+    return `${appPrefix}?story-id=${storyId}&format=${storyFormat}`;
+  }
+
+  const storyUrl = `${API_CONFIG.baseUrl}/api/story/${storyId}/data`;
+  return `${appPrefix}/?story-url=${encodeURIComponent(storyUrl)}&format=${storyFormat}`;
+}
 
 /**
  * Fetch user stories data from a specific endpoint
@@ -62,7 +79,7 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
       store.set(MyStoriesStatusAtom, { status: 'success', data });
 
       // Check if current story matches any shared stories
-      checkIfCurrentStoryIsShared(storiesPublic);
+      tryFindIfStoryIsShared(storiesPublic);
     })
     .catch((error) => {
       console.error('Error loading my stories data:', error);
@@ -73,7 +90,7 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
 /**
  * Load a specific session by ID into the story builder
  * Updates global state with the session's story data
- * 
+ *
  * Session Context Persistence Strategy:
  * - Stores sessionId in sessionStorage to survive page refreshes
  * - URL params are cleaned after loading to prevent browser history issues
@@ -97,13 +114,8 @@ export async function loadSession(sessionId: string) {
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
-      store.set(CurrentSessionIdAtom, sessionId); // Track that we're editing an existing session
-      setInitialStoryState(storyData.story);
-    // Check if this story matches any shared stories
-    checkCurrentStoryAgainstSharedStories();
-      
-      // Persist session context for page refresh scenarios
-      sessionStorage.setItem('currentSessionId', sessionId);
+      // Check if this story matches any shared stories
+      checkCurrentStoryAgainstSharedStories();
     } else {
       throw new Error('No story data found in session');
     }
@@ -111,10 +123,6 @@ export async function loadSession(sessionId: string) {
     console.error('Error loading session:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
     toast.error(errorMessage);
-    store.set(CurrentSessionIdAtom, null); // Clear session ID on error
-    
-    // Clear persisted session context on error
-    sessionStorage.removeItem('currentSessionId');
   } finally {
     store.set(IsSessionLoadingAtom, false);
   }
@@ -124,25 +132,22 @@ export async function loadSession(sessionId: string) {
  * Open a session or story item in the appropriate viewer
  * Sessions open in the builder, stories open in external MVS viewer
  */
-export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: Session | StoryItem) {
+export async function openItemInBuilder(router: ReturnType<typeof useRouter>, item: SessionItem | StoryItem) {
   try {
     // For sessions, try to load story data into the builder
     if (item.type === 'session') {
       router.push(`/builder/?sessionId=${item.id}`);
     } else if (item.type === 'story') {
-      // For stories, open in external MVS Stories viewer (stories are MVS data, not story format)
-      let storyUrl: string;
-
-      if (item.public_uri) {
-        // Use the backend-provided public_uri if available
-        storyUrl = item.public_uri;
-      } else {
-        // Stories are always public, use the public API endpoint
-        storyUrl = `${API_CONFIG.baseUrl}/api/story/${item.id}/data`;
-      }
-
-      const molstarUrl = `https://molstar.org/demos/mvs-stories/?story-url=${encodeURIComponent(storyUrl)}`;
-      window.open(molstarUrl, '_blank');
+      const store = getDefaultStore();
+      store.set(PublishedStoryModalAtom, {
+        isOpen: true,
+        status: 'success',
+        data: {
+          itemId: item.id,
+          itemType: 'story',
+          itemTitle: item.title,
+        },
+      });
     } else {
       toast.error('Unknown item type');
     }
@@ -150,4 +155,4 @@ export async function openItemInBuilder(router: ReturnType<typeof useRouter>, it
     console.error('Error opening item:', err);
     toast.error(err instanceof Error ? err.message : 'Failed to open item');
   }
-} 
+}

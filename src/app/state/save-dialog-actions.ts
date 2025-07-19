@@ -3,28 +3,24 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
-import {
-  StoryAtom,
-  SaveDialogAtom,
-  CurrentSessionIdAtom,
-  ShareModalAtom,
-  SharedStoryAtom,
-  LastSharedStoryAtom,
-  type SaveType,
-} from './atoms';
+import { StoryAtom, SaveDialogAtom, PublishedStoryModalAtom, type SaveType } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
 import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
-import { getMVSData, resetInitialStoryState, cloneStory } from './actions';
+import { getMVSData } from './actions';
 
 // encodeUint8ArrayToBase64 is imported from @/lib/data-utils
 
 // SaveDialog Actions
-export function openSaveDialog(options: { saveType: SaveType; sessionId?: string; saveAsNew?: boolean }) {
+export function openSaveDialog(options: {
+  saveType: SaveType;
+  sessionId: string | undefined | null;
+  saveAsNew?: boolean;
+}) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
-  const currentSessionId = store.get(CurrentSessionIdAtom);
+  const currentSessionId = options?.sessionId;
 
   const formData = {
     title: story.metadata.title || 'Untitled Session',
@@ -41,7 +37,7 @@ export function openSaveDialog(options: { saveType: SaveType; sessionId?: string
     isOpen: true,
     status: 'idle',
     saveType: options.saveType,
-    sessionId: sessionId,
+    sessionId: sessionId ?? undefined,
     formData,
   });
 }
@@ -74,7 +70,7 @@ export function setSaveDialogType(saveType: SaveType) {
 }
 
 // Direct share story function - saves as public story and shows share modal
-export async function shareStory(): Promise<boolean> {
+export async function publishStory(options?: { storyId?: string }): Promise<boolean> {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
 
@@ -90,7 +86,7 @@ export async function shareStory(): Promise<boolean> {
     const data = await prepareStateData(story);
 
     // Save to API
-    const result = await saveToAPI(data, 'story', formData);
+    const result = await saveToAPI(data, 'story', formData, options?.storyId);
 
     toast.success('Story shared successfully!', {
       description: `Shared as "${formData.title}"`,
@@ -98,36 +94,16 @@ export async function shareStory(): Promise<boolean> {
 
     console.log('Share result:', result);
 
-    // Reset initial state to mark as saved
-    resetInitialStoryState();
-
-    // Set the last shared story to current state
-    store.set(LastSharedStoryAtom, cloneStory(story));
-
     // Show the share modal
     if (result.id) {
-      // Use the public_uri from response and append /data?format=mvsj
-      const correctPublicUri = result.public_uri
-        ? `${result.public_uri}/data?format=mvsj`
-        : `${API_CONFIG.baseUrl}/api/story/${result.id}/data?format=mvsj`;
-
-      store.set(ShareModalAtom, {
+      store.set(PublishedStoryModalAtom, {
         isOpen: true,
         status: 'success',
         data: {
           itemId: result.id,
           itemTitle: formData.title,
           itemType: 'story',
-          publicUri: correctPublicUri,
         },
-      });
-
-      // Update shared story state
-      store.set(SharedStoryAtom, {
-        isShared: true,
-        storyId: result.id,
-        publicUri: correctPublicUri,
-        title: formData.title,
       });
     }
 
@@ -165,7 +141,12 @@ async function prepareStateData(story: Story): Promise<Uint8Array | string> {
   }
 }
 
-async function saveToAPI(data: Uint8Array | string, endpoint: string, formData: { title: string; description: string }, sessionId?: string) {
+async function saveToAPI(
+  data: Uint8Array | string,
+  endpoint: string,
+  formData: { title: string; description: string },
+  sessionId?: string
+) {
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
@@ -274,50 +255,18 @@ export async function performSave() {
 
     console.log('Save result:', result);
 
-    // If this was a new session save, update the current session ID
-    if (saveDialog.saveType === 'session' && !saveDialog.sessionId && result.id) {
-      store.set(CurrentSessionIdAtom, result.id);
-    }
-
-    // Reset initial state to mark as saved
-    resetInitialStoryState();
-
-    // Clear shared story state for sessions (sessions are private, not shared)
-    if (saveDialog.saveType === 'session') {
-      store.set(SharedStoryAtom, {
-        isShared: false,
-        storyId: undefined,
-        publicUri: undefined,
-        title: undefined,
-      });
-    }
-
     closeSaveDialog();
 
     // If this was a story save, show the share modal
     if (saveDialog.saveType === 'story' && result.id) {
-      // Use the public_uri from response and append /data?format=mvsj
-      const correctPublicUri = result.public_uri
-        ? `${result.public_uri}/data?format=mvsj`
-        : `${API_CONFIG.baseUrl}/api/story/${result.id}/data?format=mvsj`;
-
-      store.set(ShareModalAtom, {
+      store.set(PublishedStoryModalAtom, {
         isOpen: true,
         status: 'success',
         data: {
           itemId: result.id,
           itemTitle: saveDialog.formData.title,
           itemType: 'story',
-          publicUri: correctPublicUri,
         },
-      });
-
-      // Update shared story state
-      store.set(SharedStoryAtom, {
-        isShared: true,
-        storyId: result.id,
-        publicUri: correctPublicUri,
-        title: saveDialog.formData.title,
       });
     }
 

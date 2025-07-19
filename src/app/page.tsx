@@ -141,6 +141,32 @@ export default function Home() {
               >
                 Start Building
               </Link>
+
+              <div>
+                <div className='flex justify-center'>
+                  {auth.isAuthenticated ? (
+                    <Link
+                      href='/my-stories'
+                      className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                    >
+                      <User className='w-4 h-4' />
+                      My Stories
+                    </Link>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
+                          <Lock className='w-4 h-4' />
+                          My Stories
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Log in to access your stories</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -157,32 +183,6 @@ export default function Home() {
                 {example.name}
               </Link>
             ))}
-          </div>
-
-          <div className='max-w-4xl mx-auto text-center mt-4'>
-            <div className='flex justify-center'>
-              {auth.isAuthenticated ? (
-                <Link
-                  href='/my-stories'
-                  className='bg-primary/10 border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
-                >
-                  <User className='w-4 h-4' />
-                  My Stories
-                </Link>
-              ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
-                      <Lock className='w-4 h-4' />
-                      My Stories
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Log in to access your stories</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </div>
           </div>
 
           {/* <div className='max-w-4xl mx-auto text-center'>

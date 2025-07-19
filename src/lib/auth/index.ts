@@ -45,9 +45,11 @@ export async function manualTokenRefresh(): Promise<boolean> {
 
 // Expose debugging utilities to global window object for easy testing
 if (typeof window !== 'undefined') {
-  (window as unknown as { authDebug: { debugTokenState: () => void; manualTokenRefresh: () => Promise<boolean> } }).authDebug = {
+  (
+    window as unknown as { authDebug: { debugTokenState: () => void; manualTokenRefresh: () => Promise<boolean> } }
+  ).authDebug = {
     debugTokenState,
     manualTokenRefresh,
   };
   console.log('🔧 Auth debugging utilities available at window.authDebug');
-} 
+}

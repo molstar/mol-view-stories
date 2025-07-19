@@ -77,7 +77,7 @@ export default function AuthPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const error = urlParams.get('error');
-    
+
     console.log('🔍 Auth page: URL params:', { code: !!code, error: !!error, search: window.location.search });
 
     // Set a timeout for the loading state

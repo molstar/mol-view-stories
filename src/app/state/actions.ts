@@ -13,11 +13,7 @@ import {
   CurrentViewAtom,
   StoryAtom,
   MyStoriesDataAtom,
-  InitialStoryAtom,
-  HasUnsavedChangesAtom,
-  CurrentSessionIdAtom,
-  SharedStoryAtom,
-  LastSharedStoryAtom,
+  IsDirtyAtom,
 } from './atoms';
 import {
   CameraData,
@@ -27,18 +23,23 @@ import {
   Story,
   StoryContainer,
   StoryMetadata,
-  Session,
+  SessionItem,
   StoryItem,
 } from './types';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
 import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
-import { checkIfCurrentStoryIsShared } from '@/lib/data-utils';
+import { tryFindIfStoryIsShared } from '@/lib/data-utils';
 
 // Extended session interface that may include story data
-export interface SessionWithData extends Session {
+export interface SessionWithData extends SessionItem {
   data?: unknown;
+}
+
+export function setIsDirty(isDirty: boolean = true) {
+  const store = getDefaultStore();
+  store.set(IsDirtyAtom, isDirty);
 }
 
 export function addScene(options?: { duplicate?: boolean }) {
@@ -66,19 +67,14 @@ export function addScene(options?: { duplicate?: boolean }) {
 
   store.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
   store.set(CurrentViewAtom, { type: 'scene', id: newScene.id, subview: 'scene-options' });
+  setIsDirty();
 }
 
 export function newStory() {
   const store = getDefaultStore();
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
-  store.set(CurrentSessionIdAtom, null); // Clear session ID for new story
-  setInitialStoryState(ExampleStories.Empty);
-  
-  // Clear persisted session context when starting fresh
-  if (typeof window !== 'undefined') {
-    sessionStorage.removeItem('currentSessionId');
-  }
+  setIsDirty(false);
 }
 
 const createStateProvider = (code: string) => {
@@ -222,13 +218,7 @@ export const importState = async (file: File) => {
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
-  store.set(CurrentSessionIdAtom, null); // Clear session ID for imported stories (treat as new)
-  setInitialStoryState(decoded.story);
-  
-  // Clear persisted session context when importing
-  if (typeof window !== 'undefined') {
-    sessionStorage.removeItem('currentSessionId');
-  }
+  setIsDirty();
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {
@@ -247,12 +237,14 @@ export function modifyCurrentScene(update: SceneUpdate) {
     ...update,
   };
   store.set(StoryAtom, { ...story, scenes });
+  setIsDirty();
 }
 
 export function modifySceneMetadata(update: Partial<StoryMetadata>) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
   store.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
+  setIsDirty();
 }
 
 export function moveCurrentScene(delta: number) {
@@ -274,6 +266,7 @@ export function moveCurrentScene(delta: number) {
   scenes.splice(sceneIdx, 1);
   scenes.splice(newIdx, 0, scene);
   store.set(StoryAtom, { ...story, scenes });
+  setIsDirty();
 }
 
 export function removeCurrentScene() {
@@ -290,18 +283,21 @@ export function removeCurrentScene() {
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
   store.set(StoryAtom, { ...story, scenes });
   store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id, subview: 'scene-options' });
+  setIsDirty();
 }
 
 export function setStoryAssets(assets: SceneAsset[]) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
   store.set(StoryAtom, { ...story, assets });
+  setIsDirty();
 }
 
 export function addStoryAssets(newAssets: SceneAsset[]) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
   store.set(StoryAtom, { ...story, assets: [...(story.assets || []), ...newAssets] });
+  setIsDirty();
 }
 
 export function removeStoryAsset(assetName: string) {
@@ -309,6 +305,7 @@ export function removeStoryAsset(assetName: string) {
   const story = store.get(StoryAtom);
   const updatedAssets = (story.assets || []).filter((asset) => asset.name !== assetName);
   store.set(StoryAtom, { ...story, assets: updatedAssets });
+  setIsDirty();
 }
 
 // Unsaved Changes Tracking Utilities
@@ -333,54 +330,17 @@ export function cloneStory(story: Story): Story {
   };
 }
 
-// Set the initial story state (call when loading a story from session or creating new)
-export function setInitialStoryState(story: Story) {
-  const store = getDefaultStore();
-  // Use optimized clone to avoid expensive JSON operations on binary assets
-  store.set(InitialStoryAtom, cloneStory(story));
-
-  // Reset shared story state when loading a new story
-  store.set(SharedStoryAtom, {
-    isShared: false,
-    storyId: undefined,
-    publicUri: undefined,
-    title: undefined,
-  });
-
-  // Reset last shared story state when loading a new story
-  store.set(LastSharedStoryAtom, null);
-}
-
 // Check if current story matches any shared stories (call explicitly when needed)
 export function checkCurrentStoryAgainstSharedStories() {
   const store = getDefaultStore();
   const myStoriesData = store.get(MyStoriesDataAtom);
   if (myStoriesData['stories-public'].length > 0) {
-    checkIfCurrentStoryIsShared(myStoriesData['stories-public'] as StoryItem[]);
+    tryFindIfStoryIsShared(myStoriesData['stories-public'] as StoryItem[]);
   }
-}
-
-// Reset initial state to current state (call after successful save)
-export function resetInitialStoryState() {
-  const store = getDefaultStore();
-  const currentStory = store.get(StoryAtom);
-  store.set(InitialStoryAtom, cloneStory(currentStory));
 }
 
 // Check if there are unsaved changes
 export function hasUnsavedChanges(): boolean {
   const store = getDefaultStore();
-  return store.get(HasUnsavedChangesAtom);
-}
-
-// Discard changes by reverting to initial state
-export function discardChanges() {
-  const store = getDefaultStore();
-  const initialStory = store.get(InitialStoryAtom);
-
-  // Revert to initial state (clone to avoid reference issues)
-  store.set(StoryAtom, cloneStory(initialStory));
-
-  // Reset initial state to mark as "saved" (no unsaved changes)
-  resetInitialStoryState();
+  return store.get(IsDirtyAtom);
 }

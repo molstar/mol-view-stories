@@ -3,14 +3,9 @@ import { toast } from 'sonner';
 import { authenticatedFetch } from './auth/token-manager';
 import { API_CONFIG } from './config';
 import { encodeUint8ArrayToBase64 } from './data-utils';
-import {
-  MyStoriesDataAtom,
-  StoryAtom,
-  SharedStoryAtom,
-  LastSharedStoryAtom,
-} from '@/app/state/atoms';
-import { getMVSData, cloneStory } from '@/app/state/actions';
-import { Session, StoryItem } from '@/app/state/types';
+import { MyStoriesDataAtom, StoryAtom } from '@/app/state/atoms';
+import { getMVSData } from '@/app/state/actions';
+import { SessionItem, StoryItem } from '@/app/state/types';
 
 /**
  * Delete a session by ID
@@ -35,8 +30,8 @@ export async function deleteSession(sessionId: string, isAuthenticated: boolean)
 
     // Remove from local state
     const currentData = store.get(MyStoriesDataAtom);
-    const updatedSessions = (currentData['sessions-private'] as Session[]).filter(
-      (session: Session) => session.id !== sessionId
+    const updatedSessions = (currentData['sessions-private'] as SessionItem[]).filter(
+      (session: SessionItem) => session.id !== sessionId
     );
 
     store.set(MyStoriesDataAtom, {
@@ -86,23 +81,13 @@ export async function deleteStory(storyId: string, isAuthenticated: boolean, isU
       'stories-public': updatedStories,
     });
 
-    // Reset shared story state if this was the currently shared story
-    const sharedStory = store.get(SharedStoryAtom);
-    if (sharedStory.storyId === storyId) {
-      store.set(SharedStoryAtom, {
-        isShared: false,
-        storyId: undefined,
-        publicUri: undefined,
-        title: undefined,
-      });
-    }
-
     const successMessage = isUnshareOperation ? 'Story share removed successfully' : 'Story deleted successfully';
     toast.success(successMessage);
     return true;
   } catch (err) {
     console.error(`Error ${isUnshareOperation ? 'unsharing' : 'deleting'} story:`, err);
-    const errorMessage = err instanceof Error ? err.message : `Failed to ${isUnshareOperation ? 'remove story share' : 'delete story'}`;
+    const errorMessage =
+      err instanceof Error ? err.message : `Failed to ${isUnshareOperation ? 'remove story share' : 'delete story'}`;
     toast.error(errorMessage);
     return false;
   }
@@ -164,18 +149,6 @@ export async function updateSharedStory(storyId: string, isAuthenticated: boolea
 
     if (!response.ok) {
       throw new Error(`Failed to update story: ${response.statusText}`);
-    }
-
-    // Set the last shared story to current state (but don't reset initial story state)
-    store.set(LastSharedStoryAtom, cloneStory(story));
-
-    // Update shared story state with new title
-    const sharedStory = store.get(SharedStoryAtom);
-    if (sharedStory.storyId === storyId) {
-      store.set(SharedStoryAtom, {
-        ...sharedStory,
-        title: requestBody.title,
-      });
     }
 
     toast.success('Story updated successfully!', {
@@ -244,7 +217,7 @@ export async function deleteAllSessions(isAuthenticated: boolean) {
 
   try {
     const currentData = store.get(MyStoriesDataAtom);
-    const sessions = currentData['sessions-private'] as Session[];
+    const sessions = currentData['sessions-private'] as SessionItem[];
 
     if (sessions.length === 0) {
       toast.success('No sessions to delete');
@@ -344,18 +317,6 @@ export async function deleteAllStories(isAuthenticated: boolean) {
 
     // Update local state only for successfully deleted stories
     if (successCount > 0) {
-      // Clear shared story state if any deleted stories were shared
-      const sharedStory = store.get(SharedStoryAtom);
-      const deletedStoryIds = stories.map(s => s.id);
-      if (sharedStory.storyId && deletedStoryIds.includes(sharedStory.storyId)) {
-        store.set(SharedStoryAtom, {
-          isShared: false,
-          storyId: undefined,
-          publicUri: undefined,
-          title: undefined,
-        });
-      }
-
       store.set(MyStoriesDataAtom, {
         ...currentData,
         'stories-public': [],
@@ -378,4 +339,4 @@ export async function deleteAllStories(isAuthenticated: boolean) {
     toast.error(errorMessage);
     return false;
   }
-} 
+}

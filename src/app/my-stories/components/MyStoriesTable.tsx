@@ -2,21 +2,20 @@
 
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Session, StoryItem } from '@/app/state/types';
-import { ArrowUpDown, ArrowUp, ArrowDown, FileText, Database, Edit, ExternalLink, Trash2, User } from 'lucide-react';
-import Link from 'next/link';
+import { SessionItem, StoryItem } from '@/app/state/types';
+import { ArrowUpDown, ArrowUp, ArrowDown, Share2, Cloud, Edit, ExternalLink, Trash2, User } from 'lucide-react';
 
 export type SortField = 'title' | 'created_at' | 'updated_at';
 export type SortDirection = 'asc' | 'desc';
 
 interface MyStoriesTableProps {
-  items: (Session | StoryItem)[];
+  items: (SessionItem | StoryItem)[];
   showCreator?: boolean;
   sortField: SortField;
   sortDirection: SortDirection;
   onSort: (field: SortField) => void;
-  onEdit: (item: Session | StoryItem) => void;
-  onDelete: (item: Session | StoryItem) => void;
+  onEdit: (item: SessionItem | StoryItem) => void;
+  onDelete: (item: SessionItem | StoryItem) => void;
 }
 
 export function MyStoriesTable({
@@ -44,7 +43,10 @@ export function MyStoriesTable({
     children: React.ReactNode;
     className?: string;
   }) => (
-    <TableHead className={`cursor-pointer hover:bg-muted/50 text-sm ${className || ''}`} onClick={() => onSort(field)}>
+    <TableHead
+      className={`px-2 h-8 cursor-pointer hover:bg-muted/50 text-sm ${className || ''}`}
+      onClick={() => onSort(field)}
+    >
       <div className='flex items-center gap-1'>
         {children}
         {getSortIcon(field)}
@@ -64,22 +66,6 @@ export function MyStoriesTable({
     });
   };
 
-  if (items.length === 0) {
-    return (
-      <div className='text-center py-4 text-muted-foreground'>
-        <p className='text-sm'>No items found</p>
-        {!showCreator && (
-          <p className='text-sm mt-1'>
-            Create content from the{' '}
-            <Link href='/builder' className='text-primary hover:underline'>
-              Story Builder
-            </Link>
-          </p>
-        )}
-      </div>
-    );
-  }
-
   return (
     <Table>
       <TableHeader>
@@ -87,62 +73,72 @@ export function MyStoriesTable({
           <SortableTableHead field='title' className='h-8 px-1 w-[25%]'>
             Title
           </SortableTableHead>
-          <TableHead className='h-8 px-1 w-[35%] text-sm'>Note</TableHead>
-          <SortableTableHead field='created_at' className='h-8 px-1 w-[15%]'>
+          <TableHead className='h-8 px-2 w-[35%] text-sm'>Note</TableHead>
+          <SortableTableHead field='created_at' className='w-[15%]'>
             Created
           </SortableTableHead>
-          <SortableTableHead field='updated_at' className='h-8 px-1 w-[15%]'>
+          <SortableTableHead field='updated_at' className='w-[15%]'>
             Updated
           </SortableTableHead>
-          {showCreator && <TableHead className='h-8 px-1 w-[12%] text-sm'>Creator</TableHead>}
-          <TableHead className='h-8 px-1 w-[10%] text-sm'>Actions</TableHead>
+          {showCreator && <TableHead className='h-8 px-2 w-[12%] text-sm'>Creator</TableHead>}
+          <TableHead className='h-8 px-2 w-[10%] text-sm'>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {items.map((item) => (
           <TableRow key={item.id} className='h-9'>
-            <TableCell className='font-medium px-1 py-0.5 truncate'>
+            <TableCell className='font-medium px-2 py-2 truncate'>
               <div className='flex items-center gap-1'>
                 {item.type === 'session' ? (
-                  <FileText className='h-3 w-3 flex-shrink-0' />
+                  <Cloud className='h-3 w-3 flex-shrink-0' />
                 ) : (
-                  <Database className='h-3 w-3 flex-shrink-0' />
+                  <Share2 className='h-3 w-3 flex-shrink-0' />
                 )}
                 <span className='text-sm truncate'>{item.title}</span>
               </div>
             </TableCell>
-            <TableCell className='px-1 py-0.5 text-sm truncate max-w-0'>{item.description || '-'}</TableCell>
-            <TableCell className='text-sm text-muted-foreground px-1 py-0.5 truncate'>
+            <TableCell className='px-2 py-2 text-sm truncate max-w-0'>{item.description || ''}</TableCell>
+            <TableCell className='text-sm text-muted-foreground px-2 py-2 truncate'>
               {formatDateTime(item.created_at)}
             </TableCell>
-            <TableCell className='text-sm text-muted-foreground px-1 py-0.5 truncate'>
+            <TableCell className='text-sm text-muted-foreground px-2 py-2 truncate'>
               {formatDateTime(item.updated_at)}
             </TableCell>
             {showCreator && (
-              <TableCell className='text-sm px-1 py-0.5 truncate'>
+              <TableCell className='text-sm px-2 py-2 truncate'>
                 <div className='flex items-center gap-1'>
                   <User className='h-2 w-2 flex-shrink-0' />
                   <span className='truncate'>{item.creator.name}</span>
                 </div>
               </TableCell>
             )}
-            <TableCell className='px-1 py-0.5'>
-              <div className='flex gap-0.5'>
+            <TableCell className='px-2 py-1'>
+              <div className='flex gap-1'>
                 <Button
                   variant='outline'
                   size='sm'
                   onClick={() => onEdit(item)}
                   disabled={false}
-                  className='h-6 w-6 p-0'
+                  // className='h-6 w-6 p-0'
                   title={item.type === 'session' ? 'Edit' : 'Open'}
                 >
-                  {item.type === 'session' ? <Edit className='h-3 w-3' /> : <ExternalLink className='h-3 w-3' />}
+                  {item.type === 'session' ? (
+                    <>
+                      <Edit className='h-3 w-3' />
+                      Edit
+                    </>
+                  ) : (
+                    <>
+                      <ExternalLink className='h-3 w-3' />
+                      View
+                    </>
+                  )}
                 </Button>
                 {!showCreator && (
                   <Button
                     variant='outline'
                     size='sm'
-                    className='h-6 w-6 p-0 text-destructive hover:text-destructive'
+                    className='text-destructive hover:text-destructive'
                     onClick={() => onDelete(item)}
                     title='Delete'
                   >

@@ -1,6 +1,7 @@
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
+import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 
-export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: string = 'latest'): string {
+export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: string = PLUGIN_VERSION): string {
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   let state;

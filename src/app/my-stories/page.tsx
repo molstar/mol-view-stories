@@ -1,33 +1,37 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Header, Main } from '@/components/common';
 import { useAuth } from '@/app/providers';
+import { SessionItem, StoryItem } from '@/app/state/types';
+import { Header, Main } from '@/components/common';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Session, StoryItem } from '@/app/state/types';
-import { AlertTriangle, FileText, Database, Search, ChevronDown, Trash2 } from 'lucide-react';
-import Link from 'next/link';
-import { useMyStoriesData } from './useMyStoriesData';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { handleOAuthCallback } from '@/lib/auth-utils';
+import { ChevronDown, Cloud, RefreshCw, Search, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useMyStoriesData } from './useMyStoriesData';
 
 // Import new components
 import {
-  MyStoriesTable,
-  LoadingScreen,
   AuthRequiredScreen,
   filterItems,
-  sortItems,
   getDeleteDialogProps,
-  SortField,
+  LoadingScreen,
+  MyStoriesTable,
   SortDirection,
+  SortField,
+  sortItems,
 } from './components';
-import { LoginButton } from '@/components/login';
+import { PublishedStoryModal } from '@/components/story-builder/file-operations/PublishedStoryModal';
 
 export default function MyStoriesPage() {
   const auth = useAuth();
@@ -39,7 +43,7 @@ export default function MyStoriesPage() {
   const [isRedirectingToBuilder, setIsRedirectingToBuilder] = useState(false);
 
   // Tab state
-  const [activeTab, setActiveTab] = useState('stories');
+  const [activeTab, setActiveTab] = useState('sessions');
 
   // Filter and sort state
   const [searchQuery, setSearchQuery] = useState('');
@@ -118,9 +122,9 @@ export default function MyStoriesPage() {
   }, [myStories.stories, searchQuery, sortField, sortDirection]);
 
   // Get active data based on tab
-  const activeData = activeTab === 'stories' ? filteredAndSortedStories : filteredAndSortedSessions;
-  const activeDataType = activeTab === 'stories' ? 'stories' : 'sessions';
-  const activeIcon = activeTab === 'stories' ? Database : FileText;
+  // const activeData = activeTab === 'stories' ? filteredAndSortedStories : filteredAndSortedSessions;
+  // const activeDataType = activeTab === 'stories' ? 'stories' : 'sessions';
+  // const activeIcon = activeTab === 'stories' ? Database : FileText;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -131,20 +135,12 @@ export default function MyStoriesPage() {
     }
   };
 
-  const handleDeleteClick = (item: Session | StoryItem) => {
+  const handleDeleteClick = (item: SessionItem | StoryItem) => {
     setDeleteConfirm({
       open: true,
       type: item.type,
       id: item.id,
       title: item.title,
-    });
-  };
-
-  const handleDeleteAllClick = () => {
-    setDeleteConfirm({
-      open: true,
-      type: 'all',
-      count: myStories.sessions.length + myStories.stories.length,
     });
   };
 
@@ -214,53 +210,44 @@ export default function MyStoriesPage() {
   return (
     <div className='flex flex-col h-screen'>
       <Header
-        hideAutoLogin={true}
         actions={
           <div className='flex gap-1'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant='destructive'
+                  variant='outline'
                   size='sm'
                   disabled={myStories.loading || !hasAnyContent}
                   className='flex items-center gap-1 h-8 px-3 text-sm'
                 >
-                  <Trash2 className='h-3 w-3' />
-                  Delete
+                  Actions
                   <ChevronDown className='h-3 w-3' />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
+                <DropdownMenuItem onClick={myStories.loadAllData} disabled={myStories.loading}>
+                  <RefreshCw className='h-4 w-4 mr-2' />
+                  Refresh
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleDeleteAllSessionsClick}
                   disabled={!hasAnySessions}
                   className='text-destructive'
                 >
-                  <FileText className='h-4 w-4 mr-2' />
-                  Delete All Sessions ({myStories.sessions.length})
+                  <Cloud className='h-4 w-4 mr-2' />
+                  Delete All Saved Sessions ({myStories.sessions.length})
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleDeleteAllStoriesClick}
                   disabled={!hasAnyStories}
                   className='text-destructive'
                 >
-                  <Database className='h-4 w-4 mr-2' />
-                  Delete All Stories ({myStories.stories.length})
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleDeleteAllClick}
-                  disabled={!hasAnyContent}
-                  className='text-destructive font-medium'
-                >
-                  <AlertTriangle className='h-4 w-4 mr-2' />
-                  Delete Everything ({myStories.sessions.length + myStories.stories.length})
+                  <Share2 className='h-4 w-4 mr-2' />
+                  Delete All Published Stories ({myStories.stories.length})
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button size='sm' onClick={myStories.loadAllData} disabled={myStories.loading} className='h-8 px-3 text-sm'>
-              {myStories.loading ? 'Refreshing...' : 'Refresh'}
-            </Button>
-            <LoginButton />
           </div>
         }
       >
@@ -279,63 +266,46 @@ export default function MyStoriesPage() {
             <div className='space-y-2'>
               {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-                <div className='flex items-center justify-between'>
-                  <TabsList className='grid w-fit grid-cols-2'>
-                    <TabsTrigger 
-                      value='stories' 
+                <div className='flex items-center gap-2'>
+                  <TabsList>
+                    <TabsTrigger
+                      value='sessions'
                       className='flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-muted/80 transition-colors'
                     >
-                      <Database className='h-4 w-4' />
-                      My Stories
+                      <Cloud className='h-4 w-4' />
+                      Saved Sessions ({myStories.sessions.length})
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value='sessions' 
+                    <TabsTrigger
+                      value='stories'
                       className='flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-muted/80 transition-colors'
                     >
-                      <FileText className='h-4 w-4' />
-                      My Sessions
+                      <Share2 className='h-4 w-4' />
+                      Published Stories ({myStories.stories.length})
                     </TabsTrigger>
                   </TabsList>
-                </div>
 
-                <div className='flex items-center justify-between'>
-                  <h2 className='text-xl font-semibold flex items-center gap-2'>
-                    {React.createElement(activeIcon, { className: 'h-4 w-4' })}
-                    Found {activeData.length} {activeDataType}
-                  </h2>
-                </div>
+                  <div className='flex gap-2 items-center'>
+                    {/* Search Bar - only show if there are items to search through */}
 
-                {/* Search Bar - only show if there are items to search through */}
-                {(myStories.sessions.length > 0 || myStories.stories.length > 0) && (
-                  <div className='relative max-w-xs'>
-                    <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
-                    <Input
-                      placeholder='Search by title or note...'
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className='pl-8 h-8 text-sm'
-                    />
+                    <div className='relative max-w-xs'>
+                      <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
+                      <Input
+                        placeholder='Search by title or note...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className='pl-8 h-8 text-sm'
+                      />
+                    </div>
+                    <div className='text-muted-foreground text-sm'>
+                      Showing {filteredAndSortedSessions.length}{' '}
+                      {filteredAndSortedSessions.length === 1 ? 'entry' : 'entries'}
+                    </div>
                   </div>
-                )}
+                </div>
 
                 <TabsContent value='stories' className='space-y-2'>
                   {myStories.loading ? (
                     <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>
-                  ) : filteredAndSortedStories.length === 0 ? (
-                    <div className='max-w-2xl mx-auto'>
-                      <Card>
-                        <CardContent className='text-center py-4'>
-                          <Database className='h-6 w-6 mx-auto text-muted-foreground/50 mb-2' />
-                          <p className='text-muted-foreground text-sm'>No stories found</p>
-                          <p className='text-sm text-muted-foreground mt-1'>
-                            Create stories from the{' '}
-                            <Link href='/builder' className='text-primary hover:underline'>
-                              Story Builder
-                            </Link>
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
                   ) : (
                     <MyStoriesTable
                       items={filteredAndSortedStories}
@@ -352,21 +322,6 @@ export default function MyStoriesPage() {
                 <TabsContent value='sessions' className='space-y-2'>
                   {myStories.loading ? (
                     <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>
-                  ) : filteredAndSortedSessions.length === 0 ? (
-                    <div className='max-w-2xl mx-auto'>
-                      <Card>
-                        <CardContent className='text-center py-4'>
-                          <FileText className='h-6 w-6 mx-auto text-muted-foreground/50 mb-2' />
-                          <p className='text-muted-foreground text-sm'>No sessions found</p>
-                          <p className='text-sm text-muted-foreground mt-1'>
-                            Create sessions from the{' '}
-                            <Link href='/builder' className='text-primary hover:underline'>
-                              Story Builder
-                            </Link>
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
                   ) : (
                     <MyStoriesTable
                       items={filteredAndSortedSessions}
@@ -383,6 +338,8 @@ export default function MyStoriesPage() {
             </div>
           </div>
         </section>
+
+        <PublishedStoryModal />
 
         {/* Confirmation Dialog */}
         <ConfirmDialog

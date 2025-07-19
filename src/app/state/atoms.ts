@@ -1,18 +1,36 @@
 import { ExampleStories } from '@/app/examples';
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
-import { CurrentView, Story, Session, StoryItem, UserQuota, AsyncStatus, ModalState, ConfirmationState } from './types';
+import {
+  CurrentView,
+  Story,
+  SessionItem,
+  StoryItem,
+  UserQuota,
+  AsyncStatus,
+  ModalState,
+  ConfirmationState,
+} from './types';
 
 // Auth State Atom - tracks authentication status
 export const AuthStateAtom = atom<{ isAuthenticated: boolean }>({ isAuthenticated: false });
 
 // Re-export types for external use
-export type { CurrentView, Story, Session, StoryItem, UserQuota, AsyncStatus, ModalState, ConfirmationState } from './types';
+export type {
+  CurrentView,
+  Story,
+  SessionItem as Session,
+  StoryItem,
+  UserQuota,
+  AsyncStatus,
+  ModalState,
+  ConfirmationState,
+} from './types';
 
 // My Stories Data Structure - Unified approach
 export type MyStoriesDataKey = 'sessions-private' | 'stories-public';
 
-export type MyStoriesData = Record<MyStoriesDataKey, (Session | StoryItem)[]>;
+export type MyStoriesData = Record<MyStoriesDataKey, (SessionItem | StoryItem)[]>;
 
 // SaveDialog Types - Simplified structure
 export type SaveType = 'session' | 'story';
@@ -30,7 +48,7 @@ export interface SaveDialogState {
 }
 
 // Optimized story comparison function that ignores scene IDs (used for navigation only)
-function compareStories(currentStory: Story, initialStory: Story): boolean {
+export function compareStories(currentStory: Story, initialStory: Story): boolean {
   // Fast path: reference equality
   if (currentStory === initialStory) return true;
 
@@ -88,9 +106,6 @@ function compareStories(currentStory: Story, initialStory: Story): boolean {
 
 export const IsSessionLoadingAtom = atom<boolean>(false);
 
-// Track the session ID if editing an existing saved story
-export const CurrentSessionIdAtom = atom<string | null>(null);
-
 export const StoryAtom = atom<Story>(ExampleStories.Empty);
 
 export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options', subview: 'story-metadata' });
@@ -140,29 +155,37 @@ export const MyStoriesDataAtom = atom<MyStoriesData>({
 export const MyStoriesStatusAtom = atom<AsyncStatus<MyStoriesData>>({ status: 'idle' });
 
 // Derived atoms for granular access
-export const MyStoriesSessionsAtom = atom((get) => get(MyStoriesDataAtom)['sessions-private'] as Session[]);
+export const MyStoriesSessionsAtom = atom((get) => get(MyStoriesDataAtom)['sessions-private'] as SessionItem[]);
 export const MyStoriesStoriesAtom = atom((get) => get(MyStoriesDataAtom)['stories-public'] as StoryItem[]);
 
 // Quota State with unified AsyncStatus
 export const UserQuotaAtom = atom<AsyncStatus<UserQuota>>({ status: 'idle' });
 
 // Share Modal State - using unified ModalState pattern
-export interface ShareModalData {
+export interface PublishedStoryModalData {
   itemId: string | null;
   itemTitle: string;
   itemType: 'story' | 'session';
-  publicUri?: string;
 }
 
-export const ShareModalAtom = atom<ModalState<ShareModalData>>({
+export const PublishedStoryModalAtom = atom<ModalState<PublishedStoryModalData>>({
   isOpen: false,
   status: 'idle',
   data: {
     itemId: null,
     itemTitle: '',
     itemType: 'story',
-    publicUri: undefined,
   },
+});
+
+export interface PublishModalData {
+  overwriteId?: string;
+}
+
+export const PublishModalAtom = atom<ModalState<PublishModalData>>({
+  isOpen: false,
+  status: 'idle',
+  data: {},
 });
 
 // Unified Confirmation Dialog State - consolidates multiple confirmation dialogs
@@ -184,65 +207,5 @@ export interface SharedStoryState {
   title?: string;
 }
 
-// Base shared story state
-const BaseSharedStoryAtom = atom<SharedStoryState>({
-  isShared: false,
-  storyId: undefined,
-  publicUri: undefined,
-  title: undefined,
-});
-
-// Derived atom that clears shared story state when not authenticated
-export const SharedStoryAtom = atom(
-  (get) => {
-    // This will be set by the auth context
-    const isAuthenticated = get(AuthStateAtom)?.isAuthenticated ?? false;
-    const baseState = get(BaseSharedStoryAtom);
-    
-    // Clear shared story state when not authenticated
-    if (!isAuthenticated) {
-      return {
-        isShared: false,
-        storyId: undefined,
-        publicUri: undefined,
-        title: undefined,
-      };
-    }
-    
-    return baseState;
-  },
-  (get, set, newValue: SharedStoryState) => {
-    set(BaseSharedStoryAtom, newValue);
-  }
-);
-
 // Unsaved Changes Tracking Atoms
-export const InitialStoryAtom = atom<Story>(ExampleStories.Empty);
-
-// Track the story state when it was last shared (for story-specific unsaved changes)
-export const LastSharedStoryAtom = atom<Story | null>(null);
-
-// Optimized derived atom to detect unsaved changes
-export const HasUnsavedChangesAtom = atom((get) => {
-  const currentStory = get(StoryAtom);
-  const initialStory = get(InitialStoryAtom);
-
-  // Use optimized comparison that handles binary assets efficiently
-  return !compareStories(currentStory, initialStory);
-});
-
-// Derived atom to detect story changes since last share
-export const HasStoryChangesSinceShareAtom = atom((get) => {
-  const currentStory = get(StoryAtom);
-  const lastSharedStory = get(LastSharedStoryAtom);
-
-  if (!lastSharedStory) {
-    return false; // No story has been shared yet
-  }
-
-  // Use optimized comparison that handles binary assets efficiently
-  return !compareStories(currentStory, lastSharedStory);
-});
-
-// Atom to track if we should show unsaved changes warning
-export const ShowUnsavedChangesWarningAtom = atom<boolean>(false);
+export const IsDirtyAtom = atom<boolean>(false);

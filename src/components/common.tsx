@@ -42,7 +42,15 @@ function PreviewBanner() {
   );
 }
 
-export function Header({ children, actions, hideAutoLogin = false }: { children?: React.ReactNode; actions?: React.ReactNode; hideAutoLogin?: boolean }) {
+export function Header({
+  children,
+  actions,
+  hideAutoLogin = false,
+}: {
+  children?: React.ReactNode;
+  actions?: React.ReactNode;
+  hideAutoLogin?: boolean;
+}) {
   return (
     <header className='bg-gray-50 border-b border-border sticky top-0'>
       <PreviewBanner />

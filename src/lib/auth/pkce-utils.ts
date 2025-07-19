@@ -57,4 +57,4 @@ export function getPopupCodeVerifier(): string | null {
 export function clearPopupCodeVerifier(): void {
   if (typeof window === 'undefined') return;
   sessionStorage.removeItem(PKCE_KEYS.POPUP_CODE_VERIFIER);
-} 
+}

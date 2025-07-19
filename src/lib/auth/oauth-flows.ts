@@ -1,5 +1,14 @@
 import { OAUTH_CONFIG } from '../config';
-import { generateCodeVerifier, generateCodeChallenge, saveCodeVerifier, getCodeVerifier, clearCodeVerifier, savePopupCodeVerifier, getPopupCodeVerifier, clearPopupCodeVerifier } from './pkce-utils';
+import {
+  generateCodeVerifier,
+  generateCodeChallenge,
+  saveCodeVerifier,
+  getCodeVerifier,
+  clearCodeVerifier,
+  savePopupCodeVerifier,
+  getPopupCodeVerifier,
+  clearPopupCodeVerifier,
+} from './pkce-utils';
 import { saveTokens, clearTokens, type AuthTokens } from './token-manager';
 
 // Helper function to get the redirect URI dynamically
@@ -53,10 +62,7 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
   return `${OAUTH_CONFIG.authority}/authorize?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(
-  code: string,
-  codeVerifier: string
-): Promise<AuthTokens> {
+export async function exchangeCodeForTokens(code: string, codeVerifier: string): Promise<AuthTokens> {
   const requestBody = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,
@@ -348,4 +354,4 @@ export function handlePopupCallback(): void {
 
     window.close();
   }
-} 
+}

@@ -260,4 +260,4 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
   }
 
   return response;
-} 
+}

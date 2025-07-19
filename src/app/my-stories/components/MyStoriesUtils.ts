@@ -1,7 +1,7 @@
-import { Session, StoryItem } from '@/app/state/types';
+import { SessionItem, StoryItem } from '@/app/state/types';
 import { SortField, SortDirection } from './MyStoriesTable';
 
-export function filterItems(items: (Session | StoryItem)[], query: string): (Session | StoryItem)[] {
+export function filterItems(items: (SessionItem | StoryItem)[], query: string): (SessionItem | StoryItem)[] {
   if (!query.trim()) return items;
   const lowercaseQuery = query.toLowerCase();
   return items.filter(
@@ -11,10 +11,10 @@ export function filterItems(items: (Session | StoryItem)[], query: string): (Ses
 }
 
 export function sortItems(
-  items: (Session | StoryItem)[],
+  items: (SessionItem | StoryItem)[],
   field: SortField,
   direction: SortDirection
-): (Session | StoryItem)[] {
+): (SessionItem | StoryItem)[] {
   return [...items].sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
