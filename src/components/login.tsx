@@ -8,7 +8,15 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
-import { LogOutIcon, LogInIcon, ChevronDownIcon, GalleryHorizontalEnd, BarChart3 } from 'lucide-react';
+import {
+  LogOutIcon,
+  LogInIcon,
+  ChevronDownIcon,
+  GalleryHorizontalEnd,
+  BarChart3,
+  Database,
+  Library,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
@@ -48,7 +56,7 @@ export function LoginButton() {
           <DropdownMenuContent align='end' className='min-w-[160px]'>
             <DropdownMenuItem asChild>
               <Link href='/my-stories'>
-                <GalleryHorizontalEnd /> My Stories
+                <Library /> My Stories
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowStorageDialog(true)}>

@@ -8,7 +8,7 @@ import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
 import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
-import { getMVSData, setIsDirty } from './actions';
+import { getMVSData, setIsDirty, setSessionIdUrl } from './actions';
 
 // SaveDialog Actions
 export function openSaveDialog() {
@@ -210,9 +210,7 @@ export async function performSaveSession(sessionId?: string): Promise<boolean> {
     closeSaveDialog();
 
     if (result.id) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('sessionId', result.id);
-      window.history.replaceState({}, '', url.toString());
+      setSessionIdUrl(result.id);
     }
 
     return true;

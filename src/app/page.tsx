@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
-import { User, Lock } from 'lucide-react';
+import { BookOpen, Library } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 function Features() {
@@ -137,8 +137,9 @@ export default function Home() {
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mb-8'>
               <Link
                 href='/builder?template=Empty'
-                className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors'
+                className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex gap-2 items-center'
               >
+                <BookOpen className='w-4 h-4' />
                 Start Building
               </Link>
 
@@ -149,14 +150,14 @@ export default function Home() {
                       href='/my-stories'
                       className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
                     >
-                      <User className='w-4 h-4' />
+                      <Library className='w-4 h-4' />
                       My Stories
                     </Link>
                   ) : (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
-                          <Lock className='w-4 h-4' />
+                          <Library className='w-4 h-4' />
                           My Stories
                         </div>
                       </TooltipTrigger>
@@ -184,14 +185,6 @@ export default function Home() {
               </Link>
             ))}
           </div>
-
-          {/* <div className='max-w-4xl mx-auto text-center'>
-            <h2 className='text-3xl md:text-3xl font-bold text-foreground mb-6'>Public Stories</h2>
-          </div>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-            TODO: list last 10 shared stories
-            TODO: "view all" button
-          </div> */}
         </section>
         <Features />
       </Main>

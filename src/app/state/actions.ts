@@ -42,6 +42,16 @@ export function setIsDirty(isDirty: boolean = true) {
   store.set(IsDirtyAtom, isDirty);
 }
 
+export function setSessionIdUrl(sessionId: string | undefined) {
+  const url = new URL(window.location.href);
+  if (sessionId) {
+    url.searchParams.set('sessionId', sessionId);
+  } else {
+    url.searchParams.delete('sessionId');
+  }
+  window.history.replaceState({}, '', url.toString());
+}
+
 export function addScene(options?: { duplicate?: boolean }) {
   const store = getDefaultStore();
   const view = store.get(CurrentViewAtom);
@@ -75,10 +85,7 @@ export function newStory() {
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
   setIsDirty(false);
-
-  const url = new URL(window.location.href);
-  url.searchParams.delete('sessionId');
-  window.history.replaceState({}, '', url.toString());
+  setSessionIdUrl(undefined);
 }
 
 const createStateProvider = (code: string) => {
@@ -224,7 +231,8 @@ export const importState = async (file: File) => {
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
-  setIsDirty();
+  setIsDirty(false);
+  setSessionIdUrl(undefined);
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {
