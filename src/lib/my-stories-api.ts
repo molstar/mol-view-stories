@@ -12,7 +12,7 @@ import {
   IsSessionLoadingAtom,
   PublishedStoryModalAtom,
 } from '@/app/state/atoms';
-import { checkCurrentStoryAgainstSharedStories } from '@/app/state/actions';
+import { setIsDirty } from '@/app/state/actions';
 import { SessionItem, StoryItem } from '@/app/state/types';
 import { VERSION as STORIES_APP_VERSION } from 'molstar/lib/apps/mvs-stories/version';
 
@@ -96,6 +96,9 @@ export async function loadSession(sessionId: string) {
   try {
     store.set(IsSessionLoadingAtom, true);
     const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`);
+    
+    // TODO:
+    // const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/item`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch session data: ${response.statusText}`);
@@ -107,6 +110,7 @@ export async function loadSession(sessionId: string) {
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+      setIsDirty(false);
     } else {
       throw new Error('No story data found in session');
     }

@@ -102,6 +102,7 @@ export interface SessionItem extends BaseItem {
 
 export interface StoryItem extends BaseItem {
   type: 'story';
+  // TODO: format?: 'mvsj' | 'mvsx';
 }
 
 export interface ApiResponse<T> {
