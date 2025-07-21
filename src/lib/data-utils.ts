@@ -37,3 +37,15 @@ export function tryFindIfStoryIsShared(sharedStories: StoryItem[]) {
     return sharedStory.title === currentStory.metadata.title;
   });
 }
+
+/**
+ * Utility to decode base64 (browser safe)
+ */
+export function decodeBase64(base64: string): string {
+  if (typeof window !== 'undefined' && window.atob) {
+    return window.atob(base64);
+  } else {
+    // Node.js fallback
+    return Buffer.from(base64, 'base64').toString('utf-8');
+  }
+}

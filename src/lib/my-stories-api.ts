@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { authenticatedFetch } from './auth/token-manager';
 import { API_CONFIG } from './config';
 import { tryFindIfStoryIsShared } from './data-utils';
+import { decodeBase64 } from './data-utils';
 import {
   MyStoriesDataAtom,
   MyStoriesStatusAtom,
@@ -105,7 +106,23 @@ export async function loadSession(sessionId: string) {
     }
 
     const sessionResponse = await response.json();
-    const storyData = sessionResponse;
+    // If sessionResponse.foo is base64, decode and parse it
+    let storyData = sessionResponse;
+    if (sessionResponse.foo && typeof sessionResponse.foo === 'string') {
+      try {
+        const decoded = decodeBase64(sessionResponse.foo);
+        // Try to parse as JSON, fallback to string if not JSON
+        try {
+          storyData = JSON.parse(decoded);
+        } catch {
+          storyData = { foo: decoded };
+        }
+      } catch (e) {
+        console.error('Failed to decode base64 session data:', e);
+        toast.error('Failed to decode session data');
+        storyData = sessionResponse;
+      }
+    }
 
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
