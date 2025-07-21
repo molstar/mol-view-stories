@@ -3,6 +3,7 @@
 import { useAuth } from '@/app/providers';
 import { PublishModalAtom, StoryAtom } from '@/app/state/atoms';
 import { publishStory } from '@/app/state/save-dialog-actions';
+import { usePublishStory } from '@/hooks/useStoriesQueries';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,14 +16,22 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { StoriesDropdown } from './StoriesDropdown';
+import { StoryItem } from '@/app/state/types';
+import { useState } from 'react';
 
 export function PublishModal() {
   const story = useAtomValue(StoryAtom);
   const [publishModal, setState] = useAtom(PublishModalAtom);
   const auth = useAuth();
+  const publishMutation = usePublishStory();
+  
+  // State for story selection
+  const [selectedStory, setSelectedStory] = useState<StoryItem | null>(null);
 
   const handleClose = () => {
     setState((prev) => ({ ...prev, isOpen: false }));
+    setSelectedStory(null); // Reset selection when closing
   };
 
   const publish = async () => {
@@ -30,10 +39,17 @@ export function PublishModal() {
       toast.error('You must be logged in to publish stories');
       return;
     }
+    
     try {
       setState((prev) => ({ ...prev, status: 'processing' }));
-      await publishStory({ storyId: publishModal.data?.overwriteId ?? undefined });
+      
+      // Use the mutation hook instead of direct function call
+      await publishMutation.mutateAsync({ 
+        storyId: selectedStory?.id // Use selected story ID for overwriting
+      });
+      
       setState((prev) => ({ ...prev, isOpen: false }));
+      setSelectedStory(null); // Reset selection after successful publish
     } catch (err) {
       console.error('Failed to publish story: ', err);
       toast.error(`Failed to publish the story`);
@@ -57,14 +73,28 @@ export function PublishModal() {
         </DialogHeader>
 
         <div className='space-y-4'>
-          <div>Publish as a new story</div>
-          <div>TODO: add dropdown to select a story to overwrite -- use title as initial guess?</div>
+          <StoriesDropdown
+            onStorySelect={setSelectedStory}
+            selectedStoryId={selectedStory?.id}
+            label="Publishing options"
+            placeholder="Choose how to publish this story..."
+          />
+          
+          {selectedStory && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-800">
+                <strong>Warning:</strong> This will overwrite the existing story "
+                <span className="font-medium">{selectedStory.title}</span>".
+                The previous version will be permanently lost.
+              </p>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
           <Button variant='default' onClick={publish} disabled={publishModal.status === 'processing'}>
             <Share2 className='size-4' />
-            Publish
+            {selectedStory ? 'Overwrite Story' : 'Publish New Story'}
           </Button>
         </DialogFooter>
       </DialogContent>

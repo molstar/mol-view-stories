@@ -18,7 +18,18 @@ import { handleOAuthCallback } from '@/lib/auth-utils';
 import { ChevronDown, Cloud, RefreshCw, Search, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { useMyStoriesData } from './useMyStoriesData';
+import { 
+  useMyStoriesData, 
+  useDeleteSession, 
+  useDeleteStory, 
+  useDeleteAllContent, 
+  useDeleteAllSessions, 
+  useDeleteAllStories 
+} from '@/hooks/useStoriesQueries';
+import { navigateToMyStoriesItem } from '@/lib/my-stories-api';
+import { loadUserQuota } from '@/lib/storage-api';
+import { useAtom } from 'jotai';
+import { UserQuotaAtom } from '@/app/state/atoms';
 
 // Import new components
 import {
@@ -38,10 +49,37 @@ export default function MyStoriesPage() {
   const auth = useAuth();
   const router = useRouter();
   const myStories = useMyStoriesData(auth.isAuthenticated);
+  
+  // Quota state (keeping the old Jotai approach for quota as it's separate from stories/sessions)
+  const [quotaStatus] = useAtom(UserQuotaAtom);
+  
+  // Mutation hooks for deletions
+  const deleteSessionMutation = useDeleteSession();
+  const deleteStoryMutation = useDeleteStory();
+  const deleteAllContentMutation = useDeleteAllContent();
+  const deleteAllSessionsMutation = useDeleteAllSessions();
+  const deleteAllStoriesMutation = useDeleteAllStories();
+  
   const [isProcessingCallback, setIsProcessingCallback] = useState(false);
   const [callbackProcessed, setCallbackProcessed] = useState(false);
   const [hasOAuthCode, setHasOAuthCode] = useState(false);
   const [isRedirectingToBuilder, setIsRedirectingToBuilder] = useState(false);
+
+  // Helper functions for missing handlers
+  const handleOpenInBuilder = (item: SessionItem | StoryItem) => {
+    navigateToMyStoriesItem(router, item);
+  };
+
+  const loadQuota = () => {
+    loadUserQuota();
+  };
+
+  // Load quota when user becomes authenticated
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      loadQuota();
+    }
+  }, [auth.isAuthenticated]);
 
   // Tab state
   const [activeTab, setActiveTab] = useState('sessions');
@@ -162,23 +200,25 @@ export default function MyStoriesPage() {
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
     try {
-      let success = false;
-
       if (deleteConfirm.type === 'all') {
-        success = await myStories.handleDeleteAllContent();
+        await deleteAllContentMutation.mutateAsync({ isAuthenticated: auth.isAuthenticated });
       } else if (deleteConfirm.type === 'all-sessions') {
-        success = await myStories.handleDeleteAllSessions();
+        await deleteAllSessionsMutation.mutateAsync({ isAuthenticated: auth.isAuthenticated });
       } else if (deleteConfirm.type === 'all-stories') {
-        success = await myStories.handleDeleteAllStories();
+        await deleteAllStoriesMutation.mutateAsync({ isAuthenticated: auth.isAuthenticated });
       } else if (deleteConfirm.type === 'session' && deleteConfirm.id) {
-        success = await myStories.handleDeleteSession(deleteConfirm.id);
+        await deleteSessionMutation.mutateAsync({ 
+          sessionId: deleteConfirm.id, 
+          isAuthenticated: auth.isAuthenticated 
+        });
       } else if (deleteConfirm.type === 'story' && deleteConfirm.id) {
-        success = await myStories.handleDeleteStory(deleteConfirm.id);
+        await deleteStoryMutation.mutateAsync({ 
+          storyId: deleteConfirm.id, 
+          isAuthenticated: auth.isAuthenticated 
+        });
       }
 
-      if (success) {
-        setDeleteConfirm({ open: false, type: 'session' });
-      }
+      setDeleteConfirm({ open: false, type: 'session' });
     } finally {
       setIsDeleting(false);
     }
@@ -314,7 +354,7 @@ export default function MyStoriesPage() {
                         sortField={sortField}
                         sortDirection={sortDirection}
                         onSort={handleSort}
-                        onEdit={myStories.handleOpenInBuilder}
+                        onEdit={handleOpenInBuilder}
                         onDelete={handleDeleteClick}
                       />
                     )}
@@ -332,7 +372,7 @@ export default function MyStoriesPage() {
                         sortField={sortField}
                         sortDirection={sortDirection}
                         onSort={handleSort}
-                        onEdit={myStories.handleOpenInBuilder}
+                        onEdit={handleOpenInBuilder}
                         onDelete={handleDeleteClick}
                       />
                     )}
@@ -344,10 +384,10 @@ export default function MyStoriesPage() {
             {/* Storage Quota Footer */}
             <div className='flex-shrink-0 mt-4'>
               <StorageQuotaInline
-                quota={myStories.quota}
-                quotaLoading={myStories.quotaLoading}
-                quotaError={myStories.quotaError}
-                onRefreshQuota={myStories.loadQuota}
+                quota={quotaStatus.status === 'success' ? quotaStatus.data : null}
+                quotaLoading={quotaStatus.status === 'loading'}
+                quotaError={quotaStatus.status === 'error' ? quotaStatus.error : null}
+                onRefreshQuota={loadQuota}
               />
             </div>
           </div>
