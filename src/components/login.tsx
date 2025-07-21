@@ -12,9 +12,6 @@ import {
   LogOutIcon,
   LogInIcon,
   ChevronDownIcon,
-  GalleryHorizontalEnd,
-  BarChart3,
-  Database,
   Library,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,17 +22,13 @@ import { PopupBlockedDialog } from './popup-blocked-dialog';
 import { exportState } from '@/app/state/actions';
 import { useAtomValue } from 'jotai';
 import { StoryAtom } from '@/app/state/atoms';
-import { StorageDialog } from '@/app/my-stories/components';
-import { useMyStoriesData } from '@/app/my-stories/useMyStoriesData';
 
 export function LoginButton() {
   const auth = useAuth();
   const { hasUnsavedChanges } = useUnsavedChanges();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showPopupBlockedDialog, setShowPopupBlockedDialog] = useState(false);
-  const [showStorageDialog, setShowStorageDialog] = useState(false);
   const story = useAtomValue(StoryAtom);
-  const myStories = useMyStoriesData(auth.isAuthenticated);
 
   if (auth.isAuthenticated) {
     const username = auth.user?.profile.preferred_username ?? auth.user?.profile.name ?? 'User';
@@ -59,9 +52,6 @@ export function LoginButton() {
                 <Library /> My Stories
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setShowStorageDialog(true)}>
-              <BarChart3 /> Storage
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             {/* using removeUser instead of signoutRedirect to avoid redirecting to the login page */}
             <DropdownMenuItem
@@ -74,15 +64,6 @@ export function LoginButton() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <StorageDialog
-          open={showStorageDialog}
-          onOpenChange={setShowStorageDialog}
-          quota={myStories.quota}
-          quotaLoading={myStories.quotaLoading}
-          quotaError={myStories.quotaError}
-          onRefreshQuota={myStories.loadQuota}
-        />
       </>
     );
   }

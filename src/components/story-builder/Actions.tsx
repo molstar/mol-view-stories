@@ -10,7 +10,6 @@ import {
   Download,
   FileCodeIcon,
   FileType,
-  Library,
   Plus,
   Share2Icon,
   Upload,

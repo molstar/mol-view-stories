@@ -30,6 +30,7 @@ import {
   SortDirection,
   SortField,
   sortItems,
+  StorageQuotaInline,
 } from './components';
 import { PublishedStoryModal } from '@/components/story-builder/file-operations/PublishedStoryModal';
 
@@ -103,7 +104,7 @@ export default function MyStoriesPage() {
     };
 
     processOAuthCallback();
-  }, [auth, callbackProcessed, isProcessingCallback, router]);
+  }, [hasOAuthCode, auth, callbackProcessed, isProcessingCallback, router]);
 
   // Debug auth state changes
   useEffect(() => {
@@ -122,9 +123,7 @@ export default function MyStoriesPage() {
   }, [myStories.stories, searchQuery, sortField, sortDirection]);
 
   // Get active data based on tab
-  // const activeData = activeTab === 'stories' ? filteredAndSortedStories : filteredAndSortedSessions;
-  // const activeDataType = activeTab === 'stories' ? 'stories' : 'sessions';
-  // const activeIcon = activeTab === 'stories' ? Database : FileText;
+  const activeData = activeTab === 'stories' ? filteredAndSortedStories : filteredAndSortedSessions;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -253,9 +252,10 @@ export default function MyStoriesPage() {
       >
         My Stories
       </Header>
-      <Main className='flex-1'>
-        <section className='px-4 md:px-8 bg-background'>
-          <div className='max-w-6xl mx-auto space-y-3'>
+      
+      <Main className='flex-1 flex flex-col min-h-0'>
+        <div className='flex flex-col flex-1 min-h-0 px-4 md:px-8 bg-background'>
+          <div className='max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0 space-y-3 py-4'>
             {myStories.error && (
               <div className='bg-destructive/15 text-destructive px-3 py-2 rounded-lg text-base'>
                 <strong className='font-medium'>Error: </strong>
@@ -263,10 +263,10 @@ export default function MyStoriesPage() {
               </div>
             )}
 
-            <div className='space-y-2'>
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-                <div className='flex items-center gap-2'>
+            <div className='flex flex-col flex-1 min-h-0 space-y-2'>
+              {/* Tabs and Search Controls */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full flex flex-col flex-1 min-h-0'>
+                <div className='flex items-center gap-2 flex-shrink-0'>
                   <TabsList>
                     <TabsTrigger
                       value='sessions'
@@ -285,8 +285,6 @@ export default function MyStoriesPage() {
                   </TabsList>
 
                   <div className='flex gap-2 items-center'>
-                    {/* Search Bar - only show if there are items to search through */}
-
                     <div className='relative max-w-xs'>
                       <Search className='absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground' />
                       <Input
@@ -297,47 +295,63 @@ export default function MyStoriesPage() {
                       />
                     </div>
                     <div className='text-muted-foreground text-sm'>
-                      Showing {filteredAndSortedSessions.length}{' '}
-                      {filteredAndSortedSessions.length === 1 ? 'entry' : 'entries'}
+                      Showing {activeData.length} {activeData.length === 1 ? 'entry' : 'entries'}
                     </div>
                   </div>
                 </div>
 
-                <TabsContent value='stories' className='space-y-2'>
-                  {myStories.loading ? (
-                    <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>
-                  ) : (
-                    <MyStoriesTable
-                      items={filteredAndSortedStories}
-                      showCreator={false}
-                      sortField={sortField}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                      onEdit={myStories.handleOpenInBuilder}
-                      onDelete={handleDeleteClick}
-                    />
-                  )}
-                </TabsContent>
+                {/* Table Content - Takes remaining space */}
+                <div className='flex-1 min-h-0 mt-2'>
+                  <TabsContent value='stories' className='flex flex-col flex-1 min-h-0 mt-0'>
+                    {myStories.loading ? (
+                      <div className='flex items-center justify-center flex-1 text-muted-foreground text-sm'>
+                        Loading content...
+                      </div>
+                    ) : (
+                      <MyStoriesTable
+                        items={filteredAndSortedStories}
+                        showCreator={false}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                        onEdit={myStories.handleOpenInBuilder}
+                        onDelete={handleDeleteClick}
+                      />
+                    )}
+                  </TabsContent>
 
-                <TabsContent value='sessions' className='space-y-2'>
-                  {myStories.loading ? (
-                    <div className='text-center py-4 text-muted-foreground text-sm'>Loading content...</div>
-                  ) : (
-                    <MyStoriesTable
-                      items={filteredAndSortedSessions}
-                      showCreator={false}
-                      sortField={sortField}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                      onEdit={myStories.handleOpenInBuilder}
-                      onDelete={handleDeleteClick}
-                    />
-                  )}
-                </TabsContent>
+                  <TabsContent value='sessions' className='flex flex-col flex-1 min-h-0 mt-0'>
+                    {myStories.loading ? (
+                      <div className='flex items-center justify-center flex-1 text-muted-foreground text-sm'>
+                        Loading content...
+                      </div>
+                    ) : (
+                      <MyStoriesTable
+                        items={filteredAndSortedSessions}
+                        showCreator={false}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                        onEdit={myStories.handleOpenInBuilder}
+                        onDelete={handleDeleteClick}
+                      />
+                    )}
+                  </TabsContent>
+                </div>
               </Tabs>
             </div>
+
+            {/* Storage Quota Footer */}
+            <div className='flex-shrink-0 mt-4'>
+              <StorageQuotaInline
+                quota={myStories.quota}
+                quotaLoading={myStories.quotaLoading}
+                quotaError={myStories.quotaError}
+                onRefreshQuota={myStories.loadQuota}
+              />
+            </div>
           </div>
-        </section>
+        </div>
 
         <PublishedStoryModal />
 
