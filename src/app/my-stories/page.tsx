@@ -303,7 +303,7 @@ export default function MyStoriesPage() {
               </div>
             )}
 
-            <div className='flex flex-col flex-1 min-h-0 space-y-2'>
+            <div className='flex flex-col flex-1 min-h-0'>
               {/* Tabs and Search Controls */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full flex flex-col flex-1 min-h-0'>
                 <div className='flex items-center gap-2 flex-shrink-0'>
@@ -340,8 +340,8 @@ export default function MyStoriesPage() {
                   </div>
                 </div>
 
-                {/* Table Content - Takes remaining space */}
-                <div className='flex-1 min-h-0 mt-2'>
+                {/* Table Content - Takes remaining space, now scrollable */}
+                <div className='flex-1 min-h-0 mt-2 overflow-auto'>
                   <TabsContent value='stories' className='flex flex-col flex-1 min-h-0 mt-0'>
                     {myStories.loading ? (
                       <div className='flex items-center justify-center flex-1 text-muted-foreground text-sm'>
