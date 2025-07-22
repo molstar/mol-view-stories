@@ -26,11 +26,41 @@ export function resolveViewerUrl(storyId: string, storyFormat: 'mvsx' | 'mvsj') 
   const appPrefix = `https://molstar.org/stories-viewer/v${STORIES_APP_VERSION}`;
 
   if (API_CONFIG.baseUrl === 'https://stories.molstar.org') {
-    return `${appPrefix}?story-id=${storyId}&format=${storyFormat}`;
+    return `${appPrefix}?story-id=${storyId}&data-format=${storyFormat}`;
   }
 
   const storyUrl = `${API_CONFIG.baseUrl}/api/story/${storyId}/data`;
-  return `${appPrefix}/?story-url=${encodeURIComponent(storyUrl)}&format=${storyFormat}`;
+  return `${appPrefix}/?story-url=${encodeURIComponent(storyUrl)}&data-format=${storyFormat}`;
+}
+
+/**
+ * Fetch the format (mvsj or mvsx) of a story by ID
+ * This endpoint doesn't require authentication
+ */
+export async function fetchStoryFormat(storyId: string): Promise<'mvsj' | 'mvsx'> {
+  try {
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/story/${storyId}/format`);
+    
+    if (!response.ok) {
+      console.warn(`Failed to fetch story format for ${storyId}: ${response.statusText}`);
+      // Fallback to 'mvsj' if the request fails
+      return 'mvsj';
+    }
+
+    const data = await response.json();
+    const format = data.format;
+    
+    if (format !== 'mvsj' && format !== 'mvsx') {
+      console.warn(`Invalid format received: ${format}, falling back to 'mvsj'`);
+      return 'mvsj';
+    }
+    
+    return format;
+  } catch (err) {
+    console.warn(`Error fetching story format for ${storyId}:`, err);
+    // Fallback to 'mvsj' if there's an error
+    return 'mvsj';
+  }
 }
 
 /**

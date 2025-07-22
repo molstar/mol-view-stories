@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { fetchMyStoriesData } from '@/lib/my-stories-api';
+import { fetchMyStoriesData, fetchStoryFormat } from '@/lib/my-stories-api';
 import { deleteSession, deleteStory, deleteAllSessions, deleteAllStories, deleteAllUserContent } from '@/lib/content-crud';
 import { publishStory } from '@/app/state/save-dialog-actions';
 import { SessionItem, StoryItem } from '@/app/state/types';
@@ -10,6 +10,7 @@ export const QUERY_KEYS = {
   sessions: ['sessions'] as const,
   stories: ['stories'] as const,
   allMyStories: ['my-stories'] as const,
+  storyFormat: (storyId: string) => ['story-format', storyId] as const,
 } as const;
 
 // Query Hooks
@@ -35,6 +36,20 @@ export function useStories(isAuthenticated: boolean) {
     queryFn: () => fetchMyStoriesData('story', isAuthenticated),
     enabled: isAuthenticated, // Only run query when user is authenticated
     staleTime: 2 * 60 * 1000, // Consider data fresh for 2 minutes (stories change less often)
+  });
+}
+
+/**
+ * Hook to fetch the format (mvsj or mvsx) of a specific story
+ * This query doesn't require authentication and is used for resolving viewer URLs
+ */
+export function useStoryFormat(storyId: string | null | undefined) {
+  return useQuery({
+    queryKey: QUERY_KEYS.storyFormat(storyId || ''),
+    queryFn: () => fetchStoryFormat(storyId!),
+    enabled: !!storyId, // Only run query when storyId is available
+    staleTime: 10 * 60 * 1000, // Consider data fresh for 10 minutes (format rarely changes)
+    retry: 2, // Retry failed requests twice
   });
 }
 

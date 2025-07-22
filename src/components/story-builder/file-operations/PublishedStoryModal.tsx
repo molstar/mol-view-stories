@@ -6,12 +6,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { resolvePublicStoryUrl, resolveViewerUrl } from '@/lib/my-stories-api';
+import { useStoryFormat } from '@/hooks/useStoriesQueries';
 import { useAtom } from 'jotai';
 import { Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function PublishedStoryModal() {
   const [shareModal, setShareModal] = useAtom(PublishedStoryModalAtom);
+  
+  // Fetch the story format dynamically
+  const { data: storyFormat, isLoading: isLoadingFormat } = useStoryFormat(shareModal.data?.itemId);
 
   const handleClose = () => {
     setShareModal((prev) => ({ ...prev, isOpen: false }));
@@ -32,8 +36,8 @@ export function PublishedStoryModal() {
   }
 
   const publicUrl = resolvePublicStoryUrl(shareModal.data.itemId!);
-  // TODO: correctly resolve format
-  const molstarUrl = resolveViewerUrl(shareModal.data.itemId!, 'mvsj');
+  // Use the fetched format, fallback to 'mvsj' while loading
+  const molstarUrl = resolveViewerUrl(shareModal.data.itemId!, storyFormat || 'mvsj');
 
   return (
     <Dialog open={shareModal.isOpen} onOpenChange={handleClose}>
@@ -59,7 +63,11 @@ export function PublishedStoryModal() {
 
           <div className='space-y-2'>
             <Label htmlFor='molstar-url'>Mol* Stories Viewer URL</Label>
-            <p className='text-xs text-muted-foreground'>Opens the story in the Mol* Stories Viewer</p>
+            <p className='text-xs text-muted-foreground'>
+              Opens the story in the Mol* Stories Viewer
+              {isLoadingFormat && <span className='ml-1'>(detecting format...)</span>}
+              {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
+            </p>
             <div className='flex gap-2'>
               <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
               <Button variant='outline' size='sm' onClick={() => copyToClipboard(molstarUrl, 'Mol* Viewer URL')}>
