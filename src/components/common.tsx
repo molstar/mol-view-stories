@@ -5,16 +5,50 @@ import React, { ReactNode, useState } from 'react';
 import { LoginButton } from './login';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useRouter, usePathname } from 'next/navigation';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { ConfirmDialog } from './ui/confirm-dialog';
 
 function HeaderLogo() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { hasUnsavedChanges } = useUnsavedChanges({ enableBeforeUnload: false });
+  const [showDialog, setShowDialog] = React.useState(false);
+  const handleClick = (e: React.MouseEvent) => {
+    // Only intercept if on /builder
+    if (pathname.startsWith('/builder') && hasUnsavedChanges) {
+      e.preventDefault();
+      setShowDialog(true);
+    } else {
+      router.push('/');
+    }
+  };
+  const handleConfirm = () => {
+    setShowDialog(false);
+    router.push('/');
+  };
   return (
-    <Link
-      href='/'
-      className='flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors'
-    >
-      <Image src='/favicon.ico' alt='MolViewStories' width={24} height={24} className='w-6 h-6' />
-      MolViewStories
-    </Link>
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        className="flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors bg-transparent border-none p-0 cursor-pointer"
+        style={{ background: 'none', border: 'none' }}
+      >
+        <Image src='/favicon.ico' alt='MolViewStories' width={24} height={24} className='w-6 h-6' />
+        MolViewStories
+      </button>
+      <ConfirmDialog
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        title="Unsaved Changes"
+        description="You have unsaved changes. Are you sure you want to leave this page? Unsaved changes will be lost."
+        confirmText="Leave Page"
+        cancelText="Stay"
+        onConfirm={handleConfirm}
+        isDestructive
+      />
+    </>
   );
 }
 

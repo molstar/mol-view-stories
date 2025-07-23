@@ -22,6 +22,8 @@ import { PopupBlockedDialog } from './popup-blocked-dialog';
 import { exportState } from '@/app/state/actions';
 import { useAtomValue } from 'jotai';
 import { StoryAtom } from '@/app/state/atoms';
+import { useRouter, usePathname } from 'next/navigation';
+import { ConfirmDialog } from './ui/confirm-dialog';
 
 export function LoginButton() {
   const auth = useAuth();
@@ -32,6 +34,21 @@ export function LoginButton() {
 
   if (auth.isAuthenticated) {
     const username = auth.user?.profile.preferred_username ?? auth.user?.profile.name ?? 'User';
+    const router = useRouter();
+    const pathname = usePathname();
+    const [showDialog, setShowDialog] = useState(false);
+    const handleMyStoriesClick = (e: React.MouseEvent) => {
+      if (pathname.startsWith('/builder') && hasUnsavedChanges) {
+        e.preventDefault();
+        setShowDialog(true);
+      } else {
+        router.push('/my-stories');
+      }
+    };
+    const handleConfirm = () => {
+      setShowDialog(false);
+      router.push('/my-stories');
+    };
     return (
       <>
         <DropdownMenu>
@@ -47,10 +64,15 @@ export function LoginButton() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='min-w-[160px]'>
-            <DropdownMenuItem asChild>
-              <Link href='/my-stories'>
+            <DropdownMenuItem asChild={false}>
+              <button
+                type="button"
+                onClick={handleMyStoriesClick}
+                className="flex items-center gap-2 w-full text-left bg-transparent border-none p-0 cursor-pointer"
+                style={{ background: 'none', border: 'none' }}
+              >
                 <Library /> My Stories
-              </Link>
+              </button>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {/* using removeUser instead of signoutRedirect to avoid redirecting to the login page */}
@@ -64,6 +86,16 @@ export function LoginButton() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <ConfirmDialog
+          open={showDialog}
+          onOpenChange={setShowDialog}
+          title="Unsaved Changes"
+          description="You have unsaved changes. Are you sure you want to leave this page? Unsaved changes will be lost."
+          confirmText="Leave Page"
+          cancelText="Stay"
+          onConfirm={handleConfirm}
+          isDestructive
+        />
       </>
     );
   }
