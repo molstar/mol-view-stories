@@ -1,5 +1,5 @@
 import { useAuth } from '@/app/providers';
-import { downloadStory, exportState, newStory } from '@/app/state/actions';
+import { downloadStory, exportState, newStory, setIsDirty } from '@/app/state/actions';
 import { IsDirtyAtom, OpenSessionAtom, PublishModalAtom, StoryAtom } from '@/app/state/atoms';
 import { openSaveDialog } from '@/app/state/save-dialog-actions';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -55,7 +55,14 @@ export function StoryActionButtons() {
             Story
             <ChevronDownIcon className='size-3 ml-1' />
             {hasUnsavedChanges && (
-              <div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-background' />
+              <TooltipWrapper
+                tooltip={
+                  'You have unsaved changes. Please export or save your story to the cloud.'
+                }
+                side='top'
+              >
+                <div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-background' />
+              </TooltipWrapper>
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -80,6 +87,7 @@ export function StoryActionButtons() {
               onClick={async () => {
                 try {
                   await exportState(story);
+                  setIsDirty(false);
                 } catch (error) {
                   toast.error('Export failed');
                   console.error('Export failed:', error);

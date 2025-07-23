@@ -1,6 +1,6 @@
 'use client';
 
-import { exportState, StoryAtom } from '@/app/appstate';
+import { exportState, StoryAtom, setIsDirty } from '@/app/appstate';
 import { MenubarItem } from '@/components/ui/menubar';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
@@ -13,6 +13,7 @@ export function ExportSessionButton() {
     try {
       setIsExporting(true);
       await exportState(story);
+      setIsDirty(false);
       console.log('Export completed successfully');
     } catch (error) {
       console.error('Error during export:', error);

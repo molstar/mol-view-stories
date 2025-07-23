@@ -41,4 +41,5 @@ export {
   removeCurrentScene,
   addStoryAssets,
   removeStoryAsset,
+  setIsDirty,
 } from './state/actions';
