@@ -19,7 +19,7 @@ export function SaveDialog() {
 
   return (
     <Dialog open={saveDialog.isOpen} onOpenChange={closeSaveDialog}>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className='sm:max-w-[500px]' onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Save Session</DialogTitle>
           <DialogDescription>Saved sessions are only accessible to you</DialogDescription>

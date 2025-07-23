@@ -10,6 +10,7 @@ import {
   AsyncStatus,
   ModalState,
   ConfirmationState,
+  SessionMetadata,
 } from './types';
 
 // Auth State Atom - tracks authentication status
@@ -172,6 +173,9 @@ export const PublishModalAtom = atom<ModalState<PublishModalData>>({
   status: 'idle',
   data: {},
 });
+
+// Session metadata state - stores metadata when loading a session from my-stories
+export const SessionMetadataAtom = atom<SessionMetadata | null>(null);
 
 // Unified Confirmation Dialog State - consolidates multiple confirmation dialogs
 export const ConfirmationDialogAtom = atom<ConfirmationState>({

@@ -14,6 +14,7 @@ import {
   StoryAtom,
   MyStoriesDataAtom,
   IsDirtyAtom,
+  SessionMetadataAtom,
 } from './atoms';
 import {
   CameraData,
@@ -84,6 +85,7 @@ export function newStory() {
   const store = getDefaultStore();
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
+  store.set(SessionMetadataAtom, null); // Clear session metadata for new stories
   setIsDirty(false);
   setSessionIdUrl(undefined);
 }
@@ -231,6 +233,7 @@ export const importState = async (file: File) => {
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
+  store.set(SessionMetadataAtom, null); // Clear session metadata for imported sessions
   setIsDirty(false);
   setSessionIdUrl(undefined);
 };

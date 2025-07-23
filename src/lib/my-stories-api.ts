@@ -12,9 +12,10 @@ import {
   CurrentViewAtom,
   IsSessionLoadingAtom,
   PublishedStoryModalAtom,
+  SessionMetadataAtom,
 } from '@/app/state/atoms';
 import { setIsDirty } from '@/app/state/actions';
-import { SessionItem, StoryItem } from '@/app/state/types';
+import { SessionItem, StoryItem, SessionMetadata } from '@/app/state/types';
 import { VERSION as STORIES_APP_VERSION } from 'molstar/lib/apps/mvs-stories/version';
 
 export function resolvePublicStoryUrl(storyId: string) {
@@ -120,28 +121,33 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
 
 /**
  * Load a specific session by ID into the story builder
- * Updates global state with the session's story data
+ * Updates global state with the session's story data and metadata
  */
 export async function loadSession(sessionId: string) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
-    const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`);
     
-    // TODO:
-    // const response = await authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/item`);
+    // Fetch both session data and metadata in parallel
+    const [dataResponse, metadataResponse] = await Promise.all([
+      authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`),
+      authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`)
+    ]);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch session data: ${response.statusText}`);
+    if (!dataResponse.ok) {
+      throw new Error(`Failed to fetch session data: ${dataResponse.statusText}`);
+    }
+    
+    if (!metadataResponse.ok) {
+      throw new Error(`Failed to fetch session metadata: ${metadataResponse.statusText}`);
     }
 
-    const sessionResponse = await response.json();
-    // If sessionResponse.foo is base64, decode and parse it
+    // Parse session data
+    const sessionResponse = await dataResponse.json();
     let storyData = sessionResponse;
     if (sessionResponse.foo && typeof sessionResponse.foo === 'string') {
       try {
         const decoded = decodeBase64(sessionResponse.foo);
-        // Try to parse as JSON, fallback to string if not JSON
         try {
           storyData = JSON.parse(decoded);
         } catch {
@@ -154,8 +160,12 @@ export async function loadSession(sessionId: string) {
       }
     }
 
+    // Parse session metadata
+    const sessionMetadata: SessionMetadata = await metadataResponse.json();
+
     if (storyData?.story) {
       store.set(StoryAtom, storyData.story);
+      store.set(SessionMetadataAtom, sessionMetadata);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
       setIsDirty(false);
     } else {

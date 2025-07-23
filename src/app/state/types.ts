@@ -105,6 +105,23 @@ export interface StoryItem extends BaseItem {
   // TODO: format?: 'mvsj' | 'mvsx';
 }
 
+// Session metadata retrieved from /api/session/<id> endpoint
+export interface SessionMetadata {
+  id: string;
+  type: 'session';
+  created_at: string;
+  updated_at: string;
+  creator: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  title: string;
+  description: string;
+  tags: string[];
+  version: string;
+}
+
 export interface ApiResponse<T> {
   data: T[];
   error?: string;

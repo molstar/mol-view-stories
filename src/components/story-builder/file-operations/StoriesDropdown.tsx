@@ -66,7 +66,7 @@ export function StoriesDropdown({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">
-            <span className="text-muted-foreground">Publish as new story</span>
+            <span className="text-muted-foreground">Publish as new story, or overwrite an existing story</span>
           </SelectItem>
           
           {isLoading && (

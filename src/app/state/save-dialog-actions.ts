@@ -3,7 +3,7 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
-import { StoryAtom, SaveDialogAtom, PublishedStoryModalAtom } from './atoms';
+import { StoryAtom, SaveDialogAtom, PublishedStoryModalAtom, SessionMetadataAtom } from './atoms';
 import { type Story, type StoryContainer } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
@@ -14,14 +14,17 @@ import { getMVSData, setIsDirty, setSessionIdUrl } from './actions';
 export function openSaveDialog() {
   const sessionId = new URL(window.location.href).searchParams.get('sessionId') ?? undefined;
   const store = getDefaultStore();
+  
+  // Get existing session metadata if available
+  const sessionMetadata = store.get(SessionMetadataAtom);
+  const existingDescription = sessionMetadata?.description || '';
 
   store.set(SaveDialogAtom, {
     isOpen: true,
     status: 'idle',
     data: {
       sessionId,
-      // TODO: set note from the current session
-      note: '',
+      note: existingDescription,
     },
   });
 }
