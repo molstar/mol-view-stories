@@ -14,7 +14,7 @@ import { getMVSData, setIsDirty, setSessionIdUrl } from './actions';
 export function openSaveDialog() {
   const sessionId = new URL(window.location.href).searchParams.get('sessionId') ?? undefined;
   const store = getDefaultStore();
-  
+
   // Get existing session metadata if available
   const sessionMetadata = store.get(SessionMetadataAtom);
   const existingDescription = sessionMetadata?.description || '';

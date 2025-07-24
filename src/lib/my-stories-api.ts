@@ -41,7 +41,7 @@ export function resolveViewerUrl(storyId: string, storyFormat: 'mvsx' | 'mvsj') 
 export async function fetchStoryFormat(storyId: string): Promise<'mvsj' | 'mvsx'> {
   try {
     const response = await fetch(`${API_CONFIG.baseUrl}/api/story/${storyId}/format`);
-    
+
     if (!response.ok) {
       console.warn(`Failed to fetch story format for ${storyId}: ${response.statusText}`);
       // Fallback to 'mvsj' if the request fails
@@ -50,12 +50,12 @@ export async function fetchStoryFormat(storyId: string): Promise<'mvsj' | 'mvsx'
 
     const data = await response.json();
     const format = data.format;
-    
+
     if (format !== 'mvsj' && format !== 'mvsx') {
       console.warn(`Invalid format received: ${format}, falling back to 'mvsj'`);
       return 'mvsj';
     }
-    
+
     return format;
   } catch (err) {
     console.warn(`Error fetching story format for ${storyId}:`, err);
@@ -127,17 +127,17 @@ export async function loadSession(sessionId: string) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
-    
+
     // Fetch both session data and metadata in parallel
     const [dataResponse, metadataResponse] = await Promise.all([
       authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`),
-      authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`)
+      authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`),
     ]);
 
     if (!dataResponse.ok) {
       throw new Error(`Failed to fetch session data: ${dataResponse.statusText}`);
     }
-    
+
     if (!metadataResponse.ok) {
       throw new Error(`Failed to fetch session metadata: ${metadataResponse.statusText}`);
     }

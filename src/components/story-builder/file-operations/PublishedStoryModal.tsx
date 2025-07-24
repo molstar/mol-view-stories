@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 
 export function PublishedStoryModal() {
   const [shareModal, setShareModal] = useAtom(PublishedStoryModalAtom);
-  
+
   // Fetch the story format dynamically
   const { data: storyFormat, isLoading: isLoadingFormat } = useStoryFormat(shareModal.data?.itemId);
 

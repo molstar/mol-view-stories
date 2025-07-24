@@ -26,38 +26,35 @@ function QuotaItem({ title, used, limit, unit = '', icon: Icon }: QuotaItemProps
   const colorClass = getUsageColor(percentage);
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1 min-w-fit">
-        <Icon className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{title}:</span>
+    <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-1 min-w-fit'>
+        <Icon className='h-4 w-4 text-muted-foreground' />
+        <span className='text-sm font-medium'>{title}:</span>
       </div>
-      <div className="flex items-center gap-1">
-        <div className="bg-muted rounded-full h-2 w-24">
+      <div className='flex items-center gap-1'>
+        <div className='bg-muted rounded-full h-2 w-24'>
           <div
             className={`h-2 rounded-full transition-all duration-300 ${colorClass}`}
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <span className="text-sm text-muted-foreground whitespace-nowrap ml-2">
-          {used.toLocaleString()}{unit} / {limit.toLocaleString()}{unit} ({percentage.toFixed(1)}%)
+        <span className='text-sm text-muted-foreground whitespace-nowrap ml-2'>
+          {used.toLocaleString()}
+          {unit} / {limit.toLocaleString()}
+          {unit} ({percentage.toFixed(1)}%)
         </span>
       </div>
     </div>
   );
 }
 
-export function StorageQuotaInline({
-  quota,
-  quotaLoading,
-  quotaError,
-  onRefreshQuota,
-}: StorageQuotaInlineProps) {
+export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQuota }: StorageQuotaInlineProps) {
   if (quotaLoading) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <RefreshCw className="h-4 w-4 animate-spin" />
+      <Card className='border-dashed'>
+        <CardContent className='p-4'>
+          <div className='flex items-center justify-center gap-2 text-sm text-muted-foreground'>
+            <RefreshCw className='h-4 w-4 animate-spin' />
             Loading quota information...
           </div>
         </CardContent>
@@ -67,15 +64,15 @@ export function StorageQuotaInline({
 
   if (quotaError) {
     return (
-      <Card className="border-destructive/20">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-destructive">
+      <Card className='border-destructive/20'>
+        <CardContent className='p-4'>
+          <div className='flex items-center justify-between'>
+            <div className='text-sm text-destructive'>
               <strong>Error loading quota:</strong> {quotaError}
             </div>
             {onRefreshQuota && (
-              <Button variant="outline" size="sm" onClick={onRefreshQuota} className="h-7 px-2 text-xs">
-                <RefreshCw className="h-3 w-3 mr-1" />
+              <Button variant='outline' size='sm' onClick={onRefreshQuota} className='h-7 px-2 text-xs'>
+                <RefreshCw className='h-3 w-3 mr-1' />
                 Retry
               </Button>
             )}
@@ -87,15 +84,13 @@ export function StorageQuotaInline({
 
   if (!quota) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="p-3">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Quota information not available
-            </div>
+      <Card className='border-dashed'>
+        <CardContent className='p-3'>
+          <div className='flex items-center justify-between'>
+            <div className='text-sm text-muted-foreground'>Quota information not available</div>
             {onRefreshQuota && (
-              <Button variant="outline" size="sm" onClick={onRefreshQuota} className="h-7 px-2 text-xs">
-                <BarChart3 className="h-3 w-3 mr-1" />
+              <Button variant='outline' size='sm' onClick={onRefreshQuota} className='h-7 px-2 text-xs'>
+                <BarChart3 className='h-3 w-3 mr-1' />
                 Load Quota
               </Button>
             )}
@@ -106,28 +101,28 @@ export function StorageQuotaInline({
   }
 
   return (
-    <Card className="mx-auto max-w-md">
-      <CardContent className="p-3">
-        <div className="flex items-center justify-start mb-3">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Storage Quota</span>
+    <Card className='mx-auto max-w-md'>
+      <CardContent className='p-3'>
+        <div className='flex items-center justify-start mb-3'>
+          <div className='flex items-center gap-2'>
+            <BarChart3 className='h-4 w-4 text-muted-foreground' />
+            <span className='text-sm font-medium'>Storage Quota</span>
           </div>
           {onRefreshQuota && (
-            <Button variant="ghost" size="sm" onClick={onRefreshQuota} className="h-7 w-7 p-0 ml-2">
-              <RefreshCw className="h-3 w-3" />
+            <Button variant='ghost' size='sm' onClick={onRefreshQuota} className='h-7 w-7 p-0 ml-2'>
+              <RefreshCw className='h-3 w-3' />
             </Button>
           )}
         </div>
-        <div className="space-y-2">
+        <div className='space-y-2'>
           <QuotaItem
-            title="Sessions"
+            title='Sessions'
             used={quota.sessions?.current ?? 0}
             limit={quota.sessions?.limit ?? 0}
             icon={FileText}
           />
           <QuotaItem
-            title="Stories"
+            title='Stories'
             used={quota.stories?.current ?? 0}
             limit={quota.stories?.limit ?? 0}
             icon={BookOpen}
@@ -136,4 +131,4 @@ export function StorageQuotaInline({
       </CardContent>
     </Card>
   );
-} 
+}

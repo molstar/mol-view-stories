@@ -56,9 +56,7 @@ export function StoryActionButtons() {
             <ChevronDownIcon className='size-3 ml-1' />
             {hasUnsavedChanges && (
               <TooltipWrapper
-                tooltip={
-                  'You have unsaved changes. Please export or save your story to the cloud.'
-                }
+                tooltip={'You have unsaved changes. Please export or save your story to the cloud.'}
                 side='top'
               >
                 <div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-background' />

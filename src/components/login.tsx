@@ -8,14 +8,8 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
-import {
-  LogOutIcon,
-  LogInIcon,
-  ChevronDownIcon,
-  Library,
-} from 'lucide-react';
+import { LogOutIcon, LogInIcon, ChevronDownIcon, Library } from 'lucide-react';
 import { toast } from 'sonner';
-import Link from 'next/link';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { cn } from '@/lib/utils';
 import { PopupBlockedDialog } from './popup-blocked-dialog';
@@ -31,12 +25,12 @@ export function LoginButton() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showPopupBlockedDialog, setShowPopupBlockedDialog] = useState(false);
   const story = useAtomValue(StoryAtom);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [showDialog, setShowDialog] = useState(false);
 
   if (auth.isAuthenticated) {
     const username = auth.user?.profile.preferred_username ?? auth.user?.profile.name ?? 'User';
-    const router = useRouter();
-    const pathname = usePathname();
-    const [showDialog, setShowDialog] = useState(false);
     const handleMyStoriesClick = (e: React.MouseEvent) => {
       if (pathname.startsWith('/builder') && hasUnsavedChanges) {
         e.preventDefault();
@@ -66,9 +60,9 @@ export function LoginButton() {
           <DropdownMenuContent align='end' className='min-w-[160px]'>
             <DropdownMenuItem asChild={false}>
               <button
-                type="button"
+                type='button'
                 onClick={handleMyStoriesClick}
-                className="flex items-center gap-2 w-full text-left bg-transparent border-none p-0 cursor-pointer"
+                className='flex items-center gap-2 w-full text-left bg-transparent border-none p-0 cursor-pointer'
                 style={{ background: 'none', border: 'none' }}
               >
                 <Library /> My Stories
@@ -89,10 +83,10 @@ export function LoginButton() {
         <ConfirmDialog
           open={showDialog}
           onOpenChange={setShowDialog}
-          title="Unsaved Changes"
-          description="You have unsaved changes. Are you sure you want to leave this page? Unsaved changes will be lost."
-          confirmText="Leave Page"
-          cancelText="Stay"
+          title='Unsaved Changes'
+          description='You have unsaved changes. Are you sure you want to leave this page? Unsaved changes will be lost.'
+          confirmText='Leave Page'
+          cancelText='Stay'
           onConfirm={handleConfirm}
           isDestructive
         />

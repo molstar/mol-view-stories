@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { fetchMyStoriesData, fetchStoryFormat } from '@/lib/my-stories-api';
-import { deleteSession, deleteStory, deleteAllSessions, deleteAllStories, deleteAllUserContent } from '@/lib/content-crud';
+import {
+  deleteSession,
+  deleteStory,
+  deleteAllSessions,
+  deleteAllStories,
+  deleteAllUserContent,
+} from '@/lib/content-crud';
 import { publishStory } from '@/app/state/save-dialog-actions';
 import { SessionItem, StoryItem } from '@/app/state/types';
 
@@ -65,17 +71,17 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     // Data
     sessions: (sessionsQuery.data as SessionItem[]) ?? [],
     stories: (storiesQuery.data as StoryItem[]) ?? [],
-    
+
     // Loading states
     loading: sessionsQuery.isLoading || storiesQuery.isLoading,
     error: sessionsQuery.error?.message || storiesQuery.error?.message || null,
-    
+
     // Refetch functions
     loadAllData: () => {
       sessionsQuery.refetch();
       storiesQuery.refetch();
     },
-    
+
     // Individual query objects for more granular control
     sessionsQuery,
     storiesQuery,
@@ -89,7 +95,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
  */
 export function usePublishStory() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ storyId }: { storyId?: string }) => publishStory({ storyId }),
     onSuccess: () => {
@@ -109,7 +115,7 @@ export function usePublishStory() {
  */
 export function useDeleteSession() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ sessionId, isAuthenticated }: { sessionId: string; isAuthenticated: boolean }) =>
       deleteSession(sessionId, isAuthenticated),
@@ -130,7 +136,7 @@ export function useDeleteSession() {
  */
 export function useDeleteStory() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ storyId, isAuthenticated }: { storyId: string; isAuthenticated: boolean }) =>
       deleteStory(storyId, isAuthenticated),
@@ -151,10 +157,9 @@ export function useDeleteStory() {
  */
 export function useDeleteAllSessions() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ isAuthenticated }: { isAuthenticated: boolean }) =>
-      deleteAllSessions(isAuthenticated),
+    mutationFn: ({ isAuthenticated }: { isAuthenticated: boolean }) => deleteAllSessions(isAuthenticated),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.sessions });
     },
@@ -169,10 +174,9 @@ export function useDeleteAllSessions() {
  */
 export function useDeleteAllStories() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ isAuthenticated }: { isAuthenticated: boolean }) =>
-      deleteAllStories(isAuthenticated),
+    mutationFn: ({ isAuthenticated }: { isAuthenticated: boolean }) => deleteAllStories(isAuthenticated),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stories });
     },
@@ -187,10 +191,9 @@ export function useDeleteAllStories() {
  */
 export function useDeleteAllContent() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ isAuthenticated }: { isAuthenticated: boolean }) =>
-      deleteAllUserContent(isAuthenticated),
+    mutationFn: ({ isAuthenticated }: { isAuthenticated: boolean }) => deleteAllUserContent(isAuthenticated),
     onSuccess: () => {
       // Invalidate both sessions and stories
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.sessions });
@@ -200,4 +203,4 @@ export function useDeleteAllContent() {
       console.error('Failed to delete all content:', error);
     },
   });
-} 
+}

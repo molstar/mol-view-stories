@@ -67,9 +67,9 @@ export function MyStoriesTable({
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className='flex flex-col flex-1 min-h-0'>
       <Table>
-        <TableHeader className="sticky top-0 bg-background z-10">
+        <TableHeader className='sticky top-0 bg-background z-10'>
           <TableRow className='h-8 border-b-2'>
             <SortableTableHead field='title' className='h-8 px-1 w-[25%]'>
               Title
@@ -88,10 +88,7 @@ export function MyStoriesTable({
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
-              <TableCell 
-                colSpan={showCreator ? 6 : 5} 
-                className="text-center py-8 text-muted-foreground text-sm"
-              >
+              <TableCell colSpan={showCreator ? 6 : 5} className='text-center py-8 text-muted-foreground text-sm'>
                 No items found
               </TableCell>
             </TableRow>

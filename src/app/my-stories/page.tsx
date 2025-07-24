@@ -18,13 +18,13 @@ import { handleOAuthCallback } from '@/lib/auth-utils';
 import { ChevronDown, Cloud, RefreshCw, Search, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { 
-  useMyStoriesData, 
-  useDeleteSession, 
-  useDeleteStory, 
-  useDeleteAllContent, 
-  useDeleteAllSessions, 
-  useDeleteAllStories 
+import {
+  useMyStoriesData,
+  useDeleteSession,
+  useDeleteStory,
+  useDeleteAllContent,
+  useDeleteAllSessions,
+  useDeleteAllStories,
 } from '@/hooks/useStoriesQueries';
 import { navigateToMyStoriesItem } from '@/lib/my-stories-api';
 import { loadUserQuota } from '@/lib/storage-api';
@@ -49,17 +49,17 @@ export default function MyStoriesPage() {
   const auth = useAuth();
   const router = useRouter();
   const myStories = useMyStoriesData(auth.isAuthenticated);
-  
+
   // Quota state (keeping the old Jotai approach for quota as it's separate from stories/sessions)
   const [quotaStatus] = useAtom(UserQuotaAtom);
-  
+
   // Mutation hooks for deletions
   const deleteSessionMutation = useDeleteSession();
   const deleteStoryMutation = useDeleteStory();
   const deleteAllContentMutation = useDeleteAllContent();
   const deleteAllSessionsMutation = useDeleteAllSessions();
   const deleteAllStoriesMutation = useDeleteAllStories();
-  
+
   const [isProcessingCallback, setIsProcessingCallback] = useState(false);
   const [callbackProcessed, setCallbackProcessed] = useState(false);
   const [hasOAuthCode, setHasOAuthCode] = useState(false);
@@ -207,14 +207,14 @@ export default function MyStoriesPage() {
       } else if (deleteConfirm.type === 'all-stories') {
         await deleteAllStoriesMutation.mutateAsync({ isAuthenticated: auth.isAuthenticated });
       } else if (deleteConfirm.type === 'session' && deleteConfirm.id) {
-        await deleteSessionMutation.mutateAsync({ 
-          sessionId: deleteConfirm.id, 
-          isAuthenticated: auth.isAuthenticated 
+        await deleteSessionMutation.mutateAsync({
+          sessionId: deleteConfirm.id,
+          isAuthenticated: auth.isAuthenticated,
         });
       } else if (deleteConfirm.type === 'story' && deleteConfirm.id) {
-        await deleteStoryMutation.mutateAsync({ 
-          storyId: deleteConfirm.id, 
-          isAuthenticated: auth.isAuthenticated 
+        await deleteStoryMutation.mutateAsync({
+          storyId: deleteConfirm.id,
+          isAuthenticated: auth.isAuthenticated,
         });
       }
 
@@ -292,7 +292,7 @@ export default function MyStoriesPage() {
       >
         My Stories
       </Header>
-      
+
       <Main className='flex-1 flex flex-col min-h-0'>
         <div className='flex flex-col flex-1 min-h-0 px-4 md:px-8 bg-background'>
           <div className='max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0 space-y-3 py-4'>

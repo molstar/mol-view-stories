@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/app/providers';
 import { PublishModalAtom, StoryAtom } from '@/app/state/atoms';
-import { publishStory } from '@/app/state/save-dialog-actions';
 import { usePublishStory } from '@/hooks/useStoriesQueries';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +24,7 @@ export function PublishModal() {
   const [publishModal, setState] = useAtom(PublishModalAtom);
   const auth = useAuth();
   const publishMutation = usePublishStory();
-  
+
   // State for story selection
   const [selectedStory, setSelectedStory] = useState<StoryItem | null>(null);
 
@@ -39,15 +38,15 @@ export function PublishModal() {
       toast.error('You must be logged in to publish stories');
       return;
     }
-    
+
     try {
       setState((prev) => ({ ...prev, status: 'processing' }));
-      
+
       // Use the mutation hook instead of direct function call
-      await publishMutation.mutateAsync({ 
-        storyId: selectedStory?.id // Use selected story ID for overwriting
+      await publishMutation.mutateAsync({
+        storyId: selectedStory?.id, // Use selected story ID for overwriting
       });
-      
+
       setState((prev) => ({ ...prev, isOpen: false }));
       setSelectedStory(null); // Reset selection after successful publish
     } catch (err) {
@@ -76,16 +75,16 @@ export function PublishModal() {
           <StoriesDropdown
             onStorySelect={setSelectedStory}
             selectedStoryId={selectedStory?.id}
-            label="Publishing options"
-            placeholder="Choose how to publish this story..."
+            label='Publishing options'
+            placeholder='Choose how to publish this story...'
           />
-          
+
           {selectedStory && (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-800">
-                <strong>Warning:</strong> This will overwrite the existing story "
-                <span className="font-medium">{selectedStory.title}</span>".
-                The previous version will be permanently lost.
+            <div className='p-3 bg-amber-50 border border-amber-200 rounded-lg'>
+              <p className='text-sm text-amber-800'>
+                <strong>Warning:</strong> This will overwrite the existing story &quot;
+                <span className='font-medium'>{selectedStory.title}</span>&quot;. The previous version will be
+                permanently lost.
               </p>
             </div>
           )}
