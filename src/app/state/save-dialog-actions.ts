@@ -4,7 +4,7 @@ import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
 import { StoryAtom, SaveDialogAtom, PublishedStoryModalAtom, SessionMetadataAtom } from './atoms';
-import { type Story, type StoryContainer } from './types';
+import { type Story, type StoryContainer, type SessionMetadata } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
 import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
@@ -196,7 +196,7 @@ export async function performSaveSession(sessionId?: string): Promise<boolean> {
 
   try {
     const data = await prepareSessionData(story);
-    const result = await saveToAPI(data, 'session', formData, sessionId);
+    const result = await saveToAPI(data, 'session', formData, sessionId) as SessionMetadata;
 
     const isUpdate = !!sessionId;
     const actionText = isUpdate ? 'updated' : 'saved';
@@ -214,6 +214,32 @@ export async function performSaveSession(sessionId?: string): Promise<boolean> {
 
     if (result.id) {
       setSessionIdUrl(result.id);
+    }
+
+    // Update SessionMetadataAtom with the new metadata to preserve the note for future saves
+    if (result.description !== undefined) {
+      const currentMetadata = store.get(SessionMetadataAtom);
+      if (currentMetadata) {
+        store.set(SessionMetadataAtom, {
+          ...currentMetadata,
+          description: result.description,
+          title: result.title || currentMetadata.title,
+          updated_at: result.updated_at || currentMetadata.updated_at,
+        });
+      } else {
+        // If no existing metadata, create new metadata from the result
+        store.set(SessionMetadataAtom, {
+          id: result.id,
+          type: 'session',
+          created_at: result.created_at,
+          updated_at: result.updated_at,
+          creator: result.creator,
+          title: result.title,
+          description: result.description,
+          tags: result.tags || [],
+          version: result.version,
+        });
+      }
     }
 
     return true;

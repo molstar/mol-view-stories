@@ -14,8 +14,10 @@ import { toast } from 'sonner';
 export function PublishedStoryModal() {
   const [shareModal, setShareModal] = useAtom(PublishedStoryModalAtom);
 
-  // Fetch the story format dynamically
-  const { data: storyFormat, isLoading: isLoadingFormat } = useStoryFormat(shareModal.data?.itemId);
+  // Fetch the story format dynamically only when dialog is open
+  const { data: storyFormat, isLoading: isLoadingFormat } = useStoryFormat(
+    shareModal.isOpen ? shareModal.data?.itemId : null
+  );
 
   const handleClose = () => {
     setShareModal((prev) => ({ ...prev, isOpen: false }));
@@ -61,26 +63,27 @@ export function PublishedStoryModal() {
             </div>
           </div>
 
-          <div className='space-y-2'>
-            <Label htmlFor='molstar-url'>Mol* Stories Viewer URL</Label>
-            <p className='text-xs text-muted-foreground'>
-              Opens the story in the Mol* Stories Viewer
-              {isLoadingFormat && <span className='ml-1'>(detecting format...)</span>}
-              {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
-            </p>
-            <div className='flex gap-2'>
-              <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
-              <Button variant='outline' size='sm' onClick={() => copyToClipboard(molstarUrl, 'Mol* Viewer URL')}>
-                <Copy className='h-4 w-4' />
-              </Button>
+          {!isLoadingFormat && (
+            <div className='space-y-2'>
+              <Label htmlFor='molstar-url'>Mol* Stories Viewer URL</Label>
+              <p className='text-xs text-muted-foreground'>
+                Opens the story in the Mol* Stories Viewer
+                {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
+              </p>
+              <div className='flex gap-2'>
+                <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
+                <Button variant='outline' size='sm' onClick={() => copyToClipboard(molstarUrl, 'Mol* Viewer URL')}>
+                  <Copy className='h-4 w-4' />
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        <Button asChild className='w-full'>
+        <Button asChild className='w-full' disabled={isLoadingFormat}>
           <a href={molstarUrl} target='_blank' rel='noopener noreferrer'>
             <ExternalLink className='size-4 mr-2' />
-            Open in Mol* Stories Viewer
+            {isLoadingFormat ? 'Detecting format...' : 'Open in Mol* Stories Viewer'}
           </a>
         </Button>
       </DialogContent>

@@ -21,27 +21,25 @@ interface QuotaItemProps {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-function QuotaItem({ title, used, limit, unit = '', icon: Icon }: QuotaItemProps) {
+function QuotaItem({ title, used, limit, icon: Icon }: QuotaItemProps) {
   const percentage = getUsagePercentage(used, limit);
   const colorClass = getUsageColor(percentage);
 
   return (
     <div className='flex items-center gap-2'>
       <div className='flex items-center gap-1 min-w-fit'>
-        <Icon className='h-4 w-4 text-muted-foreground' />
-        <span className='text-sm font-medium'>{title}:</span>
+        <Icon className='h-3 w-3 text-muted-foreground' />
+        <span className='text-xs font-medium'>{title}:</span>
       </div>
       <div className='flex items-center gap-1'>
-        <div className='bg-muted rounded-full h-2 w-24'>
+        <div className='bg-muted rounded-full h-1.5 w-16'>
           <div
-            className={`h-2 rounded-full transition-all duration-300 ${colorClass}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${colorClass}`}
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <span className='text-sm text-muted-foreground whitespace-nowrap ml-2'>
-          {used.toLocaleString()}
-          {unit} / {limit.toLocaleString()}
-          {unit} ({percentage.toFixed(1)}%)
+        <span className='text-xs text-muted-foreground whitespace-nowrap'>
+          {used.toLocaleString()}/{limit.toLocaleString()}
         </span>
       </div>
     </div>
@@ -52,7 +50,7 @@ export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQ
   if (quotaLoading) {
     return (
       <Card className='border-dashed'>
-        <CardContent className='p-4'>
+        <CardContent className='p-3'>
           <div className='flex items-center justify-center gap-2 text-sm text-muted-foreground'>
             <RefreshCw className='h-4 w-4 animate-spin' />
             Loading quota information...
@@ -65,7 +63,7 @@ export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQ
   if (quotaError) {
     return (
       <Card className='border-destructive/20'>
-        <CardContent className='p-4'>
+        <CardContent className='p-3'>
           <div className='flex items-center justify-between'>
             <div className='text-sm text-destructive'>
               <strong>Error loading quota:</strong> {quotaError}
@@ -101,20 +99,20 @@ export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQ
   }
 
   return (
-    <Card className='mx-auto max-w-md'>
+    <Card className='mx-auto max-w-sm'>
       <CardContent className='p-3'>
-        <div className='flex items-center justify-start mb-3'>
+        <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <BarChart3 className='h-4 w-4 text-muted-foreground' />
             <span className='text-sm font-medium'>Storage Quota</span>
           </div>
           {onRefreshQuota && (
-            <Button variant='ghost' size='sm' onClick={onRefreshQuota} className='h-7 w-7 p-0 ml-2'>
+            <Button variant='ghost' size='sm' onClick={onRefreshQuota} className='h-6 w-6 p-0'>
               <RefreshCw className='h-3 w-3' />
             </Button>
           )}
         </div>
-        <div className='space-y-2'>
+        <div className='flex items-center gap-3'>
           <QuotaItem
             title='Sessions'
             used={quota.sessions?.current ?? 0}

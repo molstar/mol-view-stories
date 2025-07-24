@@ -102,7 +102,7 @@ export function StorageDialog({
                 />
               </div>
               {onRefreshQuota && (
-                <div className='flex justify-center'>
+                <div className='flex justify-start mt-4'>
                   <Button variant='outline' size='sm' onClick={onRefreshQuota} className='h-8 px-3 text-sm'>
                     Refresh Quota
                   </Button>
