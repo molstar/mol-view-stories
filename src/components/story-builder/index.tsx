@@ -1,5 +1,5 @@
 import { useAtomValue, useStore } from 'jotai/index';
-import { CurrentViewAtom, IsSessionLoadingAtom, StoryAtom } from '@/app/state/atoms';
+import { CurrentViewAtom, IsSessionLoadingAtom, SessionMetadataAtom, StoryAtom } from '@/app/state/atoms';
 import { SceneEditors } from '@/components/story-builder/SceneEditor';
 import { StoryOptions } from '@/components/story-builder/StoryOptions';
 import { useLayoutEffect, useState } from 'react';
@@ -34,6 +34,7 @@ export default function StoryBuilderPage() {
 
     store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
+    store.set(SessionMetadataAtom, null);
 
     // clear search params
     try {
