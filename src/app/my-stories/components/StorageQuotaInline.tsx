@@ -1,7 +1,6 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { BarChart3, FileText, BookOpen, RefreshCw } from 'lucide-react';
 import { UserQuota } from '@/app/state/types';
 import { getUsagePercentage, getUsageColor } from './MyStoriesUtils';
@@ -10,7 +9,6 @@ interface StorageQuotaInlineProps {
   quota?: UserQuota | null;
   quotaLoading?: boolean;
   quotaError?: string | null;
-  onRefreshQuota?: () => void;
 }
 
 interface QuotaItemProps {
@@ -46,11 +44,11 @@ function QuotaItem({ title, used, limit, icon: Icon }: QuotaItemProps) {
   );
 }
 
-export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQuota }: StorageQuotaInlineProps) {
+export function StorageQuotaInline({ quota, quotaLoading, quotaError }: StorageQuotaInlineProps) {
   if (quotaLoading) {
     return (
       <Card className='border-dashed'>
-        <CardContent className='p-3'>
+        <CardContent>
           <div className='flex items-center justify-center gap-2 text-sm text-muted-foreground'>
             <RefreshCw className='h-4 w-4 animate-spin' />
             Loading quota information...
@@ -63,17 +61,11 @@ export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQ
   if (quotaError) {
     return (
       <Card className='border-destructive/20'>
-        <CardContent className='p-3'>
+        <CardContent>
           <div className='flex items-center justify-between'>
             <div className='text-sm text-destructive'>
               <strong>Error loading quota:</strong> {quotaError}
             </div>
-            {onRefreshQuota && (
-              <Button variant='outline' size='sm' onClick={onRefreshQuota} className='h-7 px-2 text-xs'>
-                <RefreshCw className='h-3 w-3 mr-1' />
-                Retry
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -83,15 +75,9 @@ export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQ
   if (!quota) {
     return (
       <Card className='border-dashed'>
-        <CardContent className='p-3'>
+        <CardContent>
           <div className='flex items-center justify-between'>
             <div className='text-sm text-muted-foreground'>Quota information not available</div>
-            {onRefreshQuota && (
-              <Button variant='outline' size='sm' onClick={onRefreshQuota} className='h-7 px-2 text-xs'>
-                <BarChart3 className='h-3 w-3 mr-1' />
-                Load Quota
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -99,20 +85,13 @@ export function StorageQuotaInline({ quota, quotaLoading, quotaError, onRefreshQ
   }
 
   return (
-    <Card className='mx-auto max-w-sm'>
-      <CardContent className='p-3'>
-        <div className='flex items-center justify-between mb-2'>
+    <Card className='mx-auto'>
+      <CardContent>
+        <div className='flex items-center justify-center gap-4'>
           <div className='flex items-center gap-2'>
             <BarChart3 className='h-4 w-4 text-muted-foreground' />
             <span className='text-sm font-medium'>Storage Quota</span>
           </div>
-          {onRefreshQuota && (
-            <Button variant='ghost' size='sm' onClick={onRefreshQuota} className='h-6 w-6 p-0'>
-              <RefreshCw className='h-3 w-3' />
-            </Button>
-          )}
-        </div>
-        <div className='flex items-center gap-3'>
           <QuotaItem
             title='Sessions'
             used={quota.sessions?.current ?? 0}

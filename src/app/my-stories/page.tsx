@@ -70,14 +70,10 @@ export default function MyStoriesPage() {
     navigateToMyStoriesItem(router, item);
   };
 
-  const loadQuota = () => {
-    loadUserQuota();
-  };
-
   // Load quota when user becomes authenticated
   useEffect(() => {
     if (auth.isAuthenticated) {
-      loadQuota();
+      loadUserQuota();
     }
   }, [auth.isAuthenticated]);
 
@@ -387,7 +383,6 @@ export default function MyStoriesPage() {
                 quota={quotaStatus.status === 'success' ? quotaStatus.data : null}
                 quotaLoading={quotaStatus.status === 'loading'}
                 quotaError={quotaStatus.status === 'error' ? quotaStatus.error : null}
-                onRefreshQuota={loadQuota}
               />
             </div>
           </div>

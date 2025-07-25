@@ -10,6 +10,7 @@ import {
 } from '@/lib/content-crud';
 import { publishStory } from '@/app/state/save-dialog-actions';
 import { SessionItem, StoryItem } from '@/app/state/types';
+import { loadUserQuota } from '@/lib/storage-api';
 
 // Query Keys - centralized to avoid typos and ensure consistency
 export const QUERY_KEYS = {
@@ -80,6 +81,7 @@ export function useMyStoriesData(isAuthenticated: boolean) {
     loadAllData: () => {
       sessionsQuery.refetch();
       storiesQuery.refetch();
+      loadUserQuota();
     },
 
     // Individual query objects for more granular control

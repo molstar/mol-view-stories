@@ -196,7 +196,7 @@ export async function performSaveSession(sessionId?: string): Promise<boolean> {
 
   try {
     const data = await prepareSessionData(story);
-    const result = await saveToAPI(data, 'session', formData, sessionId) as SessionMetadata;
+    const result = (await saveToAPI(data, 'session', formData, sessionId)) as SessionMetadata;
 
     const isUpdate = !!sessionId;
     const actionText = isUpdate ? 'updated' : 'saved';
