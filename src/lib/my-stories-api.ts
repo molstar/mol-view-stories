@@ -13,6 +13,7 @@ import {
   IsSessionLoadingAtom,
   PublishedStoryModalAtom,
   SessionMetadataAtom,
+  OriginalSessionStateAtom,
 } from '@/app/state/atoms';
 import { setIsDirty } from '@/app/state/actions';
 import { SessionItem, StoryItem, SessionMetadata } from '@/app/state/types';
@@ -164,6 +165,13 @@ export async function loadSession(sessionId: string) {
     const sessionMetadata: SessionMetadata = await metadataResponse.json();
 
     if (storyData?.story) {
+      // Store original state for restoration when discarding changes
+      store.set(OriginalSessionStateAtom, {
+        story: storyData.story,
+        sessionMetadata: sessionMetadata,
+        sessionId: sessionId,
+      });
+      
       store.set(StoryAtom, storyData.story);
       store.set(SessionMetadataAtom, sessionMetadata);
       store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });

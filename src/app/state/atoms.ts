@@ -198,3 +198,17 @@ export interface SharedStoryState {
 
 // Unsaved Changes Tracking Atoms
 export const IsDirtyAtom = atom<boolean>(false);
+
+// Original session state for restoration when discarding changes
+export const OriginalSessionStateAtom = atom<{
+  story: Story | null;
+  sessionMetadata: SessionMetadata | null;
+  sessionId: string | null;
+} | null>(null);
+
+// Unsaved changes modal state for back button
+export const UnsavedChangesModalAtom = atom<ModalState<{}>>({
+  isOpen: false,
+  status: 'idle',
+  data: {},
+});

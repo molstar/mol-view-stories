@@ -1,24 +1,62 @@
 import { useAtomValue, useStore } from 'jotai/index';
-import { CurrentViewAtom, IsSessionLoadingAtom, SessionMetadataAtom, StoryAtom } from '@/app/state/atoms';
+import { CurrentViewAtom, IsSessionLoadingAtom, SessionMetadataAtom, StoryAtom, OriginalSessionStateAtom, UnsavedChangesModalAtom, IsDirtyAtom } from '@/app/state/atoms';
 import { SceneEditors } from '@/components/story-builder/SceneEditor';
 import { StoryOptions } from '@/components/story-builder/StoryOptions';
 import { useLayoutEffect, useState, useEffect } from 'react';
 import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
-import { getMVSData, setIsDirty } from '@/app/state/actions';
+import { getMVSData, setIsDirty, restoreOriginalSessionState } from '@/app/state/actions';
 import { loadSession } from '@/lib/my-stories-api';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function StoryBuilderPage() {
   const store = useStore();
   const isLoading = useAtomValue(IsSessionLoadingAtom);
+  const modalState = useAtomValue(UnsavedChangesModalAtom);
   
   // Enable browser beforeunload warning for tab closing/direct URL navigation
   // This is separate from internal navigation (HeaderLogo, LoginButton) which use custom modals
   useUnsavedChanges({ enableBeforeUnload: true });
+
+  const handleLeave = () => {
+    // Restore original session state and discard changes
+    restoreOriginalSessionState();
+    // Close the modal
+    store.set(UnsavedChangesModalAtom, { isOpen: false, status: 'idle', data: {} });
+    // Push a new state to keep the user on the builder page
+    window.history.pushState(null, '', window.location.href);
+  };
+
+  // Handle back browser button - show modal if there are unsaved changes
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // Prevent the default navigation to home page
+      event.preventDefault();
+      
+      // Check if there are unsaved changes
+      const hasUnsavedChanges = store.get(IsDirtyAtom);
+      
+      if (hasUnsavedChanges) {
+        // Show the unsaved changes modal
+        store.set(UnsavedChangesModalAtom, { isOpen: true, status: 'idle', data: {} });
+      } else {
+        // No unsaved changes, just push a new state to stay on the page
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+
+    // Push initial state to enable popstate handling
+    window.history.pushState(null, '', window.location.href);
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [store]);
 
   // Client-side initialization - runs immediately after mount
   useLayoutEffect(() => {
@@ -36,6 +74,13 @@ export default function StoryBuilderPage() {
 
     let story = ExampleStories[templateName as keyof typeof ExampleStories];
     if (!story) story = ExampleStories.Empty;
+
+    // Store original state for template-based stories
+    store.set(OriginalSessionStateAtom, {
+      story: story,
+      sessionMetadata: null,
+      sessionId: null,
+    });
 
     store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
@@ -80,6 +125,20 @@ export default function StoryBuilderPage() {
           </>
         )}
       </main>
+      <ConfirmDialog
+        open={modalState.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            store.set(UnsavedChangesModalAtom, { isOpen: false, status: 'idle', data: {} });
+          }
+        }}
+        title="Unsaved Changes"
+        description="You have unsaved changes. Are you sure you want to leave this page? Unsaved changes will be lost."
+        confirmText="Leave Page"
+        cancelText="Stay"
+        onConfirm={handleLeave}
+        isDestructive={true}
+      />
     </div>
   );
 }
