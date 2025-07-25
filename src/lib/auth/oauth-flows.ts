@@ -14,7 +14,7 @@ import { saveTokens, clearTokens, type AuthTokens } from './token-manager';
 // Helper function to get the redirect URI dynamically
 function getRedirectUri(): string {
   if (typeof window === 'undefined') return '';
-  return `${window.location.origin}/auth`;
+  return `${window.location.origin}/${process.env.NEXT_PUBLIC_APP_PREFIX || ''}auth`;
 }
 
 // Simple redirect path preservation for OAuth flow

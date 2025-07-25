@@ -9,8 +9,6 @@ export const OAUTH_CONFIG = {
   redirect_uri: '', // Will be set dynamically when needed
 } as const;
 
-console.log('OAUTH_CONFIG:', OAUTH_CONFIG);
-
 // API Configuration
 // Note: Should point to stories.molstar.org, not mol-view-stories.dyn.cloud.e-infra.cz
 export const API_CONFIG = {
