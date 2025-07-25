@@ -137,4 +137,37 @@
   [data-slot='card-header'].px-6 {
     padding-bottom: 0.5rem !important;
   }
+
+  /* Toast description styling fixes */
+  [data-sonner-toast] [data-description] {
+    color: hsl(var(--foreground)) !important;
+    opacity: 0.95 !important;
+    font-weight: 500 !important;
+  }
+
+  /* Additional sonner toast styling */
+  .toaster [data-sonner-toast] [data-description],
+  .toaster [data-sonner-toast] [data-title] + [data-description] {
+    color: hsl(var(--foreground)) !important;
+    opacity: 0.9 !important;
+    font-weight: 500 !important;
+  }
+
+  /* Position action button below toast content */
+  .toaster [data-sonner-toast] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .toaster [data-sonner-toast] [data-content] {
+    width: 100% !important;
+  }
+
+  .toaster [data-sonner-toast] button[data-button],
+  .toaster [data-sonner-toast] .action-button-below {
+    margin-top: 0.75rem !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    align-self: flex-start !important;
+  }
 }

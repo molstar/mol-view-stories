@@ -1,6 +1,13 @@
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
+import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 
-export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: string = 'latest'): string {
+export function generateStoriesHtml(
+  data: MVSData | Uint8Array,
+  options?: {
+    title?: string;
+    molstarVersion?: string;
+  }
+): string {
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   let state;
@@ -12,7 +19,8 @@ export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: 
     state = JSON.stringify(data);
   }
 
-  const html = Template.replaceAll('{{version}}', molstarVersion)
+  const html = Template.replaceAll('{{version}}', options?.molstarVersion ?? PLUGIN_VERSION)
+    .replace('{{title}}', options?.title ?? 'Untitled Story')
     .replace('{{format}}', format)
     .replace('{{state}}', state);
 
@@ -22,6 +30,9 @@ export function generateStoriesHtml(data: MVSData | Uint8Array, molstarVersion: 
 const Template = `<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{title}}</title>
     <style>
         * {
             margin: 0;

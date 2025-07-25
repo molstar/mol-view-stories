@@ -208,7 +208,7 @@ class CurrentStoryViewModel {
   private async init() {
     await this.plugin.init();
     // Init the container now so canvas3d is ready
-    this.plugin.initContainer();
+    await this.plugin.initContainerAsync();
 
     this.plugin.canvas3d?.didDraw.subscribe(() => {
       const snapshot = this.plugin.canvas3d?.camera.getSnapshot();

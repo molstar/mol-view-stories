@@ -2,8 +2,7 @@
 
 import { Menubar } from '@/components/ui/menubar';
 import { Separator } from '@/components/ui/separator';
-import { ImportSessionDialog } from './file-operations';
-import { FileMenu, SceneMenu, StoryPreview, StoryOptions, SceneSelector } from './menus';
+import { SceneMenu, StoryPreview, StoryOptions, SceneSelector } from './menus';
 
 export function StoriesToolBar() {
   return (
@@ -17,8 +16,6 @@ export function StoriesToolBar() {
             <div className='h-0.5 bg-blue-500/60 rounded-full mb-1'></div>
             <div className='bg-secondary/80 border border-border/50 shadow-sm rounded-md'>
               <Menubar className='bg-transparent border-0 shadow-none h-8'>
-                <FileMenu />
-                <Separator orientation='vertical' className='h-6' />
                 <StoryOptions />
               </Menubar>
             </div>
@@ -49,7 +46,6 @@ export function StoriesToolBar() {
           </div>
         </div>
       </div>
-      <ImportSessionDialog />
     </>
   );
 }

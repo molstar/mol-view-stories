@@ -7,12 +7,51 @@ import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode';
 import { download } from 'molstar/lib/mol-util/download';
 import { UUID } from 'molstar/lib/mol-util/uuid';
 import { ExampleStories } from '../examples';
-import { ActiveSceneAtom, ActiveSceneIdAtom, CurrentViewAtom, StoryAtom } from './atoms';
-import { CameraData, SceneAsset, SceneData, SceneUpdate, Story, StoryContainer, StoryMetadata } from './types';
+import {
+  ActiveSceneAtom,
+  ActiveSceneIdAtom,
+  CurrentViewAtom,
+  StoryAtom,
+  MyStoriesDataAtom,
+  IsDirtyAtom,
+  SessionMetadataAtom,
+} from './atoms';
+import {
+  CameraData,
+  SceneAsset,
+  SceneData,
+  SceneUpdate,
+  Story,
+  StoryContainer,
+  StoryMetadata,
+  SessionItem,
+  StoryItem,
+} from './types';
 import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
 import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
+import { tryFindIfStoryIsShared } from '@/lib/data-utils';
+
+// Extended session interface that may include story data
+export interface SessionWithData extends SessionItem {
+  data?: unknown;
+}
+
+export function setIsDirty(isDirty: boolean = true) {
+  const store = getDefaultStore();
+  store.set(IsDirtyAtom, isDirty);
+}
+
+export function setSessionIdUrl(sessionId: string | undefined) {
+  const url = new URL(window.location.href);
+  if (sessionId) {
+    url.searchParams.set('sessionId', sessionId);
+  } else {
+    url.searchParams.delete('sessionId');
+  }
+  window.history.replaceState({}, '', url.toString());
+}
 
 export function addScene(options?: { duplicate?: boolean }) {
   const store = getDefaultStore();
@@ -39,12 +78,16 @@ export function addScene(options?: { duplicate?: boolean }) {
 
   store.set(StoryAtom, { ...story, scenes: [...story.scenes, newScene] });
   store.set(CurrentViewAtom, { type: 'scene', id: newScene.id, subview: 'scene-options' });
+  setIsDirty();
 }
 
 export function newStory() {
   const store = getDefaultStore();
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
+  store.set(SessionMetadataAtom, null); // Clear session metadata for new stories
+  setIsDirty(false);
+  setSessionIdUrl(undefined);
 }
 
 const createStateProvider = (code: string) => {
@@ -134,7 +177,9 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
     let blob: Blob;
     let filename: string;
     if (how === 'html') {
-      const htmlContent = generateStoriesHtml(data);
+      const htmlContent = generateStoriesHtml(data, {
+        title: story.metadata.title,
+      });
       blob = new Blob([htmlContent], { type: 'text/html' });
       filename = `story-${Date.now()}.html`;
     } else if (how === 'state') {
@@ -154,8 +199,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
   }
 }
 
-// TODO better extension?
-export const SessionFileExtension = '.mvsession';
+export const SessionFileExtension = '.mvstory';
 
 export const exportState = async (story: Story) => {
   const container: StoryContainer = {
@@ -189,6 +233,9 @@ export const importState = async (file: File) => {
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
+  store.set(SessionMetadataAtom, null); // Clear session metadata for imported sessions
+  setIsDirty(false);
+  setSessionIdUrl(undefined);
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {
@@ -207,12 +254,14 @@ export function modifyCurrentScene(update: SceneUpdate) {
     ...update,
   };
   store.set(StoryAtom, { ...story, scenes });
+  setIsDirty();
 }
 
 export function modifySceneMetadata(update: Partial<StoryMetadata>) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
   store.set(StoryAtom, { ...story, metadata: { ...story.metadata, ...update } });
+  setIsDirty();
 }
 
 export function moveCurrentScene(delta: number) {
@@ -234,6 +283,7 @@ export function moveCurrentScene(delta: number) {
   scenes.splice(sceneIdx, 1);
   scenes.splice(newIdx, 0, scene);
   store.set(StoryAtom, { ...story, scenes });
+  setIsDirty();
 }
 
 export function removeCurrentScene() {
@@ -250,18 +300,21 @@ export function removeCurrentScene() {
   const scenes = story.scenes.filter((s) => s.id !== sceneId);
   store.set(StoryAtom, { ...story, scenes });
   store.set(CurrentViewAtom, { type: 'scene', id: scenes[0].id, subview: 'scene-options' });
+  setIsDirty();
 }
 
 export function setStoryAssets(assets: SceneAsset[]) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
   store.set(StoryAtom, { ...story, assets });
+  setIsDirty();
 }
 
 export function addStoryAssets(newAssets: SceneAsset[]) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
   store.set(StoryAtom, { ...story, assets: [...(story.assets || []), ...newAssets] });
+  setIsDirty();
 }
 
 export function removeStoryAsset(assetName: string) {
@@ -269,4 +322,42 @@ export function removeStoryAsset(assetName: string) {
   const story = store.get(StoryAtom);
   const updatedAssets = (story.assets || []).filter((asset) => asset.name !== assetName);
   store.set(StoryAtom, { ...story, assets: updatedAssets });
+  setIsDirty();
+}
+
+// Unsaved Changes Tracking Utilities
+export function cloneStory(story: Story): Story {
+  return {
+    metadata: { ...story.metadata },
+    javascript: story.javascript,
+    scenes: story.scenes.map((scene) => ({
+      id: scene.id,
+      header: scene.header,
+      key: scene.key,
+      description: scene.description,
+      javascript: scene.javascript,
+      camera: scene.camera ? { ...scene.camera } : scene.camera,
+      linger_duration_ms: scene.linger_duration_ms,
+      transition_duration_ms: scene.transition_duration_ms,
+    })),
+    assets: story.assets.map((asset) => ({
+      name: asset.name,
+      content: new Uint8Array(asset.content), // Properly clone binary data
+    })),
+  };
+}
+
+// Check if current story matches any shared stories (call explicitly when needed)
+export function checkCurrentStoryAgainstSharedStories() {
+  const store = getDefaultStore();
+  const myStoriesData = store.get(MyStoriesDataAtom);
+  if (myStoriesData['stories-public'].length > 0) {
+    tryFindIfStoryIsShared(myStoriesData['stories-public'] as StoryItem[]);
+  }
+}
+
+// Check if there are unsaved changes
+export function hasUnsavedChanges(): boolean {
+  const store = getDefaultStore();
+  return store.get(IsDirtyAtom);
 }

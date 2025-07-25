@@ -2,8 +2,11 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/common';
+import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
+import { useAuth } from './providers';
+import { BookOpen, Library } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 function Features() {
   const features = [
@@ -113,10 +116,12 @@ function Features() {
 }
 
 export default function Home() {
+  const auth = useAuth();
+
   return (
-    <div className='flex flex-col min-h-screen'>
-      <main className='flex-1'>
-        <Header />
+    <>
+      <Header />
+      <Main className='flex-1'>
         <section className='py-20 px-4 md:px-8 bg-gradient-to-br from-background to-muted/20'>
           <div className='max-w-4xl mx-auto text-center'>
             <h1 className='text-5xl md:text-6xl font-bold text-foreground mb-6'>
@@ -131,13 +136,38 @@ export default function Home() {
 
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mb-8'>
               <Link
-                // NOTE: this (and other links) will not work in the deployed version as it will be hosted on molstar.org/mol-view-stories/...
-                //       need to set this up with base prefix
                 href='/builder?template=Empty'
-                className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors'
+                className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex gap-2 items-center'
               >
+                <BookOpen className='w-4 h-4' />
                 Start Building
               </Link>
+
+              <div>
+                <div className='flex justify-center'>
+                  {auth.isAuthenticated ? (
+                    <Link
+                      href='/my-stories'
+                      className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                    >
+                      <Library className='w-4 h-4' />
+                      My Stories
+                    </Link>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
+                          <Library className='w-4 h-4' />
+                          My Stories
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Log in to access your stories</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -157,7 +187,7 @@ export default function Home() {
           </div>
         </section>
         <Features />
-      </main>
-    </div>
+      </Main>
+    </>
   );
 }
