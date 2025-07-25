@@ -15,6 +15,7 @@ import {
   MyStoriesDataAtom,
   IsDirtyAtom,
   SessionMetadataAtom,
+  OriginalSessionStateAtom,
 } from './atoms';
 import {
   CameraData,
@@ -86,6 +87,7 @@ export function newStory() {
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, ExampleStories.Empty);
   store.set(SessionMetadataAtom, null); // Clear session metadata for new stories
+  store.set(OriginalSessionStateAtom, null); // Clear original state for new stories
   setIsDirty(false);
   setSessionIdUrl(undefined);
 }
@@ -360,4 +362,23 @@ export function checkCurrentStoryAgainstSharedStories() {
 export function hasUnsavedChanges(): boolean {
   const store = getDefaultStore();
   return store.get(IsDirtyAtom);
+}
+
+export function restoreOriginalSessionState() {
+  const store = getDefaultStore();
+  const originalState = store.get(OriginalSessionStateAtom);
+  
+  if (originalState && originalState.story) {
+    // Restore original session state
+    store.set(StoryAtom, originalState.story);
+    store.set(SessionMetadataAtom, originalState.sessionMetadata);
+    store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+    setIsDirty(false);
+  } else {
+    // No original state (new story), just reset to empty state
+    store.set(StoryAtom, ExampleStories.Empty);
+    store.set(SessionMetadataAtom, null);
+    store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+    setIsDirty(false);
+  }
 }
