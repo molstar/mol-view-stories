@@ -91,7 +91,6 @@ export function StoryActionButtons() {
                   console.error('Export failed:', error);
                 }
               }}
-              disabled={!auth.isAuthenticated}
             >
               <Download className='size-4 mr-2' />
               Download Session

@@ -68,8 +68,6 @@ export async function publishStory(options?: { storyId?: string }): Promise<bool
       description: `Shared as "${formData.title}"`,
     });
 
-    console.log('Share result:', result);
-
     // Show the share modal
     if (result.id) {
       store.set(PublishedStoryModalAtom, {
@@ -205,7 +203,7 @@ export async function performSaveSession(sessionId?: string): Promise<boolean> {
       description: `${isUpdate ? 'Updated' : 'Saved as'} "${formData.title}"`,
       action: {
         label: 'View My Stories →',
-        onClick: () => (window.location.href = '/my-stories'),
+        onClick: () => (window.location.href = `/${process.env.NEXT_PUBLIC_APP_PREFIX || ''}my-stories`),
       },
     });
 

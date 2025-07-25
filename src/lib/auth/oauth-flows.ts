@@ -59,6 +59,7 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
     ...(state && { state }),
   });
 
+  // this is the LS AAI's authorize endpoint, not ours
   return `${OAUTH_CONFIG.authority}/authorize?${params.toString()}`;
 }
 

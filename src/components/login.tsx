@@ -21,7 +21,7 @@ import { ConfirmDialog } from './ui/confirm-dialog';
 
 export function LoginButton() {
   const auth = useAuth();
-  const { hasUnsavedChanges } = useUnsavedChanges();
+  const { hasUnsavedChanges } = useUnsavedChanges({ enableBeforeUnload: false });
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showPopupBlockedDialog, setShowPopupBlockedDialog] = useState(false);
   const story = useAtomValue(StoryAtom);

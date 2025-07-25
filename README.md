@@ -6,11 +6,10 @@ A webapp to create beautiful, interactive molecular stories.
 
 This project requires several environment variables to be set up for authentication with Life Science AAI:
 
-1. Create a `.env.local` file in the project root with the following variables:
+1. Create a `.env` file in the project root with the following variables:
 ```env
-NEXT_PUBLIC_OIDC_AUTHORITY=<link to the IdP>
-NEXT_PUBLIC_OIDC_CLIENT_ID=<client ID>
-NEXT_PUBLIC_API_BASE_URL=<backend URL>
+NEXT_PUBLIC_OIDC_AUTHORITY=https://login.aai.lifescience-ri.eu/oidc
+NEXT_PUBLIC_OIDC_CLIENT_ID=3963b643-f862-4578-868e-3ba3de08dd2d
 ```
 2. Run
 ```bash
