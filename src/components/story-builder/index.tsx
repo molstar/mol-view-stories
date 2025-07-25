@@ -2,18 +2,23 @@ import { useAtomValue, useStore } from 'jotai/index';
 import { CurrentViewAtom, IsSessionLoadingAtom, SessionMetadataAtom, StoryAtom } from '@/app/state/atoms';
 import { SceneEditors } from '@/components/story-builder/SceneEditor';
 import { StoryOptions } from '@/components/story-builder/StoryOptions';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState, useEffect } from 'react';
 import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
-import { getMVSData } from '@/app/state/actions';
+import { getMVSData, setIsDirty } from '@/app/state/actions';
 import { loadSession } from '@/lib/my-stories-api';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export default function StoryBuilderPage() {
   const store = useStore();
   const isLoading = useAtomValue(IsSessionLoadingAtom);
+  
+  // Enable browser beforeunload warning for tab closing/direct URL navigation
+  // This is separate from internal navigation (HeaderLogo, LoginButton) which use custom modals
+  useUnsavedChanges({ enableBeforeUnload: true });
 
   // Client-side initialization - runs immediately after mount
   useLayoutEffect(() => {
@@ -46,6 +51,14 @@ export default function StoryBuilderPage() {
       console.warn('Failed to clear search params:', error);
     }
   }, [store]);
+
+  // Clean up isDirty state when component unmounts (user navigates away from builder)
+  useEffect(() => {
+    return () => {
+      // Reset isDirty state when leaving the builder page
+      setIsDirty(false);
+    };
+  }, []);
 
   return (
     <div className='flex flex-col h-screen'>
