@@ -10,7 +10,7 @@ import { getMVSData, setIsDirty } from '@/app/state/actions';
 import { loadSession } from '@/lib/my-stories-api';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
-import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { useUnsavedChanges, useUnsavedChangesWarning } from '@/hooks/useUnsavedChanges';
 
 export default function StoryBuilderPage() {
   const store = useStore();
@@ -18,7 +18,10 @@ export default function StoryBuilderPage() {
   
   // Enable browser beforeunload warning for tab closing/direct URL navigation
   // This is separate from internal navigation (HeaderLogo, LoginButton) which use custom modals
-  useUnsavedChanges({ enableBeforeUnload: true });
+  const { hasUnsavedChanges } = useUnsavedChanges({ enableBeforeUnload: true });
+  
+  // Enable back button warning for browser navigation
+  useUnsavedChangesWarning(hasUnsavedChanges);
 
   // Client-side initialization - runs immediately after mount
   useLayoutEffect(() => {

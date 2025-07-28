@@ -11,12 +11,13 @@ import { ConfirmDialog } from './ui/confirm-dialog';
 function HeaderLogo() {
   const router = useRouter();
   const pathname = usePathname();
-  const { hasUnsavedChanges } = useUnsavedChanges({ enableBeforeUnload: false });
+  const { hasUnsavedChanges, disableUnsavedChanges } = useUnsavedChanges({ enableBeforeUnload: false });
   const [showDialog, setShowDialog] = React.useState(false);
   const handleClick = (e: React.MouseEvent) => {
     // Only intercept if on /builder
     if (pathname.startsWith('/builder') && hasUnsavedChanges) {
       e.preventDefault();
+      disableUnsavedChanges(); // Disable browser alerts
       setShowDialog(true);
     } else {
       router.push('/');

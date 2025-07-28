@@ -26,7 +26,8 @@ export function PublishModal() {
   const [publishModal, setState] = useAtom(PublishModalAtom);
   const auth = useAuth();
   const publishMutation = usePublishStory();
-  const { data: stories, isLoading } = useStories(auth.isAuthenticated);
+  // Only fetch stories when the modal is open to avoid unnecessary API calls
+  const { data: stories, isLoading } = useStories(auth.isAuthenticated && publishModal.isOpen);
 
   // State for story selection and search
   const [selectedStory, setSelectedStory] = useState<StoryItem | null>(null);
