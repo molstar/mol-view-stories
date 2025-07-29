@@ -94,7 +94,7 @@ export function useUnsavedChangesWarning(hasUnsavedChanges: boolean) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handlePopState = (event: PopStateEvent) => {
+    const handlePopState = () => {
       if (ignorePopState.current) {
         return;
       }

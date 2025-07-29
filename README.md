@@ -17,6 +17,14 @@ NEXT_PUBLIC_OIDC_CLIENT_ID=3963b643-f862-4578-868e-3ba3de08dd2d
 npm run dev
 ```
 
+## Update MVS Types
+
+To update `mvs-typing.ts` run
+
+```bash
+npm run mvs-types
+```
+
 ## Authentication Flow
 
 MolViewStories uses OAuth2 with PKCE for secure authentication via Life Science AAI.

@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
+import { MVSTypes } from './mvs-typing';
 
 interface BaseMonacoEditorProps {
   language: string;
@@ -52,30 +53,20 @@ export function BaseMonacoEditor({ language, fieldName }: BaseMonacoEditorProps)
     // Set up TypeScript/JavaScript configuration
     if (language === 'javascript' || language === 'typescript') {
       monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+      monaco.languages.typescript.javascriptDefaults.addExtraLib(MVSTypes, 'ts:mvs.d.ts');
       monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
         target: monaco.languages.typescript.ScriptTarget.ES2020,
         allowNonTsExtensions: true,
         moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-        module: monaco.languages.typescript.ModuleKind.CommonJS,
+        module: monaco.languages.typescript.ModuleKind.ESNext,
         noEmit: true,
         esModuleInterop: true,
-        jsx: monaco.languages.typescript.JsxEmit.React,
-        reactNamespace: 'React',
+        jsx: monaco.languages.typescript.JsxEmit.None,
         allowJs: true,
-        typeRoots: ['node_modules/@types'],
+        skipLibCheck: true,
+        typeRoots: [],
+        lib: ['ES2020']
       });
-
-      // Add global type definitions for molstar
-      const molstarTypes = `
-        declare global {
-          interface Window {
-            molstar: any;
-          }
-          const molstar: any;
-        }
-      `;
-
-      monaco.languages.typescript.javascriptDefaults.addExtraLib(molstarTypes, 'ts:molstar-globals.d.ts');
     }
   };
 
