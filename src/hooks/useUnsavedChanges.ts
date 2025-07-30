@@ -28,12 +28,10 @@ export function useUnsavedChanges(options: UnsavedChangesOptions = {}) {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       // Check global disable flag first
       if (globalBeforeUnloadDisabled) return;
-      
+
       if (hasUnsavedChanges) {
-        const confirmLeave = window.confirm(
-          'You have unsaved changes. Are you sure you want to leave this page?'
-        );
-        
+        const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave this page?');
+
         if (!confirmLeave) {
           event.preventDefault();
           event.returnValue = '';
@@ -100,9 +98,7 @@ export function useUnsavedChangesWarning(hasUnsavedChanges: boolean) {
       }
 
       if (hasUnsavedChanges) {
-        const confirmLeave = window.confirm(
-          'You have unsaved changes. Are you sure you want to leave this page?'
-        );
+        const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave this page?');
 
         if (!confirmLeave) {
           ignorePopState.current = true;

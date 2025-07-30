@@ -93,7 +93,7 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
           if (refreshedTokens) {
             // Trigger auth context update
             triggerAuthRefresh();
-          } 
+          }
         })
         .catch((error) => {
           console.warn('Background token refresh error:', error);

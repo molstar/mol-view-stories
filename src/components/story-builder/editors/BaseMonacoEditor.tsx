@@ -61,11 +61,13 @@ export function BaseMonacoEditor({ language, fieldName }: BaseMonacoEditorProps)
         module: monaco.languages.typescript.ModuleKind.ESNext,
         noEmit: true,
         esModuleInterop: true,
+        disableSizeLimit: true,
+        noErrorTruncation: true,
         jsx: monaco.languages.typescript.JsxEmit.None,
         allowJs: true,
         skipLibCheck: true,
         typeRoots: [],
-        lib: ['ES2020']
+        lib: ['es2020'],
       });
     }
   };
