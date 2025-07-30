@@ -10,7 +10,7 @@ export const EmptyStory: Story = {
       header: 'New Scene',
       key: '',
       description: '# New Scene\n\nWith a description',
-      javascript: `// Use builder to create a new scene\n`,
+      javascript: `// Start typing 'builder' to create a new scene\n`,
     },
   ],
   assets: [],

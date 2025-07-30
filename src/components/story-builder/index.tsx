@@ -15,11 +15,11 @@ import { useUnsavedChanges, useUnsavedChangesWarning } from '@/hooks/useUnsavedC
 export default function StoryBuilderPage() {
   const store = useStore();
   const isLoading = useAtomValue(IsSessionLoadingAtom);
-  
+
   // Enable browser beforeunload warning for tab closing/direct URL navigation
   // This is separate from internal navigation (HeaderLogo, LoginButton) which use custom modals
   const { hasUnsavedChanges } = useUnsavedChanges({ enableBeforeUnload: true });
-  
+
   // Enable back button warning for browser navigation
   useUnsavedChangesWarning(hasUnsavedChanges);
 
