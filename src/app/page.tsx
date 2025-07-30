@@ -7,6 +7,7 @@ import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
 import { BookOpen, Library } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { APP_VERSION } from './version';
 
 function Features() {
   const features = [
@@ -187,6 +188,9 @@ export default function Home() {
           </div>
         </section>
         <Features />
+        <div className='text-right text-sm text-muted-foreground py-6 mt-10'>
+          Version {APP_VERSION}
+        </div>
       </Main>
     </>
   );
