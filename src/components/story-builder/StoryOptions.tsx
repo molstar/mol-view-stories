@@ -10,7 +10,8 @@ import { ImmediateInput } from '../controls';
 import { Label } from '../ui/label';
 import { StoryCodeEditor } from './editors/StoryCodeEditor';
 import { Button } from '../ui/button';
-import { PressToSave } from '../common';
+import { PressToCodeComplete, PressToSave } from '../common';
+import { Textarea } from '../ui/textarea';
 
 export function StoryOptions() {
   return (
@@ -37,15 +38,20 @@ export function StoryOptions() {
         </CardHeader>
         <CardContent className='flex-1 overflow-hidden'>
           <TabsContent value='story-metadata' className='mt-0 h-full'>
-            <div className='space-y-4'>
+            <div className='h-full'>
               <Options />
             </div>
           </TabsContent>
           <TabsContent value='story-wide-code' className='mt-0 h-full'>
-            <div className='space-y-4'>
+            <div className='space-y-2 flex flex-col h-full'>
               <Label>Common Code</Label>
-              <PressToSave />
-              <StoryCodeEditor />
+              <div className='flex-1 relative border rounded'>
+                <StoryCodeEditor />
+              </div>
+              <div className='flex gap-2'>
+                <PressToSave />
+                <PressToCodeComplete />
+              </div>
             </div>
           </TabsContent>
           <TabsContent value='asset-upload' className='mt-0 h-full'>
@@ -65,7 +71,7 @@ function Options() {
   const story = useAtomValue(StoryAtom);
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-4 h-full'>
       <div className='space-y-2'>
         <Label htmlFor='story-title'>Title</Label>
         <ImmediateInput
@@ -74,6 +80,18 @@ function Options() {
           placeholder='Story Title'
           onChange={(value) => {
             modifySceneMetadata({ title: value });
+          }}
+        />
+      </div>
+      <div className='space-y-2 flex-1 flex flex-col'>
+        <Label htmlFor='story-author-note'>Author Note</Label>
+        <Textarea
+          id='story-author-note'
+          value={story.metadata.author_note || ''}
+          className='flex-1 resize-none'
+          placeholder='Optional note stored with the story session, e.g., an explanation of how the story was created'
+          onChange={(e) => {
+            modifySceneMetadata({ author_note: e.target.value || undefined });
           }}
         />
       </div>

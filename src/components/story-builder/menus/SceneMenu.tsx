@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
+import { MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarTrigger } from '@/components/ui/menubar';
 import { addScene, removeCurrentScene, CurrentViewAtom, StoryAtom } from '@/app/appstate';
 import { moveCurrentScene } from '@/app/state/actions';
 import { useAtomValue } from 'jotai';
@@ -25,21 +18,19 @@ export function SceneMenu() {
         Scene
       </MenubarTrigger>
       <MenubarContent>
-        <MenubarItem onClick={() => addScene()}>
-          Add New Scene <MenubarShortcut>⌘⇧N</MenubarShortcut>
-        </MenubarItem>
+        <MenubarItem onClick={() => addScene()}>Add New Scene</MenubarItem>
         <MenubarItem onClick={() => addScene({ duplicate: true })} disabled={!canModifyScene}>
-          Duplicate Scene <MenubarShortcut>⌘D</MenubarShortcut>
+          Duplicate Scene
         </MenubarItem>
         <MenubarItem onClick={() => removeCurrentScene()} disabled={!canModifyScene || story.scenes.length <= 1}>
-          Delete Scene <MenubarShortcut>⌘⌫</MenubarShortcut>
+          Delete Scene
         </MenubarItem>
         <MenubarSeparator />
         <MenubarItem onClick={() => moveCurrentScene(-1)} disabled={!canModifyScene}>
-          Move Up <MenubarShortcut>⌘↑</MenubarShortcut>
+          Move Up
         </MenubarItem>
         <MenubarItem onClick={() => moveCurrentScene(1)} disabled={!canModifyScene}>
-          Move Down <MenubarShortcut>⌘↓</MenubarShortcut>
+          Move Down
         </MenubarItem>
       </MenubarContent>
     </MenubarMenu>

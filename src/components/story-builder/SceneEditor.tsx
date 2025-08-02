@@ -19,9 +19,21 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SingleTaskQueue } from '@/lib/utils';
+import { cn, SingleTaskQueue } from '@/lib/utils';
 import { atom, useAtom, useAtomValue, useStore } from 'jotai/index';
-import { BoltIcon, BoxIcon, CameraIcon, CopyIcon, Edit, FolderIcon, XIcon } from 'lucide-react';
+import {
+  Axis3D,
+  BoltIcon,
+  BoxIcon,
+  CameraIcon,
+  Circle,
+  CopyIcon,
+  Eclipse,
+  Edit,
+  FolderIcon,
+  PinIcon,
+  XIcon,
+} from 'lucide-react';
 import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
@@ -37,69 +49,45 @@ import { Label } from '../ui/label';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
 import { OptionsEditor } from './editors/SceneOptions';
-import { PressToSave } from '../common';
+import { PressToCodeComplete, PressToSave } from '../common';
+import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
+import { toast } from 'sonner';
 
-// Camera Position Component
-const CameraPositionDisplay = ({ cameraSnapshot }: { cameraSnapshot?: CameraData | null }) => {
-  if (!cameraSnapshot) return <div className='text-xs text-muted-foreground italic'>No camera data available</div>;
-
+function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
-    <div className='bg-muted/50 rounded p-2 text-xs font-mono space-y-0.5'>
-      <div className='flex'>
-        <span className='w-12 text-muted-foreground'>Pos:</span>
-        <span>
-          {cameraSnapshot.position
-            ? `[${cameraSnapshot.position[0]?.toFixed(1)}, ${cameraSnapshot.position[1]?.toFixed(1)}, ${cameraSnapshot.position[2]?.toFixed(1)}]`
-            : 'N/A'}
-        </span>
-      </div>
-      <div className='flex'>
-        <span className='w-12 text-muted-foreground'>Tgt:</span>
-        <span>
-          {cameraSnapshot.target
-            ? `[${cameraSnapshot.target[0]?.toFixed(1)}, ${cameraSnapshot.target[1]?.toFixed(1)}, ${cameraSnapshot.target[2]?.toFixed(1)}]`
-            : 'N/A'}
-        </span>
-      </div>
-      <div className='flex'>
-        <span className='w-12 text-muted-foreground'>Up:</span>
-        <span>
-          {cameraSnapshot.up
-            ? `[${cameraSnapshot.up[0]?.toFixed(1)}, ${cameraSnapshot.up[1]?.toFixed(1)}, ${cameraSnapshot.up[2]?.toFixed(1)}]`
-            : 'N/A'}
-        </span>
-      </div>
+    <div className={cn('text-xs font-mono', className, !value ? 'text-muted-foreground' : '')}>
+      {value ? `[${value[0]?.toFixed(1)}, ${value[1]?.toFixed(1)}, ${value[2]?.toFixed(1)}]` : '-'}
     </div>
   );
-};
+}
 
-export function CameraComponent() {
+function cameraDirection(camera: CameraData | Camera.Snapshot | null | undefined): Vec3 | undefined {
+  if (!camera) return undefined;
+  const delta = Vec3.sub(Vec3(), camera.target as Vec3, camera.position as Vec3);
+  Vec3.normalize(delta, delta);
+  return delta;
+}
+
+function CameraState() {
   const cameraSnapshot = useAtomValue(CameraPositionAtom);
-  const scene = useAtomValue(ActiveSceneAtom);
 
   return (
-    <div className='flex items-start gap-4'>
-      <div>
-        <p className='text-xs font-medium text-muted-foreground mb-1'>Current Camera:</p>
-        <CameraPositionDisplay cameraSnapshot={cameraSnapshot} />
+    <div className='flex items-start justify-between gap-4 w-full mt-2'>
+      <div className='flex-1'>
+        <Label className='text-xs font-medium text-muted-foreground'>Camera Position</Label>
+        <Vector value={cameraSnapshot?.position} />
       </div>
-      <div>
-        <p className='text-xs font-medium text-muted-foreground mb-1'>Stored Camera:</p>
-        {scene?.camera ? (
-          <CameraPositionDisplay cameraSnapshot={scene.camera} />
-        ) : (
-          <p className='text-xs text-muted-foreground italic'>No stored camera position</p>
-        )}
+      <div className='flex-1'>
+        <Label className='text-xs font-medium text-muted-foreground'>Target</Label>
+        <Vector value={cameraSnapshot?.target} />
       </div>
-      <div className='flex flex-col gap-1'>
-        <Button size='sm' onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>
-          <CameraIcon className='h-3 w-3 mr-1' />
-          Store
-        </Button>
-        <Button size='sm' variant='outline' onClick={() => modifyCurrentScene({ camera: undefined })}>
-          <XIcon className='h-3 w-3 mr-1' />
-          Clear
-        </Button>
+      <div className='flex-1'>
+        <Label className='text-xs font-medium text-muted-foreground'>Up</Label>
+        <Vector value={cameraSnapshot?.up} />
+      </div>
+      <div className='flex-1'>
+        <Label className='text-xs font-medium text-muted-foreground'>Direction</Label>
+        <Vector value={cameraDirection(cameraSnapshot)} />
       </div>
     </div>
   );
@@ -117,7 +105,7 @@ function AssetList() {
           Assets
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent align='start'>
         {storyAssets.length === 0 ? (
           <DropdownMenuItem disabled>No assets uploaded</DropdownMenuItem>
         ) : (
@@ -138,10 +126,96 @@ function AssetList() {
   );
 }
 
-export function CodeUIControls() {
+function copyClipToClipboard(kind: 'plane' | 'sphere', snapshot: Camera.Snapshot | CameraData | null | undefined) {
+  if (!snapshot) return;
+
+  if (kind === 'plane') {
+    const dir = cameraDirection(snapshot)!;
+    Vec3.negate(dir, dir);
+
+    const text = `.clip({
+  type: 'plane',
+  point: [${snapshot.target[0].toFixed(2)}, ${snapshot.target[1].toFixed(2)}, ${snapshot.target[2].toFixed(2)}],
+  normal: [${dir[0].toFixed(2)}, ${dir[1].toFixed(2)}, ${dir[2].toFixed(2)}]
+})`;
+    navigator.clipboard.writeText(text);
+    toast.success('Clip plane copied to clipboard');
+  } else if (kind === 'sphere') {
+    const text = `.clip({
+  type: 'sphere',
+  center: [${snapshot.target[0].toFixed(2)}, ${snapshot.target[1].toFixed(2)}, ${snapshot.target[2].toFixed(2)}],
+  radius: 1.0
+})`;
+
+    navigator.clipboard.writeText(text);
+    toast.success('Clip sphere copied to clipboard');
+  }
+}
+
+function CameraActions() {
+  const cameraSnapshot = useAtomValue(CameraPositionAtom);
+  const scene = useAtomValue(ActiveSceneAtom);
+
   return (
-    <div className='flex items-start gap-6 mb-2'>
-      <CameraComponent />
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='outline' size='sm'>
+            <CameraIcon className='size-4 mr-1' />
+            Camera
+            {scene?.camera && (
+              <span title='Saved'>
+                <PinIcon className='size-4 ml-1' />
+              </span>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='start'>
+          <DropdownMenuItem
+            onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}
+            title='Save current camera position to use for this scene'
+          >
+            <PinIcon className='h-3 w-3 mr-1' /> Save Position
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={!scene?.camera}
+            onClick={() => modifyCurrentScene({ camera: undefined })}
+            title='Clear stored camera position'
+          >
+            <XIcon className='h-3 w-3 mr-1' /> Clear Position
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='outline' size='sm'>
+            <Eclipse className='size-4 mr-1' />
+            Clip
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='start'>
+          <DropdownMenuItem
+            onClick={() => copyClipToClipboard('plane', cameraSnapshot)}
+            title='Copy clip plane based on current camera position'
+          >
+            <Axis3D className='h-3 w-3 mr-1' /> Copy Plane
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => copyClipToClipboard('sphere', cameraSnapshot)}
+            title='Copy clip sphere based on current camera position'
+          >
+            <Circle className='h-3 w-3 mr-1' /> Copy Sphere
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+}
+
+function CodeUIControls() {
+  return (
+    <div className='flex items-center gap-2'>
+      <CameraActions />
       <AssetList />
     </div>
   );
@@ -247,7 +321,7 @@ function LoadingIndicator() {
   );
 }
 
-export function CurrentSceneView() {
+function CurrentSceneView() {
   const modelRef = useRef<CurrentStoryViewModel>(_modelInstance);
   if (!modelRef.current) {
     _modelInstance = modelRef.current = new CurrentStoryViewModel();
@@ -265,8 +339,8 @@ export function CurrentSceneView() {
   }, [model, story, scene]);
 
   return (
-    <div className='rounded overflow-hidden w-full h-full border border-border bg-background relative'>
-      <div className='w-full h-full relative'>
+    <div className='rounded overflow-hidden w-full h-full bg-background relative border'>
+      <div className='w-full h-full relative [&_.msp-plugin-content]:border-none!'>
         <PluginWrapper plugin={model.plugin} />
         <LoadingIndicator />
       </div>
@@ -302,7 +376,6 @@ export function SceneEditors() {
             <div className='space-y-4'>
               <OptionsEditor />
               <Label>Markdown Description</Label>
-              <PressToSave />
               <div className='flex gap-6'>
                 <div className='flex-1'>
                   <SceneMarkdownEditor />
@@ -311,18 +384,33 @@ export function SceneEditors() {
                   <MarkdownRenderer />
                 </div>
               </div>
+              <PressToSave />
             </div>
           </TabsContent>
           <TabsContent value='scene' className='mt-0 h-full'>
-            <div className='flex gap-6'>
-              <div className='space-y-4 flex-1'>
-                <CodeUIControls />
-                <PressToSave />
-                <SceneCodeEditor />
+            <div className='flex flex-col h-full gap-2'>
+              <div className='flex gap-6 items-center'>
+                <div className='flex-1'>
+                  <CodeUIControls />
+                </div>
+                <div className='flex-1'>
+                  <CameraState />
+                </div>
               </div>
-              <div className='flex-1'>
-                <div className='w-full' style={{ aspectRatio: '1.3/1' }}>
-                  <CurrentSceneView />
+              <div className='flex gap-6 h-full'>
+                <div className='flex-1 flex flex-col gap-2 shrink-0'>
+                  <div className='border rounded flex-1 relative'>
+                    <SceneCodeEditor />
+                  </div>
+                  <div className='flex gap-2'>
+                    <PressToSave />
+                    <PressToCodeComplete />
+                  </div>
+                </div>
+                <div className='flex-1 shrink-0'>
+                  <div className='w-full' style={{ aspectRatio: '1.33/1' }}>
+                    <CurrentSceneView />
+                  </div>
                 </div>
               </div>
             </div>

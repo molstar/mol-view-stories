@@ -91,10 +91,10 @@ export function newStory() {
 }
 
 const createStateProvider = (code: string) => {
-  return new Function('builder', code);
+  return new Function('builder', 'index', code);
 };
 
-async function getMVSSnapshot(story: Story, scene: SceneData) {
+async function getMVSSnapshot(story: Story, scene: SceneData, index: number) {
   try {
     const stateProvider = createStateProvider(`
 async function _run_builder() {
@@ -103,7 +103,7 @@ async function _run_builder() {
 return _run_builder();
 `);
     const builder = MVSData.createBuilder();
-    await stateProvider(builder);
+    await stateProvider(builder, index);
     if (scene.camera) {
       builder.camera({
         position: adjustedCameraPosition(scene.camera),
@@ -139,8 +139,9 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
   const snapshots: Snapshot[] = [];
 
   // TODO: not sure if Promise.all would be better here.
-  for (const scene of scenes) {
-    const snapshot = await getMVSSnapshot(story, scene);
+  for (let index = 0; index < scenes.length; index++) {
+    const scene = scenes[index];
+    const snapshot = await getMVSSnapshot(story, scene, index);
     snapshots.push(snapshot);
   }
   const index: MVSData = {

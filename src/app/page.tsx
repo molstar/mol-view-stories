@@ -188,9 +188,7 @@ export default function Home() {
           </div>
         </section>
         <Features />
-        <div className='text-right text-sm text-muted-foreground py-6 mt-10'>
-          Version {APP_VERSION}
-        </div>
+        <div className='text-right text-sm text-muted-foreground py-6 mt-10'>Version {APP_VERSION}</div>
       </Main>
     </>
   );

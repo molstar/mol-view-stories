@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { ConfirmDialog } from './ui/confirm-dialog';
+import Link from 'next/link';
 
 function HeaderLogo() {
   const router = useRouter();
@@ -15,12 +16,10 @@ function HeaderLogo() {
   const [showDialog, setShowDialog] = React.useState(false);
   const handleClick = (e: React.MouseEvent) => {
     // Only intercept if on /builder
-    if (pathname.startsWith('/builder') && hasUnsavedChanges) {
+    if (pathname.includes('/builder') && hasUnsavedChanges) {
       e.preventDefault();
       disableUnsavedChanges(); // Disable browser alerts
       setShowDialog(true);
-    } else {
-      router.push('/');
     }
   };
   const handleConfirm = () => {
@@ -29,15 +28,15 @@ function HeaderLogo() {
   };
   return (
     <>
-      <button
-        type='button'
+      <Link
+        href='/'
         onClick={handleClick}
         className='flex items-center gap-2 text-xl font-bold text-foreground hover:text-foreground/80 transition-colors bg-transparent border-none p-0 cursor-pointer'
         style={{ background: 'none', border: 'none' }}
       >
         <Image src='/favicon.ico' alt='MolViewStories' width={24} height={24} className='w-6 h-6' />
         MolViewStories
-      </button>
+      </Link>
       <ConfirmDialog
         open={showDialog}
         onOpenChange={setShowDialog}
@@ -113,11 +112,21 @@ export function Main({ children, className }: { children: React.ReactNode; class
 export function PressToSave() {
   return (
     <div className='text-xs text-muted-foreground mb-2'>
-      Press{' '}
       <span className='bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none'>
         <span>Ctrl/⌘/Alt + S/Enter</span>
       </span>{' '}
       to save
+    </div>
+  );
+}
+
+export function PressToCodeComplete() {
+  return (
+    <div className='text-xs text-muted-foreground mb-2'>
+      <span className='bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none'>
+        <span>Ctrl + Space</span>
+      </span>{' '}
+      for code completion
     </div>
   );
 }
