@@ -36,6 +36,7 @@ export type StoryContainer = {
 
 export type StoryMetadata = {
   title: string;
+  author_note?: string;
 };
 
 export type Story = {
