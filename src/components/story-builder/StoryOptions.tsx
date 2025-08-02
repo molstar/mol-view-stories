@@ -10,7 +10,7 @@ import { ImmediateInput } from '../controls';
 import { Label } from '../ui/label';
 import { StoryCodeEditor } from './editors/StoryCodeEditor';
 import { Button } from '../ui/button';
-import { PressToSave } from '../common';
+import { PressToCodeComplete, PressToSave } from '../common';
 
 export function StoryOptions() {
   return (
@@ -42,10 +42,15 @@ export function StoryOptions() {
             </div>
           </TabsContent>
           <TabsContent value='story-wide-code' className='mt-0 h-full'>
-            <div className='space-y-4'>
+            <div className='space-y-2 flex flex-col h-full'>
               <Label>Common Code</Label>
-              <PressToSave />
-              <StoryCodeEditor />
+              <div className='flex-1 relative border rounded'>
+                <StoryCodeEditor />
+              </div>
+              <div className='flex gap-2'>
+                <PressToSave />
+                <PressToCodeComplete />
+              </div>
             </div>
           </TabsContent>
           <TabsContent value='asset-upload' className='mt-0 h-full'>

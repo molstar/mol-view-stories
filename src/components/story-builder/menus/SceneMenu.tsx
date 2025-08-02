@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
+import { MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarTrigger } from '@/components/ui/menubar';
 import { addScene, removeCurrentScene, CurrentViewAtom, StoryAtom } from '@/app/appstate';
 import { moveCurrentScene } from '@/app/state/actions';
 import { useAtomValue } from 'jotai';
@@ -24,9 +18,7 @@ export function SceneMenu() {
         Scene
       </MenubarTrigger>
       <MenubarContent>
-        <MenubarItem onClick={() => addScene()}>
-          Add New Scene
-        </MenubarItem>
+        <MenubarItem onClick={() => addScene()}>Add New Scene</MenubarItem>
         <MenubarItem onClick={() => addScene({ duplicate: true })} disabled={!canModifyScene}>
           Duplicate Scene
         </MenubarItem>
