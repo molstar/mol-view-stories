@@ -16,7 +16,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -29,6 +28,7 @@ import {
   CameraIcon,
   Circle,
   CopyIcon,
+  Eclipse,
   Edit,
   FolderIcon,
   PinIcon,
@@ -70,41 +70,24 @@ function cameraDirection(camera: CameraData | Camera.Snapshot | null | undefined
 
 function CameraState() {
   const cameraSnapshot = useAtomValue(CameraPositionAtom);
-  const scene = useAtomValue(ActiveSceneAtom);
 
   return (
     <div className='flex items-start justify-between gap-4 w-full mt-2'>
       <div className='flex-1'>
         <Label className='text-xs font-medium text-muted-foreground'>Camera Position</Label>
-        <Vector
-          value={cameraSnapshot?.position}
-          className={scene?.camera ? 'text-muted-foreground' : ''}
-          title='Current'
-        />
-        <Vector value={scene?.camera?.position} title='Stored' />
+        <Vector value={cameraSnapshot?.position} />
       </div>
       <div className='flex-1'>
         <Label className='text-xs font-medium text-muted-foreground'>Target</Label>
-        <Vector
-          value={cameraSnapshot?.target}
-          className={scene?.camera ? 'text-muted-foreground' : ''}
-          title='Current'
-        />
-        <Vector value={scene?.camera?.target} title='Stored' />
+        <Vector value={cameraSnapshot?.target} />
       </div>
       <div className='flex-1'>
         <Label className='text-xs font-medium text-muted-foreground'>Up</Label>
-        <Vector value={cameraSnapshot?.up} className={scene?.camera ? 'text-muted-foreground' : ''} title='Current' />
-        <Vector value={scene?.camera?.up} title='Stored' />
+        <Vector value={cameraSnapshot?.up} />
       </div>
       <div className='flex-1'>
         <Label className='text-xs font-medium text-muted-foreground'>Direction</Label>
-        <Vector
-          value={cameraDirection(cameraSnapshot)}
-          className={scene?.camera ? 'text-muted-foreground' : ''}
-          title='Current'
-        />
-        <Vector value={cameraDirection(scene?.camera)} title='Stored' />
+        <Vector value={cameraDirection(cameraSnapshot)} />
       </div>
     </div>
   );
@@ -174,42 +157,58 @@ function CameraActions() {
   const scene = useAtomValue(ActiveSceneAtom);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant='outline' size='sm' className='relative'>
-          <CameraIcon className='size-4 mr-1' />
-          Camera
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align='start'>
-        <DropdownMenuItem
-          onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}
-          title='Save current camera position to use for this scene'
-        >
-          <PinIcon className='h-3 w-3 mr-1' /> Save Position
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={!scene?.camera}
-          onClick={() => modifyCurrentScene({ camera: undefined })}
-          title='Clear stored camera position'
-        >
-          <XIcon className='h-3 w-3 mr-1' /> Clear Position
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => copyClipToClipboard('plane', cameraSnapshot)}
-          title='Copy clip plane based on current camera position'
-        >
-          <Axis3D className='h-3 w-3 mr-1' /> Copy Clip Plane
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => copyClipToClipboard('sphere', cameraSnapshot)}
-          title='Copy clip sphere based on current camera position'
-        >
-          <Circle className='h-3 w-3 mr-1' /> Copy Clip Sphere
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='outline' size='sm'>
+            <CameraIcon className='size-4 mr-1' />
+            Camera
+            {scene?.camera && (
+              <span title='Saved'>
+                <PinIcon className='size-4 ml-1' />
+              </span>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='start'>
+          <DropdownMenuItem
+            onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}
+            title='Save current camera position to use for this scene'
+          >
+            <PinIcon className='h-3 w-3 mr-1' /> Save Position
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={!scene?.camera}
+            onClick={() => modifyCurrentScene({ camera: undefined })}
+            title='Clear stored camera position'
+          >
+            <XIcon className='h-3 w-3 mr-1' /> Clear Position
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='outline' size='sm'>
+            <Eclipse className='size-4 mr-1' />
+            Clip
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='start'>
+          <DropdownMenuItem
+            onClick={() => copyClipToClipboard('plane', cameraSnapshot)}
+            title='Copy clip plane based on current camera position'
+          >
+            <Axis3D className='h-3 w-3 mr-1' /> Copy Plane
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => copyClipToClipboard('sphere', cameraSnapshot)}
+            title='Copy clip sphere based on current camera position'
+          >
+            <Circle className='h-3 w-3 mr-1' /> Copy Sphere
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 }
 
@@ -390,7 +389,14 @@ export function SceneEditors() {
           </TabsContent>
           <TabsContent value='scene' className='mt-0 h-full'>
             <div className='flex flex-col h-full gap-2'>
-              <CodeUIControls />
+              <div className='flex gap-6 items-center'>
+                <div className='flex-1'>
+                  <CodeUIControls />
+                </div>
+                <div className='flex-1'>
+                  <CameraState />
+                </div>
+              </div>
               <div className='flex gap-6 h-full'>
                 <div className='flex-1 flex flex-col gap-2 shrink-0'>
                   <div className='border rounded flex-1 relative'>
@@ -404,7 +410,6 @@ export function SceneEditors() {
                 <div className='flex-1 shrink-0'>
                   <div className='w-full' style={{ aspectRatio: '1.33/1' }}>
                     <CurrentSceneView />
-                    <CameraState />
                   </div>
                 </div>
               </div>
