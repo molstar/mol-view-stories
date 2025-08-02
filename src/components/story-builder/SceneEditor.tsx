@@ -182,17 +182,30 @@ function CameraActions() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='start'>
-        <DropdownMenuItem onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}>
+        <DropdownMenuItem
+          onClick={() => modifyCurrentScene({ camera: cameraSnapshot })}
+          title='Save current camera position to use for this scene'
+        >
           <PinIcon className='h-3 w-3 mr-1' /> Save Position
         </DropdownMenuItem>
-        <DropdownMenuItem disabled={!scene?.camera} onClick={() => modifyCurrentScene({ camera: undefined })}>
+        <DropdownMenuItem
+          disabled={!scene?.camera}
+          onClick={() => modifyCurrentScene({ camera: undefined })}
+          title='Clear stored camera position'
+        >
           <XIcon className='h-3 w-3 mr-1' /> Clear Position
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => copyClipToClipboard('plane', cameraSnapshot)} title=';e'>
+        <DropdownMenuItem
+          onClick={() => copyClipToClipboard('plane', cameraSnapshot)}
+          title='Copy clip plane based on current camera position'
+        >
           <Axis3D className='h-3 w-3 mr-1' /> Copy Clip Plane
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => copyClipToClipboard('sphere', cameraSnapshot)} title=';e'>
+        <DropdownMenuItem
+          onClick={() => copyClipToClipboard('sphere', cameraSnapshot)}
+          title='Copy clip sphere based on current camera position'
+        >
           <Circle className='h-3 w-3 mr-1' /> Copy Clip Sphere
         </DropdownMenuItem>
       </DropdownMenuContent>

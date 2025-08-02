@@ -39,7 +39,7 @@ export function SceneMarkdownEditor() {
       value={currentMarkdown}
       onChange={handleMarkdownChange}
       onMount={handleEditorDidMount}
-      theme='vs-light'
+      theme='vs'
       options={{
         minimap: { enabled: false },
         fontSize: 14,

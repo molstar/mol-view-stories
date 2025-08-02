@@ -54,7 +54,7 @@ export function StoryCodeEditor() {
         onChange={setCurrentCode}
         onMount={handleEditorDidMount}
         options={{
-          theme: 'vs-light',
+          theme: 'vs',
           fontSize: 14,
           fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
           lineNumbers: 'on',

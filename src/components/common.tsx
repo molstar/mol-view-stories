@@ -112,7 +112,6 @@ export function Main({ children, className }: { children: React.ReactNode; class
 export function PressToSave() {
   return (
     <div className='text-xs text-muted-foreground mb-2'>
-      Press{' '}
       <span className='bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none'>
         <span>Ctrl/⌘/Alt + S/Enter</span>
       </span>{' '}

@@ -73,7 +73,7 @@ export function SceneCodeEditor() {
         onChange={handleEditorChange}
         onMount={handleEditorDidMount}
         options={{
-          theme: 'vs-light',
+          theme: 'vs',
           fontSize: 14,
           fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
           lineNumbers: 'on',
