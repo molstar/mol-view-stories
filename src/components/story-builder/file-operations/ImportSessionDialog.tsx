@@ -67,7 +67,7 @@ export function ImportSessionDialog() {
               ) : (
                 <div className='space-y-2'>
                   <p className='text-gray-600'>Drag & drop session file here, or click to select files</p>
-                  <p className='text-sm text-gray-400'>.mvsession</p>
+                  <p className='text-sm text-gray-400'>.mvstory</p>
                 </div>
               )}
             </div>
