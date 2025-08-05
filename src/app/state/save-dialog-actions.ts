@@ -12,7 +12,9 @@ import { getMVSData, setIsDirty, setSessionIdUrl } from './actions';
 
 // File size validation utility
 // Note that file size is also checked at the API, this is a safety check to avoid expensive sending of oversized data.
-function validateDataSize(data: Uint8Array | string, maxSizeMB: number = 50): void {
+const MAX_FILE_SIZE_MB = 50; // Keep in sync with backend limit
+
+function validateDataSize(data: Uint8Array | string, maxSizeMB: number = MAX_FILE_SIZE_MB): void {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   let sizeBytes: number;
   
@@ -229,7 +231,7 @@ async function saveToAPI(
     // Handle specific HTTP status codes with user-friendly messages
     if (response.status === 413) {
       const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
-      throw new Error(`${operation} FAILED: Session too large (over 50MB limit). Please reduce complexity or remove large assets to continue.`);
+      throw new Error(`${operation} FAILED: Session too large (over ${MAX_FILE_SIZE_MB}MB limit). Please reduce complexity or remove large assets to continue.`);
     }
     
     const errorText = await response.text();
