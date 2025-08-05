@@ -246,7 +246,7 @@ export function PKCEAuthProvider({ children }: { children: React.ReactNode }) {
     const checkTokenExpiry = async () => {
       try {
         // Check if we have any tokens in storage
-        const saved = sessionStorage.getItem('oauth_tokens');
+        const saved = localStorage.getItem('oauth_tokens');
         if (!saved) return;
 
         const tokens = JSON.parse(saved);
