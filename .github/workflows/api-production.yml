@@ -57,6 +57,16 @@ jobs:
           mol-view-stories-api-container=${FULL_IMAGE} \
           -n mol-view-stories-ns
         
+        # Set MinIO environment variables for production
+        echo "Setting MinIO environment variables for production..."
+        kubectl set env deployment/mol-view-stories-api \
+          -n mol-view-stories-ns \
+          -c mol-view-stories-api-container \
+          MINIO_ENDPOINT="${{ secrets.MINIO_PROD_URL }}" \
+          MINIO_ACCESS_KEY="${{ secrets.MINIO_PROD_USERNAME }}" \
+          MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
+          MINIO_BUCKET="root"
+        
         # Restart deployment to ensure new image is pulled
         kubectl rollout restart deployment/mol-view-stories-api -n mol-view-stories-ns
         

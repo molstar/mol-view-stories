@@ -171,42 +171,8 @@ jobs:
           kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
         else
           echo "Development deployment does not exist, creating new development deployment..."
-          # Create a new development deployment without copying from production
-          cat <<EOF | kubectl apply -f -
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: mol-view-stories-dev-api
-            namespace: mol-view-stories-ns
-            labels:
-              app: mol-view-stories-dev-api
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: mol-view-stories-dev-api
-            template:
-              metadata:
-                labels:
-                  app: mol-view-stories-dev-api
-              spec:
-                containers:
-                - name: mol-view-stories-dev-api-container
-                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}
-                  ports:
-                  - containerPort: 5000
-                  env:
-                  - name: ENVIRONMENT
-                    value: "development"
-                  resources:
-                    requests:
-                      memory: "256Mi"
-                      cpu: "250m"
-                    limits:
-                      memory: "512Mi"
-                      cpu: "500m"
-                restartPolicy: Always
-          EOF
+          # Create a new development deployment using the deployment file
+          sed "s|cerit.io/***/mol-view-stories:latest|${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}|g" api/deploy-dev.yaml | kubectl apply -f -
           
           # Set MinIO environment variables for development
           echo "Setting MinIO environment variables for development..."

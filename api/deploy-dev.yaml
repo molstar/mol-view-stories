@@ -4,7 +4,7 @@ metadata:
   name: mol-view-stories-api-ingress-dev
   namespace: mol-view-stories-ns
   labels:
-    deployment-id: mol-view-stories-api-dev
+    app: mol-view-stories-dev-api
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     kubernetes.io/ingress.class: nginx
@@ -34,7 +34,7 @@ metadata:
   name: mol-view-stories-api-svc-dev
   namespace: mol-view-stories-ns
   labels:
-    deployment-id: mol-view-stories-api-dev
+    app: mol-view-stories-dev-api
 spec:
   ports:
     - port: 5000
@@ -42,83 +42,39 @@ spec:
       protocol: TCP
       name: http
   selector:
-    deployment-id: mol-view-stories-api-dev
+    app: mol-view-stories-dev-api
   type: ClusterIP
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mol-view-stories-api-dev
+  name: mol-view-stories-dev-api
   namespace: mol-view-stories-ns
   labels:
-    deployment-id: mol-view-stories-api-dev
-    role: mol-view-stories-api-dev
+    app: mol-view-stories-dev-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      deployment-id: mol-view-stories-api-dev
+      app: mol-view-stories-dev-api
   template:
     metadata:
       labels:
-        deployment-id: mol-view-stories-api-dev
-        role: mol-view-stories-api-dev
+        app: mol-view-stories-dev-api
     spec:
-      imagePullSecrets:
-        - name: cerit-registry-secret
       containers:
-        - name: mol-view-stories-api-container
-          image: hub.cerit.io/molstar/mol-view-stories:develop
-          ports:
-            - containerPort: 5000
-              name: http
-          env:
-            - name: MINIO_ENDPOINT
-              value: "https://s3-dev-mol-view-stories-s3-mol-view-stories-ns.dyn.cloud.e-infra.cz"
-                            - name: MINIO_ACCESS_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      name: mol-view-stories-s3-minioauth-dev-secret
-                      key: username
-                - name: MINIO_SECRET_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      name: mol-view-stories-s3-minioauth-dev-secret
-                      key: password
-            - name: FLASK_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: molstar-auth-secrets
-                  key: secret-key
-            - name: MAX_UPLOAD_SIZE_MB
-              value: "50"
-            - name: ENVIRONMENT
-              value: "development"
-            - name: MINIO_BUCKET
-              value: "dev-mol-view-stories"
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 5
-            successThreshold: 1
-            failureThreshold: 3
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            runAsNonRoot: true
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
-          resources:
-            requests:
-              cpu: "0.5"
-              memory: "2Gi"
-            limits:
-              cpu: "1"
-              memory: "4Gi" 
+      - name: mol-view-stories-dev-api-container
+        image: cerit.io/***/mol-view-stories:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ENVIRONMENT
+          value: "development"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m" 
