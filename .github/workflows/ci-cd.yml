@@ -31,8 +31,8 @@ on:
       - '.github/workflows/ci-cd.yml'
 
 env:
-  REGISTRY: hub.cerit.io
-  IMAGE_NAME: mol-view-stories
+  REGISTRY: cerit.io
+  IMAGE_NAME: molstar/mol-view-stories
 
 jobs:
   build-and-test:
@@ -69,6 +69,25 @@ jobs:
         username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
         password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
 
+    - name: Debug registry access
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "Testing registry access..."
+        echo "Registry: ${{ env.REGISTRY }}"
+        echo "Image name: ${{ env.IMAGE_NAME }}"
+        
+        # Test if we can access the registry
+        echo "Testing registry root access..."
+        curl -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/" -v || echo "Failed to access registry root"
+        
+        # Test catalog access to see existing repositories
+        echo "Testing catalog access..."
+        curl -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/_catalog" -v || echo "Failed to access catalog"
+        
+        echo "Repository '${{ env.IMAGE_NAME }}' will be created automatically on first push."
+
     - name: Build and push Docker image
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v5
@@ -76,8 +95,10 @@ jobs:
         context: ./api
         push: true
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        platforms: linux/amd64
+        # Temporarily disable cache to isolate the issue
+        # cache-from: type=gha
+        # cache-to: type=gha,mode=max
 
   deploy-dev:
     needs: build-and-test
@@ -114,7 +135,7 @@ jobs:
           echo "Development deployment exists, updating image..."
           # Update deployment with new image
           kubectl set image deployment/mol-view-stories-dev-api \
-            mol-view-stories-dev-api-container=hub.cerit.io/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
+            mol-view-stories-dev-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
             -n mol-view-stories-ns
           
           # Restart deployment to ensure new image is pulled
@@ -133,7 +154,7 @@ jobs:
           
           # Update the image to the new tag
           kubectl set image deployment/mol-view-stories-dev-api \
-            mol-view-stories-dev-api-container=hub.cerit.io/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
+            mol-view-stories-dev-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
             -n mol-view-stories-ns
           
           # Wait for rollout to complete
