@@ -63,28 +63,39 @@ spec:
       labels:
         app: mol-view-stories-dev-api
     spec:
+      imagePullSecrets:
+        - name: cerit-registry-secret
       containers:
-      - name: mol-view-stories-dev-api-container
-        image: cerit.io/PLACEHOLDER_USERNAME/mol-view-stories:latest
-        ports:
-        - containerPort: 5000
-        env:
-        - name: ENVIRONMENT
-          value: "development"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-          runAsGroup: 1000
-          runAsNonRoot: true
-          runAsUser: 1000
-          seccompProfile:
-            type: RuntimeDefault 
+        - name: mol-view-stories-dev-api-container
+          image: cerit.io/PLACEHOLDER_USERNAME/mol-view-stories:latest
+          ports:
+            - containerPort: 5000
+              name: http
+          env:
+            - name: ENVIRONMENT
+              value: "development"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m" 
