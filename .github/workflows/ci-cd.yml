@@ -32,7 +32,9 @@ on:
 
 env:
   REGISTRY: cerit.io
-  IMAGE_NAME: molstar/mol-view-stories
+  IMAGE_NAME: ${{ secrets.CERIT_REGISTRY_USERNAME }}/mol-view-stories
+  # Original: molstar/mol-view-stories (requires molstar project to exist)
+  # IMAGE_NAME: molstar/mol-view-stories
 
 jobs:
   build-and-test:
@@ -94,28 +96,28 @@ jobs:
       run: |
         echo "=== Debugging Project Permissions ==="
         echo "Registry: ${{ env.REGISTRY }}"
-        echo "Target project: molstar"
+        echo "Target project: ${{ secrets.CERIT_REGISTRY_USERNAME }}"
         echo "Target image: ${{ env.IMAGE_NAME }}"
         
         # Since docker login works, let's test specific permissions
-        echo "=== Testing molstar project access ==="
-        MOLSTAR_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/molstar/tags/list")
-        echo "Molstar project response code: $MOLSTAR_RESPONSE"
+        echo "=== Testing user project access ==="
+        USER_PROJECT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/${{ secrets.CERIT_REGISTRY_USERNAME }}/tags/list")
+        echo "User project response code: $USER_PROJECT_RESPONSE"
         
-        if [ "$MOLSTAR_RESPONSE" = "200" ]; then
-          echo "✓ Molstar project exists and is accessible"
-        elif [ "$MOLSTAR_RESPONSE" = "404" ]; then
-          echo "? Molstar project doesn't exist yet (this is expected)"
+        if [ "$USER_PROJECT_RESPONSE" = "200" ]; then
+          echo "✓ User project exists and is accessible"
+        elif [ "$USER_PROJECT_RESPONSE" = "404" ]; then
+          echo "? User project doesn't exist yet (this is expected)"
           echo "Will attempt to create it during push..."
-        elif [ "$MOLSTAR_RESPONSE" = "401" ]; then
-          echo "✗ Molstar project access denied - user may not have project creation permissions"
+        elif [ "$USER_PROJECT_RESPONSE" = "401" ]; then
+          echo "✗ User project access denied - user may not have project creation permissions"
           echo "You may need to:"
           echo "1. Contact registry admin to grant project creation permissions"
           echo "2. Use an existing project name"
-          echo "3. Have the molstar project created manually"
+          echo "3. Have the user project created manually"
         else
-          echo "? Molstar project access returned unexpected code: $MOLSTAR_RESPONSE"
+          echo "? User project access returned unexpected code: $USER_PROJECT_RESPONSE"
         fi
         
         echo "=== Testing catalog access (optional) ==="
@@ -134,10 +136,41 @@ jobs:
         echo "=== Summary ==="
         echo "✓ Credentials are valid (docker login succeeded)"
         echo "✓ Registry is accessible"
-        if [ "$MOLSTAR_RESPONSE" = "404" ]; then
-          echo "? Molstar project will be created on first push (if user has permissions)"
-        elif [ "$MOLSTAR_RESPONSE" = "401" ]; then
+        if [ "$USER_PROJECT_RESPONSE" = "404" ]; then
+          echo "? User project will be created on first push (if user has permissions)"
+        elif [ "$USER_PROJECT_RESPONSE" = "401" ]; then
           echo "✗ User may not have project creation permissions"
+        fi
+
+    - name: Try to create project with minimal push
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "=== Attempting to create user project with minimal push ==="
+        
+        # Check Docker authentication status
+        echo "Checking Docker authentication..."
+        docker info | grep -i "username" || echo "No username found in docker info"
+        
+        # Create a minimal Docker image to test project creation
+        echo "FROM alpine:latest" > minimal.Dockerfile
+        echo "CMD echo 'test'" >> minimal.Dockerfile
+        
+        # Try to build and push a minimal image to create the project
+        docker build -f minimal.Dockerfile -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create .
+        
+        echo "Attempting to push minimal image to create project..."
+        if docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create; then
+          echo "✓ User project created successfully!"
+          # Clean up the test image
+          docker rmi ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create
+        else
+          echo "✗ Failed to create user project with minimal push"
+          echo "Error details:"
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create 2>&1 || true
+          echo "This suggests either:"
+          echo "1. User lacks project creation permissions"
+          echo "2. Authentication issues with the registry"
+          echo "3. Registry requires different authentication method"
         fi
 
     - name: Build and push Docker image
