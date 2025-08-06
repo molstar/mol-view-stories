@@ -171,8 +171,8 @@ jobs:
           kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
         else
           echo "Development deployment does not exist, creating new development deployment..."
-          # Create a new development deployment using the deployment file
-          sed "s|cerit.io/***/mol-view-stories:latest|${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}|g" api/deploy-dev.yaml | kubectl apply -f -
+          # Create a new development deployment using the deployment file with proper image replacement
+          sed "s|PLACEHOLDER_USERNAME|${{ secrets.CERIT_REGISTRY_USERNAME }}|g" api/deploy-dev.yaml | kubectl apply -f -
           
           # Set MinIO environment variables for development
           echo "Setting MinIO environment variables for development..."
