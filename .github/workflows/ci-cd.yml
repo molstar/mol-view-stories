@@ -69,6 +69,26 @@ jobs:
         username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
         password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
 
+    - name: Test Docker login manually
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "=== Testing Docker login manually ==="
+        echo "Testing docker login to ${{ env.REGISTRY }}"
+        
+        # Test if we can login with docker
+        if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
+          echo "✓ Docker login successful"
+          
+          # Test if we can pull a simple image (if any exist)
+          echo "Testing if we can access registry with docker..."
+          docker pull ${{ env.REGISTRY }}/hello-world:latest 2>/dev/null || echo "No hello-world image found (this is OK)"
+          
+        else
+          echo "✗ Docker login failed"
+          echo "This indicates a credentials or registry configuration issue"
+          exit 1
+        fi
+
     - name: Debug registry access
       if: github.event_name != 'pull_request'
       run: |
@@ -76,17 +96,73 @@ jobs:
         echo "Registry: ${{ env.REGISTRY }}"
         echo "Image name: ${{ env.IMAGE_NAME }}"
         
-        # Test if we can access the registry
-        echo "Testing registry root access..."
-        curl -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/" -v || echo "Failed to access registry root"
+        # Test 1: Basic registry root access (should work with valid credentials)
+        echo "=== Test 1: Registry root access ==="
+        ROOT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/")
+        echo "Root response code: $ROOT_RESPONSE"
         
-        # Test catalog access to see existing repositories
-        echo "Testing catalog access..."
-        curl -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/_catalog" -v || echo "Failed to access catalog"
+        if [ "$ROOT_RESPONSE" = "200" ]; then
+          echo "✓ Registry root access successful"
+        else
+          echo "✗ Registry root access failed - credentials may be invalid"
+        fi
         
-        echo "Repository '${{ env.IMAGE_NAME }}' will be created automatically on first push."
+        # Test 2: Catalog access (requires specific permissions)
+        echo "=== Test 2: Catalog access ==="
+        CATALOG_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/_catalog")
+        echo "Catalog response code: $CATALOG_RESPONSE"
+        
+        if [ "$CATALOG_RESPONSE" = "200" ]; then
+          echo "✓ Catalog access successful"
+        elif [ "$CATALOG_RESPONSE" = "401" ]; then
+          echo "✗ Catalog access failed - user may not have catalog permissions"
+        else
+          echo "? Catalog access returned unexpected code: $CATALOG_RESPONSE"
+        fi
+        
+        # Test 3: Try to access a specific repository (molstar project)
+        echo "=== Test 3: Molstar project access ==="
+        MOLSTAR_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/molstar/tags/list")
+        echo "Molstar project response code: $MOLSTAR_RESPONSE"
+        
+        if [ "$MOLSTAR_RESPONSE" = "200" ]; then
+          echo "✓ Molstar project exists and is accessible"
+        elif [ "$MOLSTAR_RESPONSE" = "404" ]; then
+          echo "? Molstar project doesn't exist yet (this is OK)"
+        elif [ "$MOLSTAR_RESPONSE" = "401" ]; then
+          echo "✗ Molstar project access denied - user may not have project permissions"
+        else
+          echo "? Molstar project access returned unexpected code: $MOLSTAR_RESPONSE"
+        fi
+        
+        # Test 4: Check if user can create projects (try to push a minimal manifest)
+        echo "=== Test 4: Project creation test ==="
+        if [ "$ROOT_RESPONSE" = "200" ]; then
+          echo "Attempting to test project creation permissions..."
+          # This will fail but should give us info about permissions
+          curl -s -o /dev/null -w "%{http_code}" -X PUT \
+            -H "Content-Type: application/vnd.docker.distribution.manifest.v2+json" \
+            -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+            -d '{"schemaVersion":2,"config":{"mediaType":"application/vnd.docker.container.image.v1+json","digest":"sha256:0000000000000000000000000000000000000000000000000000000000000000","size":2},"layers":[]}' \
+            "https://${{ env.REGISTRY }}/v2/molstar/test-repo/manifests/latest" || echo "Test completed"
+        fi
+        
+        echo "=== Summary ==="
+        if [ "$ROOT_RESPONSE" = "200" ]; then
+          echo "✓ Authentication is working"
+          echo "✓ Registry is accessible"
+          echo "Repository '${{ env.IMAGE_NAME }}' will be created automatically on first push."
+        else
+          echo "✗ Authentication failed - check credentials"
+          echo "Please verify:"
+          echo "1. CERIT_REGISTRY_USERNAME is correct"
+          echo "2. CERIT_REGISTRY_PASSWORD is correct"
+          echo "3. User has access to cerit.io registry"
+          exit 1
+        fi
 
     - name: Build and push Docker image
       if: github.event_name != 'pull_request'
