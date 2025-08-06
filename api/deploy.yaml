@@ -80,34 +80,13 @@ spec:
         - name: cerit-registry-secret
       containers:
         - name: mol-view-stories-api-container
-          image: hub.cerit.io/molstar/mol-view-stories:latest
+          image: cerit.io/PLACEHOLDER_USERNAME/mol-view-stories:latest
           ports:
             - containerPort: 5000
               name: http
           env:
-            - name: MINIO_ENDPOINT
-              value: "https://s3-mol-view-stories-s3-mol-view-stories-ns.dyn.cloud.e-infra.cz"
-            - name: MINIO_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: mol-view-stories-s3-minioauth-secret
-                  key: username
-            - name: MINIO_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: mol-view-stories-s3-minioauth-secret
-                  key: password
-            - name: FLASK_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: molstar-auth-secrets
-                  key: secret-key
-            - name: MAX_UPLOAD_SIZE_MB
-              value: "50"
             - name: ENVIRONMENT
               value: "production"
-            - name: MINIO_BUCKET
-              value: "mol-view-stories"
           readinessProbe:
             httpGet:
               path: /ready
