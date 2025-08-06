@@ -50,7 +50,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r api/requirements.txt
 
     - name: Run tests (if you have them)
       run: |
@@ -70,7 +70,7 @@ jobs:
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v5
       with:
-        context: .
+        context: ./api
         push: true
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         cache-from: type=gha
