@@ -187,16 +187,22 @@ async function saveToAPI(
     title: formData.title.trim(),
     description: formData.description.trim(),
     // Note: No visibility field - sessions are always private, stories are always public
-    data: undefined, // to be filled below
+    data: Uint8Array
   };
 
   // Handle data based on type - async for Uint8Array
   if (data instanceof Uint8Array) {
     requestBody.data = await encodeUint8ArrayToBase64(data);
+    // Validate Uint8Array data
+    validateDataSize(data);
   } else if (typeof data === 'string') {
     requestBody.data = JSON.parse(data);
+    // Validate string data
+    validateDataSize(data);
   } else {
     requestBody.data = data;
+    // For other types, validate the stringified version
+    validateDataSize(JSON.stringify(data));
   }
 
   // Only include filename for new sessions (POST), not updates (PUT)
@@ -205,8 +211,7 @@ async function saveToAPI(
   }
 
   try {
-    // Final validation: check the size of the JSON payload that will be sent
-    validateDataSize(JSON.stringify(requestBody.data));
+    // Validation already performed above based on data type
   } catch (error) {
     const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
     throw new Error(error instanceof Error ? error.message.replace('SAVE FAILED', `${operation} FAILED`) : `${operation} FAILED: Request data too large`);
