@@ -1,0 +1,91 @@
+name: API Pull Request Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'api/mol-view-stories/Dockerfile'
+      - 'api/mol-view-stories/app.py'
+      - 'api/mol-view-stories/auth.py'
+      - 'api/mol-view-stories/config.py'
+      - 'api/mol-view-stories/schemas.py'
+      - 'api/mol-view-stories/error_handlers.py'
+      - 'api/mol-view-stories/utils.py'
+      - 'api/mol-view-stories/routes/**'
+      - 'api/mol-view-stories/storage/**'
+      - 'api/mol-view-stories/requirements.txt'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      working-directory: api/mol-view-stories
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run linting
+      working-directory: api/mol-view-stories
+      run: |
+        # Install additional linting tools if needed
+        pip install flake8 black isort
+        
+        # Run linting checks
+        echo "Running flake8..."
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        
+        echo "Running black check..."
+        black --check . || true
+        
+        echo "Running isort check..."
+        isort --check-only . || true
+
+    - name: Run tests
+      working-directory: api/mol-view-stories
+      run: |
+        # Add your test commands here
+        echo "Running tests..."
+        # python -m pytest tests/ --cov=app --cov-report=xml
+        
+        # For now, just verify the app can start
+        python -c "import app; print('App imports successfully')"
+
+    - name: Validate Docker build
+      working-directory: api/mol-view-stories
+      run: |
+        # Test Docker build without pushing
+        docker build -t mol-view-stories:test .
+        
+        # Verify the image was created
+        docker images | grep mol-view-stories
+
+    - name: Security scan
+      working-directory: api/mol-view-stories
+      run: |
+        # Install security scanning tools
+        pip install safety bandit
+        
+        # Check for known vulnerabilities
+        echo "Checking for known vulnerabilities..."
+        safety check || true
+        
+        # Run bandit security linter
+        echo "Running security scan..."
+        bandit -r . -f json -o bandit-report.json || true
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: api/mol-view-stories/bandit-report.json 

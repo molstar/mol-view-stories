@@ -1,0 +1,135 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mol-view-stories-api-ingress
+  namespace: mol-view-stories-ns
+  labels:
+    deployment-id: mol-view-stories-api
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.org/client-max-body-size: "50m"
+spec:
+  rules:
+    - host: stories.molstar.org
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mol-view-stories-api-svc
+                port:
+                  number: 5000
+    - host: mol-view-stories.dyn.cloud.e-infra.cz
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mol-view-stories-api-svc
+                port:
+                  number: 5000
+  tls:
+    - hosts:
+        - stories.molstar.org
+        - mol-view-stories.dyn.cloud.e-infra.cz
+      secretName: mol-view-stories-api-tls-stories
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mol-view-stories-api-svc
+  namespace: mol-view-stories-ns
+  labels:
+    deployment-id: mol-view-stories-api
+spec:
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  selector:
+    deployment-id: mol-view-stories-api
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mol-view-stories-api
+  namespace: mol-view-stories-ns
+  labels:
+    deployment-id: mol-view-stories-api
+    role: mol-view-stories-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment-id: mol-view-stories-api
+  template:
+    metadata:
+      labels:
+        deployment-id: mol-view-stories-api
+        role: mol-view-stories-api
+    spec:
+      imagePullSecrets:
+        - name: cerit-registry-secret
+      containers:
+        - name: mol-view-stories-api-container
+          image: hub.cerit.io/molstar/mol-view-stories:latest
+          ports:
+            - containerPort: 5000
+              name: http
+          env:
+            - name: MINIO_ENDPOINT
+              value: "https://s3-mol-view-stories-s3-mol-view-stories-ns.dyn.cloud.e-infra.cz"
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mol-view-stories-s3-minioauth-secret
+                  key: username
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mol-view-stories-s3-minioauth-secret
+                  key: password
+            - name: FLASK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: molstar-auth-secrets
+                  key: secret-key
+            - name: MAX_UPLOAD_SIZE_MB
+              value: "50"
+            - name: ENVIRONMENT
+              value: "production"
+            - name: MINIO_BUCKET
+              value: "mol-view-stories"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: "1"
+              memory: "4Gi"
+            limits:
+              cpu: "2"
+              memory: "8Gi"

@@ -1,0 +1,92 @@
+name: API CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main", "develop"]
+    paths:
+      - "api/**"
+      - ".github/workflows/ci-cd.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "api/**"
+      - ".github/workflows/ci-cd.yml"
+  workflow_dispatch:
+
+env:
+  REGISTRY: hub.cerit.io
+  IMAGE_NAME: molstar/mol-view-stories
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
+          password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run tests
+        run: |
+          cd api
+          pip install -r requirements.txt
+          python -m pytest tests/ -v
+
+  deploy-dev:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.K8S_CONTEXT }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy to development
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl apply -f api/deploy-dev.yaml
+          kubectl rollout status deployment/mol-view-stories-api-dev -n mol-view-stories-ns
+
+      - name: Health check
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl wait --for=condition=ready pod -l app=mol-view-stories-api-dev -n mol-view-stories-ns --timeout=300s 
