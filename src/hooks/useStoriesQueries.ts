@@ -103,11 +103,13 @@ export function usePublishStory() {
     onSuccess: () => {
       // Invalidate and refetch stories to show the new/updated story
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stories });
-      toast.success('Story published successfully!');
     },
     onError: (error) => {
-      console.error('Failed to publish story:', error);
-      toast.error('Failed to publish story');
+      console.error('Failed to publish story (mutation):', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to publish story';
+      if (!errorMessage.includes('too large') && !errorMessage.includes('maximum allowed')) {
+        toast.error('Failed to publish story');
+      }
     },
   });
 }

@@ -46,7 +46,7 @@ MolViewStories uses OAuth2 with PKCE for secure authentication via Life Science 
 ### Session Management
 
 - Sessions last 8-12 hours (Life Science AAI default)
-- Tokens stored in browser sessionStorage
+- Tokens stored in browser localStorage
 - Automatic token refresh when possible
 - Login status synchronized across browser tabs
 - Sessions expire automatically when tokens become invalid

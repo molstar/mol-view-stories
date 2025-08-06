@@ -72,7 +72,6 @@ export function PublishModal() {
       setActiveTab('new');
     } catch (err) {
       console.error('Failed to publish story: ', err);
-      toast.error(`Failed to publish the story`);
     } finally {
       setState((prev) => ({ ...prev, status: 'idle' }));
     }

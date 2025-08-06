@@ -29,7 +29,7 @@ export function saveTokens(tokens: Omit<AuthTokens, 'expires_at'>): void {
   };
 
   try {
-    sessionStorage.setItem('oauth_tokens', JSON.stringify(tokensWithExpiry));
+    localStorage.setItem('oauth_tokens', JSON.stringify(tokensWithExpiry));
     triggerAuthRefresh();
   } catch (error) {
     console.warn('Failed to save tokens:', error);
@@ -40,7 +40,7 @@ export function clearTokens(): void {
   if (typeof window === 'undefined') return;
 
   try {
-    sessionStorage.removeItem('oauth_tokens');
+    localStorage.removeItem('oauth_tokens');
     triggerAuthRefresh();
   } catch (error) {
     console.warn('Failed to clear tokens:', error);
@@ -52,7 +52,7 @@ export async function getValidTokens(): Promise<AuthTokens | null> {
   if (typeof window === 'undefined') return null;
 
   try {
-    const saved = sessionStorage.getItem('oauth_tokens');
+    const saved = localStorage.getItem('oauth_tokens');
     if (!saved) return null;
 
     const tokens: AuthTokens = JSON.parse(saved);
@@ -133,7 +133,7 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
   // Get tokens directly from storage, even if expired
   let currentTokens: AuthTokens;
   try {
-    const saved = sessionStorage.getItem('oauth_tokens');
+    const saved = localStorage.getItem('oauth_tokens');
     if (!saved) {
       return null;
     }

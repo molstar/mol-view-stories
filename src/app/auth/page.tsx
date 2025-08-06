@@ -26,7 +26,7 @@ import { CheckCircle, XCircle, AlertCircle, Home, RefreshCw, Loader2 } from 'luc
 export default function AuthPage() {
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Authenticating...');
+  const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [timeoutReached, setTimeoutReached] = useState(false);
 
