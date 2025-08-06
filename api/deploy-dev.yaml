@@ -77,4 +77,14 @@ spec:
             cpu: "250m"
           limits:
             memory: "512Mi"
-            cpu: "500m" 
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault 
