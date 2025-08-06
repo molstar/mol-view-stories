@@ -4,31 +4,33 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'Dockerfile'
-      - 'app.py'
-      - 'auth.py'
-      - 'config.py'
-      - 'schemas.py'
-      - 'error_handlers.py'
-      - 'utils.py'
-      - 'routes/**'
-      - 'storage/**'
-      - 'requirements.txt'
+      - 'api/Dockerfile'
+      - 'api/app.py'
+      - 'api/auth.py'
+      - 'api/config.py'
+      - 'api/schemas.py'
+      - 'api/error_handlers.py'
+      - 'api/utils.py'
+      - 'api/routes/**'
+      - 'api/storage/**'
+      - 'api/requirements.txt'
       - '.github/workflows/ci-cd.yml'
+      - 'api/deploy-dev.yaml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'Dockerfile'
-      - 'app.py'
-      - 'auth.py'
-      - 'config.py'
-      - 'schemas.py'
-      - 'error_handlers.py'
-      - 'utils.py'
-      - 'routes/**'
-      - 'storage/**'
-      - 'requirements.txt'
+      - 'api/Dockerfile'
+      - 'api/app.py'
+      - 'api/auth.py'
+      - 'api/config.py'
+      - 'api/schemas.py'
+      - 'api/error_handlers.py'
+      - 'api/utils.py'
+      - 'api/routes/**'
+      - 'api/storage/**'
+      - 'api/requirements.txt'
       - '.github/workflows/ci-cd.yml'
+      - 'api/deploy-dev.yaml'
 
 env:
   REGISTRY: cerit.io
