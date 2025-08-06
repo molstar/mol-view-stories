@@ -77,7 +77,7 @@ jobs:
         
         # Test if we can login with docker
         if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
-          echo "✓ Docker login successful"
+          echo "✓ Docker login successful - credentials are valid"
           
           # Test if we can pull a simple image (if any exist)
           echo "Testing if we can access registry with docker..."
@@ -89,41 +89,16 @@ jobs:
           exit 1
         fi
 
-    - name: Debug registry access
+    - name: Debug project permissions
       if: github.event_name != 'pull_request'
       run: |
-        echo "Testing registry access..."
+        echo "=== Debugging Project Permissions ==="
         echo "Registry: ${{ env.REGISTRY }}"
-        echo "Image name: ${{ env.IMAGE_NAME }}"
+        echo "Target project: molstar"
+        echo "Target image: ${{ env.IMAGE_NAME }}"
         
-        # Test 1: Basic registry root access (should work with valid credentials)
-        echo "=== Test 1: Registry root access ==="
-        ROOT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/")
-        echo "Root response code: $ROOT_RESPONSE"
-        
-        if [ "$ROOT_RESPONSE" = "200" ]; then
-          echo "✓ Registry root access successful"
-        else
-          echo "✗ Registry root access failed - credentials may be invalid"
-        fi
-        
-        # Test 2: Catalog access (requires specific permissions)
-        echo "=== Test 2: Catalog access ==="
-        CATALOG_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/_catalog")
-        echo "Catalog response code: $CATALOG_RESPONSE"
-        
-        if [ "$CATALOG_RESPONSE" = "200" ]; then
-          echo "✓ Catalog access successful"
-        elif [ "$CATALOG_RESPONSE" = "401" ]; then
-          echo "✗ Catalog access failed - user may not have catalog permissions"
-        else
-          echo "? Catalog access returned unexpected code: $CATALOG_RESPONSE"
-        fi
-        
-        # Test 3: Try to access a specific repository (molstar project)
-        echo "=== Test 3: Molstar project access ==="
+        # Since docker login works, let's test specific permissions
+        echo "=== Testing molstar project access ==="
         MOLSTAR_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
           "https://${{ env.REGISTRY }}/v2/molstar/tags/list")
         echo "Molstar project response code: $MOLSTAR_RESPONSE"
@@ -131,37 +106,38 @@ jobs:
         if [ "$MOLSTAR_RESPONSE" = "200" ]; then
           echo "✓ Molstar project exists and is accessible"
         elif [ "$MOLSTAR_RESPONSE" = "404" ]; then
-          echo "? Molstar project doesn't exist yet (this is OK)"
+          echo "? Molstar project doesn't exist yet (this is expected)"
+          echo "Will attempt to create it during push..."
         elif [ "$MOLSTAR_RESPONSE" = "401" ]; then
-          echo "✗ Molstar project access denied - user may not have project permissions"
+          echo "✗ Molstar project access denied - user may not have project creation permissions"
+          echo "You may need to:"
+          echo "1. Contact registry admin to grant project creation permissions"
+          echo "2. Use an existing project name"
+          echo "3. Have the molstar project created manually"
         else
           echo "? Molstar project access returned unexpected code: $MOLSTAR_RESPONSE"
         fi
         
-        # Test 4: Check if user can create projects (try to push a minimal manifest)
-        echo "=== Test 4: Project creation test ==="
-        if [ "$ROOT_RESPONSE" = "200" ]; then
-          echo "Attempting to test project creation permissions..."
-          # This will fail but should give us info about permissions
-          curl -s -o /dev/null -w "%{http_code}" -X PUT \
-            -H "Content-Type: application/vnd.docker.distribution.manifest.v2+json" \
-            -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-            -d '{"schemaVersion":2,"config":{"mediaType":"application/vnd.docker.container.image.v1+json","digest":"sha256:0000000000000000000000000000000000000000000000000000000000000000","size":2},"layers":[]}' \
-            "https://${{ env.REGISTRY }}/v2/molstar/test-repo/manifests/latest" || echo "Test completed"
+        echo "=== Testing catalog access (optional) ==="
+        CATALOG_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
+          "https://${{ env.REGISTRY }}/v2/_catalog")
+        echo "Catalog response code: $CATALOG_RESPONSE"
+        
+        if [ "$CATALOG_RESPONSE" = "200" ]; then
+          echo "✓ User has catalog access (admin privileges)"
+        elif [ "$CATALOG_RESPONSE" = "401" ]; then
+          echo "? User doesn't have catalog access (normal for regular users)"
+        else
+          echo "? Catalog access returned unexpected code: $CATALOG_RESPONSE"
         fi
         
         echo "=== Summary ==="
-        if [ "$ROOT_RESPONSE" = "200" ]; then
-          echo "✓ Authentication is working"
-          echo "✓ Registry is accessible"
-          echo "Repository '${{ env.IMAGE_NAME }}' will be created automatically on first push."
-        else
-          echo "✗ Authentication failed - check credentials"
-          echo "Please verify:"
-          echo "1. CERIT_REGISTRY_USERNAME is correct"
-          echo "2. CERIT_REGISTRY_PASSWORD is correct"
-          echo "3. User has access to cerit.io registry"
-          exit 1
+        echo "✓ Credentials are valid (docker login succeeded)"
+        echo "✓ Registry is accessible"
+        if [ "$MOLSTAR_RESPONSE" = "404" ]; then
+          echo "? Molstar project will be created on first push (if user has permissions)"
+        elif [ "$MOLSTAR_RESPONSE" = "401" ]; then
+          echo "✗ User may not have project creation permissions"
         fi
 
     - name: Build and push Docker image
