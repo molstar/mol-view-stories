@@ -8,7 +8,7 @@ import { type Story, type StoryContainer, type SessionMetadata } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
 import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
-import { getMVSData, setIsDirty, setSessionIdUrl } from './actions';
+import { getMVSData, setIsDirty, setSessionIdUrl, SessionFileExtension} from './actions';
 
 // File size validation utility
 // Note that file size is also checked at the API, this is a safety check to avoid expensive sending of oversized data.
@@ -171,7 +171,7 @@ async function saveToAPI(
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
-      return '.mvstory';
+      return SessionFileExtension;
     } else {
       // For stories, use .mvsj for JSON data, .mvsx for binary data
       return data instanceof Uint8Array ? '.mvsx' : '.mvsj';
@@ -204,13 +204,12 @@ async function saveToAPI(
     requestBody.filename = formData.title.trim() + getFileExtension(endpoint, data);
   }
 
-  // Final validation: check the size of the JSON payload that will be sent
-  const jsonPayload = JSON.stringify(requestBody);
   try {
-    validateDataSize(jsonPayload);
+    // Final validation: check the size of the JSON payload that will be sent
+    validateDataSize(JSON.stringify(requestBody.data));
   } catch (error) {
     const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
-    throw new Error(error instanceof Error ? error.message.replace('SAVE FAILED', `${operation} FAILED`) : `${operation} FAILED: Request payload too large`);
+    throw new Error(error instanceof Error ? error.message.replace('SAVE FAILED', `${operation} FAILED`) : `${operation} FAILED: Request data too large`);
   }
 
   // If sessionId is provided, update existing session; otherwise create new
@@ -224,7 +223,7 @@ async function saveToAPI(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: jsonPayload,
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
