@@ -5,10 +5,9 @@ import warnings
 from urllib.parse import urlparse
 
 import urllib3
+from error_handlers import APIError
 from minio import Minio
 from minio.error import S3Error
-
-from error_handlers import APIError
 
 # Suppress only the single InsecureRequestWarning
 warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
@@ -25,24 +24,48 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
 
-# Validate required environment variables
-if not MINIO_ENDPOINT:
-    raise ValueError("MINIO_ENDPOINT environment variable is required")
-if not MINIO_ACCESS_KEY:
-    raise ValueError("MINIO_ACCESS_KEY environment variable is required")
-if not MINIO_SECRET_KEY:
-    raise ValueError("MINIO_SECRET_KEY environment variable is required")
+# Check if MinIO is configured
+MINIO_ENABLED = bool(MINIO_ENDPOINT and MINIO_ACCESS_KEY and MINIO_SECRET_KEY)
 
-# Parse the endpoint to get just the host
-parsed_url = urlparse(MINIO_ENDPOINT)
-MINIO_HOST = parsed_url.netloc if parsed_url.netloc else parsed_url.path
+if not MINIO_ENABLED:
+    logger.warning("MinIO not configured - storage functionality will be disabled")
+    logger.warning(
+        "Set MINIO_ENDPOINT, MINIO_ACCESS_KEY, and MINIO_SECRET_KEY to enable storage"
+    )
+    minio_client = None
+else:
+    # Validate required environment variables
+    if not MINIO_ENDPOINT:
+        raise ValueError("MINIO_ENDPOINT environment variable is required")
+    if not MINIO_ACCESS_KEY:
+        raise ValueError("MINIO_ACCESS_KEY environment variable is required")
+    if not MINIO_SECRET_KEY:
+        raise ValueError("MINIO_SECRET_KEY environment variable is required")
 
-# Log configuration for debugging
-logger.info(f"MinIO Configuration:")
-logger.info(f"  Environment: {ENVIRONMENT}")
-logger.info(f"  Endpoint: {MINIO_ENDPOINT}")
-logger.info(f"  Host: {MINIO_HOST}")
-logger.info(f"  Bucket: {MINIO_BUCKET}")
+# Initialize MinIO client only if enabled
+if MINIO_ENABLED:
+    # Parse the endpoint to get just the host
+    parsed_url = urlparse(MINIO_ENDPOINT)
+    MINIO_HOST = parsed_url.netloc if parsed_url.netloc else parsed_url.path
+
+    # Log configuration for debugging
+    logger.info(f"MinIO Configuration:")
+    logger.info(f"  Environment: {ENVIRONMENT}")
+    logger.info(f"  Endpoint: {MINIO_ENDPOINT}")
+    logger.info(f"  Host: {MINIO_HOST}")
+    logger.info(f"  Bucket: {MINIO_BUCKET}")
+
+    # Initialize MinIO client
+    minio_client = Minio(
+        MINIO_HOST,
+        access_key=MINIO_ACCESS_KEY,
+        secret_key=MINIO_SECRET_KEY,
+        secure=True,  # Use HTTPS
+        cert_check=False,  # Skip certificate verification for self-signed certs
+    )
+else:
+    MINIO_HOST = None
+    minio_client = None
 
 
 def handle_minio_error(operation):
@@ -50,6 +73,12 @@ def handle_minio_error(operation):
 
     def decorator(f):
         def wrapper(*args, **kwargs):
+            if not MINIO_ENABLED:
+                raise APIError(
+                    f"Storage operation failed: {operation}",
+                    status_code=503,
+                    details={"error": "MinIO storage is not configured"},
+                )
             try:
                 return f(*args, **kwargs)
             except S3Error as e:
@@ -76,18 +105,11 @@ def handle_minio_error(operation):
     return decorator
 
 
-# Initialize MinIO client
-minio_client = Minio(
-    MINIO_HOST,
-    access_key=MINIO_ACCESS_KEY,
-    secret_key=MINIO_SECRET_KEY,
-    secure=True,  # Use HTTPS
-    cert_check=False,  # Skip certificate verification for self-signed certs
-)
-
-
 def ensure_bucket_exists():
     """Ensure the MinIO bucket exists."""
+    if not MINIO_ENABLED:
+        logger.warning("MinIO not enabled, skipping bucket creation")
+        return
     try:
         if not minio_client.bucket_exists(MINIO_BUCKET):
             logger.info(f"Bucket {MINIO_BUCKET} does not exist, creating it")

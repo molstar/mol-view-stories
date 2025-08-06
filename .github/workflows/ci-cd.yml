@@ -91,87 +91,19 @@ jobs:
           exit 1
         fi
 
-    - name: Debug project permissions
+    - name: Debug registry access
       if: github.event_name != 'pull_request'
       run: |
-        echo "=== Debugging Project Permissions ==="
+        echo "=== Registry Configuration ==="
         echo "Registry: ${{ env.REGISTRY }}"
         echo "Target project: ${{ secrets.CERIT_REGISTRY_USERNAME }}"
         echo "Target image: ${{ env.IMAGE_NAME }}"
         
-        # Since docker login works, let's test specific permissions
-        echo "=== Testing user project access ==="
-        USER_PROJECT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/${{ secrets.CERIT_REGISTRY_USERNAME }}/tags/list")
-        echo "User project response code: $USER_PROJECT_RESPONSE"
-        
-        if [ "$USER_PROJECT_RESPONSE" = "200" ]; then
-          echo "✓ User project exists and is accessible"
-        elif [ "$USER_PROJECT_RESPONSE" = "404" ]; then
-          echo "? User project doesn't exist yet (this is expected)"
-          echo "Will attempt to create it during push..."
-        elif [ "$USER_PROJECT_RESPONSE" = "401" ]; then
-          echo "✗ User project access denied - user may not have project creation permissions"
-          echo "You may need to:"
-          echo "1. Contact registry admin to grant project creation permissions"
-          echo "2. Use an existing project name"
-          echo "3. Have the user project created manually"
-        else
-          echo "? User project access returned unexpected code: $USER_PROJECT_RESPONSE"
-        fi
-        
-        echo "=== Testing catalog access (optional) ==="
-        CATALOG_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.CERIT_REGISTRY_USERNAME }}:${{ secrets.CERIT_REGISTRY_PASSWORD }}" \
-          "https://${{ env.REGISTRY }}/v2/_catalog")
-        echo "Catalog response code: $CATALOG_RESPONSE"
-        
-        if [ "$CATALOG_RESPONSE" = "200" ]; then
-          echo "✓ User has catalog access (admin privileges)"
-        elif [ "$CATALOG_RESPONSE" = "401" ]; then
-          echo "? User doesn't have catalog access (normal for regular users)"
-        else
-          echo "? Catalog access returned unexpected code: $CATALOG_RESPONSE"
-        fi
-        
-        echo "=== Summary ==="
         echo "✓ Credentials are valid (docker login succeeded)"
         echo "✓ Registry is accessible"
-        if [ "$USER_PROJECT_RESPONSE" = "404" ]; then
-          echo "? User project will be created on first push (if user has permissions)"
-        elif [ "$USER_PROJECT_RESPONSE" = "401" ]; then
-          echo "✗ User may not have project creation permissions"
-        fi
+        echo "✓ Ready to build and push to ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
 
-    - name: Try to create project with minimal push
-      if: github.event_name != 'pull_request'
-      run: |
-        echo "=== Attempting to create user project with minimal push ==="
-        
-        # Check Docker authentication status
-        echo "Checking Docker authentication..."
-        docker info | grep -i "username" || echo "No username found in docker info"
-        
-        # Create a minimal Docker image to test project creation
-        echo "FROM alpine:latest" > minimal.Dockerfile
-        echo "CMD echo 'test'" >> minimal.Dockerfile
-        
-        # Try to build and push a minimal image to create the project
-        docker build -f minimal.Dockerfile -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create .
-        
-        echo "Attempting to push minimal image to create project..."
-        if docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create; then
-          echo "✓ User project created successfully!"
-          # Clean up the test image
-          docker rmi ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create
-        else
-          echo "✗ Failed to create user project with minimal push"
-          echo "Error details:"
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-create 2>&1 || true
-          echo "This suggests either:"
-          echo "1. User lacks project creation permissions"
-          echo "2. Authentication issues with the registry"
-          echo "3. Registry requires different authentication method"
-        fi
+
 
     - name: Build and push Docker image
       if: github.event_name != 'pull_request'
@@ -181,9 +113,8 @@ jobs:
         push: true
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         platforms: linux/amd64
-        # Temporarily disable cache to isolate the issue
-        # cache-from: type=gha
-        # cache-to: type=gha,mode=max
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
   deploy-dev:
     needs: build-and-test
@@ -223,24 +154,69 @@ jobs:
             mol-view-stories-dev-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
             -n mol-view-stories-ns
           
+          # Set MinIO environment variables for development
+          echo "Setting MinIO environment variables for development..."
+          kubectl set env deployment/mol-view-stories-dev-api \
+            -n mol-view-stories-ns \
+            -c mol-view-stories-dev-api-container \
+            MINIO_ENDPOINT="https://s3-mol-view-stories-s3-dev-mol-view-stories-ns.dyn.cloud.e-infra.cz/" \
+            MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
+            MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
+            MINIO_BUCKET="root"
+          
           # Restart deployment to ensure new image is pulled
           kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
           
           # Wait for rollout to complete
           kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
         else
-          echo "Development deployment does not exist, creating from production deployment..."
-          # Get the production deployment and create a development version
-          kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns -o yaml | \
-            sed 's/name: mol-view-stories-api/name: mol-view-stories-dev-api/g' | \
-            sed 's/mol-view-stories-api-container/mol-view-stories-dev-api-container/g' | \
-            sed 's/replicas: [0-9]*/replicas: 1/g' | \
-            kubectl apply -f -
+          echo "Development deployment does not exist, creating new development deployment..."
+          # Create a new development deployment without copying from production
+          cat <<EOF | kubectl apply -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: mol-view-stories-dev-api
+            namespace: mol-view-stories-ns
+            labels:
+              app: mol-view-stories-dev-api
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: mol-view-stories-dev-api
+            template:
+              metadata:
+                labels:
+                  app: mol-view-stories-dev-api
+              spec:
+                containers:
+                - name: mol-view-stories-dev-api-container
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}
+                  ports:
+                  - containerPort: 5000
+                  env:
+                  - name: ENVIRONMENT
+                    value: "development"
+                  resources:
+                    requests:
+                      memory: "256Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "512Mi"
+                      cpu: "500m"
+                restartPolicy: Always
+          EOF
           
-          # Update the image to the new tag
-          kubectl set image deployment/mol-view-stories-dev-api \
-            mol-view-stories-dev-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
-            -n mol-view-stories-ns
+          # Set MinIO environment variables for development
+          echo "Setting MinIO environment variables for development..."
+          kubectl set env deployment/mol-view-stories-dev-api \
+            -n mol-view-stories-ns \
+            -c mol-view-stories-dev-api-container \
+            MINIO_ENDPOINT="${{ secrets.MINIO_DEV_URL }}" \
+            MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
+            MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
+            MINIO_BUCKET="root"
           
           # Wait for rollout to complete
           kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s

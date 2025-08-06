@@ -40,6 +40,17 @@ jobs:
           export KUBECONFIG=kubeconfig
           kubectl set image deployment/mol-view-stories-api mol-view-stories-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} -n mol-view-stories-ns
 
+      - name: Set MinIO environment variables for production
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl set env deployment/mol-view-stories-api \
+            -n mol-view-stories-ns \
+            -c mol-view-stories-api \
+            MINIO_ENDPOINT="${{ secrets.MINIO_PROD_URL }}" \
+            MINIO_ACCESS_KEY="${{ secrets.MINIO_PROD_USERNAME }}" \
+            MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
+            MINIO_BUCKET="root"
+
       - name: Deploy to production
         run: |
           export KUBECONFIG=kubeconfig
