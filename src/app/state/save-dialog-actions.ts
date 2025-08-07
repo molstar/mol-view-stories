@@ -8,7 +8,7 @@ import { type Story, type StoryContainer, type SessionMetadata } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
 import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
-import { getMVSData, setIsDirty, setSessionIdUrl, SessionFileExtension} from './actions';
+import { getMVSData, setIsDirty, setSessionIdUrl, SessionFileExtension } from './actions';
 
 // File size validation utility
 // Note that file size is also checked at the API, this is a safety check to avoid expensive sending of oversized data.
@@ -17,17 +17,19 @@ const MAX_FILE_SIZE_MB = 50; // Keep in sync with backend limit
 function validateDataSize(data: Uint8Array | string, maxSizeMB: number = MAX_FILE_SIZE_MB): void {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   let sizeBytes: number;
-  
+
   if (data instanceof Uint8Array) {
     sizeBytes = data.byteLength;
   } else {
     // For string data (JSON), calculate the byte size
     sizeBytes = new Blob([data]).size;
   }
-  
+
   if (sizeBytes > maxSizeBytes) {
     const sizeMB = (sizeBytes / 1024 / 1024).toFixed(1);
-    throw new Error(`SAVE FAILED: Session too large (${sizeMB}MB, max: ${maxSizeMB}MB). Please reduce complexity or remove large assets to continue.`);
+    throw new Error(
+      `SAVE FAILED: Session too large (${sizeMB}MB, max: ${maxSizeMB}MB). Please reduce complexity or remove large assets to continue.`
+    );
   }
 }
 
@@ -79,7 +81,6 @@ export async function publishStory(options?: { storyId?: string }): Promise<bool
   };
 
   try {
-   
     // Prepare story data
     const data = await prepareStateData(story);
 
@@ -106,23 +107,26 @@ export async function publishStory(options?: { storyId?: string }): Promise<bool
     return true;
   } catch (error) {
     console.error('Share failed:', error);
-    
+
     const errorMessage = error instanceof Error ? error.message : 'PUBLISH FAILED: Unknown error occurred';
-    const isFileSizeError = errorMessage.includes('too large') || errorMessage.includes('FAILED') || errorMessage.includes('maximum allowed');
-    
+    const isFileSizeError =
+      errorMessage.includes('too large') || errorMessage.includes('FAILED') || errorMessage.includes('maximum allowed');
+
     // Add explicit failure prefix if not already present
     const displayMessage = errorMessage.includes('FAILED') ? errorMessage : `PUBLISH FAILED: ${errorMessage}`;
-    
+
     toast.error(displayMessage, {
       duration: isFileSizeError ? 10000 : 5000, // 10 seconds for file size errors, 5 seconds for others
       closeButton: true, // Allow manual dismissal
-      style: isFileSizeError ? {
-        backgroundColor: '#fee2e2', // Light red background for file size errors
-        borderColor: '#dc2626', // Red border
-        color: '#991b1b' // Dark red text
-      } : undefined,
+      style: isFileSizeError
+        ? {
+            backgroundColor: '#fee2e2', // Light red background for file size errors
+            borderColor: '#dc2626', // Red border
+            color: '#991b1b', // Dark red text
+          }
+        : undefined,
     });
-    
+
     return false;
   }
 }
@@ -187,7 +191,7 @@ async function saveToAPI(
     title: formData.title.trim(),
     description: formData.description.trim(),
     // Note: No visibility field - sessions are always private, stories are always public
-    data: Uint8Array
+    data: Uint8Array,
   };
 
   // Handle data based on type - async for Uint8Array
@@ -214,7 +218,11 @@ async function saveToAPI(
     // Validation already performed above based on data type
   } catch (error) {
     const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
-    throw new Error(error instanceof Error ? error.message.replace('SAVE FAILED', `${operation} FAILED`) : `${operation} FAILED: Request data too large`);
+    throw new Error(
+      error instanceof Error
+        ? error.message.replace('SAVE FAILED', `${operation} FAILED`)
+        : `${operation} FAILED: Request data too large`
+    );
   }
 
   // If sessionId is provided, update existing session; otherwise create new
@@ -235,11 +243,13 @@ async function saveToAPI(
     // Handle specific HTTP status codes with user-friendly messages
     if (response.status === 413) {
       const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
-      throw new Error(`${operation} FAILED: Session too large (over ${MAX_FILE_SIZE_MB}MB limit). Please reduce complexity or remove large assets to continue.`);
+      throw new Error(
+        `${operation} FAILED: Session too large (over ${MAX_FILE_SIZE_MB}MB limit). Please reduce complexity or remove large assets to continue.`
+      );
     }
-    
+
     const errorText = await response.text();
-    
+
     // Try to parse structured error from backend
     try {
       const errorData = JSON.parse(errorText);
@@ -250,7 +260,7 @@ async function saveToAPI(
     } catch {
       // Fall back to generic error if parsing fails
     }
-    
+
     const operation = endpoint === 'session' ? 'save' : 'publish';
     throw new Error(`Failed to ${operation}: ${response.statusText}`);
   }
@@ -322,23 +332,26 @@ export async function performSaveSession(sessionId?: string): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Save failed:', error);
-    
+
     const errorMessage = error instanceof Error ? error.message : 'SAVE FAILED: Unknown error occurred';
-    const isFileSizeError = errorMessage.includes('too large') || errorMessage.includes('FAILED') || errorMessage.includes('maximum allowed');
-    
+    const isFileSizeError =
+      errorMessage.includes('too large') || errorMessage.includes('FAILED') || errorMessage.includes('maximum allowed');
+
     // Add explicit failure prefix if not already present
     const displayMessage = errorMessage.includes('FAILED') ? errorMessage : `SAVE FAILED: ${errorMessage}`;
-    
+
     toast.error(displayMessage, {
       duration: isFileSizeError ? 10000 : 5000, // 10 seconds for file size errors, 5 seconds for others
       closeButton: true, // Allow manual dismissal
-      style: isFileSizeError ? {
-        backgroundColor: '#fee2e2', // Light red background for file size errors
-        borderColor: '#dc2626', // Red border
-        color: '#991b1b' // Dark red text
-      } : undefined,
+      style: isFileSizeError
+        ? {
+            backgroundColor: '#fee2e2', // Light red background for file size errors
+            borderColor: '#dc2626', // Red border
+            color: '#991b1b', // Dark red text
+          }
+        : undefined,
     });
-    
+
     return false;
   } finally {
     // Reset saving state

@@ -220,23 +220,28 @@ export const exportState = async (story: Story) => {
   download(blob, filename);
 };
 
-export const importState = async (file: File) => {
+export const importState = async (blob: Blob, options?: { throwOnError?: boolean; doNotCleanSessionId?: boolean }) => {
   const store = getDefaultStore();
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  const bytes = new Uint8Array(await blob.arrayBuffer());
   const inflated = await Task.create('Inflate Story Data', async (ctx) => {
     return await inflate(ctx, bytes);
   }).run();
   const decoded = decodeMsgPack(inflated) as StoryContainer;
   if (decoded.version !== 1) {
-    console.warn(`Unsupported story version: ${decoded.version}. Expected version 1.`);
-    return;
+    if (options?.throwOnError) {
+      throw new Error(`Unsupported story version: ${decoded.version}. Expected version 1.`);
+    } else {
+      console.warn(`Unsupported story version: ${decoded.version}. Expected version 1.`);
+    }
   }
 
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
   store.set(StoryAtom, decoded.story);
   store.set(SessionMetadataAtom, null); // Clear session metadata for imported sessions
   setIsDirty(false);
-  setSessionIdUrl(undefined);
+  if (!options?.doNotCleanSessionId) {
+    setSessionIdUrl(undefined);
+  }
 };
 
 export function modifyCurrentScene(update: SceneUpdate) {
