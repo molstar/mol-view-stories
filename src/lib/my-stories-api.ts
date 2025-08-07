@@ -1,22 +1,18 @@
+import { importState } from '@/app/state/actions';
+import {
+  IsSessionLoadingAtom,
+  MyStoriesDataAtom,
+  MyStoriesStatusAtom,
+  PublishedStoryModalAtom,
+} from '@/app/state/atoms';
+import { SessionItem, StoryItem } from '@/app/state/types';
 import { getDefaultStore } from 'jotai';
+import { VERSION as STORIES_APP_VERSION } from 'molstar/lib/apps/mvs-stories/version';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { authenticatedFetch } from './auth/token-manager';
 import { API_CONFIG } from './config';
-import { tryFindIfStoryIsShared } from './data-utils';
-import { decodeBase64 } from './data-utils';
-import {
-  MyStoriesDataAtom,
-  MyStoriesStatusAtom,
-  StoryAtom,
-  CurrentViewAtom,
-  IsSessionLoadingAtom,
-  PublishedStoryModalAtom,
-  SessionMetadataAtom,
-} from '@/app/state/atoms';
-import { setIsDirty } from '@/app/state/actions';
-import { SessionItem, StoryItem, SessionMetadata } from '@/app/state/types';
-import { VERSION as STORIES_APP_VERSION } from 'molstar/lib/apps/mvs-stories/version';
+import { base64toUint8Array, tryFindIfStoryIsShared } from './data-utils';
 
 export function resolvePublicStoryUrl(storyId: string) {
   // TODO: how to handle the format?
@@ -144,33 +140,11 @@ export async function loadSession(sessionId: string) {
 
     // Parse session data
     const sessionResponse = await dataResponse.json();
-    let storyData = sessionResponse;
-    if (sessionResponse.foo && typeof sessionResponse.foo === 'string') {
-      try {
-        const decoded = decodeBase64(sessionResponse.foo);
-        try {
-          storyData = JSON.parse(decoded);
-        } catch {
-          storyData = { foo: decoded };
-        }
-      } catch (e) {
-        console.error('Failed to decode base64 session data:', e);
-        toast.error('Failed to decode session data');
-        storyData = sessionResponse;
-      }
-    }
-
-    // Parse session metadata
-    const sessionMetadata: SessionMetadata = await metadataResponse.json();
-
-    if (storyData?.story) {
-      store.set(StoryAtom, storyData.story);
-      store.set(SessionMetadataAtom, sessionMetadata);
-      store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
-      setIsDirty(false);
-    } else {
-      throw new Error('No story data found in session');
-    }
+    const bytes = base64toUint8Array(sessionResponse);
+    await importState(new Blob([bytes]), {
+      throwOnError: true,
+      doNotCleanSessionId: true,
+    });
   } catch (err) {
     console.error('Error loading session:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
