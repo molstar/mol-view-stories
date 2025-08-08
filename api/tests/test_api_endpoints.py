@@ -53,7 +53,12 @@ def test_create_session_success(mock_auth, mock_limit, mock_md, mock_save, clien
 
 
 @patch("routes.session_routes.find_object_by_id")
-def test_get_session_public(mock_find, client):
+@patch("routes.session_routes.get_user_from_request")
+def test_get_session_authenticated_owner(mock_auth, mock_find, client):
+    mock_auth.return_value = (
+        {"sub": "user-123", "name": "T", "email": "e"},
+        "user-123",
+    )
     mock_find.return_value = {
         "id": "sess-1",
         "type": "session",

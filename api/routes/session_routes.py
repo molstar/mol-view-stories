@@ -112,14 +112,25 @@ def list_sessions():
 @session_bp.route("/api/session/<session_id>", methods=["GET", "PUT", "DELETE"])
 @error_handler
 def session_by_id(session_id):
-    """Get, update, or delete a specific session by its ID. GET is public, PUT/DELETE require authentication and ownership."""
+    """Get, update, or delete a specific session by its ID.
+
+    GET, PUT, DELETE all require authentication and ownership.
+    """
 
     if request.method == "GET":
-        # GET: Find the session across all users (public read access)
-        matching_session = find_object_by_id(session_id, "session")
+        # GET: Require authentication and ownership
+        user_info, user_id = get_user_from_request()
 
+        matching_session = find_object_by_id(session_id, "session")
         if not matching_session:
             raise APIError("Session not found", status_code=404)
+
+        if matching_session.get("creator", {}).get("id") != user_id:
+            raise APIError(
+                "Access denied. Only the creator can view this session",
+                status_code=403,
+                details={"session_id": session_id},
+            )
 
         return jsonify(matching_session), 200
 
@@ -208,12 +219,20 @@ def session_by_id(session_id):
 @session_bp.route("/api/session/<session_id>/data", methods=["GET"])
 @error_handler
 def get_session_data(session_id):
-    """Get the raw data content of a specific session. Sessions are now publicly readable."""
-    # Find the session across all users (public read access)
-    matching_session = find_object_by_id(session_id, "session")
+    """Get the raw data content of a specific session. Requires authentication and ownership."""
+    # Require authentication and ownership
+    user_info, user_id = get_user_from_request()
 
+    matching_session = find_object_by_id(session_id, "session")
     if not matching_session:
         raise APIError("Session not found", status_code=404)
+
+    if matching_session.get("creator", {}).get("id") != user_id:
+        raise APIError(
+            "Access denied. Only the creator can view this session data",
+            status_code=403,
+            details={"session_id": session_id},
+        )
 
     # Get the data file from storage
     try:

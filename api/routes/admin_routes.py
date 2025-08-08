@@ -4,9 +4,8 @@ import logging
 
 from flask import Blueprint, jsonify, request, session
 
-from auth import make_userinfo_request
+from auth import get_user_from_request, make_userinfo_request
 from error_handlers import APIError, error_handler
-from storage import MINIO_BUCKET, list_minio_buckets, list_minio_objects
 
 logger = logging.getLogger(__name__)
 
@@ -57,29 +56,3 @@ def verify():
     userinfo = make_userinfo_request(token)
     logger.info(f'Token verified for user: {userinfo.get("name")}')
     return jsonify({"authenticated": True, "user": userinfo}), 200
-
-
-@admin_bp.route("/api/s3/buckets")
-@error_handler
-def list_buckets():
-    """Endpoint to list all MinIO buckets."""
-    buckets = list_minio_buckets()
-    return jsonify({"buckets": buckets}), 200
-
-
-@admin_bp.route("/api/s3/list")
-@error_handler
-def list_bucket_contents():
-    """Endpoint to list MinIO bucket contents."""
-    # First, list available buckets
-    buckets = list_minio_buckets()
-    if buckets:
-        logger.info(f"Available buckets: {buckets}")
-
-    prefix = request.args.get("prefix", "")
-
-    if not MINIO_BUCKET:
-        raise APIError("MinIO bucket not configured", status_code=500)
-
-    objects = list_minio_objects(prefix)
-    return jsonify({"bucket": MINIO_BUCKET, "prefix": prefix, "objects": objects}), 200
