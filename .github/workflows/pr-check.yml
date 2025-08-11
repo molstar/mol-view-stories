@@ -142,100 +142,49 @@ jobs:
           fi
           echo "KUBECONFIG=$PWD/kubeconfig" >> "$GITHUB_ENV"
 
-      - name: Create or update ephemeral PR deployment
-        env:
-          KUBECONFIG: kubeconfig
-          DEPLOYMENT_NAME: mol-view-stories-pr-${{ github.event.number }}
-          APP_LABEL: mol-view-stories-pr-${{ github.event.number }}
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.docker-push-pr.outputs.image_digest }}
+      - name: Prepare image reference
         run: |
-          cat <<EOF | kubectl apply -f -
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: ${DEPLOYMENT_NAME}
-            namespace: mol-view-stories-ns
-            labels:
-              app: ${APP_LABEL}
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: ${APP_LABEL}
-            template:
-              metadata:
-                labels:
-                  app: ${APP_LABEL}
-              spec:
-                imagePullSecrets:
-                  - name: cerit-registry-secret
-                containers:
-                  - name: ${DEPLOYMENT_NAME}-container
-                    image: ${IMAGE}
-                    imagePullPolicy: Always
-                    ports:
-                      - containerPort: 5000
-                        name: http
-                    env:
-                      - name: ENVIRONMENT
-                        value: "development"
-                    readinessProbe:
-                      httpGet:
-                        path: /ready
-                        port: 5000
-                      initialDelaySeconds: 5
-                      periodSeconds: 10
-                      timeoutSeconds: 5
-                      successThreshold: 1
-                      failureThreshold: 3
-                    securityContext:
-                      runAsUser: 1000
-                      runAsGroup: 1000
-                      runAsNonRoot: true
-                      allowPrivilegeEscalation: false
-                      capabilities:
-                        drop: ["ALL"]
-                      seccompProfile:
-                        type: RuntimeDefault
-                    resources:
-                      requests:
-                        memory: "256Mi"
-                        cpu: "250m"
-                      limits:
-                        memory: "512Mi"
-                        cpu: "500m"
-          EOF
+          echo "IMAGE_REF=${REGISTRY}/${IMAGE_NAME}@${{ needs.docker-push-pr.outputs.image_digest }}" >> "$GITHUB_ENV"
 
-      - name: Set MinIO environment variables (dev)
-        env:
-          KUBECONFIG: kubeconfig
-          DEPLOYMENT_NAME: mol-view-stories-pr-${{ github.event.number }}
+      - name: Show current dev deployment image
         run: |
-          kubectl set env deployment/${DEPLOYMENT_NAME} \
+          echo "Current image:" \
+            $(kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns \
+              -o=jsonpath='{.spec.template.spec.containers[?(@.name=="mol-view-stories-dev-api-container")].image}')
+
+      - name: Update dev deployment image to PR build
+        run: |
+          echo "Setting image to ${IMAGE_REF}"
+          kubectl annotate deployment/mol-view-stories-dev-api -n mol-view-stories-ns \
+            kubernetes.io/change-cause="PR #${{ github.event.number }} set image to ${IMAGE_REF}" --overwrite
+          kubectl set image deployment/mol-view-stories-dev-api \
+            mol-view-stories-dev-api-container=${IMAGE_REF} \
+            -n mol-view-stories-ns
+
+      - name: Ensure MinIO environment variables (dev)
+        run: |
+          kubectl set env deployment/mol-view-stories-dev-api \
             -n mol-view-stories-ns \
+            -c mol-view-stories-dev-api-container \
             MINIO_ENDPOINT="${{ secrets.MINIO_DEV_URL }}" \
             MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
             MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
             MINIO_BUCKET="root"
 
+      - name: Restart dev deployment
+        run: |
+          kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
+
       - name: Wait for rollout
-        env:
-          KUBECONFIG: kubeconfig
-          DEPLOYMENT_NAME: mol-view-stories-pr-${{ github.event.number }}
         run: |
-          kubectl rollout status deployment/${DEPLOYMENT_NAME} -n mol-view-stories-ns --timeout=300s
+          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
 
-      - name: Verify PR deployment
-        env:
-          KUBECONFIG: kubeconfig
-          APP_LABEL: mol-view-stories-pr-${{ github.event.number }}
+      - name: Verify dev pods and images
         run: |
-          kubectl get pods -n mol-view-stories-ns -l app=${APP_LABEL}
-
-      - name: Cleanup PR deployment
-        if: always()
-        env:
-          KUBECONFIG: kubeconfig
-          DEPLOYMENT_NAME: mol-view-stories-pr-${{ github.event.number }}
-        run: |
-          kubectl delete deployment/${DEPLOYMENT_NAME} -n mol-view-stories-ns --ignore-not-found=true
+          echo "New image:" \
+            $(kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns \
+              -o=jsonpath='{.spec.template.spec.containers[?(@.name=="mol-view-stories-dev-api-container")].image}')
+          echo "Pods:" && kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o wide
+          echo "ReplicaSets:" && kubectl get rs -n mol-view-stories-ns -l app=mol-view-stories-dev-api
+          echo "Describe deployment:" && kubectl describe deployment/mol-view-stories-dev-api -n mol-view-stories-ns | sed -n '1,120p'
+          echo "Recent events:" && kubectl get events -n mol-view-stories-ns --sort-by=.metadata.creationTimestamp | tail -n 50
