@@ -34,7 +34,7 @@ on:
 
 env:
   REGISTRY: cerit.io
-  IMAGE_NAME: ${{ secrets.CERIT_REGISTRY_USERNAME }}/mol-view-stories
+  IMAGE_NAME: mol-view-stories/mvs-api
   # Original: molstar/mol-view-stories (requires molstar project to exist)
   # IMAGE_NAME: molstar/mol-view-stories
 
@@ -98,7 +98,7 @@ jobs:
       run: |
         echo "=== Registry Configuration ==="
         echo "Registry: ${{ env.REGISTRY }}"
-        echo "Target project: ${{ secrets.CERIT_REGISTRY_USERNAME }}"
+        echo "Target project: mol-view-stories"
         echo "Target image: ${{ env.IMAGE_NAME }}"
         
         echo "✓ Credentials are valid (docker login succeeded)"
@@ -109,14 +109,23 @@ jobs:
 
     - name: Build and push Docker image
       if: github.event_name != 'pull_request'
+      id: build_and_push
       uses: docker/build-push-action@v5
       with:
         context: ./api
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
         platforms: linux/amd64
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    - name: Verify pushed image by digest
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
 
   deploy-dev:
     needs: build-and-test
@@ -174,7 +183,7 @@ jobs:
         else
           echo "Development deployment does not exist, creating new development deployment..."
           # Create a new development deployment using the deployment file with proper image replacement
-          sed "s|PLACEHOLDER_USERNAME|${{ secrets.CERIT_REGISTRY_USERNAME }}|g" api/deploy-dev.yaml | kubectl apply -f -
+          kubectl apply -f api/deploy-dev.yaml 
           
           # Set MinIO environment variables for development
           echo "Setting MinIO environment variables for development..."

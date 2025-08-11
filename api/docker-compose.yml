@@ -3,6 +3,7 @@ version: '3.8'
 services:
   api:
     build: .
+    image: mvs-api:latest
     container_name: mvs-api
     env_file:
       - ../.env.local

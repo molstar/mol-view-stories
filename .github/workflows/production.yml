@@ -15,7 +15,7 @@ on:
 
 env:
   REGISTRY: cerit.io
-  IMAGE_NAME: ${{ secrets.CERIT_REGISTRY_USERNAME }}/mol-view-stories
+  IMAGE_NAME: mol-view-stories/mvs-api
 
 jobs:
   deploy-production:
@@ -69,7 +69,7 @@ jobs:
           else
             echo "Production deployment does not exist, creating new production deployment..."
             # Create a new production deployment using the deployment file with proper image replacement
-            sed "s|PLACEHOLDER_USERNAME|${{ secrets.CERIT_REGISTRY_USERNAME }}|g" api/deploy.yaml | kubectl apply -f -
+            kubectl apply -f api/deploy.yaml
             
             # Set MinIO environment variables for production
             echo "Setting MinIO environment variables for production..."

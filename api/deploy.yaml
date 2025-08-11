@@ -80,7 +80,7 @@ spec:
         - name: cerit-registry-secret
       containers:
         - name: mol-view-stories-api-container
-          image: cerit.io/PLACEHOLDER_USERNAME/mol-view-stories:latest
+          image: cerit.io/mol-view-stories/mvs-api:latest
           ports:
             - containerPort: 5000
               name: http
