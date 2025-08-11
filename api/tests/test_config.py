@@ -24,4 +24,24 @@ def test_configure_app_uses_defaults():
         app.config["OIDC_USERINFO_URL"]
         == "https://login.aai.lifescience-ri.eu/oidc/userinfo"
     )
-    assert app.config["BASE_URL"] == "https://stories.molstar.org"
+    # Do not assert a specific production domain here to keep tests environment-agnostic
+
+
+@patch.dict(os.environ, {"BASE_URL": "http://localhost:5000"}, clear=True)
+def test_configure_app_reads_base_url_from_env():
+    app = Flask("test_configure_app_reads_base_url_from_env")
+    configure_app(app)
+    assert app.config["BASE_URL"] == "http://localhost:5000"
+
+
+@patch.dict(
+    os.environ,
+    {"NEXT_PUBLIC_API_BASE_URL": "http://ci-backend:5000"},
+    clear=True,
+)
+def test_configure_app_falls_back_to_next_public_api_base_url_when_base_url_missing():
+    app = Flask(
+        "test_configure_app_falls_back_to_next_public_api_base_url_when_base_url_missing"
+    )
+    configure_app(app)
+    assert app.config["BASE_URL"] == "http://ci-backend:5000"

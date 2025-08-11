@@ -52,7 +52,11 @@ def configure_app(app):
     )
 
     # Base URL for public URIs
-    app.config["BASE_URL"] = os.getenv("BASE_URL", "https://stories.molstar.org")
+    # Prefer explicit BASE_URL; if absent, fall back to NEXT_PUBLIC_API_BASE_URL for convenience
+    app.config["BASE_URL"] = os.getenv(
+        "BASE_URL",
+        os.getenv("NEXT_PUBLIC_API_BASE_URL", "https://stories.molstar.org"),
+    )
 
     # User limits configuration
     # TODO: Change to 10 after testing

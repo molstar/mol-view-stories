@@ -4,7 +4,7 @@ import logging
 
 from flask import Blueprint, jsonify, request, session
 
-from auth import get_user_from_request, make_userinfo_request
+from auth import make_userinfo_request
 from error_handlers import APIError, error_handler
 
 logger = logging.getLogger(__name__)

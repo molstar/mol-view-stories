@@ -30,9 +30,9 @@ story_bp = Blueprint("stories", __name__)
 
 def generate_public_uri(object_type, object_id):
     """Generate a public URI for an object."""
-    import os
-
-    base_url = os.getenv("BASE_URL", "https://stories.molstar.org").rstrip("/")
+    base_url = current_app.config.get("BASE_URL", "https://stories.molstar.org").rstrip(
+        "/"
+    )
     return f"{base_url}/api/{object_type}/{object_id}"
 
 

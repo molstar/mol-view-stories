@@ -109,6 +109,105 @@ def list_sessions():
     return jsonify(sessions), 200
 
 
+def _handle_get_session(session_id):
+    """Handle GET request for a specific session."""
+    user_info, user_id = get_user_from_request()
+
+    matching_session = find_object_by_id(session_id, "session")
+    if not matching_session:
+        raise APIError("Session not found", status_code=404)
+
+    if matching_session.get("creator", {}).get("id") != user_id:
+        raise APIError(
+            "Access denied. Only the creator can view this session",
+            status_code=403,
+            details={"session_id": session_id},
+        )
+
+    return jsonify(matching_session), 200
+
+
+def _handle_put_session(session_id):
+    """Handle PUT request for updating a specific session."""
+    user_info, user_id = get_user_from_request()
+
+    # Add inline validation for PUT method since we can't use decorator here
+    content_length = request.content_length
+    if content_length is not None:
+        max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+        max_size_bytes = max_size_mb * 1024 * 1024
+        if content_length > max_size_bytes:
+            logger.warning(
+                f"PUT session request payload too large: {content_length} bytes (max: {max_size_bytes} bytes)"
+            )
+            return (
+                jsonify(
+                    {
+                        "error": True,
+                        "message": "Request payload too large",
+                        "status_code": 413,
+                        "details": {
+                            "type": "PayloadTooLarge",
+                            "description": f"The request payload exceeds the maximum allowed size of {max_size_mb}MB",
+                            "max_size_mb": max_size_mb,
+                            "received_size_mb": round(
+                                content_length / (1024 * 1024), 2
+                            ),
+                            "suggestion": "Please reduce the payload size and try again",
+                        },
+                    }
+                ),
+                413,
+            )
+
+    raw_data = request.get_json()
+    if not raw_data:
+        raise APIError("No data provided", status_code=400)
+
+    # SECURITY: Validate input using Pydantic model with extra="forbid"
+    try:
+        validated_input = SessionUpdate(**raw_data)
+    except ValidationError as e:
+        raise APIError(
+            "Invalid input data",
+            status_code=400,
+            details={"validation_errors": e.errors()},
+        )
+
+    # Update the session using the validated input
+    logger.info(
+        f"Update session request received for session_id: {session_id} by user: {user_id}"
+    )
+    logger.debug(f"Validated input fields: {validated_input.dict(exclude_none=True)}")
+
+    # Perform the update with authorization check (this already checks ownership)
+    updated_metadata = update_session_by_id(
+        session_id, user_id, validated_input.dict(exclude_none=True)
+    )
+
+    logger.info(
+        f"Update session completed for session_id: {session_id} by user: {user_id}"
+    )
+    return jsonify(updated_metadata), 200
+
+
+def _handle_delete_session(session_id):
+    """Handle DELETE request for a specific session."""
+    user_info, user_id = get_user_from_request()
+
+    logger.info(
+        f"Delete session request received for session_id: {session_id} by user: {user_id}"
+    )
+
+    # Perform the deletion with authorization check (this already checks ownership)
+    result = delete_session_by_id(session_id, user_id)
+
+    logger.info(
+        f"Delete session completed for session_id: {session_id} by user: {user_id}"
+    )
+    return jsonify(result), 200
+
+
 @session_bp.route("/api/session/<session_id>", methods=["GET", "PUT", "DELETE"])
 @error_handler
 def session_by_id(session_id):
@@ -118,102 +217,11 @@ def session_by_id(session_id):
     """
 
     if request.method == "GET":
-        # GET: Require authentication and ownership
-        user_info, user_id = get_user_from_request()
-
-        matching_session = find_object_by_id(session_id, "session")
-        if not matching_session:
-            raise APIError("Session not found", status_code=404)
-
-        if matching_session.get("creator", {}).get("id") != user_id:
-            raise APIError(
-                "Access denied. Only the creator can view this session",
-                status_code=403,
-                details={"session_id": session_id},
-            )
-
-        return jsonify(matching_session), 200
-
+        return _handle_get_session(session_id)
     elif request.method == "PUT":
-        # PUT: Require authentication and ownership
-        user_info, user_id = get_user_from_request()
-
-        # Add inline validation for PUT method since we can't use decorator here
-        content_length = request.content_length
-        if content_length is not None:
-            max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
-            max_size_bytes = max_size_mb * 1024 * 1024
-            if content_length > max_size_bytes:
-                logger.warning(
-                    f"PUT session request payload too large: {content_length} bytes (max: {max_size_bytes} bytes)"
-                )
-                return (
-                    jsonify(
-                        {
-                            "error": True,
-                            "message": "Request payload too large",
-                            "status_code": 413,
-                            "details": {
-                                "type": "PayloadTooLarge",
-                                "description": f"The request payload exceeds the maximum allowed size of {max_size_mb}MB",
-                                "max_size_mb": max_size_mb,
-                                "received_size_mb": round(
-                                    content_length / (1024 * 1024), 2
-                                ),
-                                "suggestion": "Please reduce the payload size and try again",
-                            },
-                        }
-                    ),
-                    413,
-                )
-
-        raw_data = request.get_json()
-        if not raw_data:
-            raise APIError("No data provided", status_code=400)
-
-        # SECURITY: Validate input using Pydantic model with extra="forbid"
-        try:
-            validated_input = SessionUpdate(**raw_data)
-        except ValidationError as e:
-            raise APIError(
-                "Invalid input data",
-                status_code=400,
-                details={"validation_errors": e.errors()},
-            )
-
-        # Update the session using the validated input
-        logger.info(
-            f"Update session request received for session_id: {session_id} by user: {user_id}"
-        )
-        logger.debug(
-            f"Validated input fields: {validated_input.dict(exclude_none=True)}"
-        )
-
-        # Perform the update with authorization check (this already checks ownership)
-        updated_metadata = update_session_by_id(
-            session_id, user_id, validated_input.dict(exclude_none=True)
-        )
-
-        logger.info(
-            f"Update session completed for session_id: {session_id} by user: {user_id}"
-        )
-        return jsonify(updated_metadata), 200
-
+        return _handle_put_session(session_id)
     elif request.method == "DELETE":
-        # DELETE: Require authentication and ownership
-        user_info, user_id = get_user_from_request()
-
-        logger.info(
-            f"Delete session request received for session_id: {session_id} by user: {user_id}"
-        )
-
-        # Perform the deletion with authorization check (this already checks ownership)
-        result = delete_session_by_id(session_id, user_id)
-
-        logger.info(
-            f"Delete session completed for session_id: {session_id} by user: {user_id}"
-        )
-        return jsonify(result), 200
+        return _handle_delete_session(session_id)
 
 
 @session_bp.route("/api/session/<session_id>/data", methods=["GET"])
