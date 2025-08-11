@@ -147,6 +147,14 @@ export async function refreshAccessToken(): Promise<AuthTokens | null> {
     return null;
   }
 
+  // Ensure client_id and authority are defined
+  if (!OAUTH_CONFIG.client_id) {
+    throw new Error('OAuth client_id is not configured');
+  }
+  if (!OAUTH_CONFIG.authority) {
+    throw new Error('OAuth authority is not configured');
+  }
+
   try {
     const response = await fetch(`${OAUTH_CONFIG.authority}/token`, {
       method: 'POST',
