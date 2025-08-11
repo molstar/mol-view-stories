@@ -41,6 +41,8 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    outputs:
+      image_digest: ${{ steps.build_and_push.outputs.digest }}
     
     steps:
     - name: Checkout repository
@@ -143,8 +145,15 @@ jobs:
 
     - name: Configure kubectl
       run: |
-        echo "${{ secrets.K8S_CONTEXT }}" | base64 -d > kubeconfig.yaml
-        export KUBECONFIG=kubeconfig.yaml
+        KCONF='${{ secrets.K8S_CONTEXT }}'
+        if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+          echo "Detected base64-encoded kubeconfig"
+          echo "$KCONF" | base64 -d > kubeconfig.yaml
+        else
+          echo "Using raw kubeconfig"
+          printf "%s" "$KCONF" > kubeconfig.yaml
+        fi
+        echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> "$GITHUB_ENV"
 
     - name: Deploy to development
       run: |
@@ -157,12 +166,15 @@ jobs:
           IMAGE_TAG="${{ github.ref_name }}"
         fi
         
+        IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
+        IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+
         # Check if development deployment exists
         if kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns >/dev/null 2>&1; then
           echo "Development deployment exists, updating image..."
           # Update deployment with new image
           kubectl set image deployment/mol-view-stories-dev-api \
-            mol-view-stories-dev-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
+            mol-view-stories-dev-api-container=${IMAGE_REF} \
             -n mol-view-stories-ns
           
           # Set MinIO environment variables for development
@@ -185,6 +197,11 @@ jobs:
           # Create a new development deployment using the deployment file with proper image replacement
           kubectl apply -f api/deploy-dev.yaml 
           
+          # Force image to the digest we just built
+          kubectl set image deployment/mol-view-stories-dev-api \
+            mol-view-stories-dev-api-container=${IMAGE_REF} \
+            -n mol-view-stories-ns
+
           # Set MinIO environment variables for development
           echo "Setting MinIO environment variables for development..."
           kubectl set env deployment/mol-view-stories-dev-api \

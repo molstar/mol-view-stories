@@ -86,6 +86,9 @@ jobs:
     runs-on: ubuntu-latest
     # Only run for PRs from this repository (secrets are not available for forks)
     if: github.event.pull_request.head.repo.fork == false
+    outputs:
+      image_digest: ${{ steps.build_and_push_pr.outputs.digest }}
+      image_tag: pr-${{ github.event.number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -129,15 +132,22 @@ jobs:
 
       - name: Configure kubectl
         run: |
-          echo "${{ secrets.K8S_CONTEXT }}" | base64 -d > kubeconfig
-          export KUBECONFIG=kubeconfig
+          KCONF='${{ secrets.K8S_CONTEXT }}'
+          if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+            echo "Detected base64-encoded kubeconfig"
+            echo "$KCONF" | base64 -d > kubeconfig
+          else
+            echo "Using raw kubeconfig"
+            printf "%s" "$KCONF" > kubeconfig
+          fi
+          echo "KUBECONFIG=$PWD/kubeconfig" >> "$GITHUB_ENV"
 
       - name: Create or update ephemeral PR deployment
         env:
           KUBECONFIG: kubeconfig
           DEPLOYMENT_NAME: mol-view-stories-pr-${{ github.event.number }}
           APP_LABEL: mol-view-stories-pr-${{ github.event.number }}
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.docker-push-pr.outputs.image_digest }}
         run: |
           cat <<EOF | kubectl apply -f -
           apiVersion: apps/v1
@@ -162,6 +172,7 @@ jobs:
                 containers:
                   - name: ${DEPLOYMENT_NAME}-container
                     image: ${IMAGE}
+                    imagePullPolicy: Always
                     ports:
                       - containerPort: 5000
                         name: http

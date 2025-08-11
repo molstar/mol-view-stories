@@ -32,8 +32,15 @@ jobs:
 
       - name: Configure kubectl
         run: |
-          echo "${{ secrets.K8S_CONTEXT }}" | base64 -d > kubeconfig
-          export KUBECONFIG=kubeconfig
+          KCONF='${{ secrets.K8S_CONTEXT }}'
+          if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+            echo "Detected base64-encoded kubeconfig"
+            echo "$KCONF" | base64 -d > kubeconfig
+          else
+            echo "Using raw kubeconfig"
+            printf "%s" "$KCONF" > kubeconfig
+          fi
+          echo "KUBECONFIG=$PWD/kubeconfig" >> "$GITHUB_ENV"
 
       - name: Deploy to production
         run: |
