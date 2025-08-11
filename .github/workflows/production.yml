@@ -1,0 +1,114 @@
+name: Production Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        default: 'latest'
+        type: string
+      confirm_deployment:
+        description: 'Confirm production deployment'
+        required: true
+        type: boolean
+
+env:
+  REGISTRY: cerit.io
+  IMAGE_NAME: mol-view-stories/mvs-api
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: inputs.confirm_deployment == true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          KCONF='${{ secrets.K8S_CONTEXT }}'
+          if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+            echo "Detected base64-encoded kubeconfig"
+            echo "$KCONF" | base64 -d > kubeconfig
+          else
+            echo "Using raw kubeconfig"
+            printf "%s" "$KCONF" > kubeconfig
+          fi
+          echo "KUBECONFIG=$PWD/kubeconfig" >> "$GITHUB_ENV"
+
+      - name: Deploy to production
+        run: |
+          export KUBECONFIG=kubeconfig
+          
+          echo "=== Production Deployment ==="
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}"
+          echo "Namespace: mol-view-stories-ns"
+          
+          # Check if production deployment exists
+          if kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns >/dev/null 2>&1; then
+            echo "Production deployment exists, updating image..."
+            # Update deployment with new image
+            kubectl set image deployment/mol-view-stories-api \
+              mol-view-stories-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+              -n mol-view-stories-ns
+            
+            # Set MinIO environment variables for production
+            echo "Setting MinIO environment variables for production..."
+            kubectl set env deployment/mol-view-stories-api \
+              -n mol-view-stories-ns \
+              -c mol-view-stories-api-container \
+              MINIO_ENDPOINT="${{ secrets.MINIO_PROD_URL }}" \
+              MINIO_ACCESS_KEY="${{ secrets.MINIO_PROD_USERNAME }}" \
+              MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
+              MINIO_BUCKET="mol-view-stories"
+            
+            # Restart deployment to ensure new image is pulled
+            kubectl rollout restart deployment/mol-view-stories-api -n mol-view-stories-ns
+            
+            # Wait for rollout to complete
+            kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+          else
+            echo "Production deployment does not exist, creating new production deployment..."
+            # Create a new production deployment using the deployment file with proper image replacement
+            kubectl apply -f api/deploy.yaml
+            
+            # Set MinIO environment variables for production
+            echo "Setting MinIO environment variables for production..."
+            kubectl set env deployment/mol-view-stories-api \
+              -n mol-view-stories-ns \
+              -c mol-view-stories-api-container \
+              MINIO_ENDPOINT="${{ secrets.MINIO_PROD_URL }}" \
+              MINIO_ACCESS_KEY="${{ secrets.MINIO_PROD_USERNAME }}" \
+              MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
+              MINIO_BUCKET="mol-view-stories"
+            
+            # Wait for rollout to complete
+            kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+          fi
+          
+          echo "✓ Production deployment completed successfully"
+
+      - name: Health check
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl wait --for=condition=ready pod -l deployment-id=mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api
+          kubectl get services -n mol-view-stories-ns -l deployment-id=mol-view-stories-api
+
+      - name: Deployment summary
+        run: |
+          echo "## Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tag**: ${{ inputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successfully deployed" >> $GITHUB_STEP_SUMMARY 

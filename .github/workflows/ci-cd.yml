@@ -1,0 +1,222 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'api/Dockerfile'
+      - 'api/app.py'
+      - 'api/auth.py'
+      - 'api/config.py'
+      - 'api/schemas.py'
+      - 'api/error_handlers.py'
+      - 'api/utils.py'
+      - 'api/routes/**'
+      - 'api/storage/**'
+      - 'api/requirements.txt'
+      - '.github/workflows/ci-cd.yml'
+      - 'api/deploy-dev.yaml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'api/Dockerfile'
+      - 'api/app.py'
+      - 'api/auth.py'
+      - 'api/config.py'
+      - 'api/schemas.py'
+      - 'api/error_handlers.py'
+      - 'api/utils.py'
+      - 'api/routes/**'
+      - 'api/storage/**'
+      - 'api/requirements.txt'
+      - '.github/workflows/ci-cd.yml'
+      - 'api/deploy-dev.yaml'
+
+env:
+  REGISTRY: cerit.io
+  IMAGE_NAME: mol-view-stories/mvs-api
+  # Original: molstar/mol-view-stories (requires molstar project to exist)
+  # IMAGE_NAME: molstar/mol-view-stories
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      image_digest: ${{ steps.build_and_push.outputs.digest }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r api/requirements.txt
+
+    - name: Run tests (if you have them)
+      run: |
+        # Add your test commands here
+        echo "Running tests..."
+        # python -m pytest tests/
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Company Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
+        password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
+
+    - name: Test Docker login manually
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "=== Testing Docker login manually ==="
+        echo "Testing docker login to ${{ env.REGISTRY }}"
+        
+        # Test if we can login with docker
+        if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
+          echo "✓ Docker login successful - credentials are valid"
+          
+          # Test if we can pull a simple image (if any exist)
+          echo "Testing if we can access registry with docker..."
+          docker pull ${{ env.REGISTRY }}/hello-world:latest 2>/dev/null || echo "No hello-world image found (this is OK)"
+          
+        else
+          echo "✗ Docker login failed"
+          echo "This indicates a credentials or registry configuration issue"
+          exit 1
+        fi
+
+    - name: Debug registry access
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "=== Registry Configuration ==="
+        echo "Registry: ${{ env.REGISTRY }}"
+        echo "Target project: mol-view-stories"
+        echo "Target image: ${{ env.IMAGE_NAME }}"
+        
+        echo "✓ Credentials are valid (docker login succeeded)"
+        echo "✓ Registry is accessible"
+        echo "✓ Ready to build and push to ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+
+
+    - name: Build and push Docker image
+      if: github.event_name != 'pull_request'
+      id: build_and_push
+      uses: docker/build-push-action@v5
+      with:
+        context: ./api
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+        platforms: linux/amd64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Verify pushed image by digest
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
+
+  deploy-dev:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      run: |
+        KCONF='${{ secrets.K8S_CONTEXT }}'
+        if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+          echo "Detected base64-encoded kubeconfig"
+          echo "$KCONF" | base64 -d > kubeconfig.yaml
+        else
+          echo "Using raw kubeconfig"
+          printf "%s" "$KCONF" > kubeconfig.yaml
+        fi
+        echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> "$GITHUB_ENV"
+
+    - name: Deploy to development
+      run: |
+        export KUBECONFIG=kubeconfig.yaml
+        
+        # Set image tag based on branch
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          IMAGE_TAG="latest"
+        else
+          IMAGE_TAG="${{ github.ref_name }}"
+        fi
+        
+        IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
+        IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+
+        # Check if development deployment exists
+        if kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns >/dev/null 2>&1; then
+          echo "Development deployment exists, updating image..."
+          # Update deployment with new image
+          kubectl set image deployment/mol-view-stories-dev-api \
+            mol-view-stories-dev-api-container=${IMAGE_REF} \
+            -n mol-view-stories-ns
+          
+          # Set MinIO environment variables for development
+          echo "Setting MinIO environment variables for development..."
+          kubectl set env deployment/mol-view-stories-dev-api \
+            -n mol-view-stories-ns \
+            -c mol-view-stories-dev-api-container \
+            MINIO_ENDPOINT="https://s3-mol-view-stories-s3-dev-mol-view-stories-ns.dyn.cloud.e-infra.cz/" \
+            MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
+            MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
+            MINIO_BUCKET="root"
+          
+          # Restart deployment to ensure new image is pulled
+          kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
+          
+          # Wait for rollout to complete
+          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+        else
+          echo "Development deployment does not exist, creating new development deployment..."
+          # Create a new development deployment using the deployment file with proper image replacement
+          kubectl apply -f api/deploy-dev.yaml 
+          
+          # Force image to the digest we just built
+          kubectl set image deployment/mol-view-stories-dev-api \
+            mol-view-stories-dev-api-container=${IMAGE_REF} \
+            -n mol-view-stories-ns
+
+          # Set MinIO environment variables for development
+          echo "Setting MinIO environment variables for development..."
+          kubectl set env deployment/mol-view-stories-dev-api \
+            -n mol-view-stories-ns \
+            -c mol-view-stories-dev-api-container \
+            MINIO_ENDPOINT="${{ secrets.MINIO_DEV_URL }}" \
+            MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
+            MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
+            MINIO_BUCKET="root"
+          
+          # Wait for rollout to complete
+          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+        fi
+
+    - name: Verify deployment
+      run: |
+        export KUBECONFIG=kubeconfig.yaml
+        kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api 

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    image: mvs-api:latest
+    container_name: mvs-api
+    env_file:
+      - ../.env.local
+    ports:
+      - "5000:5000"
+    depends_on:
+      - minio
+    environment:
+      # Ensure API listens on all interfaces and knows its public base
+      - BASE_URL=http://localhost:5000
+      - ENVIRONMENT=development
+      # CORS frontend
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      # MinIO connection (service name resolves in Docker network)
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_BUCKET=${MINIO_BUCKET:-root}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_SECURE=${MINIO_SECURE:-false}
+
+  minio:
+    image: minio/minio:RELEASE.2024-05-01T01-11-10Z
+    container_name: mvs-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio-data:/data
+
+volumes:
+  minio-data:
+    driver: local
+

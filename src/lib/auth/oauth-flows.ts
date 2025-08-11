@@ -49,6 +49,14 @@ export function getAndClearRedirectPath(): string {
 
 // OAuth2 flow utilities
 export function buildAuthorizationUrl(codeChallenge: string, state?: string): string {
+  // Ensure client_id and authority are defined
+  if (!OAUTH_CONFIG.client_id) {
+    throw new Error('OAuth client_id is not configured');
+  }
+  if (!OAUTH_CONFIG.authority) {
+    throw new Error('OAuth authority is not configured');
+  }
+
   const params = new URLSearchParams({
     client_id: OAUTH_CONFIG.client_id,
     response_type: 'code',
@@ -56,14 +64,26 @@ export function buildAuthorizationUrl(codeChallenge: string, state?: string): st
     redirect_uri: getRedirectUri(),
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    ...(state && { state }),
   });
+
+  // Add state parameter if provided
+  if (state) {
+    params.append('state', state);
+  }
 
   // this is the LS AAI's authorize endpoint, not ours
   return `${OAUTH_CONFIG.authority}/authorize?${params.toString()}`;
 }
 
 export async function exchangeCodeForTokens(code: string, codeVerifier: string): Promise<AuthTokens> {
+  // Ensure client_id and authority are defined
+  if (!OAUTH_CONFIG.client_id) {
+    throw new Error('OAuth client_id is not configured');
+  }
+  if (!OAUTH_CONFIG.authority) {
+    throw new Error('OAuth authority is not configured');
+  }
+
   const requestBody = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: OAUTH_CONFIG.client_id,

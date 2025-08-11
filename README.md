@@ -2,20 +2,51 @@
 
 A webapp to create beautiful, interactive molecular stories.
 
-## Environment Setup
+## Local Development (API + MinIO + Frontend)
 
-This project requires several environment variables to be set up for authentication with Life Science AAI:
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 18+ and npm
+- Free ports: 3000 (web), 5000 (API), 9000/9001 (MinIO)
 
-1. Create a `.env` file in the project root with the following variables:
-```env
-NEXT_PUBLIC_OIDC_AUTHORITY=https://login.aai.lifescience-ri.eu/oidc
-NEXT_PUBLIC_OIDC_CLIENT_ID=3963b643-f862-4578-868e-3ba3de08dd2d
-```
-2. Run
+### 1) Configure environment
+- Copy the example config file and adjust if needed:
 ```bash
-# dev server on http://localhost:3000
+cp env.example .env.local
+```
+
+### 2) Start backend + MinIO
+```bash
+cd api
+docker compose up -d --build
+```
+Verify:
+- API health: `http://localhost:5000/ready`
+- MinIO console: `http://localhost:9001` (user: `minioadmin`, pass: `minioadmin`)
+
+Useful:
+- Stop: `docker compose down`
+- Reset data: `docker compose down -v`
+- Logs: `docker compose logs -f api | cat`
+
+### 3) Start the frontend
+From the project root:
+```bash
+npm install
 npm run dev
 ```
+Open `http://localhost:3000`.
+
+### Use Remote Dev/Prod Backend (no Docker needed)
+- Edit `.env.local` and set one of the remote presets for `NEXT_PUBLIC_API_BASE_URL` (see `env.example`).
+- Ensure `NEXT_PUBLIC_OIDC_AUTHORITY` and `NEXT_PUBLIC_OIDC_CLIENT_ID` are set.
+- Start the frontend as usual (`npm run dev`).
+- You do NOT need any `MINIO_*` or backend variables in this mode.
+
+### Troubleshooting
+- CORS issues: confirm `FRONTEND_URL=http://localhost:3000` in `.env.local`.
+- Login does not work: make sure you're running on the `:3000` port, our 3rd party login page isn't accessible from any another port.
+
 
 ## Update MVS Types
 
@@ -25,45 +56,80 @@ To update `mvs-typing.ts` run
 npm run mvs-types
 ```
 
-## Authentication Flow
+## Switching Environments
 
-MolViewStories uses OAuth2 with PKCE for secure authentication via Life Science AAI.
+Edit `.env.local` and set the API target:
 
-### User Experience
+```env
+# Local backend (Docker Compose)
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 
-**Login Process:**
-1. User clicks "Log in" 
-2. Current work (story, scenes, view state) is automatically saved
-3. User authenticates via popup window (with redirect fallback if popups are blocked)
-4. After login, user returns to exactly where they left off with all work restored
+# Dev backend
+# NEXT_PUBLIC_API_BASE_URL=https://mol-view-stories-dev.dyn.cloud.e-infra.cz
 
-**State Preservation:**
-- Complete story state (title, metadata, all scenes)
-- Current view and editor selections
-- Scene content (code, descriptions, settings)
-- Application position (builder, file operations, etc.)
+# Prod backend
+# NEXT_PUBLIC_API_BASE_URL=https://stories.molstar.org
+```
 
-### Session Management
+## Development Guide
 
-- Sessions last 8-12 hours (Life Science AAI default)
-- Tokens stored in browser localStorage
-- Automatic token refresh when possible
-- Login status synchronized across browser tabs
-- Sessions expire automatically when tokens become invalid
+### Quick Setup
 
-### Authentication Methods
+```bash
+# Frontend
+npm install
 
-**Primary:** Popup-based authentication for seamless user experience
-**Fallback:** Redirect-based authentication when popups are blocked
-**Hybrid:** System automatically detects popup blocking and offers redirect option
+# API (Python 3.11+)
+cd api
+python -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+# .venv\Scripts\Activate.ps1  # Windows
+pip install -r requirements.txt
+pip install flake8 black isort pytest
+cd ..
+```
 
-### Logout
+### Before Committing
 
-- **Manual:** User avatar → "Log Out" clears all tokens immediately
-- **Automatic:** Expired sessions are detected and cleared automatically
-- User can continue with public features after logout
+**Always run these checks:**
 
-### Feature Access
+```bash
+# API checks
+cd api && source .venv/bin/activate
+flake8 . --exclude .venv,venv --count --select=E9,F63,F7,F82 --show-source --statistics
+flake8 . --exclude .venv,venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+black --check --diff .
+isort --check-only --diff .
+python -m pytest tests/ -v
+cd ..
 
-**Requires Authentication:** Cloud saves, personal library, sharing, CRUD operations  
-**Public Access:** Local editing, story builder, previews, exports, examples
+# Frontend checks
+npm run lint
+npm run build
+```
+
+**Auto-fix formatting:**
+```bash
+# API
+cd api && source .venv/bin/activate
+black . && isort .
+cd ..
+```
+
+### Testing
+
+```bash
+# API tests (mocked - no external services needed)
+cd api && source .venv/bin/activate
+python -m pytest tests/ -v
+cd ..
+
+# Frontend
+npm run lint
+```
+
+### Common Issues
+
+- **API import errors**: Ensure virtual environment is activated
+- **Frontend build errors**: `rm -rf node_modules package-lock.json && npm install`
+- **Port conflicts**: Check `lsof -i :3000` (frontend), `lsof -i :5000` (API)
