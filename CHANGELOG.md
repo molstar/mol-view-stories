@@ -12,6 +12,13 @@ All notable changes to this project will be documented in this file, following t
   - Docker containerization with production deployment configuration
   - Comprehensive test suite with pytest coverage
 
+### Changed
+- **Session Upload Optimization**: Replaced base64 encoding with native FormData uploads
+  - Reduced payload size by ~33% (eliminated base64 overhead)
+  - Simplified frontend/backend data handling with direct binary processing
+  - Maintained backward compatibility for existing sessions and JSON updates
+  - Session creation now requires FormData format (JSON creation deprecated)
+
 ## [v1.0.0]
 
 - Initial release
