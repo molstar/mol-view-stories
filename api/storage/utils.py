@@ -51,7 +51,8 @@ def get_content_type(data_type):
     if data_type == "story":
         return "application/json"
     else:
-        return "application/msgpack"
+        # Sessions are deflated msgpack - use a more specific content type
+        return "application/x-deflate"
 
 
 def extract_unique_object_directories(objects, path_type):

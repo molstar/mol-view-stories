@@ -15,6 +15,8 @@ services:
       # Ensure API listens on all interfaces and knows its public base
       - BASE_URL=http://localhost:5000
       - ENVIRONMENT=development
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       # CORS frontend
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       # MinIO connection (service name resolves in Docker network)

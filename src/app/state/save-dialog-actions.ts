@@ -172,6 +172,95 @@ async function saveToAPI(
   formData: { title: string; description: string },
   sessionId?: string
 ) {
+  // For sessions, use new FormData approach; for stories, keep JSON approach
+  if (endpoint === 'session') {
+    return await saveSessionWithFormData(data, formData, sessionId);
+  } else {
+    return await saveStoryWithJSON(data, endpoint, formData, sessionId);
+  }
+}
+
+async function saveSessionWithFormData(
+  data: Uint8Array | string,
+  formData: { title: string; description: string },
+  sessionId?: string
+) {
+  // Validate data before proceeding
+  if (data instanceof Uint8Array) {
+    validateDataSize(data);
+  } else if (typeof data === 'string') {
+    validateDataSize(data);
+  } else {
+    validateDataSize(JSON.stringify(data));
+  }
+
+  // Create FormData for session
+  const formDataToSend = new FormData();
+  formDataToSend.append('title', formData.title.trim());
+  formDataToSend.append('description', formData.description.trim());
+  formDataToSend.append('tags', JSON.stringify([])); // Default empty tags
+  
+  // Only include filename for new sessions (POST), not updates (PUT)
+  if (!sessionId) {
+    const filename = formData.title.trim() + SessionFileExtension;
+    formDataToSend.append('filename', filename);
+  }
+
+  // Add the file data as blob
+  if (data instanceof Uint8Array) {
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+    formDataToSend.append('file', blob, 'session.mvstory');
+  } else {
+    // Convert string data to Uint8Array if needed
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(typeof data === 'string' ? data : JSON.stringify(data));
+    const blob = new Blob([uint8Array], { type: 'application/octet-stream' });
+    formDataToSend.append('file', blob, 'session.mvstory');
+  }
+
+  // If sessionId is provided, update existing session; otherwise create new
+  const url = sessionId
+    ? `${API_CONFIG.baseUrl}/api/session/${sessionId}`
+    : `${API_CONFIG.baseUrl}/api/session`;
+  const method = sessionId ? 'PUT' : 'POST';
+
+  const response = await authenticatedFetch(url, {
+    method,
+    body: formDataToSend,
+  });
+
+  if (!response.ok) {
+    // Handle specific HTTP status codes with user-friendly messages
+    if (response.status === 413) {
+      throw new Error(
+        `SAVE FAILED: Session too large (over ${MAX_FILE_SIZE_MB}MB limit). Please reduce complexity or remove large assets to continue.`
+      );
+    }
+
+    const errorText = await response.text();
+
+    // Try to parse structured error from backend
+    try {
+      const errorData = JSON.parse(errorText);
+      if (errorData.message) {
+        throw new Error(`Save failed: ${errorData.message}`);
+      }
+    } catch {
+      // Fall back to generic error if parsing fails
+    }
+
+    throw new Error(`Failed to save: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+async function saveStoryWithJSON(
+  data: Uint8Array | string,
+  endpoint: string,
+  formData: { title: string; description: string },
+  sessionId?: string
+) {
   // Determine correct file extension based on endpoint
   const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
     if (endpoint === 'session') {
@@ -191,7 +280,7 @@ async function saveToAPI(
     title: formData.title.trim(),
     description: formData.description.trim(),
     // Note: No visibility field - sessions are always private, stories are always public
-    data: Uint8Array,
+    data: undefined,
   };
 
   // Handle data based on type - async for Uint8Array

@@ -125,7 +125,21 @@ def _save_data(object_path, data, data_type):
             story_data = data.get("data", {})
             logger.info(f"Saving .mvsj story: type(data)={type(story_data)}")
             data_bytes = json.dumps(story_data, indent=2).encode("utf-8")
+    elif data_type == "session":
+        # Session creation only supports new FormData format (binary data)
+        session_data = data.get("data", "")
+        if isinstance(session_data, bytes):
+            # New FormData approach - data is already binary (msgpack + deflate)
+            logger.info(f"Saving session with binary data: {len(session_data)} bytes")
+            data_bytes = session_data
+        else:
+            # This should not happen with new session creation API
+            raise ValueError(
+                f"Invalid session data type for creation: {type(session_data)}. "
+                f"Expected bytes from FormData. This indicates a bug in the session creation logic."
+            )
     else:
+        # Other data types (if any)
         data_bytes = msgpack.packb(data, use_bin_type=True)
 
     with io.BytesIO(data_bytes) as data_stream:
@@ -533,18 +547,33 @@ def _save_updated_data(metadata, update_data, object_id, object_type):
 
 
 def _save_updated_session_data(object_path, metadata, update_data, session_id):
-    """Save updated session data."""
+    """Save updated session data. Supports both new (FormData) and legacy (JSON) update formats."""
     data_key = f"{object_path}/data.mvstory"
 
-    storage_data = {
-        "filename": f"{session_id}.mvstory",
-        "title": metadata["title"],
-        "description": metadata["description"],
-        "tags": metadata["tags"],
-        "data": update_data["data"],
-    }
-
-    data_bytes = msgpack.packb(storage_data, use_bin_type=True)
+    # Handle session updates - supports both FormData (bytes) and legacy JSON (base64 string)
+    session_data = update_data["data"]
+    if isinstance(session_data, bytes):
+        # New FormData update - data is already binary (msgpack + deflate)
+        logger.info(f"Updating session with binary data: {len(session_data)} bytes")
+        data_bytes = session_data
+    elif isinstance(session_data, str):
+        # Legacy JSON update - decode the base64 string (for backward compatibility)
+        logger.info("Updating session with base64 data (legacy JSON update)")
+        data_bytes = base64.b64decode(session_data)
+    else:
+        # This should rarely happen - fallback for unusual data types
+        logger.warning(
+            f"Unexpected session data type during update: {type(session_data)}. "
+            f"Attempting to pack as msgpack."
+        )
+        storage_data = {
+            "filename": f"{session_id}.mvstory",
+            "title": metadata["title"],
+            "description": metadata["description"],
+            "tags": metadata["tags"],
+            "data": session_data,
+        }
+        data_bytes = msgpack.packb(storage_data, use_bin_type=True)
 
     with io.BytesIO(data_bytes) as data_stream:
         minio_client.put_object(
@@ -552,7 +581,7 @@ def _save_updated_session_data(object_path, metadata, update_data, session_id):
             object_name=data_key,
             data=data_stream,
             length=len(data_bytes),
-            content_type="application/msgpack",
+            content_type="application/x-deflate",
         )
 
 
