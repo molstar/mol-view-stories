@@ -2,6 +2,9 @@
 
 import logging
 
+# Set up logging
+import os
+
 from flask import Flask, current_app, jsonify, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
@@ -13,8 +16,12 @@ from routes.admin_routes import admin_bp
 from routes.session_routes import session_bp
 from routes.story_routes import story_bp
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=getattr(logging, log_level),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
 logger = logging.getLogger(__name__)
 
 # Create Flask app

@@ -217,6 +217,12 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
       headers.set('Authorization', `Bearer ${tokens.access_token}`);
     }
 
+    // For FormData, don't set Content-Type - let browser handle it with boundary
+    const isFormData = options.body instanceof FormData;
+    if (isFormData && headers.has('Content-Type')) {
+      headers.delete('Content-Type');
+    }
+
     return fetch(url, {
       ...options,
       headers,

@@ -24,4 +24,4 @@ COPY storage/ ./storage
 EXPOSE 5000
 
 # Run app with Gunicorn in production, fallback to Flask dev server
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "--log-level", "info", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
