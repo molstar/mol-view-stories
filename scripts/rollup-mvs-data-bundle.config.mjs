@@ -2,7 +2,8 @@ import dts from 'rollup-plugin-dts';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
-  input: './node_modules/molstar/lib/extensions/mvs/mvs-data.d.ts',
+  // input: './node_modules/molstar/lib/extensions/mvs/mvs-data.d.ts',
+  input: './scripts/types.d.ts',
   output: {
     file: './tmp/mvs.d.ts',
     format: 'es',
