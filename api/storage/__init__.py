@@ -31,6 +31,7 @@ from storage.objects import (
     find_object_by_id,
     list_objects_by_type,
     save_object,
+    save_story_with_session,
     update_session_by_id,
     update_story_by_id,
 )
@@ -83,6 +84,7 @@ __all__ = [
     "check_user_story_limit",
     # Object CRUD operations
     "save_object",
+    "save_story_with_session",
     "find_object_by_id",
     "list_objects_by_type",
     "delete_all_user_data",

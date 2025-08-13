@@ -3,6 +3,7 @@
 import io
 import json
 import logging
+from datetime import datetime, timezone
 
 from flask import Blueprint, current_app, jsonify, request, send_file
 from pydantic import ValidationError
@@ -18,6 +19,7 @@ from storage import (
     list_objects_by_type,
     minio_client,
     save_object,
+    save_story_with_session,
     update_story_by_id,
 )
 from utils import validate_payload_size
@@ -86,6 +88,27 @@ def _handle_story_update(story_id, user_id):
     if error_response:
         return error_response
 
+    content_type = request.content_type or ""
+
+    # Check if this is a FormData request (multipart/form-data or has files)
+    is_formdata = (
+        content_type.startswith("multipart/form-data")
+        or bool(request.files)
+        or bool(request.form)
+    )
+
+    if is_formdata:
+        # New FormData format with session data
+        logger.info(f"Detected FormData request with content-type: {content_type}")
+        return _update_story_formdata(story_id, user_id)
+    else:
+        # Legacy JSON format (backward compatibility)
+        logger.info(f"Detected JSON request with content-type: {content_type}")
+        return _update_story_json(story_id, user_id)
+
+
+def _update_story_json(story_id, user_id):
+    """Handle story update using legacy JSON format."""
     raw_data = request.get_json()
     if not raw_data:
         raise APIError("No data provided", status_code=400)
@@ -102,7 +125,7 @@ def _handle_story_update(story_id, user_id):
 
     # Update the story using the validated input
     logger.info(
-        f"Update story request received for story_id: {story_id} by user: {user_id}"
+        f"Update story (JSON) request received for story_id: {story_id} by user: {user_id}"
     )
     logger.debug(f"Validated input fields: {validated_input.dict(exclude_none=True)}")
 
@@ -111,7 +134,63 @@ def _handle_story_update(story_id, user_id):
         story_id, user_id, validated_input.dict(exclude_none=True)
     )
 
-    logger.info(f"Update story completed for story_id: {story_id} by user: {user_id}")
+    logger.info(
+        f"Update story (JSON) completed for story_id: {story_id} by user: {user_id}"
+    )
+    return jsonify(updated_metadata), 200
+
+
+def _update_story_formdata(story_id, user_id):
+    """Handle story update using FormData format with session data."""
+    logger.info(
+        f"Update story (FormData) request received for story_id: {story_id} by user: {user_id}"
+    )
+
+    # Validate FormData input
+    validated_data = _validate_story_formdata(request.form, request.files)
+
+    # Get the existing story metadata to preserve creator info
+    existing_story = _get_story_by_id(story_id)
+
+    # Verify ownership
+    if existing_story["creator"]["id"] != user_id:
+        raise APIError(
+            "Unauthorized: You can only update your own stories", status_code=403
+        )
+
+    metadata = {
+        "id": story_id,
+        "type": "story",
+        "title": validated_data["title"],
+        "description": validated_data["description"],
+        "tags": validated_data["tags"],
+        "creator": existing_story["creator"],  # Preserve original creator
+        "created_at": existing_story["created_at"],  # Preserve creation time
+        "updated_at": datetime.now(
+            timezone.utc
+        ).isoformat(),  # Set current time for update
+        "version": "1.0",  # Match the version format from create_metadata (1.0 not 1.0.0)
+    }
+
+    # Prepare data for storage - story data (same format as creation)
+    storage_data = {
+        "filename": validated_data["story_filename"],
+        "title": validated_data["title"],
+        "description": validated_data["description"],
+        "tags": validated_data["tags"],
+        "data": validated_data["story_data"],
+    }
+
+    # Update story with session data using the new format
+    from storage import save_story_with_session
+
+    updated_metadata = save_story_with_session(
+        "story", storage_data, validated_data["session_data"], metadata
+    )
+
+    logger.info(
+        f"Update story (FormData) completed for story_id: {story_id} by user: {user_id}"
+    )
     return jsonify(updated_metadata), 200
 
 
@@ -126,6 +205,118 @@ def _handle_story_delete(story_id, user_id):
 
     logger.info(f"Delete story completed for story_id: {story_id} by user: {user_id}")
     return jsonify(result), 200
+
+
+def _validate_story_formdata(form_data, files):
+    """Validate FormData input for story creation.
+
+    Expected fields:
+    - 'mvsx' OR 'mvsj': Story content file
+    - 'session': Session state file (.mvstory)
+    - Metadata: title, description, tags
+    """
+    # Parse and validate basic form fields
+    title, description, parsed_tags = _parse_story_metadata(form_data)
+
+    # Validate and process story file
+    story_filename, processed_story_data = _validate_and_process_story_file(
+        files, title
+    )
+
+    # Validate and process session file
+    session_data = _validate_and_process_session_file(files, title)
+
+    return {
+        "title": title,
+        "description": description,
+        "tags": parsed_tags,
+        "story_filename": story_filename,
+        "story_data": processed_story_data,
+        "session_data": session_data,
+    }
+
+
+def _parse_story_metadata(form_data):
+    """Parse and validate story metadata from form data."""
+    title = form_data.get("title", "").strip()
+    description = form_data.get("description", "").strip()
+    tags = form_data.get("tags", "")
+
+    # Validate required fields
+    if not title:
+        raise APIError("Title is required", status_code=400)
+
+    # Parse tags if provided
+    parsed_tags = []
+    if tags:
+        try:
+            parsed_tags = json.loads(tags) if isinstance(tags, str) else tags
+        except (json.JSONDecodeError, TypeError):
+            raise APIError("Invalid tags format. Expected JSON array.", status_code=400)
+
+    return title, description, parsed_tags
+
+
+def _validate_and_process_story_file(files, title):
+    """Validate and process story file (mvsx or mvsj)."""
+    # Check for story file - either 'mvsx' or 'mvsj'
+    story_file = None
+    story_type = None
+    story_filename = None
+
+    if "mvsx" in files:
+        story_file = files["mvsx"]
+        story_type = "mvsx"
+        story_filename = story_file.filename or f"{title}.mvsx"
+    elif "mvsj" in files:
+        story_file = files["mvsj"]
+        story_type = "mvsj"
+        story_filename = story_file.filename or f"{title}.mvsj"
+    else:
+        raise APIError(
+            "Story file is required. Provide either 'mvsx' or 'mvsj' field.",
+            status_code=400,
+        )
+
+    if not story_file or not story_file.filename:
+        raise APIError(f"Story {story_type} file must have a filename", status_code=400)
+
+    # Read and process story data
+    story_data = story_file.read()
+    if not story_data:
+        raise APIError(f"Story {story_type} file cannot be empty", status_code=400)
+
+    if story_type == "mvsx":
+        # For .mvsx files, keep as binary
+        processed_story_data = story_data
+    else:  # mvsj
+        # For .mvsj files, parse as JSON
+        try:
+            processed_story_data = json.loads(story_data.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise APIError("Invalid .mvsj file format", status_code=400)
+
+    return story_filename, processed_story_data
+
+
+def _validate_and_process_session_file(files, title):
+    """Validate and process session file."""
+    if "session" not in files:
+        raise APIError(
+            "Session file is required. Provide 'session' field.", status_code=400
+        )
+
+    session_file = files["session"]
+    if not session_file.filename:
+        session_file.filename = f"{title}.mvstory"
+    elif not session_file.filename.endswith(".mvstory"):
+        raise APIError("Session file must have .mvstory extension", status_code=400)
+
+    session_data = session_file.read()
+    if not session_data:
+        raise APIError("Session file cannot be empty", status_code=400)
+
+    return session_data
 
 
 def _get_story_data_extensions(requested_format):
@@ -177,20 +368,30 @@ def _try_read_story_file(object_path, ext, matching_story, story_id):
 @validate_payload_size()
 @error_handler
 def create_story():
-    """Create a new story with strict field validation. Stories are always public."""
-    raw_data = request.get_json()
-    if not raw_data:
-        raise APIError("No data provided", status_code=400)
+    """Create a new story with strict field validation. Stories are always public.
 
-    # SECURITY: Validate input using Pydantic model with extra="forbid"
-    try:
-        validated_input = StoryInput(**raw_data)
-    except ValidationError as e:
+    Requires FormData with the following structure:
+    - 'mvsx' OR 'mvsj': Story content file
+    - 'session': Session state file (.mvstory)
+    - Metadata fields: title, description, tags
+    """
+    content_type = request.content_type or ""
+
+    # Only accept FormData format
+    if not content_type.startswith("multipart/form-data"):
         raise APIError(
-            "Invalid input data",
+            "Story creation requires FormData format. "
+            "Legacy JSON format is no longer supported.",
             status_code=400,
-            details={"validation_errors": e.errors()},
         )
+
+    return _create_story_formdata()
+
+
+def _create_story_formdata():
+    """Create a new story using FormData with story + session files."""
+    # Validate FormData input
+    validated_data = _validate_story_formdata(request.form, request.files)
 
     # Get user info from request
     user_info, user_id = get_user_from_request()
@@ -203,34 +404,28 @@ def create_story():
     metadata = create_metadata(
         "story",
         user_info,
-        validated_input.title,
-        validated_input.description,
-        validated_input.tags,
+        validated_data["title"],
+        validated_data["description"],
+        validated_data["tags"],
     )
 
-    # Prepare data for storage - only validated fields
+    # Prepare data for storage - story data
     storage_data = {
-        "filename": validated_input.filename,
-        "title": validated_input.title,
-        "description": validated_input.description,
-        "tags": validated_input.tags,
-        "data": validated_input.data,
+        "filename": validated_data["story_filename"],
+        "title": validated_data["title"],
+        "description": validated_data["description"],
+        "tags": validated_data["tags"],
+        "data": validated_data["story_data"],
     }
 
-    # Save the story
-    result = save_object("story", storage_data, metadata)
+    # Save the story with session
+    result = save_story_with_session(
+        "story", storage_data, validated_data["session_data"], metadata
+    )
 
-    # Check if user wants the full data object instead of just metadata
-    return_data = request.args.get("return_data", "").lower() == "true"
-
-    if return_data:
-        # Return the full story data object (like a .mvsj file)
-        return jsonify(storage_data), 201
-    else:
-        # Return metadata only (default behavior)
-        # Add public URI since all stories are public
-        result["public_uri"] = generate_public_uri("story", metadata["id"])
-        return jsonify(result), 201
+    # Add public URI since all stories are public
+    result["public_uri"] = generate_public_uri("story", metadata["id"])
+    return jsonify(result), 201
 
 
 @story_bp.route("/api/story/mvsj", methods=["POST"])
@@ -442,6 +637,45 @@ def get_story_data(story_id):
     except Exception as e:
         logger.error(f"Error reading story data: {str(e)}")
         raise APIError("Story data not found", status_code=404)
+
+
+@story_bp.route("/api/story/<story_id>/session-data", methods=["GET"])
+@error_handler
+def get_story_session_data(story_id):
+    """Get the session data for a story. Stories are always public."""
+    # Find the story (no authentication needed since stories are public)
+    matching_story = _get_story_by_id(story_id)
+
+    try:
+        story_user_id = matching_story["creator"]["id"]
+        from storage import MINIO_BUCKET, minio_client
+        from storage.utils import get_plural_type
+
+        path_type = get_plural_type("story")
+        object_path = f"{story_user_id}/{path_type}/{story_id}"
+        session_path = f"{object_path}/session.mvstory"
+
+        # Check if session data exists
+        try:
+            response = minio_client.get_object(MINIO_BUCKET, session_path)
+            session_bytes = response.read()
+            response.close()
+
+            # Return raw binary data with appropriate content type
+            return send_file(
+                io.BytesIO(session_bytes),
+                mimetype="application/x-deflate",
+                as_attachment=True,
+                download_name=f"{matching_story.get('title', story_id)}.mvstory",
+            )
+
+        except Exception as e:
+            logger.debug(f"Session data not found for story {story_id}: {str(e)}")
+            raise APIError("Session data not available for this story", status_code=404)
+
+    except Exception as e:
+        logger.error(f"Error reading story session data: {str(e)}")
+        raise APIError("Story session data not found", status_code=404)
 
 
 @story_bp.route("/api/story/<story_id>/format", methods=["GET"])

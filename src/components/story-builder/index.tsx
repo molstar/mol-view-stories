@@ -7,7 +7,7 @@ import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
 import { getMVSData, setIsDirty } from '@/app/state/actions';
-import { loadSession } from '@/lib/my-stories-api';
+import { loadSession, loadSessionFromUrl } from '@/lib/my-stories-api';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
 import { useUnsavedChanges, useUnsavedChangesWarning } from '@/hooks/useUnsavedChanges';
@@ -27,10 +27,29 @@ export default function StoryBuilderPage() {
   useLayoutEffect(() => {
     const searchParams = new URL(window.location.href).searchParams;
     const sessionId = searchParams.get('sessionId');
+    const sessionUrl = searchParams.get('sessionUrl');
     const templateName = searchParams.get('template');
+    const sessionType = searchParams.get('type') as 'session' | 'story' | null;
+
+    if (sessionUrl) {
+      loadSessionFromUrl(sessionUrl);
+      return;
+    }
 
     if (sessionId) {
-      loadSession(sessionId);
+      // Load session with type information to avoid unnecessary API calls
+      loadSession(sessionId, sessionType ? { type: sessionType } : undefined);
+      
+      // Clear the type parameter from URL after use
+      if (sessionType) {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('type');
+          window.history.replaceState({}, '', url.toString());
+        } catch (error) {
+          console.warn('Failed to clear type param:', error);
+        }
+      }
       return;
     }
 

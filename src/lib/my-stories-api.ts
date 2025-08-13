@@ -30,6 +30,17 @@ export function resolveViewerUrl(storyId: string, storyFormat: 'mvsx' | 'mvsj') 
   return `${appPrefix}/?story-url=${encodeURIComponent(storyUrl)}&data-format=${storyFormat}`;
 }
 
+export function resolveSessionBuilderUrl(storyId: string) {
+  const builderPrefix = 'https://molstar.org/mol-view-stories/builder';
+
+  if (API_CONFIG.baseUrl === 'https://stories.molstar.org') {
+    return `${builderPrefix}/?sessionId=${storyId}`;
+  }
+
+  const sessionUrl = `${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`;
+  return `${builderPrefix}/?sessionUrl=${encodeURIComponent(sessionUrl)}`;
+}
+
 /**
  * Fetch the format (mvsj or mvsx) of a story by ID
  * This endpoint doesn't require authentication
@@ -118,36 +129,107 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
 /**
  * Load a specific session by ID into the story builder
  * Updates global state with the session's story data and metadata
+ * Handles both regular session IDs and story IDs (for story sessions)
  */
-export async function loadSession(sessionId: string) {
+export async function loadSession(sessionId: string, options?: { type?: 'session' | 'story' }) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
 
-    // Fetch both session data and metadata in parallel
-    const [dataResponse, metadataResponse] = await Promise.all([
-      authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`),
-      authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`),
-    ]);
-
-    if (!dataResponse.ok) {
-      throw new Error(`Failed to fetch session data: ${dataResponse.statusText}`);
+    // If we know it's a story session, go directly to story endpoint
+    if (options?.type === 'story') {
+      return await loadStorySession(sessionId);
     }
 
-    if (!metadataResponse.ok) {
-      throw new Error(`Failed to fetch session metadata: ${metadataResponse.statusText}`);
+    // Try to load as a regular session first
+    try {
+      const [dataResponse, metadataResponse] = await Promise.all([
+        authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}/data`),
+        authenticatedFetch(`${API_CONFIG.baseUrl}/api/session/${sessionId}`),
+      ]);
+
+      if (dataResponse.ok && metadataResponse.ok) {
+        // Regular session loading
+        const sessionResponse = await dataResponse.json();
+        const bytes = base64toUint8Array(sessionResponse);
+        await importState(new Blob([bytes]), {
+          throwOnError: true,
+          doNotCleanSessionId: true,
+        });
+        return;
+      }
+    } catch (sessionError) {
+      // Continue to try as story session
+      console.debug('Regular session not found, trying as story session:', sessionError);
     }
 
-    // Parse session data
-    const sessionResponse = await dataResponse.json();
-    const bytes = base64toUint8Array(sessionResponse);
-    await importState(new Blob([bytes]), {
-      throwOnError: true,
-      doNotCleanSessionId: true,
-    });
+    // If regular session failed, try as story session (public, no auth needed)
+    await loadStorySession(sessionId);
+
   } catch (err) {
     console.error('Error loading session:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
+    toast.error(errorMessage);
+  } finally {
+    store.set(IsSessionLoadingAtom, false);
+  }
+}
+
+/**
+ * Load a story session specifically
+ */
+async function loadStorySession(storyId: string) {
+  const storySessionResponse = await fetch(`${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`);
+  
+  if (!storySessionResponse.ok) {
+    if (storySessionResponse.status === 404) {
+      throw new Error(`Story session not found: ${storyId}`);
+    }
+    throw new Error(`Failed to fetch story session data: ${storySessionResponse.statusText}`);
+  }
+
+  // Load story session (binary data, no base64 conversion needed)
+  const sessionBlob = await storySessionResponse.blob();
+  await importState(sessionBlob, {
+    throwOnError: true,
+    doNotCleanSessionId: true,
+  });
+}
+
+/**
+ * Load session data from a URL (e.g., story session data or blob URLs)
+ * Updates global state with the session's story data
+ * Used with ?sessionUrl= parameter for cross-origin session loading
+ */
+export async function loadSessionFromUrl(url: string) {
+  const store = getDefaultStore();
+  try {
+    store.set(IsSessionLoadingAtom, true);
+
+    // Fetch the session data from the URL
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch session data: ${response.statusText}`);
+    }
+
+    // Get the binary data as a blob
+    const blob = await response.blob();
+    await importState(blob, {
+      throwOnError: true,
+      doNotCleanSessionId: false, // Clean session ID for external loads
+    });
+
+    // Clear the sessionUrl parameter from URL
+    try {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.delete('sessionUrl');
+      window.history.replaceState({}, '', currentUrl.toString());
+    } catch (error) {
+      console.warn('Failed to clear sessionUrl parameter:', error);
+    }
+  } catch (err) {
+    console.error('Error loading session from URL:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Failed to load session data';
     toast.error(errorMessage);
   } finally {
     store.set(IsSessionLoadingAtom, false);

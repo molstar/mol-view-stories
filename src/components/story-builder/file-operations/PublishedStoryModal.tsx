@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { resolvePublicStoryUrl, resolveViewerUrl } from '@/lib/my-stories-api';
+import { resolvePublicStoryUrl, resolveViewerUrl, resolveSessionBuilderUrl } from '@/lib/my-stories-api';
 import { useStoryFormat } from '@/hooks/useStoriesQueries';
+import { API_CONFIG } from '@/lib/config';
 import { useAtom } from 'jotai';
 import { Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
@@ -40,6 +41,30 @@ export function PublishedStoryModal() {
   const publicUrl = resolvePublicStoryUrl(shareModal.data.itemId!);
   // Use the fetched format, fallback to 'mvsj' while loading
   const molstarUrl = resolveViewerUrl(shareModal.data.itemId!, storyFormat || 'mvsj');
+  // Create public session URL
+  const sessionUrl = `${API_CONFIG.baseUrl}/api/story/${shareModal.data.itemId}/session-data`;
+  // Create session builder URL pointing to production MolViewStories
+  const sessionBuilderUrl = resolveSessionBuilderUrl(shareModal.data.itemId!);
+  
+  const openSessionInViewer = async () => {
+    try {
+      // Check if session data is available
+      const response = await fetch(sessionUrl, { method: 'HEAD' });
+      if (!response.ok) {
+        if (response.status === 404) {
+          toast.error('Session data not available for this story');
+          return;
+        }
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      // Open in production mol-view-stories builder (external link)
+      window.open(sessionBuilderUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Failed to load session:', error);
+      toast.error('Failed to load session data');
+    }
+  };
 
   return (
     <Dialog open={shareModal.isOpen} onOpenChange={handleClose}>
@@ -47,7 +72,7 @@ export function PublishedStoryModal() {
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>Published Story</DialogTitle>
           <DialogDescription>
-            <b>{shareModal.data.itemTitle}</b> has been saved and is now publicly accessible.
+            <b>{shareModal.data.itemTitle}</b> has been saved and is publicly accessible.
           </DialogDescription>
         </DialogHeader>
 
@@ -62,6 +87,19 @@ export function PublishedStoryModal() {
               </Button>
             </div>
           </div>
+
+          <div className='space-y-2'>
+          <Label htmlFor='session-url'>Public Session URL</Label>
+          <p className='text-xs text-muted-foreground'>
+            Provides direct access to the session data
+          </p>
+          <div className='flex gap-2'>
+            <Input id='session-url' value={sessionUrl} readOnly className='font-mono text-sm' />
+            <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionUrl, 'Session URL')}>
+              <Copy className='h-4 w-4' />
+            </Button>
+          </div>
+        </div>
 
           {!isLoadingFormat && (
             <div className='space-y-2'>
@@ -78,14 +116,35 @@ export function PublishedStoryModal() {
               </div>
             </div>
           )}
+          
+
+        <div className='space-y-2'>
+          <Label htmlFor='session-builder-url'>Session Builder URL</Label>
+          <p className='text-xs text-muted-foreground'>
+            Open this session in the mol-view-stories builder
+          </p>
+          <div className='flex gap-2'>
+            <Input id='session-builder-url' value={sessionBuilderUrl} readOnly className='font-mono text-sm' />
+            <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionBuilderUrl, 'Session Builder URL')}>
+              <Copy className='h-4 w-4' />
+            </Button>
+          </div>
+        </div>
         </div>
 
-        <Button asChild className='w-full' disabled={isLoadingFormat}>
-          <a href={molstarUrl} target='_blank' rel='noopener noreferrer'>
+        <div className='flex gap-2'>
+          <Button asChild className='flex-1' disabled={isLoadingFormat}>
+            <a href={molstarUrl} target='_blank' rel='noopener noreferrer'>
+              <ExternalLink className='size-4 mr-2' />
+              {isLoadingFormat ? 'Detecting format...' : 'Open Story'}
+            </a>
+          </Button>
+          
+          <Button variant='outline' className='flex-1' onClick={openSessionInViewer}>
             <ExternalLink className='size-4 mr-2' />
-            {isLoadingFormat ? 'Detecting format...' : 'Open in Mol* Stories Viewer'}
-          </a>
-        </Button>
+            Open Session
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

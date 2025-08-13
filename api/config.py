@@ -19,6 +19,12 @@ def configure_cors(app):
                 "allow_headers": ["Content-Type", "Accept"],
                 "expose_headers": ["Content-Type"],
             },
+            r"/api/story/*/session-data": {
+                "origins": "*",  # Allow any origin for public session data
+                "methods": ["GET", "HEAD", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Accept"],
+                "expose_headers": ["Content-Type", "Content-Length"],
+            },
             r"/*": {
                 "origins": [
                     "http://localhost:3000",

@@ -6,6 +6,7 @@ them fast, deterministic and CI-friendly (no external MinIO or OIDC calls).
 
 import base64
 import io
+import json
 from unittest.mock import Mock, patch
 
 import msgpack
@@ -73,24 +74,8 @@ def test_get_session_authenticated_owner(mock_auth, mock_find, client):
     assert resp.get_json()["id"] == "sess-1"
 
 
-@patch("routes.story_routes.save_object")
-@patch("routes.story_routes.create_metadata")
-@patch("routes.story_routes.check_user_story_limit")
-@patch("routes.story_routes.get_user_from_request")
-def test_create_story_return_data(mock_auth, mock_limit, mock_md, mock_save, client):
-    mock_auth.return_value = (
-        {"sub": "user-123", "name": "T", "email": "e"},
-        "user-123",
-    )
-    mock_limit.return_value = True
-    mock_md.return_value = {
-        "id": "story-1",
-        "type": "story",
-        "creator": {"id": "user-123", "name": "T", "email": "e"},
-        "title": "t",
-    }
-    mock_save.return_value = mock_md.return_value
-
+def test_create_story_legacy_return_data_no_longer_supported(client):
+    """Test that the ?return_data parameter with JSON is no longer supported"""
     payload = {
         "filename": "s.mvsj",
         "title": "t",
@@ -99,10 +84,9 @@ def test_create_story_return_data(mock_auth, mock_limit, mock_md, mock_save, cli
         "data": {"data": {"x": 1}},
     }
     resp = client.post("/api/story?return_data=true", json=payload)
-    assert resp.status_code == 201
+    assert resp.status_code == 400
     body = resp.get_json()
-    assert body["filename"] == "s.mvsj"
-    assert body["data"] == {"data": {"x": 1}}
+    assert "Legacy JSON format is no longer supported" in body["message"]
 
 
 @patch("routes.story_routes.minio_client")
@@ -121,6 +105,165 @@ def test_get_story_data_mvsj(mock_list, mock_minio, client):
     resp = client.get("/api/story/story-1/data?format=mvsj")
     assert resp.status_code == 200
     assert resp.get_json() == {"hello": "world"}
+
+
+@patch("routes.story_routes.save_story_with_session")
+@patch("routes.story_routes.create_metadata")
+@patch("routes.story_routes.check_user_story_limit")
+@patch("routes.story_routes.get_user_from_request")
+def test_create_story_formdata_mvsj_with_session(
+    mock_auth, mock_limit, mock_md, mock_save, client
+):
+    """Test creating a story with FormData (.mvsj + session files) using new field structure"""
+    mock_auth.return_value = (
+        {"sub": "user-123", "name": "T", "email": "e"},
+        "user-123",
+    )
+    mock_limit.return_value = True
+    mock_md.return_value = {
+        "id": "story-1",
+        "type": "story",
+        "creator": {"id": "user-123", "name": "T", "email": "e"},
+        "title": "MVSJ Story with Session",
+        "description": "A JSON story with session data",
+        "tags": [],
+        "version": "1.0",
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z",
+    }
+    mock_save.return_value = mock_md.return_value
+
+    # Create test story data (.mvsj)
+    story_data = {"scenes": [{"id": 1, "data": "test"}]}
+    story_blob = io.BytesIO(json.dumps(story_data).encode("utf-8"))
+
+    # Create test session data
+    session_data = msgpack.packb({"version": 1, "story": {"scenes": []}})
+    session_blob = io.BytesIO(session_data)
+
+    form_data = {
+        "title": "MVSJ Story with Session",
+        "description": "A JSON story with session data",
+        "tags": "[]",
+        "mvsj": (story_blob, "story.mvsj"),
+        "session": (session_blob, "session.mvstory"),
+    }
+
+    resp = client.post("/api/story", data=form_data)
+    assert resp.status_code == 201
+
+    body = resp.get_json()
+    assert body["id"] == "story-1"
+    assert body["title"] == "MVSJ Story with Session"
+    assert "public_uri" in body
+
+
+@patch("routes.story_routes.save_story_with_session")
+@patch("routes.story_routes.create_metadata")
+@patch("routes.story_routes.check_user_story_limit")
+@patch("routes.story_routes.get_user_from_request")
+def test_create_story_formdata_mvsx_with_session(
+    mock_auth, mock_limit, mock_md, mock_save, client
+):
+    """Test creating a story with FormData (.mvsx + session files) using new field structure"""
+    mock_auth.return_value = (
+        {"sub": "user-123", "name": "T", "email": "e"},
+        "user-123",
+    )
+    mock_limit.return_value = True
+    mock_md.return_value = {
+        "id": "story-2",
+        "type": "story",
+        "creator": {"id": "user-123", "name": "T", "email": "e"},
+        "title": "MVSX Story with Session",
+    }
+    mock_save.return_value = mock_md.return_value
+
+    # Create test binary data (.mvsx - simulated ZIP)
+    binary_data = b"PK\x03\x04fake_zip_data"
+    story_blob = io.BytesIO(binary_data)
+
+    # Create test session data
+    session_data = msgpack.packb({"version": 1, "story": {"scenes": []}})
+    session_blob = io.BytesIO(session_data)
+
+    form_data = {
+        "title": "MVSX Story with Session",
+        "description": "A binary story with session data",
+        "tags": "[]",
+        "mvsx": (story_blob, "story.mvsx"),
+        "session": (session_blob, "session.mvstory"),
+    }
+
+    resp = client.post("/api/story", data=form_data)
+    assert resp.status_code == 201
+
+    body = resp.get_json()
+    assert body["id"] == "story-2"
+    assert "public_uri" in body
+
+
+def test_create_story_json_no_longer_supported(client):
+    """Test that legacy JSON story creation is no longer supported"""
+    payload = {
+        "filename": "legacy.mvsj",
+        "title": "Legacy Story",
+        "description": "Created with JSON API",
+        "tags": [],
+        "data": {"scenes": [{"id": 1}]},
+    }
+
+    resp = client.post("/api/story", json=payload)
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert "Legacy JSON format is no longer supported" in body["message"]
+
+
+def test_create_story_formdata_missing_story_file(client):
+    """Test FormData creation fails when story file is missing (no mvsx or mvsj)"""
+    form_data = {
+        "title": "Incomplete Story",
+        "description": "Missing story file",
+        "tags": "[]",
+        "session": (io.BytesIO(b"session_data"), "session.mvstory"),
+    }
+
+    resp = client.post("/api/story", data=form_data)
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert "Story file is required" in body["message"]
+
+
+def test_create_story_formdata_missing_session_file(client):
+    """Test FormData creation fails when session file is missing"""
+    story_blob = io.BytesIO(b'{"scenes": []}')
+    form_data = {
+        "title": "Incomplete Story",
+        "description": "Missing session file",
+        "tags": "[]",
+        "mvsj": (story_blob, "story.mvsj"),
+    }
+
+    resp = client.post("/api/story", data=form_data)
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert "Session file is required" in body["message"]
+
+
+@patch("routes.story_routes._get_story_by_id")
+def test_get_story_session_data_endpoint_exists(mock_get_story, client):
+    """Test that the session data endpoint exists and returns 404 for missing data"""
+    mock_get_story.return_value = {
+        "id": "story-1",
+        "creator": {"id": "user-123"},
+        "title": "Test Story",
+    }
+
+    resp = client.get("/api/story/story-1/session-data")
+    # Should return 404 since no session data exists (no mocking of MinIO)
+    assert resp.status_code == 404
+    body = resp.get_json()
+    assert "not found" in body["message"].lower()
 
 
 @patch("routes.session_routes.count_user_sessions")

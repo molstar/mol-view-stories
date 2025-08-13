@@ -54,6 +54,29 @@ def save_object(data_type, data, metadata):
         raise
 
 
+@handle_minio_error("save_story_with_session")
+def save_story_with_session(data_type, story_data, session_data, metadata):
+    """Save a story with accompanying session data to MinIO storage."""
+    _validate_save_inputs(data_type, story_data, metadata)
+
+    object_path = get_object_path(metadata, data_type)
+
+    try:
+        logger.info(f"Starting save_story_with_session operation for {data_type}")
+        logger.info(f"Object path: {object_path}")
+
+        ensure_bucket_exists()
+        _save_metadata(object_path, metadata)
+        _save_data(object_path, story_data, data_type)
+        _save_session_data(object_path, session_data)
+
+        return metadata
+    except Exception as e:
+        logger.error(f"Error in save_story_with_session: {str(e)}")
+        logger.error(f"Stack trace: {traceback.format_exc()}")
+        raise
+
+
 def _validate_save_inputs(data_type, data, metadata):
     """Validate inputs for save_object."""
     if data_type not in ["session", "story"]:
@@ -97,11 +120,18 @@ def _save_data(object_path, data, data_type):
     content_type = get_content_type(data_type)
 
     if data_type == "story":
-        # For .mvsx, store only the base64 string as the file content
+        # For .mvsx, handle binary data (from FormData) or base64 string (from JSON)
         if filename and filename.endswith(".mvsx"):
             story_data = data.get("data", "")
-            if isinstance(story_data, str):
-                # Decode base64 to binary before saving
+            if isinstance(story_data, bytes):
+                # New FormData approach - data is already binary
+                logger.info(
+                    f"Saving .mvsx story with binary data: {len(story_data)} bytes"
+                )
+                data_bytes = story_data
+            elif isinstance(story_data, str):
+                # Legacy JSON approach - decode base64 to binary
+                logger.info("Saving .mvsx story with base64 data (legacy JSON)")
                 data_bytes = base64.b64decode(story_data)
             elif isinstance(story_data, dict):
                 logger.warning(
@@ -116,10 +146,9 @@ def _save_data(object_path, data, data_type):
                 data_bytes = json.dumps(story_data).encode("utf-8")
             else:
                 logger.error(
-                    f"MVSX story_data is not a string or dict. Type: {type(story_data)}"
+                    f"MVSX story_data is not a string, dict, or bytes. Type: {type(story_data)}"
                 )
                 data_bytes = b""
-            # No longer save as raw base64 string, always decode to binary
         else:
             # For .mvsj and other story types, keep existing behavior
             story_data = data.get("data", {})
@@ -152,6 +181,28 @@ def _save_data(object_path, data, data_type):
             content_type=content_type,
         )
         logger.info("Successfully saved data")
+
+
+def _save_session_data(object_path, session_data):
+    """Save session data for a story."""
+    session_key = f"{object_path}/session.mvstory"
+
+    # Session data should be raw binary (deflated msgpack)
+    if not isinstance(session_data, bytes):
+        raise ValueError(
+            f"Invalid session data type: {type(session_data)}. Expected bytes."
+        )
+
+    with io.BytesIO(session_data) as session_stream:
+        logger.info(f"Saving session data to {session_key}")
+        minio_client.put_object(
+            bucket_name=MINIO_BUCKET,
+            object_name=session_key,
+            data=session_stream,
+            length=len(session_data),
+            content_type="application/x-deflate",
+        )
+        logger.info("Successfully saved session data")
 
 
 @handle_minio_error("list_objects")

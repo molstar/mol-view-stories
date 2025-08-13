@@ -7,7 +7,6 @@ import { StoryAtom, SaveDialogAtom, PublishedStoryModalAtom, SessionMetadataAtom
 import { type Story, type StoryContainer, type SessionMetadata } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
-import { encodeUint8ArrayToBase64 } from '@/lib/data-utils';
 import { getMVSData, setIsDirty, setSessionIdUrl, SessionFileExtension } from './actions';
 
 // File size validation utility
@@ -172,11 +171,10 @@ async function saveToAPI(
   formData: { title: string; description: string },
   sessionId?: string
 ) {
-  // For sessions, use new FormData approach; for stories, keep JSON approach
   if (endpoint === 'session') {
     return await saveSessionWithFormData(data, formData, sessionId);
   } else {
-    return await saveStoryWithJSON(data, endpoint, formData, sessionId);
+    return await saveStoryWithFormData(data, formData, sessionId);
   }
 }
 
@@ -255,103 +253,75 @@ async function saveSessionWithFormData(
   return await response.json();
 }
 
-async function saveStoryWithJSON(
+async function saveStoryWithFormData(
   data: Uint8Array | string,
-  endpoint: string,
   formData: { title: string; description: string },
   sessionId?: string
 ) {
-  // Determine correct file extension based on endpoint
-  const getFileExtension = (endpoint: string, data: Uint8Array | string) => {
-    if (endpoint === 'session') {
-      return SessionFileExtension;
-    } else {
-      // For stories, use .mvsj for JSON data, .mvsx for binary data
-      return data instanceof Uint8Array ? '.mvsx' : '.mvsj';
-    }
-  };
-
-  const requestBody: {
-    title: string;
-    description: string;
-    data: unknown;
-    filename?: string;
-  } = {
-    title: formData.title.trim(),
-    description: formData.description.trim(),
-    // Note: No visibility field - sessions are always private, stories are always public
-    data: undefined,
-  };
-
-  // Handle data based on type - async for Uint8Array
+  const store = getDefaultStore();
+  const story = store.get(StoryAtom);
+  
+  // Validate data before proceeding
   if (data instanceof Uint8Array) {
-    requestBody.data = await encodeUint8ArrayToBase64(data);
-    // Validate Uint8Array data
     validateDataSize(data);
   } else if (typeof data === 'string') {
-    requestBody.data = JSON.parse(data);
-    // Validate string data
     validateDataSize(data);
   } else {
-    requestBody.data = data;
-    // For other types, validate the stringified version
     validateDataSize(JSON.stringify(data));
   }
 
-  // Only include filename for new sessions (POST), not updates (PUT)
-  if (!sessionId) {
-    requestBody.filename = formData.title.trim() + getFileExtension(endpoint, data);
-  }
+  // Create FormData for story + session with new field structure
+  const formDataToSend = new FormData();
+  formDataToSend.append('title', formData.title.trim());
+  formDataToSend.append('description', formData.description.trim());
+  formDataToSend.append('tags', JSON.stringify([])); // Default empty tags
 
-  try {
-    // Validation already performed above based on data type
-  } catch (error) {
-    const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
-    throw new Error(
-      error instanceof Error
-        ? error.message.replace('SAVE FAILED', `${operation} FAILED`)
-        : `${operation} FAILED: Request data too large`
-    );
+  // Determine story file type and add to appropriate field
+  if (data instanceof Uint8Array) {
+    // Binary data (.mvsx) - use 'mvsx' field
+    const storyFilename = formData.title.trim() + '.mvsx';
+    const storyBlob = new Blob([data], { type: 'application/zip' });
+    formDataToSend.append('mvsx', storyBlob, storyFilename);
+  } else {
+    // JSON data (.mvsj) - use 'mvsj' field
+    const storyFilename = formData.title.trim() + '.mvsj';
+    const storyData = typeof data === 'string' ? JSON.parse(data) : data;
+    const storyBlob = new Blob([JSON.stringify(storyData, null, 2)], { type: 'application/json' });
+    formDataToSend.append('mvsj', storyBlob, storyFilename);
   }
+  
+  // Add session data to 'session' field
+  const sessionData = await prepareSessionData(story);
+  const sessionBlob = new Blob([sessionData], { type: 'application/octet-stream' });
+  const sessionFilename = formData.title.trim() + '.mvstory';
+  formDataToSend.append('session', sessionBlob, sessionFilename);
 
-  // If sessionId is provided, update existing session; otherwise create new
-  const url = sessionId
-    ? `${API_CONFIG.baseUrl}/api/${endpoint}/${sessionId}`
-    : `${API_CONFIG.baseUrl}/api/${endpoint}`;
+  // Determine URL and method based on whether we're updating or creating
+  const url = sessionId ? `${API_CONFIG.baseUrl}/api/story/${sessionId}` : `${API_CONFIG.baseUrl}/api/story`;
   const method = sessionId ? 'PUT' : 'POST';
 
   const response = await authenticatedFetch(url, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
+    body: formDataToSend,
   });
 
   if (!response.ok) {
     // Handle specific HTTP status codes with user-friendly messages
     if (response.status === 413) {
-      const operation = endpoint === 'session' ? 'SAVE' : 'PUBLISH';
-      throw new Error(
-        `${operation} FAILED: Session too large (over ${MAX_FILE_SIZE_MB}MB limit). Please reduce complexity or remove large assets to continue.`
-      );
+      throw new Error('PUBLISH FAILED: Story data too large. Please reduce the story size and try again.');
+    } else if (response.status === 400) {
+      const errorResponse = await response.json().catch(() => null);
+      const message = errorResponse?.message || 'Invalid story data';
+      throw new Error(`PUBLISH FAILED: ${message}`);
+    } else if (response.status === 401) {
+      throw new Error('PUBLISH FAILED: Authentication required. Please log in and try again.');
+    } else if (response.status === 403) {
+      throw new Error('PUBLISH FAILED: Permission denied. You may have reached your story limit.');
+    } else if (response.status === 500) {
+      throw new Error('PUBLISH FAILED: Server error. Please try again later.');
     }
 
-    const errorText = await response.text();
-
-    // Try to parse structured error from backend
-    try {
-      const errorData = JSON.parse(errorText);
-      if (errorData.message) {
-        const operation = endpoint === 'session' ? 'Save' : 'Publish';
-        throw new Error(`${operation} failed: ${errorData.message}`);
-      }
-    } catch {
-      // Fall back to generic error if parsing fails
-    }
-
-    const operation = endpoint === 'session' ? 'save' : 'publish';
-    throw new Error(`Failed to ${operation}: ${response.statusText}`);
+    throw new Error(`Failed to save: ${response.statusText}`);
   }
 
   return await response.json();
