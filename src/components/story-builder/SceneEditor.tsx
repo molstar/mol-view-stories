@@ -262,6 +262,7 @@ class CurrentStoryViewModel {
 
     this.queue.run(async () => {
       try {
+        toast.dismiss('mvs-load-error');
         this.store?.set(IsLoadingAtom, true);
         const data = await getMVSData(story, [scene]);
         await this.plugin.initialized;
@@ -272,6 +273,13 @@ class CurrentStoryViewModel {
         await Scheduler.immediatePromise();
         await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
       } catch (error) {
+        toast.error(
+          <>
+            <b>MVS Load Error:</b>
+            <div style={{ whiteSpace: 'pre-wrap' }}>{String(error)}. See console for details.</div>
+          </>,
+          { duration: 5000, id: 'mvs-load-error', closeButton: true }
+        );
         console.error('Error loading MVS data into Molstar:', error);
       } finally {
         this.store?.set(IsLoadingAtom, false);
