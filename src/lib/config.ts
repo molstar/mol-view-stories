@@ -24,7 +24,7 @@ const getCurrentEnvConfig = () => {
   if (isDevelopment()) return ENV_CONFIGS.development;
   if (isProduction()) return ENV_CONFIGS.production;
   if (isTest()) return ENV_CONFIGS.test;
-  
+
   // Fallback to production for unknown environments
   console.warn(`Unknown NODE_ENV: ${getEnv().NODE_ENV}, falling back to production config`);
   return ENV_CONFIGS.production;
@@ -58,24 +58,24 @@ export const PKCE_KEYS = {
 // Configuration validation helper
 export const validateConfig = () => {
   const issues: string[] = [];
-  
+
   if (!API_CONFIG.baseUrl) {
     issues.push('API base URL is not configured');
   }
-  
+
   if (!OAUTH_CONFIG.authority) {
     issues.push('OAuth authority is not configured');
   }
-  
+
   if (!OAUTH_CONFIG.client_id) {
     issues.push('OAuth client ID is not configured');
   }
-  
+
   if (issues.length > 0) {
     console.error('Configuration validation failed:', issues);
     return false;
   }
-  
+
   return true;
 };
 

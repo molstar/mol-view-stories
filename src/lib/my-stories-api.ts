@@ -141,7 +141,7 @@ export async function loadSession(sessionId: string) {
     // Parse session data
     const sessionResponse = await dataResponse.json();
     const bytes = base64toUint8Array(sessionResponse);
-    await importState(new Blob([bytes]), {
+    await importState(new Blob([bytes as Uint8Array<ArrayBuffer>]), {
       throwOnError: true,
       doNotCleanSessionId: true,
     });
