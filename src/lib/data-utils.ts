@@ -7,7 +7,7 @@ import { getDefaultStore } from 'jotai';
  * Uses FileReader API to handle large binary data efficiently
  */
 export function encodeUint8ArrayToBase64(data: Uint8Array): Promise<string> {
-  const blob = new Blob([data], { type: 'application/octet-stream' });
+  const blob = new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
   const reader = new FileReader();
 
   return new Promise((resolve, reject) => {
