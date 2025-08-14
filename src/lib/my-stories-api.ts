@@ -14,6 +14,11 @@ import { authenticatedFetch } from './auth/token-manager';
 import { API_CONFIG } from './config';
 import { base64toUint8Array, tryFindIfStoryIsShared } from './data-utils';
 
+export function resolvePublishedSessionUrl(publishedSessionId: string | null | undefined) {
+  if (!publishedSessionId) return undefined;
+  return `${API_CONFIG.baseUrl}/api/story/${publishedSessionId}/session-data`;
+}
+
 export function resolvePublicStoryUrl(storyId: string) {
   // TODO: how to handle the format?
   return `${API_CONFIG.baseUrl}/api/story/${storyId}/data`;
@@ -38,7 +43,7 @@ export function resolveSessionBuilderUrl(storyId: string) {
   }
 
   const sessionUrl = `${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`;
-  return `${builderPrefix}/?sessionUrl=${encodeURIComponent(sessionUrl)}`;
+  return `${builderPrefix}/?session-url=${encodeURIComponent(sessionUrl)}`;
 }
 
 /**
@@ -199,7 +204,7 @@ async function loadStorySession(storyId: string) {
 /**
  * Load session data from a URL (e.g., story session data or blob URLs)
  * Updates global state with the session's story data
- * Used with ?sessionUrl= parameter for cross-origin session loading
+ * Used with ?session-url= parameter for cross-origin session loading
  */
 export async function loadSessionFromUrl(url: string) {
   const store = getDefaultStore();
@@ -219,13 +224,13 @@ export async function loadSessionFromUrl(url: string) {
       doNotCleanSessionId: false, // Clean session ID for external loads
     });
 
-    // Clear the sessionUrl parameter from URL
+    // Clear the session-url parameter from URL
     try {
       const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.delete('sessionUrl');
+      currentUrl.searchParams.delete('session-url');
       window.history.replaceState({}, '', currentUrl.toString());
     } catch (error) {
-      console.warn('Failed to clear sessionUrl parameter:', error);
+      console.warn('Failed to clear session-url parameter:', error);
     }
   } catch (err) {
     console.error('Error loading session from URL:', err);

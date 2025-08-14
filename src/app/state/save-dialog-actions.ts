@@ -34,7 +34,7 @@ function validateDataSize(data: Uint8Array | string, maxSizeMB: number = MAX_FIL
 
 // SaveDialog Actions
 export function openSaveDialog() {
-  const sessionId = new URL(window.location.href).searchParams.get('sessionId') ?? undefined;
+  const sessionId = new URL(window.location.href).searchParams.get('session-id') ?? undefined;
   const store = getDefaultStore();
 
   // Get existing session metadata if available
@@ -172,13 +172,13 @@ async function saveToAPI(
   sessionId?: string
 ) {
   if (endpoint === 'session') {
-    return await saveSessionWithFormData(data, formData, sessionId);
+    return await saveSession(data, formData, sessionId);
   } else {
-    return await saveStoryWithFormData(data, formData, sessionId);
+    return await saveStory(data, formData, sessionId);
   }
 }
 
-async function saveSessionWithFormData(
+async function saveSession(
   data: Uint8Array | string,
   formData: { title: string; description: string },
   sessionId?: string
@@ -253,7 +253,7 @@ async function saveSessionWithFormData(
   return await response.json();
 }
 
-async function saveStoryWithFormData(
+async function saveStory(
   data: Uint8Array | string,
   formData: { title: string; description: string },
   sessionId?: string

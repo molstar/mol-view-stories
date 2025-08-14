@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { resolvePublicStoryUrl, resolveViewerUrl, resolveSessionBuilderUrl } from '@/lib/my-stories-api';
 import { useStoryFormat } from '@/hooks/useStoriesQueries';
 import { API_CONFIG } from '@/lib/config';
@@ -68,7 +69,7 @@ export function PublishedStoryModal() {
 
   return (
     <Dialog open={shareModal.isOpen} onOpenChange={handleClose}>
-      <DialogContent className='max-w-md' onOpenAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent className='max-w-md pb-7' onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>Published Story</DialogTitle>
           <DialogDescription>
@@ -76,75 +77,84 @@ export function PublishedStoryModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='public-url'>Public URL</Label>
-            <p className='text-xs text-muted-foreground'>Provides direct access to the story data</p>
-            <div className='flex gap-2'>
-              <Input id='public-url' value={publicUrl} readOnly className='font-mono text-sm' />
-              <Button variant='outline' size='sm' onClick={() => copyToClipboard(publicUrl, 'Public URL')}>
-                <Copy className='h-4 w-4' />
+        <Tabs defaultValue='viewer' className='space-y-4'>
+          <TabsList className='mt-2 w-full flex'>
+            <TabsTrigger value='viewer'>Story Viewer</TabsTrigger>
+            <TabsTrigger value='links'>Data Links</TabsTrigger>
+          </TabsList>
+          <TabsContent value='viewer' className='space-y-4 !flex-none -mb-1'>
+            {!isLoadingFormat && (
+              <div className='space-y-2'>
+                <Label htmlFor='molstar-url'>Stories Viewer URL</Label>
+                <p className='text-xs text-muted-foreground'>
+                  Opens the story in the Mol* Stories Viewer
+                  {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
+                </p>
+                <div className='flex gap-2'>
+                  <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
+                  <Button variant='outline' size='sm' onClick={() => copyToClipboard(molstarUrl, 'Stories Viewer URL')}>
+                    <Copy className='h-4 w-4' />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className='flex gap-2 mb-0'>
+              <Button asChild className='flex-1' disabled={isLoadingFormat}>
+                <a href={molstarUrl} target='_blank' rel='noopener noreferrer'>
+                  <ExternalLink className='size-4 mr-2' />
+                  {isLoadingFormat ? 'Detecting format...' : 'Open Story'}
+                </a>
               </Button>
             </div>
-          </div>
+          </TabsContent>
 
-          <div className='space-y-2'>
-          <Label htmlFor='session-url'>Public Session URL</Label>
-          <p className='text-xs text-muted-foreground'>
-            Provides direct access to the session data
-          </p>
-          <div className='flex gap-2'>
-            <Input id='session-url' value={sessionUrl} readOnly className='font-mono text-sm' />
-            <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionUrl, 'Session URL')}>
-              <Copy className='h-4 w-4' />
-            </Button>
-          </div>
-        </div>
-
-          {!isLoadingFormat && (
+          <TabsContent value='links' className='space-y-4 !flex-none'>
             <div className='space-y-2'>
-              <Label htmlFor='molstar-url'>Mol* Stories Viewer URL</Label>
-              <p className='text-xs text-muted-foreground'>
-                Opens the story in the Mol* Stories Viewer
-                {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
-              </p>
+              <Label htmlFor='public-url'>Public URL</Label>
+              <p className='text-xs text-muted-foreground'>Provides direct access to the story data</p>
               <div className='flex gap-2'>
-                <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
-                <Button variant='outline' size='sm' onClick={() => copyToClipboard(molstarUrl, 'Mol* Viewer URL')}>
+                <Input id='public-url' value={publicUrl} readOnly className='font-mono text-sm' />
+                <Button variant='outline' size='sm' onClick={() => copyToClipboard(publicUrl, 'Public URL')}>
                   <Copy className='h-4 w-4' />
                 </Button>
               </div>
             </div>
-          )}
-          
 
-        <div className='space-y-2'>
-          <Label htmlFor='session-builder-url'>Session Builder URL</Label>
-          <p className='text-xs text-muted-foreground'>
-            Open this session in the mol-view-stories builder
-          </p>
-          <div className='flex gap-2'>
-            <Input id='session-builder-url' value={sessionBuilderUrl} readOnly className='font-mono text-sm' />
-            <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionBuilderUrl, 'Session Builder URL')}>
-              <Copy className='h-4 w-4' />
-            </Button>
-          </div>
-        </div>
-        </div>
+            <div className='space-y-2'>
+              <Label htmlFor='session-url'>Public Session URL</Label>
+              <p className='text-xs text-muted-foreground'>
+                Provides direct access to the session data
+              </p>
+              <div className='flex gap-2'>
+                <Input id='session-url' value={sessionUrl} readOnly className='font-mono text-sm' />
+                <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionUrl, 'Session URL')}>
+                  <Copy className='h-4 w-4' />
+                </Button>
+              </div>
+            </div>
 
-        <div className='flex gap-2'>
-          <Button asChild className='flex-1' disabled={isLoadingFormat}>
-            <a href={molstarUrl} target='_blank' rel='noopener noreferrer'>
-              <ExternalLink className='size-4 mr-2' />
-              {isLoadingFormat ? 'Detecting format...' : 'Open Story'}
-            </a>
-          </Button>
-          
-          <Button variant='outline' className='flex-1' onClick={openSessionInViewer}>
-            <ExternalLink className='size-4 mr-2' />
-            Open Session
-          </Button>
-        </div>
+            <div className='space-y-2'>
+              <Label htmlFor='session-builder-url'>Session Builder URL</Label>
+              <p className='text-xs text-muted-foreground'>
+                Open this session in the mol-view-stories builder
+              </p>
+              <div className='flex gap-2'>
+                <Input id='session-builder-url' value={sessionBuilderUrl} readOnly className='font-mono text-sm' />
+                <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionBuilderUrl, 'Session Builder URL')}>
+                  <Copy className='h-4 w-4' />
+                </Button>
+              </div>
+            </div>
+
+            <div className='flex gap-2 mb-1'>
+              <Button variant='outline' className='flex-1' onClick={openSessionInViewer}>
+                <ExternalLink className='size-4 mr-2' />
+                Open Session
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
