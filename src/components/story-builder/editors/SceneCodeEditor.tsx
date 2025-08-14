@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useAtomValue } from 'jotai';
+import { getDefaultStore, useAtomValue } from 'jotai';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
+import { ActiveSceneAtom, modifyCurrentScene, StoryAtom } from '@/app/appstate';
 import { setupMonacoCodeCompletion } from './common';
 
 export function SceneCodeEditor() {
@@ -56,6 +56,8 @@ export function SceneCodeEditor() {
     }
 
     setupMonacoCodeCompletion(monaco);
+    const commonCode = getDefaultStore().get(StoryAtom)?.javascript || '';
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(commonCode, 'js:common-code.js');
     editor.layout();
   };
 
