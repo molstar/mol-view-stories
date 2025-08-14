@@ -5,6 +5,7 @@ import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { useAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
+import { setupMonacoCodeCompletion } from './common';
 
 export function StoryCodeEditor() {
   const [story, setStory] = useAtom(StoryAtom);
@@ -32,6 +33,7 @@ export function StoryCodeEditor() {
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+    setupMonacoCodeCompletion(monaco);
     editor.layout();
 
     // Add Alt+S keyboard shortcut for saving markdown

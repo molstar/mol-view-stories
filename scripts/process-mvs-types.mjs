@@ -3,6 +3,8 @@ import fs from 'fs';
 let data = fs.readFileSync('./tmp/mvs.d.ts', 'utf-8');
 data = data.replaceAll('`', '\\`').replaceAll('${', '\\${').replaceAll(/(\r\n|\n|\r)/g, '\n');
 
+const lib = ['Vec3', 'Mat3', 'Mat4', 'Quat', 'Euler'];
+
 const lines = data.split('\n'); // .filter(line => !line.startsWith('export '));
 const final = [
     '// Automatically generated file. Do not edit manually.',
@@ -14,10 +16,7 @@ const final = [
     '}',
     '',
     'declare const builder: _.Builder;',
-    'declare const Vec3: typeof _.Vec3;',
-    'declare const Mat3: typeof _.Mat3;',
-    'declare const Mat4: typeof _.Mat4;',
-    'declare const Quat: typeof _.Quat;',
+    ...lib.map(name => `declare const ${name}: typeof _.${name};`),
     '`;',
 ];
 
