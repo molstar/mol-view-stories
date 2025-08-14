@@ -24,7 +24,7 @@ export function SceneSelector() {
           {currentView.type !== 'scene' && `${story.scenes.length} Scene${story.scenes.length !== 1 ? 's' : ''}`}
           {currentView.type === 'scene' && (
             <>
-              Scene {story.scenes.findIndex((s) => s.id === activeScene?.id) + 1}/{story.scenes.length}
+              Scene {formatSceneLabel(story.scenes.findIndex((s) => s.id === activeScene?.id) + 1, story.scenes.length)}
             </>
           )}
         </Button>
@@ -42,4 +42,13 @@ export function SceneSelector() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+function formatSceneLabel(index: number, total: number) {
+  const totalS = String(total);
+  const indexS = String(index);
+  const padding = Array.from({ length: Math.max(0, totalS.length - indexS.length) })
+    .fill(' ')
+    .join('');
+  return `${padding}${index}/${total}`;
 }

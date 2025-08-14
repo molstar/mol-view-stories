@@ -33,6 +33,7 @@ import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
 import { Mat3, Mat4, Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { tryFindIfStoryIsShared } from '@/lib/data-utils';
 import { toast } from 'sonner';
+import { Euler } from 'molstar/lib/mol-math/linear-algebra/3d/euler';
 
 // Extended session interface that may include story data
 export interface SessionWithData extends SessionItem {
@@ -91,13 +92,25 @@ export function newStory() {
   setSessionIdUrl(undefined);
 }
 
+// Should be sync with typing generation in the scripts directory
+const BuilderLib = {
+  Vec3,
+  Mat3,
+  Mat4,
+  Quat,
+  Euler,
+};
+
+export const BuilderLibNamespaces = Object.keys(BuilderLib);
+
 const createStateProvider = (code: string) => {
-  return new Function('builder', 'index', 'Vec3', 'Mat3', 'Mat4', 'Quat', code);
+  return new Function('builder', 'index', '__lib__', code);
 };
 
 async function getMVSSnapshot(story: Story, scene: SceneData, index: number) {
   try {
     const stateProvider = createStateProvider(`
+const { ${Object.keys(BuilderLib).join(', ')} } = __lib__;
 async function _run_builder() {
       ${story.javascript}\n\n${scene.javascript}
 }
@@ -105,7 +118,7 @@ return _run_builder();
 `);
     const builder = MVSData.createBuilder();
     toast.dismiss('state-build-error');
-    await stateProvider(builder, index, Vec3, Mat3, Mat4, Quat);
+    await stateProvider(builder, index, BuilderLib);
     if (scene.camera) {
       builder.camera({
         position: adjustedCameraPosition(scene.camera),

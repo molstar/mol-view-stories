@@ -3,6 +3,10 @@
 import { Menubar } from '@/components/ui/menubar';
 import { Separator } from '@/components/ui/separator';
 import { SceneMenu, StoryPreview, StoryOptions, SceneSelector } from './menus';
+import { Button } from '../ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAtom, useAtomValue } from 'jotai';
+import { ActiveSceneAtom, CurrentViewAtom, StoryAtom } from '@/app/appstate';
 
 export function StoriesToolBar() {
   return (
@@ -30,6 +34,8 @@ export function StoriesToolBar() {
                 <SceneMenu />
                 <Separator orientation='vertical' className='h-6' />
                 <SceneSelector />
+                <NextScene dir={-1} />
+                <NextScene dir={1} />
               </Menubar>
             </div>
           </div>
@@ -47,5 +53,36 @@ export function StoriesToolBar() {
         </div>
       </div>
     </>
+  );
+}
+
+function NextScene({ dir }: { dir: -1 | 1 }) {
+  const [currentView, setCurrentView] = useAtom(CurrentViewAtom);
+  const story = useAtomValue(StoryAtom);
+  const activeScene = useAtomValue(ActiveSceneAtom);
+
+  const Icon = dir < 0 ? ChevronLeft : ChevronRight;
+  const onClick = () => {
+    if (currentView.type !== 'scene') {
+      setCurrentView({ type: 'scene', id: story.scenes[0].id.toString(), subview: 'scene-options' });
+      return;
+    }
+
+    let idx = story.scenes.findIndex((s) => s.id === activeScene.id);
+    idx += dir;
+    if (idx < 0) idx = story.scenes.length - 1;
+    if (idx >= story.scenes.length) idx = 0;
+
+    setCurrentView({ type: 'scene', id: story.scenes[idx].id.toString(), subview: 'scene-options' });
+  };
+  return (
+    <Button
+      className='text-sm has-[>svg]:px-1 cursor-pointer rounded-none'
+      variant='link'
+      onClick={onClick}
+      title={dir < 0 ? 'Previous Scene' : 'Next Scene'}
+    >
+      <Icon className='size-4' />
+    </Button>
   );
 }

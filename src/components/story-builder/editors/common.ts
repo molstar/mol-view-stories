@@ -3,7 +3,10 @@ import { MVSTypes } from './mvs-typing';
 
 export function setupMonacoCodeCompletion(monaco: Monaco) {
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-  monaco.languages.typescript.javascriptDefaults.addExtraLib(MVSTypes, 'ts:mvs.d.ts');
+  const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();
+  if (!('ts:mvs.d.ts' in extraLibs)) {
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(MVSTypes, 'ts:mvs.d.ts');
+  }
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
     target: monaco.languages.typescript.ScriptTarget.ES2020,
     allowNonTsExtensions: true,

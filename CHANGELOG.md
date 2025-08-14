@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file, following t
   - User quota management (100 sessions/states per user)
   - Docker containerization with production deployment configuration
   - Comprehensive test suite with pytest coverage
-- `Vec3`, `Mat3`, `Mat4`, `Quat` accessible in the code editor
+- `Vec3`, `Mat3`, `Mat4`, `Quat`, `Euler` accessible in the code editor
 
 ### Changed
 - **Session Upload Optimization**: Replaced base64 encoding with native FormData uploads

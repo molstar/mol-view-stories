@@ -1,7 +1,8 @@
 import { UUID } from 'molstar/lib/mol-util';
 import { Story } from '../state/types';
+import { BuilderLibNamespaces } from '../state/actions';
 
-const LibraryFns = `// Mol* library functions: Vec3, Mat3, Mat4, Quat`;
+const LibraryFns = `// Mol* library functions: ${BuilderLibNamespaces.join(', ')}\n`;
 
 export const EmptyStory: Story = {
   metadata: { title: 'New Story' },
