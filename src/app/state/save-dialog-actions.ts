@@ -197,7 +197,7 @@ async function saveSessionWithFormData(
   formDataToSend.append('title', formData.title.trim());
   formDataToSend.append('description', formData.description.trim());
   formDataToSend.append('tags', JSON.stringify([])); // Default empty tags
-  
+
   // Only include filename for new sessions (POST), not updates (PUT)
   if (!sessionId) {
     const filename = formData.title.trim() + SessionFileExtension;
@@ -206,7 +206,7 @@ async function saveSessionWithFormData(
 
   // Add the file data as blob
   if (data instanceof Uint8Array) {
-    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const blob = new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
     formDataToSend.append('file', blob, 'session.mvstory');
   } else {
     // Convert string data to Uint8Array if needed
@@ -217,9 +217,7 @@ async function saveSessionWithFormData(
   }
 
   // If sessionId is provided, update existing session; otherwise create new
-  const url = sessionId
-    ? `${API_CONFIG.baseUrl}/api/session/${sessionId}`
-    : `${API_CONFIG.baseUrl}/api/session`;
+  const url = sessionId ? `${API_CONFIG.baseUrl}/api/session/${sessionId}` : `${API_CONFIG.baseUrl}/api/session`;
   const method = sessionId ? 'PUT' : 'POST';
 
   const response = await authenticatedFetch(url, {

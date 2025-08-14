@@ -30,8 +30,9 @@ import {
 import { Task } from 'molstar/lib/mol-task';
 import { deflate, inflate, Zip } from 'molstar/lib/mol-util/zip/zip';
 import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
-import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
+import { Mat3, Mat4, Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { tryFindIfStoryIsShared } from '@/lib/data-utils';
+import { toast } from 'sonner';
 
 // Extended session interface that may include story data
 export interface SessionWithData extends SessionItem {
@@ -91,7 +92,7 @@ export function newStory() {
 }
 
 const createStateProvider = (code: string) => {
-  return new Function('builder', 'index', code);
+  return new Function('builder', 'index', 'Vec3', 'Mat3', 'Mat4', 'Quat', code);
 };
 
 async function getMVSSnapshot(story: Story, scene: SceneData, index: number) {
@@ -103,7 +104,8 @@ async function _run_builder() {
 return _run_builder();
 `);
     const builder = MVSData.createBuilder();
-    await stateProvider(builder, index);
+    toast.dismiss('state-build-error');
+    await stateProvider(builder, index, Vec3, Mat3, Mat4, Quat);
     if (scene.camera) {
       builder.camera({
         position: adjustedCameraPosition(scene.camera),
@@ -122,6 +124,7 @@ return _run_builder();
     return snapshot;
   } catch (error) {
     console.error('Error creating state provider:', error);
+    toast.error(`Failed to build state: ${error}`, { duration: 5000, id: 'state-build-error', closeButton: true });
     throw error;
   }
 }
@@ -186,7 +189,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html') {
     } else if (how === 'state') {
       blob =
         data instanceof Uint8Array
-          ? new Blob([data], { type: 'application/octet-stream' })
+          ? new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' })
           : new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       filename = `story-${Date.now()}.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
     } else {

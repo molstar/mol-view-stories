@@ -573,6 +573,113 @@ namespace _ {
     /** Type of tree which conforms to tree schema \`TTreeSchema\` */
     type TreeFor<TTreeSchema extends TreeSchema> = Tree<NodeFor<TTreeSchema>, RootFor<TTreeSchema> & NodeFor<TTreeSchema>>;
     
+    declare const MVSAnimationSchema: TreeSchema<{
+        animation: SimpleParamsSchema<{
+            frame_time_ms: OptionalField<number>;
+            duration_ms: OptionalField<number | null>;
+            autoplay: OptionalField<boolean>;
+            loop: OptionalField<boolean>;
+            include_camera: OptionalField<boolean>;
+            include_canvas: OptionalField<boolean>;
+        }>;
+        interpolate: UnionParamsSchema<"kind", {
+            scalar: SimpleParamsSchema<{
+                noise_magnitude: OptionalField<number>;
+                start: OptionalField<number | number[] | null>;
+                end: OptionalField<number | number[] | null>;
+                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                frequency: OptionalField<number>;
+                alternate_direction: OptionalField<boolean>;
+                target_ref: RequiredField<string>;
+                property: RequiredField<string | (string | number)[]>;
+                start_ms: OptionalField<number>;
+                duration_ms: RequiredField<number>;
+            }>;
+            vec3: SimpleParamsSchema<{
+                noise_magnitude: OptionalField<number>;
+                start: OptionalField<number[] | null>;
+                end: OptionalField<number[] | null>;
+                spherical: OptionalField<boolean>;
+                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                frequency: OptionalField<number>;
+                alternate_direction: OptionalField<boolean>;
+                target_ref: RequiredField<string>;
+                property: RequiredField<string | (string | number)[]>;
+                start_ms: OptionalField<number>;
+                duration_ms: RequiredField<number>;
+            }>;
+            rotation_matrix: SimpleParamsSchema<{
+                noise_magnitude: OptionalField<number>;
+                start: OptionalField<number[] | null>;
+                end: OptionalField<number[] | null>;
+                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                frequency: OptionalField<number>;
+                alternate_direction: OptionalField<boolean>;
+                target_ref: RequiredField<string>;
+                property: RequiredField<string | (string | number)[]>;
+                start_ms: OptionalField<number>;
+                duration_ms: RequiredField<number>;
+            }>;
+            transform_matrix: SimpleParamsSchema<{
+                pivot: OptionalField<[number, number, number] | null>;
+                rotation_start: OptionalField<number[] | null>;
+                rotation_end: OptionalField<number[] | null>;
+                rotation_noise_magnitude: OptionalField<number>;
+                rotation_easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                rotation_frequency: OptionalField<number>;
+                rotation_alternate_direction: OptionalField<boolean>;
+                translation_start: OptionalField<[number, number, number] | null>;
+                translation_end: OptionalField<[number, number, number] | null>;
+                translation_noise_magnitude: OptionalField<number>;
+                translation_easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                translation_frequency: OptionalField<number>;
+                translation_alternate_direction: OptionalField<boolean>;
+                scale_start: OptionalField<[number, number, number] | null>;
+                scale_end: OptionalField<[number, number, number] | null>;
+                scale_noise_magnitude: OptionalField<number>;
+                scale_easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                scale_frequency: OptionalField<number>;
+                scale_alternate_direction: OptionalField<boolean>;
+                target_ref: RequiredField<string>;
+                property: RequiredField<string | (string | number)[]>;
+                start_ms: OptionalField<number>;
+                duration_ms: RequiredField<number>;
+            }>;
+            color: SimpleParamsSchema<{
+                start: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                end: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                palette: OptionalField<({
+                    kind: "discrete";
+                } & {
+                    colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null, number | null, number | null][] | undefined;
+                    reverse?: boolean | undefined;
+                    mode?: "absolute" | "normalized" | undefined;
+                    value_domain?: [number | null, number | null] | undefined;
+                }) | ({
+                    kind: "continuous";
+                } & {
+                    colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | undefined;
+                    reverse?: boolean | undefined;
+                    mode?: "absolute" | "normalized" | undefined;
+                    value_domain?: [number | null, number | null] | undefined;
+                    underflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
+                    overflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
+                }) | null>;
+                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                frequency: OptionalField<number>;
+                alternate_direction: OptionalField<boolean>;
+                target_ref: RequiredField<string>;
+                property: RequiredField<string | (string | number)[]>;
+                start_ms: OptionalField<number>;
+                duration_ms: RequiredField<number>;
+            }>;
+        }>;
+    }, "animation">;
+    type MVSAnimationKind = keyof typeof MVSAnimationSchema.nodes;
+    type MVSAnimationTree = TreeFor<typeof MVSAnimationSchema>;
+    type MVSAnimationNodeParams<TKind extends MVSAnimationKind> = ParamsOfKind<MVSAnimationTree, TKind>;
+    type MVSAnimationSubtree<TKind extends MVSAnimationKind = MVSAnimationKind> = SubtreeOfKind<MVSAnimationTree, TKind>;
+    
     /** Schema for \`MVSTree\` (MolViewSpec tree) */
     declare const MVSTreeSchema: TreeSchema<{
         root: SimpleParamsSchema<{}>;
@@ -607,6 +714,8 @@ namespace _ {
             rotation: OptionalField<number[]>;
             /** Translation vector, applied to the structure coordinates after rotation. The default value is the zero vector (corresponds to no translation). */
             translation: OptionalField<[number, number, number]>;
+            /** Point to rotate the object around. Can be either a 3D vector or dynamically computed object centroid. */
+            rotation_center: OptionalField<[number, number, number] | "centroid" | null>;
             /** Transform matrix (4x4 matrix flattened in column major format (j*4+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. Takes precedence over \`rotation\` and \`translation\`. */
             matrix: OptionalField<number[] | null>;
         }>;
@@ -615,6 +724,8 @@ namespace _ {
             rotation: OptionalField<number[]>;
             /** Translation vector, applied to the structure coordinates after rotation. The default value is the zero vector (corresponds to no translation). */
             translation: OptionalField<[number, number, number]>;
+            /** Point to rotate the object around. Can be either a 3D vector or dynamically computed object centroid. */
+            rotation_center: OptionalField<[number, number, number] | "centroid" | null>;
             /** Transform matrix (4x4 matrix flattened in column major format (j*4+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. Takes precedence over \`rotation\` and \`translation\`. */
             matrix: OptionalField<number[] | null>;
         }>;
@@ -717,6 +828,7 @@ namespace _ {
                 size_factor: OptionalField<number>;
             }>;
             surface: SimpleParamsSchema<{
+                surface_type: OptionalField<"gaussian" | "molecular">;
                 size_factor: OptionalField<number>;
                 ignore_hydrogens: OptionalField<boolean>;
             }>;
@@ -1007,7 +1119,7 @@ namespace _ {
         }>;
         canvas: SimpleParamsSchema<{
             /** Color of the canvas background. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
-            background_color: RequiredField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`>;
+            background_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`>;
         }>;
         primitives: SimpleParamsSchema<{
             /** Default color for primitives in this group. */
@@ -1914,6 +2026,7 @@ namespace _ {
     }
     /** MVS builder pointing to the 'root' node */
     declare class Root extends _Base<'root'> implements FocusMixin, PrimitivesMixin {
+        protected _animation: Animation | undefined;
         constructor(params_: CustomAndRef);
         /** Return the current state of the builder as object in MVS format. */
         getState(metadata?: Pick<GlobalMetadata, 'title' | 'description' | 'description_format'>): MVSData_State;
@@ -1934,6 +2047,13 @@ namespace _ {
         } & CustomAndRef) | undefined) => this;
         primitives: (params?: MVSNodeParams<"primitives"> & CustomAndRef) => Primitives;
         primitives_from_uri: (params: MVSNodeParams<"primitives_from_uri"> & CustomAndRef) => PrimitivesFromUri;
+        animation(params?: MVSAnimationNodeParams<'animation'> & CustomAndRef): Animation;
+    }
+    declare class Animation {
+        private _node;
+        constructor(parameters: MVSAnimationNodeParams<'animation'> & CustomAndRef);
+        get node(): MVSAnimationSubtree<'animation'>;
+        interpolate(params: MVSAnimationNodeParams<'interpolate'> & CustomAndRef): Animation;
     }
     /** MVS builder pointing to a 'download' node */
     declare class Download extends _Base<'download'> {
@@ -1983,11 +2103,13 @@ namespace _ {
         transform: (params?: ({} & {
             rotation?: number[] | undefined;
             translation?: [number, number, number] | undefined;
+            rotation_center?: [number, number, number] | "centroid" | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         instance: (params?: ({} & {
             rotation?: number[] | undefined;
             translation?: [number, number, number] | undefined;
+            rotation_center?: [number, number, number] | "centroid" | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         primitives: (params?: MVSNodeParams<"primitives"> & CustomAndRef) => Primitives;
@@ -2011,11 +2133,13 @@ namespace _ {
         transform: (params?: ({} & {
             rotation?: number[] | undefined;
             translation?: [number, number, number] | undefined;
+            rotation_center?: [number, number, number] | "centroid" | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         instance: (params?: ({} & {
             rotation?: number[] | undefined;
             translation?: [number, number, number] | undefined;
+            rotation_center?: [number, number, number] | "centroid" | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
     }
@@ -2046,11 +2170,13 @@ namespace _ {
         transform: (params?: ({} & {
             rotation?: number[] | undefined;
             translation?: [number, number, number] | undefined;
+            rotation_center?: [number, number, number] | "centroid" | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         instance: (params?: ({} & {
             rotation?: number[] | undefined;
             translation?: [number, number, number] | undefined;
+            rotation_center?: [number, number, number] | "centroid" | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
     }
@@ -2133,9 +2259,10 @@ namespace _ {
     }
     
     /**
-     * Copyright (c) 2023-2024 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
      *
      * @author Adam Midlik <midlik@gmail.com>
+     * @author David Sehnal <david.sehnal@gmail.com>
      */
     
     /** Top-level metadata for a MVS file (single-state or multi-state). */
@@ -2174,6 +2301,8 @@ namespace _ {
         root: MVSTree;
         /** Associated metadata */
         metadata: SnapshotMetadata;
+        /** Optional animation */
+        animation?: MVSAnimationTree;
     }
     /** MVSData with a single state */
     interface MVSData_State {
@@ -2229,8 +2358,619 @@ namespace _ {
         stateToStates(state: MVSData_State): MVSData_States;
     };
     
+    type TypedIntArray = Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array;
+    type TypedFloatArray = Float32Array | Float64Array;
+    type TypedArray = TypedIntArray | TypedFloatArray;
+    type NumberArray = TypedArray | number[];
+    
+    /**
+     * Copyright (c) 2017-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author David Sehnal <david.sehnal@gmail.com>
+     * @author Alexander Rose <alexander.rose@weirdbyte.de>
+     */
+    
+    interface ReadonlyQuat extends Array<number> {
+        readonly [d: number]: number;
+        '@type': 'quat';
+        length: 4;
+    }
+    interface Quat extends Array<number> {
+        [d: number]: number;
+        '@type': 'quat';
+        length: 4;
+    }
+    declare function Quat(): Quat;
+    declare namespace Quat {
+        function zero(): Quat;
+        function identity(): Quat;
+        function setIdentity(out: Quat): void;
+        function hasNaN(q: Quat): boolean;
+        function create(x: number, y: number, z: number, w: number): Quat;
+        function setAxisAngle(out: Quat, axis: Vec3, rad: number): Quat;
+        /**
+         * Gets the rotation axis and angle for a given
+         *  quaternion. If a quaternion is created with
+         *  setAxisAngle, this method will return the same
+         *  values as providied in the original parameter list
+         *  OR functionally equivalent values.
+         * Example: The quaternion formed by axis [0, 0, 1] and
+         *  angle -90 is the same as the quaternion formed by
+         *  [0, 0, 1] and 270. This method favors the latter.
+         */
+        function getAxisAngle(out_axis: Vec3, q: Quat): number;
+        function multiply(out: Quat, a: Quat, b: Quat): Quat;
+        function rotateX(out: Quat, a: Quat, rad: number): Quat;
+        function rotateY(out: Quat, a: Quat, rad: number): Quat;
+        function rotateZ(out: Quat, a: Quat, rad: number): Quat;
+        /**
+         * Calculates the W component of a quat from the X, Y, and Z components.
+         * Assumes that quaternion is 1 unit in length.
+         * Any existing W component will be ignored.
+         */
+        function calculateW(out: Quat, a: Quat): Quat;
+        /**
+         * Performs a spherical linear interpolation between two quat
+         */
+        function slerp(out: Quat, a: Quat, b: Quat, t: number): Quat;
+        function invert(out: Quat, a: Quat): Quat;
+        /**
+         * Calculates the conjugate of a quat
+         * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
+         */
+        function conjugate(out: Quat, a: Quat): Quat;
+        function dot(a: Quat, b: Quat): number;
+        /**
+         * Creates a quaternion from the given 3x3 rotation matrix.
+         *
+         * NOTE: The resultant quaternion is not normalized, so you should be sure
+         * to renormalize the quaternion yourself where necessary.
+         */
+        function fromMat3(out: Quat, m: Mat3): Quat;
+        function fromMat4(out: Quat, m: Mat4): Quat;
+        function fromEuler(out: Quat, euler: Euler, order: Euler.Order): Quat;
+        /** Quaternion from two normalized unit vectors. */
+        function fromUnitVec3(out: Quat, a: Vec3, b: Vec3): Quat;
+        function fromBasis(out: Quat, x: Vec3, y: Vec3, z: Vec3): Quat;
+        function clone(a: Quat): Quat;
+        function fromObj(a: {
+            x: number;
+            y: number;
+            z: number;
+            w: number;
+        }): Quat;
+        function toObj(a: Quat): {
+            x: number;
+            y: number;
+            z: number;
+            w: number;
+        };
+        function toArray<T extends NumberArray>(a: Quat, out: T, offset: number): T;
+        function fromArray(a: Quat, array: NumberArray, offset: number): Quat;
+        function copy(out: Quat, a: Quat): Quat;
+        function set(out: Quat, x: number, y: number, z: number, w: number): Quat;
+        /**
+         * Returns whether or not the quaternions have exactly the same elements in the same position (when compared with ===)
+         */
+        function exactEquals(a: Quat, b: Quat): boolean;
+        /**
+         * Returns whether or not the quaternions have approximately the same elements in the same position.
+         */
+        function equals(a: Quat, b: Quat): boolean;
+        function add(out: Quat, a: Quat, b: Quat): Quat;
+        function magnitude(a: Quat): number;
+        function squaredMagnitude(a: Quat): number;
+        function angle(a: Quat, b: Quat): number;
+        function normalize(out: Quat, a: Quat): Quat;
+        function rotationTo(out: Quat, a: Vec3, b: Vec3): Quat;
+        function sqlerp(out: Quat, a: Quat, b: Quat, c: Quat, d: Quat, t: number): Quat;
+        function setAxes(out: Quat, view: Vec3, right: Vec3, up: Vec3): Quat;
+        function toString(a: Quat, precision?: number): string;
+        const Identity: ReadonlyQuat;
+    }
+    
+    /**
+     * Copyright (c) 2023 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author Alexander Rose <alexander.rose@weirdbyte.de>
+     *
+     * This code has been modified from https://github.com/mrdoob/three.js/,
+     * copyright (c) 2010-2023 three.js authors. MIT License
+     */
+    
+    interface Euler extends Array<number> {
+        [d: number]: number;
+        '@type': 'euler';
+        length: 3;
+    }
+    declare function Euler(): Euler;
+    declare namespace Euler {
+        type Order = 'XYZ' | 'YXZ' | 'ZXY' | 'ZYX' | 'YZX' | 'XZY';
+        function zero(): Euler;
+        function create(x: number, y: number, z: number): Euler;
+        function set(out: Euler, x: number, y: number, z: number): Euler;
+        function clone(a: Euler): Euler;
+        function copy(out: Euler, a: Euler): Euler;
+        /**
+         * Assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+         */
+        function fromMat4(out: Euler, m: Mat4, order: Order): Euler;
+        function fromQuat(out: Euler, q: Quat, order: Order): Euler;
+        function fromVec3(out: Euler, v: Vec3): Euler;
+        function exactEquals(a: Euler, b: Euler): boolean;
+        function fromArray(e: Euler, array: ArrayLike<number>, offset: number): Euler;
+        function toArray<T extends NumberArray>(e: Euler, out: T, offset: number): T;
+    }
+    
+    /**
+     * Copyright (c) 2017-2024 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author David Sehnal <david.sehnal@gmail.com>
+     * @author Alexander Rose <alexander.rose@weirdbyte.de>
+     */
+    
+    interface ReadonlyMat3 extends Array<number> {
+        readonly [d: number]: number;
+        '@type': 'mat3';
+        length: 9;
+    }
+    interface Mat3 extends Array<number> {
+        [d: number]: number;
+        '@type': 'mat3';
+        length: 9;
+    }
+    declare function Mat3(): Mat3;
+    declare namespace Mat3 {
+        function zero(): Mat3;
+        function identity(): Mat3;
+        function setIdentity(mat: Mat3): Mat3;
+        function toArray<T extends NumberArray>(a: Mat3, out: T, offset: number): T;
+        function fromArray(a: Mat3, array: NumberArray, offset: number): Mat3;
+        function fromColumns(out: Mat3, left: Vec3, middle: Vec3, right: Vec3): Mat3;
+        /**
+         * Copies the upper-left 3x3 values into the given mat3.
+         */
+        function fromMat4(out: Mat3, a: Mat4): Mat3;
+        function fromEuler(out: Mat3, euler: Euler, order: Euler.Order): Mat3;
+        function fromRotation(out: Mat3, rad: number, axis: Vec3): Mat3;
+        function create(a00: number, a01: number, a02: number, a10: number, a11: number, a12: number, a20: number, a21: number, a22: number): Mat3;
+        function isIdentity(m: Mat3, eps?: number): boolean;
+        function hasNaN(m: Mat3): boolean;
+        /**
+         * Creates a new Mat3 initialized with values from an existing matrix
+         */
+        function clone(a: Mat3): Mat3;
+        function areEqual(a: Mat3, b: Mat3, eps: number): boolean;
+        function setValue(a: Mat3, i: number, j: number, value: number): void;
+        function getValue(a: Mat3, i: number, j: number): number;
+        /**
+         * Copy the values from one Mat3 to another
+         */
+        function copy(out: Mat3, a: Mat3): Mat3;
+        /**
+         * Transpose the values of a Mat3
+         */
+        function transpose(out: Mat3, a: Mat3): Mat3;
+        /**
+         * Inverts a Mat3
+         */
+        function invert(out: Mat3, a: Mat3): Mat3;
+        function symmtricFromUpper(out: Mat3, a: Mat3): Mat3;
+        function symmtricFromLower(out: Mat3, a: Mat3): Mat3;
+        function determinant(a: Mat3): number;
+        function trace(a: Mat3): number;
+        function sub(out: Mat3, a: Mat3, b: Mat3): Mat3;
+        function add(out: Mat3, a: Mat3, b: Mat3): Mat3;
+        function mul(out: Mat3, a: Mat3, b: Mat3): Mat3;
+        function subScalar(out: Mat3, a: Mat3, s: number): Mat3;
+        function addScalar(out: Mat3, a: Mat3, s: number): Mat3;
+        function mulScalar(out: Mat3, a: Mat3, s: number): Mat3;
+        /**
+         * Given a real symmetric 3x3 matrix A, compute the eigenvalues
+         *
+         * From https://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
+         */
+        function symmetricEigenvalues(out: Vec3, a: Mat3): Vec3;
+        /**
+         * Calculates the eigenvector for the given eigenvalue \`e\` of matrix \`a\`
+         */
+        function eigenvector(out: Vec3, a: Mat3, e: number): Vec3;
+        /**
+         * Get matrix to transform directions, e.g. normals
+         */
+        function directionTransform(out: Mat3, t: Mat4): Mat3;
+        const Identity: ReadonlyMat3;
+        /** Return the Frobenius inner product of two matrices (= dot product of the flattened matrices).
+         * Can be used as a measure of similarity between two rotation matrices. */
+        function innerProduct(a: Mat3, b: Mat3): number;
+        /**
+         * Computes the adjugate (classical adjoint) of the upper-left 3×3 portion of a 4×4 matrix. */
+        function adjointFromMat4(out: Mat3, m: Mat4): Mat3;
+    }
+    
+    /**
+     * Copyright (c) 2017-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author David Sehnal <david.sehnal@gmail.com>
+     * @author Alexander Rose <alexander.rose@weirdbyte.de>
+     */
+    
+    interface ReadonlyVec3 extends Array<number> {
+        readonly [d: number]: number;
+        '@type': 'vec3';
+        length: 3;
+    }
+    interface Vec3 extends Array<number> {
+        [d: number]: number;
+        '@type': 'vec3';
+        length: 3;
+    }
+    declare function Vec3(): Vec3;
+    declare namespace Vec3 {
+        function zero(): Vec3;
+        function clone(a: Vec3): Vec3;
+        function isFinite(a: Vec3): boolean;
+        function hasNaN(a: Vec3): boolean;
+        function setNaN(out: Vec3): Vec3;
+        function fromObj(v: {
+            x: number;
+            y: number;
+            z: number;
+        }): Vec3;
+        function toObj(v: Vec3): {
+            x: number;
+            y: number;
+            z: number;
+        };
+        function fromArray(v: Vec3, array: ArrayLike<number>, offset: number): Vec3;
+        function toArray<T extends NumberArray>(v: Vec3, out: T, offset: number): T;
+        function create(x: number, y: number, z: number): Vec3;
+        function ofArray(array: ArrayLike<number>): Vec3;
+        function set(out: Vec3, x: number, y: number, z: number): Vec3;
+        function copy(out: Vec3, a: Vec3): Vec3;
+        function add(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        function sub(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        function mul(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        function div(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        function scale(out: Vec3, a: Vec3, b: number): Vec3;
+        /** Scales b, then adds a and b together */
+        function scaleAndAdd(out: Vec3, a: Vec3, b: Vec3, scale: number): Vec3;
+        /** Scales b, then subtracts b from a */
+        function scaleAndSub(out: Vec3, a: Vec3, b: Vec3, scale: number): Vec3;
+        function addScalar(out: Vec3, a: Vec3, b: number): Vec3;
+        function subScalar(out: Vec3, a: Vec3, b: number): Vec3;
+        /**
+         * Math.round the components of a Vec3
+         */
+        function round(out: Vec3, a: Vec3): Vec3;
+        /**
+         * Math.ceil the components of a Vec3
+         */
+        function ceil(out: Vec3, a: Vec3): Vec3;
+        /**
+         * Math.floor the components of a Vec3
+         */
+        function floor(out: Vec3, a: Vec3): Vec3;
+        /**
+         * Math.trunc the components of a Vec3
+         */
+        function trunc(out: Vec3, a: Vec3): Vec3;
+        /**
+         * Math.abs the components of a Vec3
+         */
+        function abs(out: Vec3, a: Vec3): Vec3;
+        /**
+         * Returns the minimum of two Vec3's
+         */
+        function min(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        /**
+         * Returns the maximum of two Vec3's
+         */
+        function max(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        /**
+         * Assumes min < max, componentwise
+         */
+        function clamp(out: Vec3, a: Vec3, min: Vec3, max: Vec3): Vec3;
+        function distance(a: Vec3, b: Vec3): number;
+        function squaredDistance(a: Vec3, b: Vec3): number;
+        function magnitude(a: Vec3): number;
+        function squaredMagnitude(a: Vec3): number;
+        function setMagnitude(out: Vec3, a: Vec3, l: number): Vec3;
+        /**
+         * Negates the components of a vec3
+         */
+        function negate(out: Vec3, a: Vec3): Vec3;
+        /**
+         * Returns the inverse of the components of a Vec3
+         */
+        function inverse(out: Vec3, a: Vec3): Vec3;
+        function normalize(out: Vec3, a: Vec3): Vec3;
+        function dot(a: Vec3, b: Vec3): number;
+        function cross(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        /**
+         * Performs a linear interpolation between two Vec3's
+         */
+        function lerp(out: Vec3, a: Vec3, b: Vec3, t: number): Vec3;
+        function slerp(out: Vec3, a: Vec3, b: Vec3, t: number): Vec3;
+        /**
+         * Performs a hermite interpolation with two control points
+         */
+        function hermite(out: Vec3, a: Vec3, b: Vec3, c: Vec3, d: Vec3, t: number): Vec3;
+        /**
+         * Performs a bezier interpolation with two control points
+         */
+        function bezier(out: Vec3, a: Vec3, b: Vec3, c: Vec3, d: Vec3, t: number): Vec3;
+        function quadraticBezier(out: Vec3, a: Vec3, b: Vec3, c: Vec3, t: number): Vec3;
+        /**
+         * Performs a spline interpolation with two control points and a tension parameter
+         */
+        function spline(out: Vec3, a: Vec3, b: Vec3, c: Vec3, d: Vec3, t: number, tension: number): Vec3;
+        /**
+         * Generates a random vector with the given scale
+         */
+        function random(out: Vec3, scale: number): Vec3;
+        /**
+         * Transforms the Vec3 with a Mat4. 4th vector component is implicitly '1'
+         */
+        function transformMat4(out: Vec3, a: Vec3, m: Mat4): Vec3;
+        function transformDirection(out: Vec3, a: Vec3, m: Mat4): Vec3;
+        /**
+         * Like \`transformMat4\` but with offsets into arrays
+         */
+        function transformMat4Offset(out: NumberArray, a: NumberArray, m: NumberArray, outO: number, aO: number, oM: number): NumberArray;
+        /**
+         * Transforms the direction vector with a Mat4. 4th vector component is implicitly '0'
+         * This means the translation components of the matrix are ignored.
+         * Assumes that m is already the transpose of the inverse matrix suitable for normal transformation.
+         */
+        function transformDirectionOffset(out: NumberArray, a: NumberArray, m: NumberArray, outO: number, aO: number, oM: number): NumberArray;
+        /**
+         * Transforms the Vec3 with a Mat3.
+         */
+        function transformMat3(out: Vec3, a: Vec3, m: Mat3): Vec3;
+        /** Transforms the Vec3 with a quat */
+        function transformQuat(out: Vec3, a: Vec3, q: Quat): Vec3;
+        /** Computes the angle between 2 vectors, reports in radians. */
+        function angle(a: Vec3, b: Vec3): number;
+        /**
+         * Computes the dihedral angles of 4 points, reports in radians.
+         */
+        function dihedralAngle(a: Vec3, b: Vec3, c: Vec3, d: Vec3): number;
+        /**
+         * @param inclination in radians [0, PI]
+         * @param azimuth in radians [0, 2 * PI]
+         * @param radius [0, +Inf]
+         */
+        function directionFromSpherical(out: Vec3, inclination: number, azimuth: number, radius: number): Vec3;
+        /**
+         * Returns whether or not the vectors have exactly the same elements in the same position (when compared with ===)
+         */
+        function exactEquals(a: Vec3, b: Vec3): boolean;
+        /**
+         * Returns whether or not the vectors have approximately the same elements in the same position.
+         */
+        function equals(a: Vec3, b: Vec3): boolean;
+        function makeRotation(mat: Mat4, a: Vec3, b: Vec3): Mat4;
+        function isZero(v: Vec3): boolean;
+        /** Project \`point\` onto \`vector\` starting from \`origin\` */
+        function projectPointOnVector(out: Vec3, point: Vec3, vector: Vec3, origin: Vec3): Vec3;
+        /** Project \`point\` onto \`plane\` defined by \`normal\` starting from \`origin\` */
+        function projectPointOnPlane(out: Vec3, point: Vec3, normal: Vec3, origin: Vec3): Vec3;
+        function projectOnVector(out: Vec3, p: Vec3, vector: Vec3): Vec3;
+        function projectOnPlane(out: Vec3, p: Vec3, normal: Vec3): Vec3;
+        /** Get a vector that is similar to \`b\` but orthogonal to \`a\` */
+        function orthogonalize(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        /**
+         * Get a vector like \`a\` that point into the same general direction as \`b\`,
+         * i.e. where the dot product is > 0
+         */
+        function matchDirection(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        /**
+         * Get a normalized vector that is orthogonal to \`dir\`
+         */
+        function orthogonalDirection(out: Vec3, dir: Vec3): Vec3;
+        /** Calculate normal for the triangle defined by \`a\`, \`b\` and \`c\` */
+        function triangleNormal(out: Vec3, a: Vec3, b: Vec3, c: Vec3): Vec3;
+        function center(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        function toString(a: Vec3, precision?: number): string;
+        const origin: ReadonlyVec3;
+        const unit: ReadonlyVec3;
+        const negUnit: ReadonlyVec3;
+        const unitX: ReadonlyVec3;
+        const unitY: ReadonlyVec3;
+        const unitZ: ReadonlyVec3;
+        const negUnitX: ReadonlyVec3;
+        const negUnitY: ReadonlyVec3;
+        const negUnitZ: ReadonlyVec3;
+    }
+    
+    /**
+     * Copyright (c) 2017-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author David Sehnal <david.sehnal@gmail.com>
+     * @author Alexander Rose <alexander.rose@weirdbyte.de>
+     */
+    
+    interface ReadonlyMat4 extends Array<number> {
+        readonly [d: number]: number;
+        '@type': 'mat4';
+        length: 16;
+    }
+    interface Mat4 extends Array<number> {
+        [d: number]: number;
+        '@type': 'mat4';
+        length: 16;
+    }
+    declare function Mat4(): Mat4;
+    /**
+     * Stores a 4x4 matrix in a column major (j * 4 + i indexing) format.
+     */
+    declare namespace Mat4 {
+        function zero(): Mat4;
+        function identity(): Mat4;
+        function setIdentity(mat: Mat4): Mat4;
+        function isZero(mat: Mat4): boolean;
+        function setZero(mat: Mat4): Mat4;
+        function ofRows(rows: number[][]): Mat4;
+        function isIdentity(m: Mat4, eps?: number): boolean;
+        function hasNaN(m: Mat4): boolean;
+        function areEqual(a: Mat4, b: Mat4, eps: number): boolean;
+        function setValue(a: Mat4, i: number, j: number, value: number): void;
+        function getValue(a: Mat4, i: number, j: number): number;
+        function toArray<T extends NumberArray>(a: Mat4, out: T, offset: number): T;
+        function fromArray(a: Mat4, array: NumberArray, offset: number): Mat4;
+        function fromBasis(a: Mat4, x: Vec3, y: Vec3, z: Vec3): Mat4;
+        function copy(out: Mat4, a: Mat4): Mat4;
+        function clone(a: Mat4): Mat4;
+        /**
+         * Returns the translation vector component of a transformation matrix.
+         */
+        function getTranslation(out: Vec3, mat: Mat4): Vec3;
+        /**
+         * Returns the scaling factor component of a transformation matrix.
+         */
+        function getScaling(out: Vec3, mat: Mat4): Vec3;
+        /**
+         * Returns a quaternion representing the rotational component of a transformation matrix.
+         */
+        function getRotation(out: Quat, mat: Mat4): Quat;
+        function extractRotation(out: Mat4, mat: Mat4): Mat4;
+        function transpose(out: Mat4, a: Mat4): Mat4;
+        function tryInvert(out: Mat4, a: Mat4): boolean;
+        function invert(out: Mat4, a: Mat4): Mat4;
+        function mul(out: Mat4, a: Mat4, b: Mat4): Mat4;
+        /**
+         * Like \`mul\` but with offsets into arrays
+         */
+        function mulOffset(out: NumberArray, a: NumberArray, b: NumberArray, oOut: number, oA: number, oB: number): NumberArray;
+        function mul3(out: Mat4, a: Mat4, b: Mat4, c: Mat4): Mat4;
+        /** Translate a Mat4 by the given Vec3 */
+        function translate(out: Mat4, a: Mat4, v: Vec3): Mat4;
+        function fromTranslation(out: Mat4, v: Vec3): Mat4;
+        function setTranslation(out: Mat4, v: Vec3): Mat4;
+        /**
+         * Sets the specified quaternion with values corresponding to the given
+         * axes. Each axis is a vec3 and is expected to be unit length and
+         * perpendicular to all other specified axes.
+         */
+        function setAxes(out: Mat4, view: Vec3, right: Vec3, up: Vec3): Mat4;
+        function rotate(out: Mat4, a: Mat4, rad: number, axis: Vec3): Mat4;
+        function fromRotation(out: Mat4, rad: number, axis: Vec3): Mat4;
+        function scale(out: Mat4, a: Mat4, v: Vec3): Mat4;
+        function scaleUniformly(out: Mat4, a: Mat4, scale: number): Mat4;
+        function fromScaling(out: Mat4, v: Vec3): Mat4;
+        function fromUniformScaling(out: Mat4, scale: number): Mat4;
+        /**
+         * Creates a matrix from a plane defined by a normal vector and a point.
+         */
+        function fromPlane(out: Mat4, normal: Vec3, point: Vec3): Mat4;
+        /**
+         * Copies the mat3 into upper-left 3x3 values.
+         */
+        function fromMat3(out: Mat4, a: Mat3): Mat4;
+        function compose(out: Mat4, position: Vec3, quaternion: Quat, scale: Vec3): Mat4;
+        function decompose(m: Mat4, position: Vec3, quaternion: Quat, scale: Vec3): Mat4;
+        function getDecomposition(m: Mat4): {
+            position: Vec3;
+            quaternion: Quat;
+            scale: Vec3;
+        };
+        function makeTable(m: Mat4): string;
+        function determinant(a: Mat4): number;
+        /**
+         * Check if the matrix has the form
+         * [ Rotation    Translation ]
+         * [ 0           1           ]
+         *
+         * Allows for improper rotations
+         */
+        function isRotationAndTranslation(a: Mat4, eps?: number): boolean;
+        /**
+         * Check if the matrix has only translation and uniform scaling
+         * [ S  0  0  X ]
+         * [ 0  S  0  Y ]
+         * [ 0  0  S  Z ]
+         * [ 0  0  0  1 ]
+         */
+        function isTranslationAndUniformScaling(a: Mat4, eps?: number): boolean;
+        function fromQuat(out: Mat4, q: Quat): Mat4;
+        function fromEuler(out: Mat4, euler: Euler, order: Euler.Order): Mat4;
+        /**
+         * Generates a perspective projection (frustum) matrix with the given bounds
+         */
+        function perspective(out: Mat4, left: number, right: number, top: number, bottom: number, near: number, far: number): Mat4;
+        /**
+         * Generates a orthogonal projection matrix with the given bounds
+         */
+        function ortho(out: Mat4, left: number, right: number, top: number, bottom: number, near: number, far: number): Mat4;
+        /**
+         * Generates a look-at matrix with the given eye position, focal point, and up axis
+         */
+        function lookAt(out: Mat4, eye: Vec3, center: Vec3, up: Vec3): Mat4;
+        /**
+         * Generates a matrix that makes something look at something else.
+         */
+        function targetTo(out: Mat4, eye: Vec3, target: Vec3, up: Vec3): Mat4;
+        /**
+         * Perm is 0-indexed permutation
+         */
+        function fromPermutation(out: Mat4, perm: number[]): Mat4;
+        function getMaxScaleOnAxis(m: Mat4): number;
+        function extractBasis(m: Mat4): {
+            x: Vec3;
+            y: Vec3;
+            z: Vec3;
+        };
+        /** Rotation matrix for 90deg around x-axis */
+        const rotX90: ReadonlyMat4;
+        /** Rotation matrix for 180deg around x-axis */
+        const rotX180: ReadonlyMat4;
+        /** Rotation matrix for 90deg around y-axis */
+        const rotY90: ReadonlyMat4;
+        /** Rotation matrix for 180deg around y-axis */
+        const rotY180: ReadonlyMat4;
+        /** Rotation matrix for 270deg around y-axis */
+        const rotY270: ReadonlyMat4;
+        /** Rotation matrix for 90deg around z-axis */
+        const rotZ90: ReadonlyMat4;
+        /** Rotation matrix for 180deg around z-axis */
+        const rotZ180: ReadonlyMat4;
+        /** Rotation matrix for 90deg around first x-axis and then y-axis */
+        const rotXY90: ReadonlyMat4;
+        /** Rotation matrix for 90deg around first z-axis and then y-axis */
+        const rotZY90: ReadonlyMat4;
+        /** Rotation matrix for 90deg around first z-axis and then y-axis and then z-axis */
+        const rotZYZ90: ReadonlyMat4;
+        /** Rotation matrix for 90deg around first z-axis and then 180deg around x-axis */
+        const rotZ90X180: ReadonlyMat4;
+        /** Rotation matrix for 90deg around first y-axis and then 180deg around z-axis */
+        const rotY90Z180: ReadonlyMat4;
+        /** Identity matrix */
+        const id: ReadonlyMat4;
+    }
+    
+    /// <reference lib="esnext.asynciterable" />
+    
+    /**
+     * Note: This will add Symbol.observable globally for all TypeScript users,
+     * however, we are no longer polyfilling Symbol.observable
+     */
+    declare global {
+        interface SymbolConstructor {
+            readonly observable: symbol;
+        }
+    }
+    
+    type Builder = ReturnType<typeof MVSData.createBuilder>;
+    
+    export { Mat3, Mat4, Quat, Vec3 };
+    export type { Builder };
     
 }
 
-declare const builder: _.Root;
+declare const builder: _.Builder;
+declare const Vec3: typeof _.Vec3;
+declare const Mat3: typeof _.Mat3;
+declare const Mat4: typeof _.Mat4;
+declare const Quat: typeof _.Quat;
 `;
