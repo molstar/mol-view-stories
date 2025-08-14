@@ -2963,7 +2963,7 @@ namespace _ {
     
     type Builder = ReturnType<typeof MVSData.createBuilder>;
     
-    export { Mat3, Mat4, Quat, Vec3 };
+    export { Euler, Mat3, Mat4, Quat, Vec3 };
     export type { Builder };
     
 }
@@ -2973,4 +2973,5 @@ declare const Vec3: typeof _.Vec3;
 declare const Mat3: typeof _.Mat3;
 declare const Mat4: typeof _.Mat4;
 declare const Quat: typeof _.Quat;
+declare const Euler: typeof _.Euler;
 `;
