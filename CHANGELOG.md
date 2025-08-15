@@ -19,6 +19,14 @@ All notable changes to this project will be documented in this file, following t
   - Simplified frontend/backend data handling with direct binary processing
   - Maintained backward compatibility for existing sessions and JSON updates
   - Session creation now requires FormData format (JSON creation deprecated)
+- **Story Format Enhancement**: Extended stories to include interactive session data
+  - Stories now combine visualization content (.mvsj/.mvsx) with session state (.mvstory)
+  - **BREAKING**: Story creation now requires FormData format only (JSON deprecated)
+  - New FormData structure: `['mvsx']` OR `['mvsj']`, `['session']`, metadata fields  
+  - Added public session access endpoint `/api/story/{id}/session-data`
+  - Enhanced PublishedStoryModal with session viewer integration
+  - Maintained full backward compatibility for existing story access (GET operations)
+  - .mvsx files now use direct binary upload instead of base64 encoding
 
 ## [v1.0.0]
 

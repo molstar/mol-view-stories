@@ -7,7 +7,7 @@ import { ExampleStories } from '@/app/examples';
 import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
 import { getMVSData, setIsDirty } from '@/app/state/actions';
-import { loadSession } from '@/lib/my-stories-api';
+import { loadSession, loadSessionFromUrl, resolvePublishedSessionUrl } from '@/lib/my-stories-api';
 import { generateStoriesHtml } from '@/app/state/template';
 import { StoryActionButtons } from './Actions';
 import { useUnsavedChanges, useUnsavedChangesWarning } from '@/hooks/useUnsavedChanges';
@@ -26,11 +26,30 @@ export default function StoryBuilderPage() {
   // Client-side initialization - runs immediately after mount
   useLayoutEffect(() => {
     const searchParams = new URL(window.location.href).searchParams;
-    const sessionId = searchParams.get('sessionId');
+    const sessionId = searchParams.get('session-id');
+    const publishedSessionId = searchParams.get('published-session-id');
+    const sessionUrl = searchParams.get('session-url');
     const templateName = searchParams.get('template');
+    const sessionType = searchParams.get('type') as 'session' | 'story' | null;
+
+    const url = sessionUrl ?? resolvePublishedSessionUrl(publishedSessionId);
+    if (url) {
+      loadSessionFromUrl(url);
+      try {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('session-url');
+        currentUrl.searchParams.delete('published-session-id');
+        window.history.replaceState({}, '', currentUrl.toString());
+      } catch (error) {
+        console.warn('Failed to clear URL params for external session load:', error);
+      }
+      return;
+    }
 
     if (sessionId) {
-      loadSession(sessionId);
+      // Load session with type information to avoid unnecessary API calls
+      loadSession(sessionId, sessionType ? { type: sessionType } : undefined);
+      
       return;
     }
 
