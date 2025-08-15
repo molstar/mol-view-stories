@@ -41,7 +41,7 @@ export default function AuthPage() {
         // Handle popup callback
         handlePopupCallback();
         setStatus('success');
-        setMessage('Authentication successful! Closing popup...');
+        setMessage('Authentication successful! Closing popup... (DEBUG: 10 second delay)');
         // Close popup after a short delay
         setTimeout(() => {
           window.close();
@@ -77,8 +77,6 @@ export default function AuthPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const error = urlParams.get('error');
-
-    console.log('🔍 Auth page: URL params:', { code: !!code, error: !!error, search: window.location.search });
 
     // Set a timeout for the loading state
     const timeout = setTimeout(() => {

@@ -71,6 +71,25 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 # NEXT_PUBLIC_API_BASE_URL=https://stories.molstar.org
 ```
 
+## Deployments
+
+### Environments
+
+- **Production version**: Stable deployment (UI: GitHub Pages, API: Kubernetes) updated via manual GitHub workflow, available at `https://molstar.org/mol-view-stories/`
+- **Development version**: Auto-deployed on push to main (UI/API: Kubernetes) at `https://mol-view-stories-ui-dev.dyn.cloud.e-infra.cz/mol-view-stories/`
+
+### CI/CD Pipeline
+
+- **Branch pushes**: No pipeline triggered
+- **PR creation**: Lint, build, tests, Docker image builds
+- **Push/merge to main**: Auto-deploy to dev environment
+- **Manual action**: Production deployment via [GitHub workflow](https://github.com/molstar/mol-view-stories/actions/workflows/production.yml)
+
+### Storage
+
+- Dev environment has separate MinIO storage
+- Production storage is unaffected by deployments (data persists)
+
 ## Development Guide
 
 ### Quick Setup
