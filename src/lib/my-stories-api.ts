@@ -39,7 +39,7 @@ export function resolveSessionBuilderUrl(storyId: string) {
   const builderPrefix = 'https://molstar.org/mol-view-stories/builder';
 
   if (API_CONFIG.baseUrl === 'https://stories.molstar.org') {
-    return `${builderPrefix}/?sessionId=${storyId}`;
+    return `${builderPrefix}/?session-id=${storyId}`;
   }
 
   const sessionUrl = `${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`;
@@ -248,7 +248,7 @@ export async function navigateToMyStoriesItem(router: ReturnType<typeof useRoute
   try {
     // For sessions, try to load story data into the builder
     if (item.type === 'session') {
-      router.push(`/builder/?sessionId=${item.id}`);
+      router.push(`/builder/?session-id=${item.id}`);
     } else if (item.type === 'story') {
       const store = getDefaultStore();
       store.set(PublishedStoryModalAtom, {
