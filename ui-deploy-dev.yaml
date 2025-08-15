@@ -1,0 +1,109 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mol-view-stories-ui-ingress-dev
+  namespace: mol-view-stories-ns
+  labels:
+    app: mol-view-stories-dev-ui
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.org/client-max-body-size: "50m"
+spec:
+  rules:
+    - host: mol-view-stories-ui-dev.dyn.cloud.e-infra.cz
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mol-view-stories-ui-svc-dev
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - mol-view-stories-ui-dev.dyn.cloud.e-infra.cz
+      secretName: mol-view-stories-ui-tls-dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mol-view-stories-ui-svc-dev
+  namespace: mol-view-stories-ns
+  labels:
+    app: mol-view-stories-dev-ui
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: mol-view-stories-dev-ui
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mol-view-stories-dev-ui
+  namespace: mol-view-stories-ns
+  labels:
+    app: mol-view-stories-dev-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mol-view-stories-dev-ui
+  template:
+    metadata:
+      labels:
+        app: mol-view-stories-dev-ui
+    spec:
+      imagePullSecrets:
+        - name: cerit-registry-secret
+      containers:
+        - name: mol-view-stories-dev-ui-container
+          image: cerit.io/mol-view-stories/mvs-ui:latest
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: ENVIRONMENT
+              value: "development"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

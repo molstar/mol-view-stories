@@ -63,6 +63,7 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Build Web
         env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
           NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
           NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX }}
