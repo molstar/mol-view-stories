@@ -39,11 +39,11 @@ export function resolveSessionBuilderUrl(storyId: string) {
   const builderPrefix = 'https://molstar.org/mol-view-stories/builder';
 
   if (API_CONFIG.baseUrl === 'https://stories.molstar.org') {
-    return `${builderPrefix}/?session-id=${storyId}`;
+    return `${builderPrefix}?published-session-id=${storyId}`;
   }
 
   const sessionUrl = `${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`;
-  return `${builderPrefix}/?session-url=${encodeURIComponent(sessionUrl)}`;
+  return `${builderPrefix}?session-url=${encodeURIComponent(sessionUrl)}`;
 }
 
 /**
