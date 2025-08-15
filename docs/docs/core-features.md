@@ -89,36 +89,11 @@ structure.component({ selector: { label_asym_id: 'A' } })
 structure.component({ selector: { label_seq_id: 100 } })
 ```
 
-**By Residue Range**
-```javascript
-structure.component({ selector: { label_seq_id: [50, 100] } })
-```
-
 **By Atom Type**
 ```javascript
 structure.component({ selector: 'protein' })  // All protein atoms
 structure.component({ selector: 'nucleic' })  // DNA/RNA
 structure.component({ selector: 'ligand' })   // Small molecules
-```
-
-### Multiple Components
-
-Create different representations for different parts:
-```javascript
-// Protein backbone in cartoon
-structure.component({ selector: 'protein' })
-  .representation({ type: 'cartoon' })
-  .color({ color: 'lightblue' });
-
-// Active site residues in ball-and-stick
-structure.component({ selector: { label_seq_id: [50, 55, 78, 102] } })
-  .representation({ type: 'ball_and_stick' })
-  .color({ color: 'red' });
-
-// Ligand highlighted
-structure.component({ selector: 'ligand' })
-  .representation({ type: 'ball_and_stick' })
-  .color({ color: 'green' });
 ```
 
 ## Coloring Options
@@ -127,24 +102,8 @@ structure.component({ selector: 'ligand' })
 ```javascript
 .color({ color: 'red' })
 .color({ color: '#ff0000' })  // Hex colors
-.color({ color: [1.0, 0.0, 0.0] })  // RGB values
 ```
 
-### Built-in Color Schemes
-```javascript
-.color({ custom: { molstar_color_theme_name: 'element-symbol' } })
-.color({ custom: { molstar_color_theme_name: 'chain-id' } })
-.color({ custom: { molstar_color_theme_name: 'secondary-structure' } })
-```
-
-### Selective Coloring
-```javascript
-// Color specific residues
-.color({ 
-  color: 'red', 
-  selector: { label_seq_id: [10, 20, 30] }
-})
-```
 
 ## Camera and Focus
 

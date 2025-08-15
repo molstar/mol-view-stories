@@ -62,32 +62,6 @@ const structure = builder
   .modelStructure({});
 ```
 
-**Reusable Selections**
-```javascript
-// Define selections once, use multiple times
-const activesite = { label_seq_id: [50, 55, 78, 102] };
-const protein = structure.component({ selector: 'protein' });
-
-protein.representation({}).color({ color: 'lightblue' });
-structure.component({ selector: activesite })
-  .representation({ type: 'ball_and_stick' })
-  .color({ color: 'red' });
-```
-
-**Color Palettes**
-```javascript
-// Define a consistent color scheme
-const colors = {
-  protein: '#4A90E2',
-  dna: '#F5A623',
-  ligand: '#7ED321',
-  highlight: '#D0021B'
-};
-
-structure.component({ selector: 'protein' })
-  .color({ color: colors.protein });
-```
-
 ## Visual Design Best Practices
 
 ### Color Strategy
