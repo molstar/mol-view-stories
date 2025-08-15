@@ -31,6 +31,7 @@ A: Individual story sessions can be up to 50 MB, and each user gets up to 100 se
 
 **Q: Can I load structures directly from databases?**
 A: Yes! You can load structures directly from:
+
 - Protein Data Bank (PDB)
 - AlphaFold Database
 - Any public URL containing structure files
@@ -53,6 +54,7 @@ A: Yes, you can animate almost any property of the state using `builder.animate(
 
 **Q: How do I share my story with others?**
 A: You have several options:
+
 - **Publish** your story to get a public shareable link
 - **Export as HTML** for offline viewing or manually shared stories
 - **Download session file** to share the editable version
@@ -61,6 +63,7 @@ You can also host the story and session files anywhere with CORS enables and the
 
 **Q: What's the difference between saving and publishing?**
 A: 
+
 - **Saving**: Creates a private session only you can access
 - **Publishing**: Creates a public story with a shareable link that anyone can view
 
@@ -79,6 +82,7 @@ A: Published stories remain available indefinitely as long as the MolViewStories
 *Symptoms:* Empty 3D viewer, error messages, infinite loading
 
 *Solutions:*
+
 1. **Check the URL**: Copy the download URL into your browser to verify it works
 2. **Verify PDB ID**: Ensure the PDB ID exists by searching on [rcsb.org](https://www.rcsb.org) or [pdbe.org](https://pdbe.org)
 3. **Check file format**: Make sure the format parameter matches the actual file type
@@ -99,6 +103,7 @@ A: Published stories remain available indefinitely as long as the MolViewStories
 *Symptoms:* 3D viewer shows nothing, but no error messages
 
 *Solutions:*
+
 1. **Click "Update Scene"**: Make sure you've applied your latest code changes
 2. **Check selectors**: Verify your component selectors match actual residues in the structure
 3. **Simplify the code**: Start with basic representation and add complexity gradually
@@ -121,6 +126,7 @@ structure.component({}).representation({});
 *Symptoms:* Red underlines, error messages, autocomplete not working
 
 *Solutions:*
+
 1. **Check syntax**: Look for missing brackets, quotes, or semicolons
 2. **Verify method names**: Use autocomplete (Ctrl+Space) to ensure correct spelling
 3. **Check browser console**: Press F12 and look for detailed error messages
@@ -133,6 +139,7 @@ structure.component({}).representation({});
 *Symptoms:* Long loading times, laggy interaction, browser freezing
 
 *Solutions:*
+
 1. **Reduce complexity**: Use simpler representations (e.g., gaussian instead of molecular surface)
 2. **Limit scene content**: Show fewer molecules or components per scene
 3. **Check file sizes**: Large structures (say >20MB) may need simplification
@@ -144,6 +151,7 @@ structure.component({}).representation({});
 *Symptoms:* Browser becomes unresponsive, page crashes
 
 *Solutions:*
+
 1. **Restart browser**: Close and reopen your browser
 2. **Clear cache**: Clear browser cache and cookies for the site
 3. **Reduce complexity**: Simplify your scene before trying again
@@ -156,6 +164,7 @@ structure.component({}).representation({});
 *Symptoms:* Login button doesn't work, authentication failures
 
 *Solutions:*
+
 1. **Check URL**: Ensure you're on the correct port (usually :3000 for development)
 2. **Try incognito mode**: Test in a private/incognito browser window
 3. **Clear cookies**: Clear browser cookies for the site
@@ -166,6 +175,7 @@ structure.component({}).representation({});
 *Symptoms:* Save button disabled, save operation fails
 
 *Solutions:*
+
 1. **Log in first**: Ensure you're authenticated before trying to save
 2. **Check connection**: Verify your internet connection is stable
 3. **Try export instead**: Use "Export Session" as a backup method
@@ -176,6 +186,7 @@ structure.component({}).representation({});
 *Symptoms:* Previously saved stories not showing in "My Stories"
 
 *Solutions:*
+
 1. **Check login status**: Ensure you're logged in with the same account
 2. **Wait for loading**: Give the "My Stories" page time to load all items
 3. **Check different categories**: Look in both Sessions and Published Stories
@@ -188,6 +199,7 @@ structure.component({}).representation({});
 *Symptoms:* Console errors, scenes not updating, unexpected behavior
 
 *Common fixes:*
+
 ```javascript
 // Missing parentheses
 structure.component().representation();  // ✓ Correct
@@ -206,21 +218,25 @@ label_seq_id: 100        // ✗ Wrong (missing brackets)
 ### Browser-Specific Issues
 
 **Chrome/Chromium**
+
 - Usually the best performance
 - If issues occur, try disabling extensions
 - Check if hardware acceleration is enabled
 
 **Firefox**
+
 - May have slower 3D rendering
 - Ensure WebGL is enabled in settings
 - Try setting `webgl.force-enabled` to true in about:config
 
 **Safari**
+
 - Generally good performance on Mac
 - May have issues with some advanced features
 - Ensure "WebGL" is enabled in Developer menu
 
 **Edge**
+
 - Similar to Chrome in most cases
 - Try clearing site data if having issues
 
@@ -235,6 +251,7 @@ label_seq_id: 100        // ✗ Wrong (missing brackets)
 ### Reporting Issues
 
 When reporting problems, please include:
+
 - Your browser type and version
 - The exact error message (if any)
 - Steps to reproduce the issue
@@ -251,6 +268,7 @@ When reporting problems, please include:
 ### Emergency Recovery
 
 If everything breaks:
+
 1. **Refresh the page**: Often fixes temporary issues
 2. **Clear browser cache**: Hard refresh with Ctrl+F5 (or Cmd+Shift+R on Mac)
 3. **Export what you can**: Use "Export Session" if the save function works

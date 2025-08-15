@@ -7,12 +7,14 @@ Master MolViewStories with these helpful tips, efficient workflows, and best pra
 ### Planning Your Story
 
 **Start with a Storyboard**
+
 - Sketch out your main points on paper first
 - Identify 3-5 key scenes that tell your story
 - Plan the progression from overview to detail
 - Consider your audience's background knowledge
 
 **Choose Your Starting Point**
+
 - **Template stories**: Great for learning and adaptation
 - **Example modifications**: Faster than starting from scratch  
 - **Blank canvas**: When you have a specific, unique vision
@@ -20,6 +22,7 @@ Master MolViewStories with these helpful tips, efficient workflows, and best pra
 ### Building Efficiently
 
 **Use the Scene List Strategically**
+
 - Name scenes descriptively ("Overview", "Active Site", "Conformational Change")
 - Reorder scenes by dragging them in the left panel
 - Duplicate similar scenes and modify rather than starting over
@@ -67,12 +70,14 @@ const structure = builder
 ### Color Strategy
 
 **Use Meaningful Colors**
+
 - Blue/cyan for proteins (traditional)
 - Orange/yellow for nucleic acids
 - Green for ligands/small molecules
 - Red for highlights and important regions
 
 **Maintain Consistency**
+
 - Use the same colors for similar elements across scenes
 - Create a color legend in your descriptions
 - Consider colorblind-friendly palettes
@@ -90,6 +95,7 @@ structure.component({ selector: { label_seq_id: 100 } })
 ### Camera Work
 
 **Smooth Transitions**
+
 - Plan camera movements between scenes
 - Use gradual zooms rather than jarring jumps
 - Focus on the most important elements
@@ -111,10 +117,12 @@ builder.camera(camera);
 ### File Organization
 
 **Naming Conventions**
+
 - Use descriptive filenames: `kinase_apo.pdb`, `kinase_inhibitor_complex.pdb`
 - Group related files with prefixes: `exp1_protein.pdb`, `exp1_ligand.pdb`
 
 **Storage Strategy**
+
 - Upload frequently used structures as assets
 - Keep file sizes reasonable (under 10MB when possible)
 - Clean up unused assets regularly
@@ -123,6 +131,7 @@ builder.camera(camera);
 ### Working with Large Files
 
 **Optimization Techniques**
+
 - Remove water molecules if not needed
 - Use biological assemblies only when necessary
 - Consider cartoon representations for large complexes
@@ -133,11 +142,13 @@ builder.camera(camera);
 ### Version Control
 
 **Track Changes**
+
 - Export session files before major changes
 - Use "Save As New" to create branches
 - Document what changed in scene descriptions
 
 **Sharing Strategies**
+
 - **Private sessions**: For work in progress
 - **Published stories**: For final, polished content
 - **Exported HTML**: For offline presentations
@@ -146,6 +157,7 @@ builder.camera(camera);
 ### Working with Others
 
 **Consistent Styles**
+
 - Agree on color schemes and representation styles
 - Use similar camera angles and orientations
 - Standardize labeling and annotation approaches
@@ -169,6 +181,7 @@ const ligand = structure.component({ selector: 'ligand' });
 ```
 
 **Minimize Downloads**
+
 - Reuse structures across scenes when possible
 - Upload frequently used files as assets
 - Use smaller PDB entries for examples and testing
@@ -176,12 +189,14 @@ const ligand = structure.component({ selector: 'ligand' });
 ### Smooth Rendering
 
 **Representation Choices**
+
 - Cartoon for large proteins
 - Ball-and-stick for small molecules and active sites
 - Surface sparingly (computationally expensive)
 - Spacefill only for specific purposes
 
 **Scene Complexity**
+
 - Limit the number of representations per scene
 - Use LOD (Level of Detail) - simpler representations for distant objects
 - Consider splitting complex scenes into multiple simpler ones
@@ -189,6 +204,7 @@ const ligand = structure.component({ selector: 'ligand' });
 ## Common Shortcuts and Tricks
 
 ### Navigation
+
 - **Mouse wheel**: Zoom in/out
 - **Left drag**: Rotate view
 - **Right drag**: Pan view
@@ -196,6 +212,7 @@ const ligand = structure.component({ selector: 'ligand' });
 - **R key**: Reset camera view
 
 ### Interface Tips
+
 - **Tab between panels**: Quickly switch between code/markdown editors
 - **Ctrl+Enter in editor**: Update scene without clicking button
 - **Scene thumbnails**: Click to preview without updating
@@ -233,18 +250,21 @@ structure.component({ selector: 'SELECTION' })
 ### When Things Don't Work
 
 **Structure won't load**
+
 1. Check the URL in a browser
 2. Verify the file format
 3. Try a known working PDB ID
 4. Check browser console for errors
 
 **Scene appears empty**
+
 1. Click "Update Scene" or press "Ctrl/CMD + S ""
 2. Check for JavaScript errors in console
 3. Verify your selectors match actual residues
 4. Try a simpler representation first
 
 **Performance issues**
+
 1. Reduce scene complexity
 2. Use simpler representations
 3. Check for infinite loops in code
