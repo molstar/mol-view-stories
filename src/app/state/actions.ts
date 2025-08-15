@@ -48,9 +48,9 @@ export function setIsDirty(isDirty: boolean = true) {
 export function setSessionIdUrl(sessionId: string | undefined) {
   const url = new URL(window.location.href);
   if (sessionId) {
-    url.searchParams.set('sessionId', sessionId);
+    url.searchParams.set('session-id', sessionId);
   } else {
-    url.searchParams.delete('sessionId');
+    url.searchParams.delete('session-id');
   }
   window.history.replaceState({}, '', url.toString());
 }

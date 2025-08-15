@@ -48,7 +48,6 @@ structure.component({ selector: { label_seq_id: 25 } })
 
 - **Ctrl+Space**: Trigger auto-completion suggestions
 - **Hover over methods**: See parameter documentation
-- **F1**: Open help documentation
 - **Ctrl+/**: Comment/uncomment lines
 
 ### Common Code Patterns
@@ -124,13 +123,13 @@ structure.component({ selector: { label_seq_id: 100 } })
 **Consistent Orientation**
 ```javascript
 // Keep similar orientations for related scenes
-const standardView = {
+const camera = {
   up: [0, 1, 0],
-  direction: [10, 10, 10],
-  radius: 25
+  position: [10, 10, 10],
+  target: [2, 2, 2]
 };
 
-structure.component({}).focus(standardView);
+builder.camera(camera);
 ```
 
 ## Asset Management
@@ -139,14 +138,13 @@ structure.component({}).focus(standardView);
 
 **Naming Conventions**
 - Use descriptive filenames: `kinase_apo.pdb`, `kinase_inhibitor_complex.pdb`
-- Include version numbers for iterations: `story_v1.mvsj`, `story_v2.mvsj`
-- Group related files with prefixes: `exp1_protein.pdb`, `exp1_ligand.mol`
+- Group related files with prefixes: `exp1_protein.pdb`, `exp1_ligand.pdb`
 
 **Storage Strategy**
 - Upload frequently used structures as assets
 - Keep file sizes reasonable (under 10MB when possible)
 - Clean up unused assets regularly
-- Export important stories as backups
+- Export important stories as backups locally
 
 ### Working with Large Files
 
@@ -161,7 +159,6 @@ structure.component({}).focus(standardView);
 ### Version Control
 
 **Track Changes**
-- Save versions with descriptive notes
 - Export session files before major changes
 - Use "Save As New" to create branches
 - Document what changed in scene descriptions
@@ -268,7 +265,7 @@ structure.component({ selector: 'SELECTION' })
 4. Check browser console for errors
 
 **Scene appears empty**
-1. Click "Update Scene" 
+1. Click "Update Scene" or press "Ctrl/CMD + S ""
 2. Check for JavaScript errors in console
 3. Verify your selectors match actual residues
 4. Try a simpler representation first

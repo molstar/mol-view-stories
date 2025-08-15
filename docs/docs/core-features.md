@@ -2,6 +2,8 @@
 
 MolViewStories provides a comprehensive set of tools for creating interactive molecular visualizations. This guide covers the main features you'll use to build compelling molecular stories.
 
+For all supported features, check [MolViewSpec](https://molstar.org/mol-view-spec) and its documentation.
+
 ## Story Structure
 
 ### Stories and Scenes
@@ -40,7 +42,7 @@ const structure = builder
 ```
 
 **Upload Your Own Files**
-- Use the "Assets" menu to upload .pdb, .cif, .mol, or .sdf files
+- Use the "Assets" menu to upload .pdb, .cif, .mol, or any other supported file formats
 - Reference uploaded files in your scenes
 
 ### Representations
@@ -261,7 +263,7 @@ builder.primitives({ opacity: 0.8 })
 ### Saving Your Work
 
 **Save as Session (Private)**
-- Click "Save" button
+- Click "Story -> Save Session" button
 - Add optional notes
 - Accessible only to you
 - Stored in "My Stories"
@@ -294,21 +296,21 @@ builder.primitives({ opacity: 0.8 })
 ### Uploading Files
 1. Click "Assets" in the top menu
 2. Click "Upload" or drag-and-drop files
-3. Supported formats: .pdb, .cif, .mol, .sdf, .mmtf
+3. Supported formats: anything MolViewSpec supports
 
 ### Using Uploaded Assets
 ```javascript
 // Reference uploaded file
 const structure = builder
-  .download({ url: 'asset://my-protein.pdb' })
+  .download({ url: 'my-protein.pdb' })
   .parse({ format: 'pdb' })
   .modelStructure({});
 ```
 
 ### File Size Limits
-- Maximum file size: 50 MB per file
-- Total storage: 100 MB per user
-- Clean up unused assets regularly
+- Maximum file size: 50 MB per session
+- Total storage: 100 sessions and published stories
+- Clean up unused sessions regularly
 
 ## Best Practices
 

@@ -13,7 +13,7 @@ A: No! MolViewStories runs entirely in your web browser. Just visit the website 
 A: MolViewStories works on all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, use the latest version of your preferred browser.
 
 **Q: Do I need a login to use MolViewStories?**
-A: You can explore and create stories without logging in. However, to save your work to the cloud and access it later, you'll need to sign in with your institutional credentials.
+A: You can explore and create stories without logging in. However, to save your work to the cloud and access it later, you'll need to sign in with your institutional credentials. Don't want to log-in? You work can be exported and imported locally as well.
 
 **Q: Is MolViewStories free to use?**
 A: Yes, MolViewStories is completely free for academic and educational use.
@@ -21,18 +21,13 @@ A: Yes, MolViewStories is completely free for academic and educational use.
 ### File Formats and Data
 
 **Q: What file formats can I upload?**
-A: MolViewStories supports common molecular structure formats including:
-- PDB files (.pdb)
-- CIF files (.cif, .mmcif)
-- MOL files (.mol)
-- SDF files (.sdf)
-- MMTF files (.mmtf)
+A: MolViewStories supports all file formats supported [MolViewSpec](https://molstar.org/mol-view-spec). Your favorite format isn't supported? Raise an issue on the [project's GitHub](https://github.com/molstar/mol-view-spec/)
 
 **Q: Can I use my own experimental structures?**
 A: Absolutely! Upload your own structure files using the "Assets" menu. This is perfect for unpublished structures or experimental data.
 
 **Q: What's the file size limit?**
-A: Individual files can be up to 50 MB, and each user gets 100 MB of total storage space for assets.
+A: Individual story sessions can be up to 50 MB, and each user gets up to 100 sessions.
 
 **Q: Can I load structures directly from databases?**
 A: Yes! You can load structures directly from:
@@ -46,21 +41,23 @@ A: Yes! You can load structures directly from:
 A: There's no hard limit on the number of scenes, but for performance and user experience, we recommend keeping stories under 20 scenes.
 
 **Q: Can I reorder scenes after creating them?**
-A: Yes, drag and drop scenes in the left panel to reorder them within your story.
+A: Yes, use the "Scene" menu.
 
 **Q: How do I copy a scene?**
-A: Currently, you need to manually copy the code and description from one scene to another. We recommend starting with similar scenes and modifying them.
+A: Use "Scene -> Duplicate" or manually copy the code and description from one scene to another.
 
 **Q: Can I include animations?**
-A: While MolViewStories doesn't have built-in animation tools, you can create the effect of motion by transitioning between scenes that show different conformations or states.
+A: Yes, you can animate almost any property of the state using `builder.animate()`.
 
 ### Sharing and Collaboration
 
 **Q: How do I share my story with others?**
 A: You have several options:
 - **Publish** your story to get a public shareable link
-- **Export as HTML** for offline viewing
+- **Export as HTML** for offline viewing or manually shared stories
 - **Download session file** to share the editable version
+
+You can also host the story and session files anywhere with CORS enables and the link them directly to the `https://molstar.org/stories-viewer/v1/` (or `v?` depending on the current version of the app) using `?story-url`, `story-session-url` and `data-format` URL parameters. For example: `https://molstar.org/stories-viewer/v1/?story-url=https://path.to/state.mvsx&data-format=mvsx&story-session-url=https://path.to/session.mvstory`. A good place to store these files is your personal GitHub account and link it via `https://raw.githubusercontent.com/...`.
 
 **Q: What's the difference between saving and publishing?**
 A: 
@@ -83,7 +80,7 @@ A: Published stories remain available indefinitely as long as the MolViewStories
 
 *Solutions:*
 1. **Check the URL**: Copy the download URL into your browser to verify it works
-2. **Verify PDB ID**: Ensure the PDB ID exists by searching on [rcsb.org](https://www.rcsb.org)
+2. **Verify PDB ID**: Ensure the PDB ID exists by searching on [rcsb.org](https://www.rcsb.org) or [pdbe.org](https://pdbe.org)
 3. **Check file format**: Make sure the format parameter matches the actual file type
 4. **Try a known working example**: Test with a simple structure like 1CBS
 
@@ -105,7 +102,7 @@ A: Published stories remain available indefinitely as long as the MolViewStories
 1. **Click "Update Scene"**: Make sure you've applied your latest code changes
 2. **Check selectors**: Verify your component selectors match actual residues in the structure
 3. **Simplify the code**: Start with basic representation and add complexity gradually
-4. **Reset camera**: Try adding `.focus({})` to center the view
+4. **Reset camera**: Try adding `.focus({})` on a `.component()` to center the view
 
 *Example debugging:*
 ```javascript
@@ -136,9 +133,9 @@ structure.component({}).representation({});
 *Symptoms:* Long loading times, laggy interaction, browser freezing
 
 *Solutions:*
-1. **Reduce complexity**: Use simpler representations (cartoon instead of surface)
+1. **Reduce complexity**: Use simpler representations (e.g., gaussian instead of molecular surface)
 2. **Limit scene content**: Show fewer molecules or components per scene
-3. **Check file sizes**: Large structures (>5MB) may need simplification
+3. **Check file sizes**: Large structures (say >20MB) may need simplification
 4. **Close other tabs**: Free up browser memory
 5. **Try a different browser**: Some browsers handle 3D graphics better than others
 
@@ -198,7 +195,6 @@ structure.component.representation();    // ✗ Wrong
 
 // Incorrect selector format
 { label_seq_id: 100 }    // ✓ Correct for single residue
-{ label_seq_id: [100] }  // ✓ Also correct
 label_seq_id: 100        // ✗ Wrong (missing brackets)
 
 // String vs object confusion

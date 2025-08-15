@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, SingleTaskQueue } from '@/lib/utils';
-import { atom, useAtom, useAtomValue, useStore } from 'jotai/index';
+import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai/index';
 import {
   Axis3D,
   BoltIcon,
@@ -33,6 +33,7 @@ import {
   FolderIcon,
   PinIcon,
   XIcon,
+  RotateCw,
 } from 'lucide-react';
 import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
@@ -52,6 +53,7 @@ import { OptionsEditor } from './editors/SceneOptions';
 import { PressToCodeComplete, PressToSave } from '../common';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { toast } from 'sonner';
+import { UpdateSceneAtom } from '@/app/state/atoms';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
@@ -213,10 +215,16 @@ function CameraActions() {
 }
 
 function CodeUIControls() {
+  const setUpdate = useSetAtom(UpdateSceneAtom);
+
   return (
     <div className='flex items-center gap-2'>
       <CameraActions />
       <AssetList />
+      <Button variant='ghost' size='sm' onClick={() => setUpdate(Date.now())}>
+        <RotateCw className='size-4 mr-1' />
+        Update Scene
+      </Button>
     </div>
   );
 }
@@ -323,7 +331,10 @@ function LoadingIndicator() {
   if (!isLoading) return null;
 
   return (
-    <div className='absolute start-0 top-0 ps-4 pt-1' style={{ zIndex: 1000 }}>
+    <div
+      className='absolute start-0 top-0 px-4 py-1 border-r border-b rounded-br'
+      style={{ zIndex: 1000, background: 'rgb(243, 242, 238)' }}
+    >
       <span className='text-sm text-gray-500'>Loading...</span>
     </div>
   );

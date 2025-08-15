@@ -4,7 +4,7 @@ MolViewStories is a powerful web application that lets you create beautiful, int
 
 ## What is MolViewStories?
 
-MolViewStories combines the advanced 3D rendering capabilities of [Mol*](https://molstar.org/) with an intuitive story-building interface. It allows you to:
+MolViewStories combines the advanced 3D rendering capabilities of [Mol*](https://molstar.org/) with a story-building interface for the [MolViewSpec](https://molstar.org/mol-view-spec) standard. It allows you to:
 
 - **Create interactive molecular scenes** with proteins, DNA, RNA, and small molecules
 - **Build narrative sequences** that guide viewers through complex molecular processes
@@ -25,17 +25,14 @@ Great for exploring molecular structures, creating study materials, or completin
 
 ## Key Features
 
-### 🎨 Visual Scene Builder
-Create molecular scenes with an intuitive interface. Load structures from the Protein Data Bank (PDB), adjust camera angles, and build your narrative step by step.
+### 🎨 Code-driven Scene Builder
+Create molecular scenes with a built-in JavaScript code editor to control molecular representations, animations, and interactions. Get full access to [MolViewSpec](https://molstar.org/mol-view-spec) powerful API for advanced customizations.
 
-### 💻 Code-Driven Visualizations  
-Write JavaScript code to control molecular representations, animations, and interactions. Get full access to Mol*'s powerful API for advanced customizations.
-
-### 📚 Interactive Stories
+### 📚 Interactive Storytelling
 Combine multiple scenes into cohesive stories with descriptions, annotations, and smooth transitions between different molecular views.
 
-### 🔄 Import & Export
-Work with standard molecular file formats (.pdb, .cif, .mol) and export your stories for sharing or embedding in presentations and websites.
+### 🔗 Share Molecular Stories
+Publish your stories for sharing or embedding in presentations and websites.
 
 ### ☁️ Cloud Storage
 Save your work in the cloud, access it from anywhere, and collaborate with others by sharing story links.
@@ -53,7 +50,7 @@ Save your work in the cloud, access it from anywhere, and collaborate with other
 ## How It Works
 
 1. **Load molecular structures** from online databases or upload your own files
-2. **Create scenes** by positioning the camera, selecting regions of interest, and choosing visual representations
+2. **Create scenes** by positioning the camera, focusing regions of interest, and choosing visual representations
 3. **Add annotations** like labels, highlights, and descriptive text
 4. **Build your story** by combining scenes in a logical sequence
 5. **Share or export** your completed story for others to explore
