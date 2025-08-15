@@ -96,6 +96,8 @@ jobs:
         push: true
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
         build-args: |
           NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_OIDC_AUTHORITY=${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
@@ -128,6 +130,7 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     
     steps:
     - name: Checkout repository
@@ -154,8 +157,10 @@ jobs:
       run: |
         export KUBECONFIG=kubeconfig.yaml
         
-        # Set image tag based on branch
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+        # Set image tag based on branch or PR
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          IMAGE_TAG="pr-${{ github.event.number }}"
+        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
           IMAGE_TAG="latest"
         else
           IMAGE_TAG="${{ github.ref_name }}"
