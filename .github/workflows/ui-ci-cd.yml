@@ -96,7 +96,6 @@ jobs:
         push: true
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
         build-args: |
           NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
@@ -166,8 +165,13 @@ jobs:
           IMAGE_TAG="${{ github.ref_name }}"
         fi
         
-        IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
-        IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+        # Use tag for PRs, digest for branches
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
+        else
+          IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
+          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+        fi
 
         # Check if development deployment exists
         if kubectl get deployment/mol-view-stories-dev-ui -n mol-view-stories-ns >/dev/null 2>&1; then
