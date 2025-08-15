@@ -93,7 +93,6 @@ jobs:
         run: |
           pip install mkdocs-material
 
-        
       - name: Build docs
         run: |
           cd docs

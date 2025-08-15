@@ -11,15 +11,6 @@ on:
     paths:
       - "src/**"
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   # Build job
   build:
@@ -76,4 +67,18 @@ jobs:
           NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Check Linting
-        run: ${{ steps.detect-package-manager.outputs.manager }} prettier:check
+        run: ${{ steps.detect-package-manager.outputs.manager }} run prettier:check
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install mkdocs
+        run: |
+          pip install mkdocs-material
+
+      - name: Build docs
+        run: |
+          cd docs
+          mkdocs build
