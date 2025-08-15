@@ -278,7 +278,7 @@ async function saveStory(
   if (data instanceof Uint8Array) {
     // Binary data (.mvsx) - use 'mvsx' field
     const storyFilename = formData.title.trim() + '.mvsx';
-    const storyBlob = new Blob([data], { type: 'application/zip' });
+    const storyBlob = new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/zip' });
     formDataToSend.append('mvsx', storyBlob, storyFilename);
   } else {
     // JSON data (.mvsj) - use 'mvsj' field
@@ -290,7 +290,7 @@ async function saveStory(
 
   // Add session data to 'session' field
   const sessionData = await prepareSessionData(story);
-  const sessionBlob = new Blob([sessionData], { type: 'application/octet-stream' });
+  const sessionBlob = new Blob([sessionData as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
   const sessionFilename = formData.title.trim() + '.mvstory';
   formDataToSend.append('session', sessionBlob, sessionFilename);
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
-import { BookOpen, Library } from 'lucide-react';
+import { BookOpen, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { APP_VERSION } from './version';
 
@@ -144,30 +144,48 @@ export default function Home() {
                 Start Building
               </Link>
 
-              <div>
-                <div className='flex justify-center'>
-                  {auth.isAuthenticated ? (
-                    <Link
-                      href='/my-stories'
-                      className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
-                    >
-                      <Library className='w-4 h-4' />
-                      My Stories
-                    </Link>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
-                          <Library className='w-4 h-4' />
-                          My Stories
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Log in to access your stories</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
+              <div className='flex justify-center'>
+                {auth.isAuthenticated ? (
+                  <Link
+                    href='/my-stories'
+                    className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                  >
+                    <Library className='w-4 h-4' />
+                    My Stories
+                  </Link>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
+                        <Library className='w-4 h-4' />
+                        My Stories
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Log in to access your stories</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+
+              <Link
+                href='/docs'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+              >
+                <LucideMessageCircleQuestion className='w-4 h-4' />
+                Docs
+              </Link>
+
+              <div className='flex justify-center'>
+                <Link
+                  href='https://github.com/molstar/mol-view-stories'
+                  className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                >
+                  <Github className='w-4 h-4' />
+                  GitHub
+                </Link>
               </div>
             </div>
           </div>
@@ -187,6 +205,7 @@ export default function Home() {
             ))}
           </div>
         </section>
+
         <Features />
         <div className='text-right text-sm text-muted-foreground py-6 mt-10'>Version {APP_VERSION}</div>
       </Main>
