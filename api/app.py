@@ -1,20 +1,19 @@
 """Main Flask application - refactored with modular structure."""
 
 import logging
-
-# Set up logging
 import os
 
-from flask import Flask, current_app, jsonify, request
+from flask import Flask, current_app, jsonify, redirect, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
 # Configuration
 from config import configure_app
 from routes.admin_routes import admin_bp
-
-# Route blueprints
 from routes.session_routes import session_bp
 from routes.story_routes import story_bp
+
+# Constants
+MOLSTAR_STORIES_URL = "https://molstar.org/mol-view-stories"
 
 log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
@@ -97,6 +96,12 @@ def validate_request_size():
             ),
             413,
         )
+
+
+@app.route("/")
+def root_redirect():
+    """Redirect root path to molstar.org/mol-view-stories."""
+    return redirect(MOLSTAR_STORIES_URL, code=302)
 
 
 @app.route("/ready")

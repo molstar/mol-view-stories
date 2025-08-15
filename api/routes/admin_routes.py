@@ -2,7 +2,7 @@
 
 import logging
 
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 
 from auth import make_userinfo_request
 from error_handlers import APIError, error_handler
@@ -11,16 +11,6 @@ logger = logging.getLogger(__name__)
 
 # Create Blueprint
 admin_bp = Blueprint("admin", __name__)
-
-
-@admin_bp.route("/")
-@error_handler
-def index():
-    """Home page showing login status."""
-    user = session.get("user")
-    if user:
-        return f"Hello, {user['name']} ({user['email']})"
-    return "You are not logged in."
 
 
 @admin_bp.route("/api/userinfo")

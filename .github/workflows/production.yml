@@ -97,7 +97,13 @@ jobs:
       - name: Health check
         run: |
           export KUBECONFIG=kubeconfig
-          kubectl wait --for=condition=ready pod -l deployment-id=mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+          # Wait for the deployment to be ready (this handles the rolling update properly)
+          kubectl wait --for=condition=available deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+          
+          # Get the current pod name and wait for it to be ready
+          POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o jsonpath='{.items[0].metadata.name}')
+          echo "Waiting for pod: $POD_NAME"
+          kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
 
       - name: Verify deployment
         run: |
