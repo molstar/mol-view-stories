@@ -2,7 +2,7 @@
 #
 # To get started with Next.js see: https://nextjs.org/docs/getting-started
 #
-name: Build Pages
+name: PR Checks
 
 on:
   # Runs on pushes targeting the default branch
@@ -14,6 +14,7 @@ on:
 jobs:
   # Build job
   build:
+    name: Build Web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
