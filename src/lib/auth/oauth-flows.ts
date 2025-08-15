@@ -14,7 +14,28 @@ import { saveTokens, clearTokens, type AuthTokens } from './token-manager';
 // Helper function to get the redirect URI dynamically
 function getRedirectUri(): string {
   if (typeof window === 'undefined') return '';
-  return `${window.location.origin}/${process.env.NEXT_PUBLIC_APP_PREFIX || ''}auth`;
+
+  // Allow explicit override when needed (e.g., behind ingress)
+  const explicitBase = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL;
+  const normalizePrefix = (p: string) => p.replace(/^\/+|\/+$/g, '');
+  const prefix = normalizePrefix(process.env.NEXT_PUBLIC_APP_PREFIX || '');
+
+  if (explicitBase && explicitBase.trim()) {
+    const base = explicitBase.replace(/\/+$/g, '');
+    return `${base}/${prefix ? `${prefix}/` : ''}auth`;
+  }
+
+  // Build from current origin but drop any explicit port
+  const url = new URL(window.location.href);
+  // Preserve port for localhost-style hosts to keep local dev working
+  const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
+  if (!isLocalhost) {
+    url.port = '';
+  }
+  url.pathname = `/${prefix ? `${prefix}/` : ''}auth`;
+  url.search = '';
+  url.hash = '';
+  return url.toString().replace(/\/$/, '');
 }
 
 // Simple redirect path preservation for OAuth flow
