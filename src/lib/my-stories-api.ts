@@ -170,7 +170,6 @@ export async function loadSession(sessionId: string, options?: { type?: 'session
 
     // If regular session failed, try as story session (public, no auth needed)
     await loadStorySession(sessionId);
-
   } catch (err) {
     console.error('Error loading session:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to load session';
@@ -185,7 +184,7 @@ export async function loadSession(sessionId: string, options?: { type?: 'session
  */
 async function loadStorySession(storyId: string) {
   const storySessionResponse = await fetch(`${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`);
-  
+
   if (!storySessionResponse.ok) {
     if (storySessionResponse.status === 404) {
       throw new Error(`Story session not found: ${storyId}`);

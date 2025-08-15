@@ -6,10 +6,10 @@ name: Build Pages
 
 on:
   # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -69,9 +69,11 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      - name: Build with Next.js
+      - name: Build Web
         env:
           NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
           NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
           NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
+      - name: Check Linting
+        run: ${{ steps.detect-package-manager.outputs.manager }} prettier:check

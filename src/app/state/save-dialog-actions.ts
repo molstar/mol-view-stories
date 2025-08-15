@@ -258,7 +258,7 @@ async function saveStory(
 ) {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
-  
+
   // Validate data before proceeding
   if (data instanceof Uint8Array) {
     validateDataSize(data);
@@ -287,7 +287,7 @@ async function saveStory(
     const storyBlob = new Blob([JSON.stringify(storyData, null, 2)], { type: 'application/json' });
     formDataToSend.append('mvsj', storyBlob, storyFilename);
   }
-  
+
   // Add session data to 'session' field
   const sessionData = await prepareSessionData(story);
   const sessionBlob = new Blob([sessionData], { type: 'application/octet-stream' });

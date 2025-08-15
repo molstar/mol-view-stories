@@ -46,7 +46,7 @@ export function PublishedStoryModal() {
   const sessionUrl = `${API_CONFIG.baseUrl}/api/story/${shareModal.data.itemId}/session-data`;
   // Create session builder URL pointing to production MolViewStories
   const sessionBuilderUrl = resolveSessionBuilderUrl(shareModal.data.itemId!);
-  
+
   const openSessionInViewer = async () => {
     try {
       // Check if session data is available
@@ -58,7 +58,7 @@ export function PublishedStoryModal() {
         }
         throw new Error(`HTTP ${response.status}`);
       }
-      
+
       // Open in production mol-view-stories builder (external link)
       window.open(sessionBuilderUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
@@ -123,9 +123,7 @@ export function PublishedStoryModal() {
 
             <div className='space-y-2'>
               <Label htmlFor='session-url'>Public Session URL</Label>
-              <p className='text-xs text-muted-foreground'>
-                Provides direct access to the session data
-              </p>
+              <p className='text-xs text-muted-foreground'>Provides direct access to the session data</p>
               <div className='flex gap-2'>
                 <Input id='session-url' value={sessionUrl} readOnly className='font-mono text-sm' />
                 <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionUrl, 'Session URL')}>
@@ -136,12 +134,14 @@ export function PublishedStoryModal() {
 
             <div className='space-y-2'>
               <Label htmlFor='session-builder-url'>Session Builder URL</Label>
-              <p className='text-xs text-muted-foreground'>
-                Open this session in the mol-view-stories builder
-              </p>
+              <p className='text-xs text-muted-foreground'>Open this session in the mol-view-stories builder</p>
               <div className='flex gap-2'>
                 <Input id='session-builder-url' value={sessionBuilderUrl} readOnly className='font-mono text-sm' />
-                <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionBuilderUrl, 'Session Builder URL')}>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => copyToClipboard(sessionBuilderUrl, 'Session Builder URL')}
+                >
                   <Copy className='h-4 w-4' />
                 </Button>
               </div>

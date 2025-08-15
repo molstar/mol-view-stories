@@ -49,7 +49,7 @@ export default function StoryBuilderPage() {
     if (sessionId) {
       // Load session with type information to avoid unnecessary API calls
       loadSession(sessionId, sessionType ? { type: sessionType } : undefined);
-      
+
       return;
     }
 

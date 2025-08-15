@@ -2,12 +2,16 @@
 #
 # To get started with Next.js see: https://nextjs.org/docs/getting-started
 #
-name: Deploy Next.js site to Pages
+name: Deploy Web
 
 on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "docs/**"
+      - ".github/workflows/deploy-web.yml"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -73,12 +77,33 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      - name: Build with Next.js
+      - name: Build Web
         env:
           NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
           NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
           NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install mkdocs
+        run: |
+          pip install mkdocs-material
+
+        
+      - name: Build docs
+        run: |
+          cd docs
+          mkdocs build
+
+      - name: Copy docs
+        run: |
+          mkdir -p ./out/docs
+          cp -r ./docs/site/* ./out/docs/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
