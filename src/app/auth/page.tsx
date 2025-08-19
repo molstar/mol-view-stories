@@ -41,7 +41,7 @@ export default function AuthPage() {
         // Handle popup callback
         handlePopupCallback();
         setStatus('success');
-        setMessage('Authentication successful! Closing popup... (DEBUG: 10 second delay)');
+        setMessage('Authentication successful! Closing popup...');
         // Close popup after a short delay
         setTimeout(() => {
           window.close();
