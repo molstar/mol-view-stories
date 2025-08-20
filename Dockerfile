@@ -45,7 +45,7 @@ WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/out/. /usr/share/nginx/html/
 
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx-dev.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 EXPOSE 8080

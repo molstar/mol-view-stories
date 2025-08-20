@@ -2,7 +2,7 @@ name: API CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'api/Dockerfile'
       - 'api/app.py'
@@ -17,7 +17,7 @@ on:
       - '.github/workflows/ci-cd.yml'
       - 'api/deploy-dev.yaml'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'api/Dockerfile'
       - 'api/app.py'

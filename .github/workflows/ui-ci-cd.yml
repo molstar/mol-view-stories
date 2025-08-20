@@ -2,7 +2,7 @@ name: UI CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'src/**'
       - 'components.json'
@@ -13,11 +13,11 @@ on:
       - 'postcss.config.mjs'
       - 'eslint.config.mjs'
       - 'Dockerfile'
-      - 'nginx.conf'
+      - 'nginx-dev.conf'
       - '.github/ui-deploy-dev.yaml'
       - '.github/workflows/ui-ci-cd.yml'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'src/**'
       - 'components.json'
@@ -28,7 +28,7 @@ on:
       - 'postcss.config.mjs'
       - 'eslint.config.mjs'
       - 'Dockerfile'
-      - 'nginx.conf'
+      - 'nginx-dev.conf'
       - '.github/ui-deploy-dev.yaml'
       - '.github/workflows/ui-ci-cd.yml'
 

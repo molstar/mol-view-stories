@@ -83,7 +83,13 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 - **Branch pushes**: No pipeline triggered
 - **PR creation**: Lint, build, tests, Docker image builds
 - **Push/merge to main**: Auto-deploy to dev environment
+- **Release tags** (`v*` or `release-*`): Automatic production deployment
 - **Manual action**: Production deployment via [GitHub workflow](https://github.com/molstar/mol-view-stories/actions/workflows/production.yml)
+
+**Release Process:**
+1. Create and push a release tag: `git tag v1.2.3 && git push origin v1.2.3`
+2. Both UI (GitHub Pages) and API (Kubernetes) automatically deploy
+3. Version automatically appears in the UI based on the tag
 
 ### Storage
 
