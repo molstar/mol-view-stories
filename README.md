@@ -130,6 +130,7 @@ cd ..
 
 # Frontend checks
 npm run lint
+npm run prettier:check
 npm run build
 ```
 
