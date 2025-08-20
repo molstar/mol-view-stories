@@ -1,11 +1,11 @@
-name: PR Validation
+name: API PR Validation
 
 on:
   pull_request:
     branches: ["main"]
     paths:
       - "api/**"
-      - ".github/workflows/pr-check.yml"
+      - ".github/workflows/api-pr-validation.yml"
 
 env:
   REGISTRY: cerit.io
@@ -114,4 +114,4 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-${{ github.sha }}
           platforms: linux/amd64
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max 

@@ -2,19 +2,19 @@
 #
 # To get started with Next.js see: https://nextjs.org/docs/getting-started
 #
-name: Deploy Web
+name: UI Production Deployment
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-    paths:
-      - "src/**"
-      - "docs/**"
-      - ".github/workflows/deploy-web.yml"
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      confirm_deployment:
+        description: 'Confirm web deployment to GitHub Pages'
+        required: true
+        type: boolean
+  push:
+    tags:
+      - 'v*'
+      - 'release-*'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -32,9 +32,35 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || inputs.confirm_deployment == true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for git describe
+      
+      - name: Get release version
+        id: release-version
+        run: |
+          # Always try to get the tag name first (for tag pushes)
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${{ github.ref_name }}"
+            echo "Using tag from push event: $VERSION"
+          else
+            # For manual deployments, try to get the latest tag
+            VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo "dev")
+            echo "Using latest tag from git describe: $VERSION"
+          fi
+          
+          # Validate version format (basic check)
+          if [[ -z "$VERSION" ]]; then
+            echo "Warning: Version is empty, using fallback"
+            VERSION="dev"
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+      
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -82,6 +108,7 @@ jobs:
           NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
           NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
           NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX }}
+          NEXT_PUBLIC_RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
       - name: Setup Python

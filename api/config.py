@@ -28,9 +28,11 @@ def configure_cors(app):
             r"/*": {
                 "origins": [
                     "http://localhost:3000",
+                    "http://localhost:3001",
                     "http://127.0.0.1:3000",
                     "https://molstar.org",
                     "https://stories.molstar.org",
+                    "https://mol-view-stories-ui-dev.dyn.cloud.e-infra.cz",
                     os.getenv("FRONTEND_URL", "https://molstar.org/mol-view-stories/"),
                 ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
