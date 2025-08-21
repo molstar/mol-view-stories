@@ -76,15 +76,15 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 ### Environments
 
 - **Production version**: Stable deployment (UI: GitHub Pages, API: Kubernetes) updated via manual GitHub workflow, available at `https://molstar.org/mol-view-stories/`
-- **Development version**: Auto-deployed on push to a branch with a PR (UI/API: Kubernetes) at `https://mol-view-stories-ui-dev.dyn.cloud.e-infra.cz/mol-view-stories/`
+- **Development version**: Auto-deployed on merge to main branch (UI/API: Kubernetes) at `https://mol-view-stories-ui-dev.dyn.cloud.e-infra.cz/mol-view-stories/`
 
 ### CI/CD Pipeline
 
 - **Branch pushes**: No pipeline triggered
-- **PR creation**: Lint, build, tests, Docker image builds
+- **PR creation**: Lint, build, tests, Docker image builds (no deployment)
 - **Push/merge to main**: Auto-deploy to dev environment
 - **Release tags** (`v*` or `release-*`): Automatic production deployment
-- **Manual action**: Production deployment via [GitHub workflow](https://github.com/molstar/mol-view-stories/actions/workflows/production.yml)
+- **Manual action**: Production deployment via [GitHub workflow](https://github.com/molstar/mol-view-stories/actions/workflows/deploy-web.yml)
 
 **Release Process:**
 1. Create and push a release tag: `git tag v1.2.3 && git push origin v1.2.3`
