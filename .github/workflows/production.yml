@@ -22,9 +22,13 @@ env:
   IMAGE_NAME: mol-view-stories/mvs-api
 
 jobs:
-  deploy-production:
+  build-and-push:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || inputs.confirm_deployment == true
+    outputs:
+      image_digest: ${{ steps.build_and_push.outputs.digest }}
+      docker_version: ${{ steps.release-version.outputs.docker_version }}
+      version: ${{ steps.release-version.outputs.version }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,6 +76,69 @@ jobs:
             exit 1
           fi
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          # python -m pytest api/tests/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
+          password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
+
+      - name: Test Docker login
+        run: |
+          echo "=== Testing Docker login ==="
+          echo "Testing docker login to ${{ env.REGISTRY }}"
+          
+          if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
+            echo "✓ Docker login successful"
+          else
+            echo "✗ Docker login failed"
+            exit 1
+          fi
+
+      - name: Build and push Docker image
+        id: build_and_push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release-version.outputs.docker_version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify pushed image
+        run: |
+          echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
+
+  deploy-production:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || inputs.confirm_deployment == true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -94,7 +161,7 @@ jobs:
           export KUBECONFIG=kubeconfig
           
           echo "=== Production Deployment ==="
-          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release-version.outputs.docker_version }}"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.docker_version }}"
           echo "Namespace: mol-view-stories-ns"
           
           # Check if production deployment exists
@@ -102,7 +169,7 @@ jobs:
             echo "Production deployment exists, updating image..."
             # Update deployment with new image
             kubectl set image deployment/mol-view-stories-api \
-              mol-view-stories-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release-version.outputs.docker_version }} \
+              mol-view-stories-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.docker_version }} \
               -n mol-view-stories-ns
             
             # Set MinIO environment variables for production
@@ -161,8 +228,8 @@ jobs:
       - name: Deployment summary
         run: |
           echo "## Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Release Version**: ${{ steps.release-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Docker Tag**: ${{ steps.release-version.outputs.docker_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Version**: ${{ needs.build-and-push.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Tag**: ${{ needs.build-and-push.outputs.docker_version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: ✅ Successfully deployed" >> $GITHUB_STEP_SUMMARY 

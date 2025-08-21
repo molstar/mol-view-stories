@@ -45,6 +45,45 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for git describe
+
+    - name: Get release version
+      id: release-version
+      run: |
+        # Get the short commit hash for development builds
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        
+        # Always try to get the tag name first (for tag pushes)
+        if [ "${{ github.event_name }}" = "push" ]; then
+          VERSION="${{ github.ref_name }}"
+          echo "Using branch/tag from push event: $VERSION"
+          
+          # For non-tag pushes (like main branch), append commit hash
+          if [[ "$VERSION" != v* && "$VERSION" != release-* ]]; then
+            VERSION="dev-${COMMIT_HASH}"
+            echo "Development build detected, using version: $VERSION"
+          fi
+        else
+          # For manual deployments or PRs, try to get the latest tag or use commit hash
+          LATEST_TAG=$(git describe --abbrev=0 --tags 2>/dev/null || echo "")
+          if [[ -n "$LATEST_TAG" ]]; then
+            VERSION="$LATEST_TAG"
+            echo "Using latest tag from git describe: $VERSION"
+          else
+            VERSION="dev-${COMMIT_HASH}"
+            echo "No tags found, using commit hash: $VERSION"
+          fi
+        fi
+        
+        # Validate version format (basic check)
+        if [[ -z "$VERSION" ]]; then
+          echo "Warning: Version is empty, using fallback with commit hash"
+          VERSION="dev-${COMMIT_HASH}"
+        fi
+        
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Final release version: $VERSION"
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -64,6 +103,7 @@ jobs:
         NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY || 'https://login.aai.lifescience-ri.eu/oidc' }}
         NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID || '3963b643-f862-4578-868e-3ba3de08dd2d' }}
         NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX || 'mol-view-stories/' }}
+        NEXT_PUBLIC_RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
       run: npm run build
 
     - name: Set up Docker Buildx
@@ -96,12 +136,13 @@ jobs:
         push: true
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
         build-args: |
           NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_OIDC_AUTHORITY=${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
           NEXT_PUBLIC_OIDC_CLIENT_ID=${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
           NEXT_PUBLIC_APP_PREFIX=${{ vars.NEXT_PUBLIC_APP_PREFIX }}
+          NEXT_PUBLIC_RELEASE_VERSION=${{ steps.release-version.outputs.version }}
         platforms: linux/amd64
         cache-from: type=gha
         cache-to: type=gha,mode=max
@@ -121,15 +162,15 @@ jobs:
         echo "- **Linting**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
         echo "- **Type Checking**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
         echo "- **Docker Build & Push**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-        echo "- **Image Tags**: pr-${{ github.event.number }}, latest, ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image Tags**: ${{ github.ref_name }}, latest" >> $GITHUB_STEP_SUMMARY
         echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Deployment**: ✅ Will deploy to development" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment**: ⏸️ Will deploy to development on merge" >> $GITHUB_STEP_SUMMARY
         echo "- **Ready for merge**: ✅ Yes" >> $GITHUB_STEP_SUMMARY
 
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     
     steps:
     - name: Checkout repository
@@ -156,22 +197,16 @@ jobs:
       run: |
         export KUBECONFIG=kubeconfig.yaml
         
-        # Set image tag based on branch or PR
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-          IMAGE_TAG="pr-${{ github.event.number }}"
-        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+        # Set image tag based on branch
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
           IMAGE_TAG="latest"
         else
           IMAGE_TAG="${{ github.ref_name }}"
         fi
         
-        # Use tag for PRs, digest for branches
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
-        else
-          IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
-          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
-        fi
+        # Use digest for branches
+        IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
+        IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
 
         # Check if development deployment exists
         if kubectl get deployment/mol-view-stories-dev-ui -n mol-view-stories-ns >/dev/null 2>&1; then
@@ -223,7 +258,7 @@ jobs:
     - name: Deployment summary
       run: |
         echo "## UI Development Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **Image Tag**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Image Digest**: ${{ needs.build-and-test.outputs.image_digest }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
