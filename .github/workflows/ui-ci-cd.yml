@@ -128,6 +128,15 @@ jobs:
           exit 1
         fi
 
+    - name: Prepare Docker tag
+      id: docker-tag
+      run: |
+        # Sanitize ref name for Docker tag (replace invalid characters with dashes)
+        DOCKER_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+        echo "docker_tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
+        echo "Original ref: ${{ github.ref_name }}"
+        echo "Docker tag: $DOCKER_TAG"
+
     - name: Build and push Docker image
       id: build_and_push
       uses: docker/build-push-action@v5
@@ -136,7 +145,7 @@ jobs:
         push: true
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
         build-args: |
           NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_OIDC_AUTHORITY=${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
@@ -162,7 +171,7 @@ jobs:
         echo "- **Linting**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
         echo "- **Type Checking**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
         echo "- **Docker Build & Push**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-        echo "- **Image Tags**: ${{ github.ref_name }}, latest" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image Tags**: ${{ steps.docker-tag.outputs.docker_tag }}, latest" >> $GITHUB_STEP_SUMMARY
         echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Deployment**: ⏸️ Will deploy to development on merge" >> $GITHUB_STEP_SUMMARY
         echo "- **Ready for merge**: ✅ Yes" >> $GITHUB_STEP_SUMMARY
@@ -201,7 +210,8 @@ jobs:
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
           IMAGE_TAG="latest"
         else
-          IMAGE_TAG="${{ github.ref_name }}"
+          # Use sanitized tag name (replace invalid characters with dashes)
+          IMAGE_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
         fi
         
         # Use digest for branches
