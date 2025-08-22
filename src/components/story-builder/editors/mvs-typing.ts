@@ -689,8 +689,9 @@ namespace _ {
         }>;
         parse: SimpleParamsSchema<{
             /** Format of the input data resource. */
-            format: RequiredField<"map" | "pdb" | "bcif" | "mmcif">;
+            format: RequiredField<"map" | "pdb" | "xyz" | "gro" | "mol" | "mol2" | "lammpstrj" | "sdf" | "bcif" | "xtc" | "mmcif" | "pdbqt">;
         }>;
+        coordinates: SimpleParamsSchema<{}>;
         structure: SimpleParamsSchema<{
             /** Type of structure to be created (\`"model"\` for original model coordinates, \`"assembly"\` for assembly structure, \`"symmetry"\` for a set of crystal unit cells based on Miller indices, \`"symmetry_mates"\` for a set of asymmetric units within a radius from the original model). */
             type: RequiredField<"assembly" | "symmetry" | "model" | "symmetry_mates">;
@@ -708,6 +709,8 @@ namespace _ {
             ijk_min: OptionalField<[number, number, number]>;
             /** Miller indices of the top-right unit cell to be included (only applies when \`kind\` is \`"symmetry"\`). */
             ijk_max: OptionalField<[number, number, number]>;
+            /** Reference to a specific set of coordinates. */
+            coordinates_ref: OptionalField<string | null>;
         }>;
         transform: SimpleParamsSchema<{
             /** Rotation matrix (3x3 matrix flattened in column major format (j*3+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. The default value is the identity matrix (corresponds to no rotation). */
@@ -816,7 +819,14 @@ namespace _ {
                 size_factor: OptionalField<number>;
                 tubular_helices: OptionalField<boolean>;
             }>;
+            backbone: SimpleParamsSchema<{
+                size_factor: OptionalField<number>;
+            }>;
             ball_and_stick: SimpleParamsSchema<{
+                size_factor: OptionalField<number>;
+                ignore_hydrogens: OptionalField<boolean>;
+            }>;
+            line: SimpleParamsSchema<{
                 size_factor: OptionalField<number>;
                 ignore_hydrogens: OptionalField<boolean>;
             }>;
@@ -2062,10 +2072,10 @@ namespace _ {
     }
     /** Subsets of 'structure' node params which will be passed to individual builder functions. */
     declare const StructureParamsSubsets: {
-        model: ("block_header" | "block_index" | "model_index")[];
-        assembly: ("assembly_id" | "block_header" | "block_index" | "model_index")[];
-        symmetry: ("block_header" | "block_index" | "model_index" | "ijk_min" | "ijk_max")[];
-        symmetry_mates: ("radius" | "block_header" | "block_index" | "model_index")[];
+        model: ("block_header" | "block_index" | "model_index" | "coordinates_ref")[];
+        assembly: ("assembly_id" | "block_header" | "block_index" | "model_index" | "coordinates_ref")[];
+        symmetry: ("block_header" | "block_index" | "model_index" | "ijk_min" | "ijk_max" | "coordinates_ref")[];
+        symmetry_mates: ("radius" | "block_header" | "block_index" | "model_index" | "coordinates_ref")[];
     };
     /** MVS builder pointing to a 'parse' node */
     declare class Parse extends _Base<'parse'> {
@@ -2083,6 +2093,8 @@ namespace _ {
         symmetryMatesStructure(params?: Pick<MVSNodeParams<'structure'>, typeof StructureParamsSubsets['symmetry_mates'][number]> & CustomAndRef): Structure;
         /** Add a 'volume' node representing raw volume data */
         volume(params?: MVSNodeParams<'volume'> & CustomAndRef): Volume;
+        /** Add a 'coordinates' node indicating the parsed data type */
+        coordinates(params?: MVSNodeParams<'coordinates'> & CustomAndRef): Parse;
     }
     /** MVS builder pointing to a 'structure' node */
     declare class Structure extends _Base<'structure'> implements PrimitivesMixin, TransformMixin {
