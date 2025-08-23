@@ -28,6 +28,10 @@ All notable changes to this project will be documented in this file, following t
   - Enhanced PublishedStoryModal with session viewer integration
   - Maintained full backward compatibility for existing story access (GET operations)
   - .mvsx files now use direct binary upload instead of base64 encoding
+- **Assets**:
+  - Ability to upload additional formats
+  - Add Download button
+- **Scene Markdown**: Properly render Mol* specific extensions and locally uploaded assets
 
 ## [v1.0.0]
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { StoryAtom, addStoryAssets, modifySceneMetadata, removeStoryAsset } from '@/app/appstate';
+import { SceneAsset, StoryAtom, addStoryAssets, modifySceneMetadata, removeStoryAsset } from '@/app/appstate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAtom, useAtomValue } from 'jotai';
-import { Upload, Wrench, X, FileText, Code, FolderUp } from 'lucide-react';
+import { Upload, Wrench, X, FileText, Code, FolderUp, Download } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { ImmediateInput } from '../controls';
 import { Label } from '../ui/label';
@@ -12,6 +12,7 @@ import { StoryCodeEditor } from './editors/StoryCodeEditor';
 import { Button } from '../ui/button';
 import { PressToCodeComplete, PressToSave } from '../common';
 import { Textarea } from '../ui/textarea';
+import { download } from 'molstar/lib/mol-util/download';
 
 export function StoryOptions() {
   return (
@@ -99,6 +100,11 @@ function Options() {
   );
 }
 
+function downloadAsset(asset: SceneAsset) {
+  const blob = new Blob([asset.content as Uint8Array<ArrayBuffer>]);
+  download(blob, asset.name);
+}
+
 function AssetEditor() {
   const [story, setStory] = useAtom(StoryAtom);
   return (
@@ -115,6 +121,9 @@ function AssetEditor() {
             }}
           />
           <span className='text-gray-500'>{Math.round(asset.content.length / 1024)}KB</span>
+          <Button onClick={() => downloadAsset(asset)} title='Download' variant='default'>
+            <Download />
+          </Button>
           <Button onClick={() => removeStoryAsset(asset.name)} title='Remove asset' variant='destructive'>
             <X />
           </Button>
@@ -145,12 +154,31 @@ function FileUploadZone() {
     onDrop,
     multiple: true,
     accept: {
+      // Molecules
       'chemical/x-mmcif': ['.mmcif'],
       'chemical/x-cif': ['.cif'],
-      'chemical/x-pdb': ['.pdb'],
+      'chemical/x-pdb': ['.pdb', '.pdbqt'],
       'application/octet-stream': ['.bcif'],
       'chemical/x-mdl-molfile': ['.mol'],
       'chemical/x-mdl-sdfile': ['.sdf'],
+      'chemical/x-xyz': ['.xyz'],
+      'chemical/x-gro': ['.gro'],
+      'chemical/x-mol2': ['.mol2'],
+      'chemical/x-lammpstrj': ['.lammpstrj'],
+      'application/x-xtc': ['.xtc'],
+      // Volumes
+      'application/x-map': ['.map'],
+      // Images
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/gif': ['.gif'],
+      'image/webp': ['.webp'],
+      // Audio
+      'audio/mpeg': ['.mp3'],
+      'audio/wav': ['.wav'],
+      'audio/ogg': ['.ogg'],
+      // JSON
+      'application/json': ['.json'],
     },
   });
 
@@ -169,9 +197,16 @@ function FileUploadZone() {
         ) : (
           <div className='space-y-2'>
             <p className='text-gray-600'>Drag & drop files here, or click to select files</p>
-            <p className='text-sm text-gray-400'>
-              Supports molecular structure files (mmCIF, CIF, PDB, BCIF, MOL, SDF)
-            </p>
+            <div className='text-sm text-gray-400'>
+              <ul className='list-disc list-inside text-left'>
+                <li>
+                  Molecular: Structure (mmCIF, CIF, PDB, BCIF, MOL, SDF, XYZ, GRO, MOL2), Coordinates (LAMMPSTRJ, XTC),
+                  Volumes (MAP)
+                </li>
+                <li>Media: Images (PNG, JPG, GIF, WEBP), Audio (MP3, WAV, OGG)</li>
+                <li>Raw data: JSON</li>
+              </ul>
+            </div>
           </div>
         )}
       </div>
