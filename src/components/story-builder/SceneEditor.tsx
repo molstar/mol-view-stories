@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, SingleTaskQueue } from '@/lib/utils';
-import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai/index';
+import { atom, getDefaultStore, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai/index';
 import {
   Axis3D,
   BoltIcon,
@@ -39,13 +39,14 @@ import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { fileToDataUri } from 'molstar/lib/mol-util/file';
 import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
+import { Markdown } from 'molstar/lib/mol-plugin-ui/controls/markdown';
 import { PluginConfig } from 'molstar/lib/mol-plugin/config';
 import { PluginSpec } from 'molstar/lib/mol-plugin/spec';
 import { Scheduler } from 'molstar/lib/mol-task';
 import { memo, useEffect, useRef } from 'react';
-import Markdown from 'react-markdown';
 import { Label } from '../ui/label';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
@@ -54,6 +55,7 @@ import { PressToCodeComplete, PressToSave } from '../common';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { toast } from 'sonner';
 import { UpdateSceneAtom } from '@/app/state/atoms';
+import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
@@ -450,8 +452,27 @@ function MarkdownRenderer() {
   return (
     <div className='h-full min-h-[500px] max-h-[500px] bg-gray-50 rounded-lg p-4 overflow-y-auto'>
       <div className='prose'>
-        <Markdown skipHtml>{scene?.description || ''}</Markdown>
+        <PluginReactContext.Provider value={getMarkdownMolStarContext()}>
+          <Markdown>{scene?.description || ''}</Markdown>
+        </PluginReactContext.Provider>
       </div>
     </div>
   );
+}
+
+let _markdownPlugin: PluginUIContext | null = null;
+function getMarkdownMolStarContext() {
+  if (_markdownPlugin) return _markdownPlugin;
+  const plugin = new PluginUIContext(DefaultPluginUISpec());
+  plugin.managers.markdownExtensions.registerUriResolver('markdown-preview', (_, uri) => {
+    const store = getDefaultStore();
+    const story = store.get(StoryAtom);
+    if (!story) return;
+    const assets = story.assets;
+    const asset = assets.find((a) => a.name === uri);
+    if (!asset) return;
+    return fileToDataUri(new File([asset.content as Uint8Array<ArrayBuffer>], asset.name));
+  });
+  _markdownPlugin = plugin;
+  return plugin;
 }
