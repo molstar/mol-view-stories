@@ -16,6 +16,8 @@
 # next.js
 webapp/.next/
 webapp/out/
+webapp/.bin/
+webapp/node_modules/
 
 # production
 /build

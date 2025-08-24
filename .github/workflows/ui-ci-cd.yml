@@ -1,36 +1,36 @@
 name: UI CI/CD Pipeline
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'components.json'
-      - 'next.config.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - 'postcss.config.mjs'
-      - 'eslint.config.mjs'
-      - 'Dockerfile'
-      - 'nginx-dev.conf'
-      - '.github/ui-deploy-dev.yaml'
-      - '.github/workflows/ui-ci-cd.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'components.json'
-      - 'next.config.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - 'postcss.config.mjs'
-      - 'eslint.config.mjs'
-      - 'Dockerfile'
-      - 'nginx-dev.conf'
-      - '.github/ui-deploy-dev.yaml'
-      - '.github/workflows/ui-ci-cd.yml'
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'src/**'
+  #     - 'components.json'
+  #     - 'next.config.ts'
+  #     - 'package.json'
+  #     - 'package-lock.json'
+  #     - 'tsconfig.json'
+  #     - 'postcss.config.mjs'
+  #     - 'eslint.config.mjs'
+  #     - 'Dockerfile'
+  #     - 'nginx-dev.conf'
+  #     - '.github/ui-deploy-dev.yaml'
+  #     - '.github/workflows/ui-ci-cd.yml'
+  # pull_request:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'src/**'
+  #     - 'components.json'
+  #     - 'next.config.ts'
+  #     - 'package.json'
+  #     - 'package-lock.json'
+  #     - 'tsconfig.json'
+  #     - 'postcss.config.mjs'
+  #     - 'eslint.config.mjs'
+  #     - 'Dockerfile'
+  #     - 'nginx-dev.conf'
+  #     - '.github/ui-deploy-dev.yaml'
+  #     - '.github/workflows/ui-ci-cd.yml'
 
 env:
   REGISTRY: cerit.io
