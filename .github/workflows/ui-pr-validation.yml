@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - "webapp/**"
+      - "@mol-view-stories/**"
       - "docs/**"
       - "./github/workflows/ui-pr-validation.yml"
 
