@@ -1,7 +1,8 @@
-# TODO: fix this to work with pnpm
-
-# Use Node.js official image
+# Multi-stage build for pnpm monorepo
 FROM node:20-alpine AS base
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -9,24 +10,32 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-RUN npm ci
+# Copy root package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace package files
+COPY @mol-view-stories/lib/package.json ./@mol-view-stories/lib/
+COPY @mol-view-stories/webapp/package.json ./@mol-view-stories/webapp/
+
+# Install dependencies using pnpm
+RUN pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/@mol-view-stories ./@mol-view-stories
+
+# Copy source code
 COPY . .
 
-# Build the application with environment variables
-# All environment variables must be provided via build args
+# Build arguments for environment variables
 ARG NEXT_PUBLIC_API_BASE_URL
 ARG NEXT_PUBLIC_OIDC_AUTHORITY
 ARG NEXT_PUBLIC_OIDC_CLIENT_ID
 ARG NEXT_PUBLIC_APP_PREFIX
 ARG NEXT_PUBLIC_RELEASE_VERSION
-#ARG BUILD_MODE
 
 # Set default values for local testing if not provided
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-https://mol-view-stories-dev.dyn.cloud.e-infra.cz}
@@ -38,18 +47,18 @@ ENV NEXT_PUBLIC_RELEASE_VERSION=${NEXT_PUBLIC_RELEASE_VERSION:-dev}
 # Set NODE_ENV to production for proper basePath configuration
 ENV NODE_ENV=production
 
-RUN npm run build
+# Build the webapp
+RUN pnpm run --filter=@mol-view-stories/webapp build
 
 # Production image, copy all the files and run nginx
 FROM nginxinc/nginx-unprivileged AS runner
 WORKDIR /usr/share/nginx/html
 
-# Copy static assets from builder stage (this will overwrite default files)
-#COPY --from=builder /app/out .
-COPY --from=builder /app/out/. /usr/share/nginx/html/
+# Copy static assets from builder stage
+COPY --from=builder /app/@mol-view-stories/webapp/out/. /usr/share/nginx/html/
 
 # Copy nginx configuration
-COPY nginx-dev.conf /etc/nginx/conf.d/default.conf
+COPY @mol-view-stories/webapp/nginx-dev.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 EXPOSE 8080
