@@ -67,7 +67,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install Prettier
-        run: pnpm add prettier
+        run: npm install prettier -g
 
       - name: Check Linting
         run: |
