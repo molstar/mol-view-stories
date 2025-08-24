@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - "api/**"
+      - "webapp/api/**"
       - ".github/workflows/api-pr-validation.yml"
 
 env:
@@ -21,39 +21,39 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          cd api
+          cd webapp/api
           pip install -r requirements.txt
           pip install flake8 black isort pytest
 
       - name: Run linting (flake8)
         run: |
-          cd api
+          cd webapp/api
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Run code formatting check (black)
         run: |
-          cd api
+          cd webapp/api
           python -m black --check --diff .
 
       - name: Run import sorting check (isort)
         run: |
-          cd api
+          cd webapp/api
           python -m isort --check-only --diff .
 
       - name: Run tests
         run: |
-          cd api
+          cd webapp/api
           python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=html
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
-          file: ./api/coverage.xml
+          file: ./webapp/api/coverage.xml
           flags: api
           name: api-coverage
 
@@ -69,7 +69,7 @@ jobs:
       - name: Build Docker image (without pushing)
         uses: docker/build-push-action@v5
         with:
-          context: ./api
+          context: ./webapp/api
           push: false
           load: true
           tags: mol-view-stories-api:pr-test
@@ -79,7 +79,7 @@ jobs:
       - name: Verify Docker image
         run: |
           docker images mol-view-stories-api:pr-test
-          docker run --rm mol-view-stories-api:pr-test python --version 
+          docker run --rm mol-view-stories-api:pr-test python --version
 
   docker-push-pr:
     needs: lint-and-test
@@ -107,11 +107,11 @@ jobs:
         id: build_and_push_pr
         uses: docker/build-push-action@v5
         with:
-          context: ./api
+          context: ./webapp/api
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-${{ github.sha }}
           platforms: linux/amd64
           cache-from: type=gha
-          cache-to: type=gha,mode=max 
+          cache-to: type=gha,mode=max
