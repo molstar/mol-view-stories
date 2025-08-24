@@ -4,18 +4,18 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Docker image tag to deploy'
+        description: "Docker image tag to deploy"
         required: true
-        default: 'latest'
+        default: "latest"
         type: string
       confirm_deployment:
-        description: 'Confirm production deployment'
+        description: "Confirm production deployment"
         required: true
         type: boolean
   push:
     tags:
-      - 'v*'
-      - 'release-*'
+      - "v*"
+      - "release-*"
 
 env:
   REGISTRY: cerit.io
@@ -28,13 +28,13 @@ jobs:
       image_digest: ${{ steps.build_and_push.outputs.digest }}
       docker_version: ${{ steps.release-version.outputs.docker_version }}
       version: ${{ steps.release-version.outputs.version }}
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for git describe
-      
+          fetch-depth: 0 # Fetch all history for git describe
+
       - name: Get release version
         id: release-version
         run: |
@@ -52,24 +52,24 @@ jobs:
               echo "Using latest tag from git describe: $VERSION"
             fi
           fi
-          
+
           # Validate version format (basic check)
           if [[ -z "$VERSION" ]]; then
             echo "Warning: Version is empty, using fallback"
             VERSION="latest"
           fi
-          
+
           # Sanitize version for Docker tags (replace slashes and other invalid chars)
           DOCKER_VERSION=$(echo "$VERSION" | sed 's/[^a-zA-Z0-9._-]/-/g')
           if [[ "$DOCKER_VERSION" != "$VERSION" ]]; then
             echo "Warning: Sanitized version for Docker: '$VERSION' -> '$DOCKER_VERSION'"
           fi
-          
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "docker_version=$DOCKER_VERSION" >> $GITHUB_OUTPUT
           echo "Release version: $VERSION"
           echo "Docker version: $DOCKER_VERSION"
-          
+
           # Fail the build if we can't determine a reasonable version
           if [[ "$VERSION" == "latest" && "${{ github.event_name }}" == "push" ]]; then
             echo "Error: Could not determine version for tag push"
@@ -79,17 +79,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r api/requirements.txt
+          pip install -r webapp/api/requirements.txt
 
       - name: Run tests
         run: |
           echo "Running tests..."
-          # python -m pytest api/tests/
+          # cd webapp/api && python -m pytest tests/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -105,7 +105,7 @@ jobs:
         run: |
           echo "=== Testing Docker login ==="
           echo "Testing docker login to ${{ env.REGISTRY }}"
-          
+
           if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
             echo "✓ Docker login successful"
           else
@@ -117,7 +117,7 @@ jobs:
         id: build_and_push
         uses: docker/build-push-action@v5
         with:
-          context: ./api
+          context: ./webapp/api
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release-version.outputs.docker_version }}
@@ -142,7 +142,7 @@ jobs:
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: Configure kubectl
         run: |
@@ -159,11 +159,11 @@ jobs:
       - name: Deploy to production
         run: |
           export KUBECONFIG=kubeconfig
-          
+
           echo "=== Production Deployment ==="
           echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.docker_version }}"
           echo "Namespace: mol-view-stories-ns"
-          
+
           # Check if production deployment exists
           if kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns >/dev/null 2>&1; then
             echo "Production deployment exists, updating image..."
@@ -171,7 +171,7 @@ jobs:
             kubectl set image deployment/mol-view-stories-api \
               mol-view-stories-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.docker_version }} \
               -n mol-view-stories-ns
-            
+
             # Set MinIO environment variables for production
             echo "Setting MinIO environment variables for production..."
             kubectl set env deployment/mol-view-stories-api \
@@ -181,17 +181,17 @@ jobs:
               MINIO_ACCESS_KEY="${{ secrets.MINIO_PROD_USERNAME }}" \
               MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
               MINIO_BUCKET="mol-view-stories"
-            
+
             # Restart deployment to ensure new image is pulled
             kubectl rollout restart deployment/mol-view-stories-api -n mol-view-stories-ns
-            
+
             # Wait for rollout to complete
             kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
           else
             echo "Production deployment does not exist, creating new production deployment..."
             # Create a new production deployment using the deployment file with proper image replacement
-            kubectl apply -f api/deploy.yaml
-            
+            kubectl apply -f webapp/api/deploy.yaml
+
             # Set MinIO environment variables for production
             echo "Setting MinIO environment variables for production..."
             kubectl set env deployment/mol-view-stories-api \
@@ -201,11 +201,11 @@ jobs:
               MINIO_ACCESS_KEY="${{ secrets.MINIO_PROD_USERNAME }}" \
               MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
               MINIO_BUCKET="mol-view-stories"
-            
+
             # Wait for rollout to complete
             kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
           fi
-          
+
           echo "✓ Production deployment completed successfully"
 
       - name: Health check
@@ -213,7 +213,7 @@ jobs:
           export KUBECONFIG=kubeconfig
           # Wait for the deployment to be ready (this handles the rolling update properly)
           kubectl wait --for=condition=available deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
-          
+
           # Get the current pod name and wait for it to be ready
           POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o jsonpath='{.items[0].metadata.name}')
           echo "Waiting for pod: $POD_NAME"
@@ -232,4 +232,4 @@ jobs:
           echo "- **Docker Tag**: ${{ needs.build-and-push.outputs.docker_version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ✅ Successfully deployed" >> $GITHUB_STEP_SUMMARY 
+          echo "- **Status**: ✅ Successfully deployed" >> $GITHUB_STEP_SUMMARY

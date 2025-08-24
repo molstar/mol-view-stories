@@ -2,35 +2,35 @@ name: API CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'api/Dockerfile'
-      - 'api/app.py'
-      - 'api/auth.py'
-      - 'api/config.py'
-      - 'api/schemas.py'
-      - 'api/error_handlers.py'
-      - 'api/utils.py'
-      - 'api/routes/**'
-      - 'api/storage/**'
-      - 'api/requirements.txt'
-      - '.github/workflows/ci-cd.yml'
-      - 'api/deploy-dev.yaml'
+      - "webapp/api/Dockerfile"
+      - "webapp/api/app.py"
+      - "webapp/api/auth.py"
+      - "webapp/api/config.py"
+      - "webapp/api/schemas.py"
+      - "webapp/api/error_handlers.py"
+      - "webapp/api/utils.py"
+      - "webapp/api/routes/**"
+      - "webapp/api/storage/**"
+      - "webapp/api/requirements.txt"
+      - ".github/workflows/ci-cd.yml"
+      - "webapp/api/deploy-dev.yaml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'api/Dockerfile'
-      - 'api/app.py'
-      - 'api/auth.py'
-      - 'api/config.py'
-      - 'api/schemas.py'
-      - 'api/error_handlers.py'
-      - 'api/utils.py'
-      - 'api/routes/**'
-      - 'api/storage/**'
-      - 'api/requirements.txt'
-      - '.github/workflows/ci-cd.yml'
-      - 'api/deploy-dev.yaml'
+      - "webapp/api/Dockerfile"
+      - "webapp/api/app.py"
+      - "webapp/api/auth.py"
+      - "webapp/api/config.py"
+      - "webapp/api/schemas.py"
+      - "webapp/api/error_handlers.py"
+      - "webapp/api/utils.py"
+      - "webapp/api/routes/**"
+      - "webapp/api/storage/**"
+      - "webapp/api/requirements.txt"
+      - ".github/workflows/ci-cd.yml"
+      - "webapp/api/deploy-dev.yaml"
 
 env:
   REGISTRY: cerit.io
@@ -43,205 +43,205 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_digest: ${{ steps.build_and_push.outputs.digest }}
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r api/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r webapp/api/requirements.txt
 
-    - name: Run tests (if you have them)
-      run: |
-        # Add your test commands here
-        echo "Running tests..."
-        # python -m pytest tests/
+      - name: Run tests (if you have them)
+        run: |
+          # Add your test commands here
+          echo "Running tests..."
+          # cd webapp/api && python -m pytest tests/
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
-        password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
+          password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
 
-    - name: Test Docker login
-      run: |
-        echo "=== Testing Docker login ==="
-        echo "Testing docker login to ${{ env.REGISTRY }}"
-        
-        if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
-          echo "✓ Docker login successful"
-        else
-          echo "✗ Docker login failed"
-          exit 1
-        fi
+      - name: Test Docker login
+        run: |
+          echo "=== Testing Docker login ==="
+          echo "Testing docker login to ${{ env.REGISTRY }}"
 
-    - name: Prepare Docker tag
-      id: docker-tag
-      run: |
-        # Sanitize ref name for Docker tag (replace invalid characters with dashes)
-        DOCKER_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
-        echo "docker_tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
-        echo "Original ref: ${{ github.ref_name }}"
-        echo "Docker tag: $DOCKER_TAG"
+          if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
+            echo "✓ Docker login successful"
+          else
+            echo "✗ Docker login failed"
+            exit 1
+          fi
 
-    - name: Build and push Docker image
-      id: build_and_push
-      uses: docker/build-push-action@v5
-      with:
-        context: ./api
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
-        platforms: linux/amd64
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      - name: Prepare Docker tag
+        id: docker-tag
+        run: |
+          # Sanitize ref name for Docker tag (replace invalid characters with dashes)
+          DOCKER_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          echo "docker_tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
+          echo "Original ref: ${{ github.ref_name }}"
+          echo "Docker tag: $DOCKER_TAG"
 
-    - name: Verify pushed image
-      run: |
-        echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
-        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
+      - name: Build and push Docker image
+        id: build_and_push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./webapp/api
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: PR Check Summary
-      if: github.event_name == 'pull_request'
-      run: |
-        echo "## API PR Check Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **PR Number**: #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Status**: ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
-        echo "- **Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-        echo "- **Docker Build & Push**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-        echo "- **Image Tags**: ${{ steps.docker-tag.outputs.docker_tag }}, latest" >> $GITHUB_STEP_SUMMARY
-        echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Deployment**: ⏸️ Will deploy to development on merge" >> $GITHUB_STEP_SUMMARY
-        echo "- **Ready for merge**: ✅ Yes" >> $GITHUB_STEP_SUMMARY
+      - name: Verify pushed image
+        run: |
+          echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
+
+      - name: PR Check Summary
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## API PR Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR Number**: #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Build & Push**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tags**: ${{ steps.docker-tag.outputs.docker_tag }}, latest" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment**: ⏸️ Will deploy to development on merge" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ready for merge**: ✅ Yes" >> $GITHUB_STEP_SUMMARY
 
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
 
-    - name: Configure kubectl
-      run: |
-        KCONF='${{ secrets.K8S_CONTEXT }}'
-        if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
-          echo "Detected base64-encoded kubeconfig"
-          echo "$KCONF" | base64 -d > kubeconfig.yaml
-        else
-          echo "Using raw kubeconfig"
-          printf "%s" "$KCONF" > kubeconfig.yaml
-        fi
-        echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> "$GITHUB_ENV"
+      - name: Configure kubectl
+        run: |
+          KCONF='${{ secrets.K8S_CONTEXT }}'
+          if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+            echo "Detected base64-encoded kubeconfig"
+            echo "$KCONF" | base64 -d > kubeconfig.yaml
+          else
+            echo "Using raw kubeconfig"
+            printf "%s" "$KCONF" > kubeconfig.yaml
+          fi
+          echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> "$GITHUB_ENV"
 
-    - name: Deploy to development
-      run: |
-        export KUBECONFIG=kubeconfig.yaml
-        
-        # Set image tag based on branch
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          IMAGE_TAG="latest"
-        else
-          # Use sanitized tag name (replace invalid characters with dashes)
-          IMAGE_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
-        fi
-        
-        # Use digest for branches
-        IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
-        IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+      - name: Deploy to development
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
 
-        # Check if development deployment exists
-        if kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns >/dev/null 2>&1; then
-          echo "Development API deployment exists, updating image..."
-          # Update deployment with new image
-          kubectl set image deployment/mol-view-stories-dev-api \
-            mol-view-stories-dev-api-container=${IMAGE_REF} \
-            -n mol-view-stories-ns
-          
-          # Set MinIO environment variables for development
-          echo "Setting MinIO environment variables for development..."
-          kubectl set env deployment/mol-view-stories-dev-api \
-            -n mol-view-stories-ns \
-            -c mol-view-stories-dev-api-container \
-            MINIO_ENDPOINT="https://s3-mol-view-stories-s3-dev-mol-view-stories-ns.dyn.cloud.e-infra.cz/" \
-            MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
-            MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
-            MINIO_BUCKET="root"
-          
-          # Force restart deployment to ensure new configuration is applied
-          kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
-          
-          # Wait for rollout to complete
-          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
-        else
-          echo "Development API deployment does not exist, creating new development deployment..."
-          # Create a new development deployment
-          kubectl apply -f api/deploy-dev.yaml 
-          
-          # Force image to the digest we just built
-          kubectl set image deployment/mol-view-stories-dev-api \
-            mol-view-stories-dev-api-container=${IMAGE_REF} \
-            -n mol-view-stories-ns
+          # Set image tag based on branch
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            IMAGE_TAG="latest"
+          else
+            # Use sanitized tag name (replace invalid characters with dashes)
+            IMAGE_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          fi
 
-          # Set MinIO environment variables for development
-          echo "Setting MinIO environment variables for development..."
-          kubectl set env deployment/mol-view-stories-dev-api \
-            -n mol-view-stories-ns \
-            -c mol-view-stories-dev-api-container \
-            MINIO_ENDPOINT="${{ secrets.MINIO_DEV_URL }}" \
-            MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
-            MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
-            MINIO_BUCKET="root"
-          
-          # Wait for rollout to complete
-          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
-        fi
-        
-        echo "✓ Development API deployment completed successfully"
+          # Use digest for branches
+          IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
+          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
 
-    - name: Health check
-      run: |
-        export KUBECONFIG=kubeconfig.yaml
-        # Wait for the deployment to be ready
-        kubectl wait --for=condition=available deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
-        
-        # Get the current pod name and wait for it to be ready
-        POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o jsonpath='{.items[0].metadata.name}')
-        echo "Waiting for pod: $POD_NAME"
-        kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+          # Check if development deployment exists
+          if kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns >/dev/null 2>&1; then
+            echo "Development API deployment exists, updating image..."
+            # Update deployment with new image
+            kubectl set image deployment/mol-view-stories-dev-api \
+              mol-view-stories-dev-api-container=${IMAGE_REF} \
+              -n mol-view-stories-ns
 
-    - name: Verify deployment
-      run: |
-        export KUBECONFIG=kubeconfig.yaml
-        kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api
-        kubectl get services -n mol-view-stories-ns -l app=mol-view-stories-dev-api
-        kubectl get ingress -n mol-view-stories-ns -l app=mol-view-stories-dev-api
+            # Set MinIO environment variables for development
+            echo "Setting MinIO environment variables for development..."
+            kubectl set env deployment/mol-view-stories-dev-api \
+              -n mol-view-stories-ns \
+              -c mol-view-stories-dev-api-container \
+              MINIO_ENDPOINT="https://s3-mol-view-stories-s3-dev-mol-view-stories-ns.dyn.cloud.e-infra.cz/" \
+              MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
+              MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
+              MINIO_BUCKET="root"
 
-    - name: Deployment summary
-      run: |
-        echo "## API Development Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Image Digest**: ${{ needs.build-and-test.outputs.image_digest }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
-        echo "- **Status**: ✅ Successfully deployed to development" >> $GITHUB_STEP_SUMMARY
-        echo "- **URL**: https://mol-view-stories-api-dev.dyn.cloud.e-infra.cz" >> $GITHUB_STEP_SUMMARY 
+            # Force restart deployment to ensure new configuration is applied
+            kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
+
+            # Wait for rollout to complete
+            kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+          else
+            echo "Development API deployment does not exist, creating new development deployment..."
+            # Create a new development deployment
+            kubectl apply -f webapp/api/deploy-dev.yaml
+
+            # Force image to the digest we just built
+            kubectl set image deployment/mol-view-stories-dev-api \
+              mol-view-stories-dev-api-container=${IMAGE_REF} \
+              -n mol-view-stories-ns
+
+            # Set MinIO environment variables for development
+            echo "Setting MinIO environment variables for development..."
+            kubectl set env deployment/mol-view-stories-dev-api \
+              -n mol-view-stories-ns \
+              -c mol-view-stories-dev-api-container \
+              MINIO_ENDPOINT="${{ secrets.MINIO_DEV_URL }}" \
+              MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
+              MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
+              MINIO_BUCKET="root"
+
+            # Wait for rollout to complete
+            kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+          fi
+
+          echo "✓ Development API deployment completed successfully"
+
+      - name: Health check
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          # Wait for the deployment to be ready
+          kubectl wait --for=condition=available deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+
+          # Get the current pod name and wait for it to be ready
+          POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o jsonpath='{.items[0].metadata.name}')
+          echo "Waiting for pod: $POD_NAME"
+          kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api
+          kubectl get services -n mol-view-stories-ns -l app=mol-view-stories-dev-api
+          kubectl get ingress -n mol-view-stories-ns -l app=mol-view-stories-dev-api
+
+      - name: Deployment summary
+        run: |
+          echo "## API Development Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Digest**: ${{ needs.build-and-test.outputs.image_digest }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successfully deployed to development" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://mol-view-stories-api-dev.dyn.cloud.e-infra.cz" >> $GITHUB_STEP_SUMMARY
