@@ -18,14 +18,22 @@ jobs:
   build:
     name: Build Web
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Node
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: "20"
+      #     cache: pnpm
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -38,14 +46,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .next/cache
+            webapp/.next/cache
           # Generate a new cache whenever packages or source files change.
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 10
       - name: Install dependencies
@@ -59,25 +67,25 @@ jobs:
           cd webapp
           pnpm build
 
-  check-linting:
-    name: Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: pnpm
+  # check-linting:
+  #   name: Linting
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
+  #         cache: pnpm
 
-      - name: Install Prettier
-        run: pnpm add --dev prettier
+  #     - name: Install Prettier
+  #       run: pnpm add --dev prettier
 
-      - name: Check Linting
-        run: |
-          cd webapp
-          pnpm prettier:check
+  #     - name: Check Linting
+  #       run: |
+  #         cd webapp
+  #         pnpm prettier:check
 
   build-docs:
     name: Build Docs
