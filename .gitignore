@@ -13,11 +13,11 @@
 # testing
 /coverage
 
-# next.js
-webapp/.next/
-webapp/out/
-webapp/.bin/
-webapp/node_modules/
+# packages
+@mol-view-stories/webapp/.next/
+@mol-view-stories/webapp/out/
+@mol-view-stories/webapp/node_modules/
+@mol-view-stories/library/node_modules/
 
 # production
 /build

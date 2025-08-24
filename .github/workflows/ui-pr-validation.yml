@@ -41,13 +41,12 @@ jobs:
           static_site_generator: next
       - name: Install dependencies
         run: pnpm install
-      - name: Build Web
+      - name: Build
         env:
           NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
           NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
           NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX }}
         run: |
-          cd webapp
           pnpm build
 
   check-linting:
@@ -59,18 +58,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
 
       - name: Install Prettier
-        run: npm add --dev prettier
+        run: pnpm add --dev prettier
 
       - name: Check Linting
         run: |
-          cd webapp
-          npm run prettier:check
+          cd @mol-view-stories/webapp
+          pnpm run prettier:check
 
   build-docs:
     name: Build Docs

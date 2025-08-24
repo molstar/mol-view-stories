@@ -1,0 +1,14 @@
+{
+  "name": "@mol-view-stories/lib",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "prettier": "prettier --write ./src",
+    "prettier:check": "prettier --check ./src"
+  },
+  "files": [
+    "src"
+  ]
+}
