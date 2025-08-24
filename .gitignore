@@ -14,8 +14,8 @@
 /coverage
 
 # next.js
-/.next/
-/out/
+webapp/.next/
+webapp/out/
 
 # production
 /build
@@ -23,7 +23,7 @@
 # misc
 .DS_Store
 *.pem
-/tmp
+webapp/tmp
 
 # debug
 npm-debug.log*

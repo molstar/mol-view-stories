@@ -36,7 +36,7 @@ ENV NEXT_PUBLIC_RELEASE_VERSION=${NEXT_PUBLIC_RELEASE_VERSION:-dev}
 # Set NODE_ENV to production for proper basePath configuration
 ENV NODE_ENV=production
 
-RUN npm run build
+RUN npm run build --workspace=webapp
 
 # Production image, copy all the files and run nginx
 FROM nginxinc/nginx-unprivileged AS runner
@@ -44,7 +44,7 @@ WORKDIR /usr/share/nginx/html
 
 # Copy static assets from builder stage (this will overwrite default files)
 #COPY --from=builder /app/out .
-COPY --from=builder /app/out/. /usr/share/nginx/html/
+COPY --from=builder /app/webapp/out/. /usr/share/nginx/html/
 
 # Copy nginx configuration
 COPY nginx-dev.conf /etc/nginx/conf.d/default.conf
