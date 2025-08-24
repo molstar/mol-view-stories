@@ -24,15 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # - name: Setup Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: "20"
-      #     cache: pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -67,25 +60,28 @@ jobs:
           cd webapp
           pnpm build
 
-  # check-linting:
-  #   name: Linting
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Setup Node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: "20"
-  #         cache: pnpm
+  check-linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
 
-  #     - name: Install Prettier
-  #       run: pnpm add --dev prettier
+      - name: Install Prettier
+        run: npm add --dev prettier
 
-  #     - name: Check Linting
-  #       run: |
-  #         cd webapp
-  #         pnpm prettier:check
+      - name: Check Linting
+        run: |
+          cd webapp
+          npm run prettier:check
 
   build-docs:
     name: Build Docs

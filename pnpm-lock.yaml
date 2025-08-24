@@ -81,6 +81,9 @@ importers:
       molstar:
         specifier: 5.0.0-dev.8
         version: 5.0.0-dev.8(@types/react@19.1.11)(fp-ts@2.16.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      monaco-editor:
+        specifier: ^0.52.2
+        version: 0.52.2
       monaco-editor-auto-typings:
         specifier: ^0.4.6
         version: 0.4.6(monaco-editor@0.52.2)
