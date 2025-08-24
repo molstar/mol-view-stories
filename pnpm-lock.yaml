@@ -66,9 +66,6 @@ importers:
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.1.7(@types/react@19.1.11))(@types/react@19.1.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      io-ts:
-        specifier: ^2.2.22
-        version: 2.2.22(fp-ts@2.16.11)
       jotai:
         specifier: ^2.12.5
         version: 2.13.1(@types/react@19.1.11)(react@19.1.1)

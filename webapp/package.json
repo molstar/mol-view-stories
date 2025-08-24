@@ -30,7 +30,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "io-ts": "^2.2.22",
     "jotai": "^2.12.5",
     "library": "workspace:*",
     "lucide-react": "^0.511.0",
