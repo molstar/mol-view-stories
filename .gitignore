@@ -17,6 +17,7 @@
 @mol-view-stories/webapp/.next/
 @mol-view-stories/webapp/out/
 @mol-view-stories/webapp/node_modules/
+@mol-view-stories/webapp/tmp/
 @mol-view-stories/lib/node_modules/
 
 # production
