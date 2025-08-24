@@ -9,7 +9,7 @@ import {
   StoryAtom,
 } from '@/app/appstate';
 import { getMVSData } from '@/app/state/actions';
-import { CameraData, Story } from '@/app/state/types';
+import { CameraData, Story } from '@/app/appstate';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {

@@ -6,9 +6,10 @@
   "scripts": {
     "build": "tsc --noEmit",
     "prettier": "prettier --write ./src",
-    "prettier:check": "prettier --check ./src"
+    "prettier:check": "prettier --check ./src",
+    "tsc:check": "tsc --noEmit"
   },
   "files": [
-    "src"
+    "./src"
   ]
 }

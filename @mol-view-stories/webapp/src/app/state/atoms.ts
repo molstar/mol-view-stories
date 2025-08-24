@@ -1,16 +1,16 @@
 import { ExampleStories } from '@/app/examples';
+import { Story } from '@mol-view-stories/lib/src/types';
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import {
+  AsyncStatus,
+  ConfirmationState,
   CurrentView,
-  Story,
+  ModalState,
   SessionItem,
+  SessionMetadata,
   StoryItem,
   UserQuota,
-  AsyncStatus,
-  ModalState,
-  ConfirmationState,
-  SessionMetadata,
 } from './types';
 
 // Auth State Atom - tracks authentication status
@@ -18,14 +18,13 @@ export const AuthStateAtom = atom<{ isAuthenticated: boolean }>({ isAuthenticate
 
 // Re-export types for external use
 export type {
+  AsyncStatus,
+  ConfirmationState,
   CurrentView,
-  Story,
+  ModalState,
   SessionItem as Session,
   StoryItem,
   UserQuota,
-  AsyncStatus,
-  ModalState,
-  ConfirmationState,
 } from './types';
 
 // My Stories Data Structure - Unified approach

@@ -4,7 +4,9 @@
   "scripts": {
     "prettier": "pnpm run --filter=* prettier",
     "prettier:check": "pnpm run --filter=* prettier:check",
-    "build": "pnpm run --filter=* build"
+    "build": "pnpm run --filter=* build",
+    "dev:web": "pnpm run --filter=@mol-view-stories/webapp dev",
+    "tsc:check": "pnpm run --filter=* tsc:check"
   },
   "dependencies": {
     "molstar": "5.0.0-dev.8"

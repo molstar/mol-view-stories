@@ -14,8 +14,17 @@
 // ```
 //
 
+export type {
+  Story,
+  CameraData,
+  StoryContainer,
+  StoryMetadata,
+  SceneAsset,
+  SceneData,
+} from '@mol-view-stories/lib/src/types';
+
 // Re-export types
-export type { SceneData, SceneUpdate, CreateSceneData, CurrentView, SceneAsset } from './state/types';
+export type { SceneUpdate, CreateSceneData, CurrentView } from './state/types';
 
 // Core state atoms.
 //

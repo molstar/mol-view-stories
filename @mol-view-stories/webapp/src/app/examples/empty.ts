@@ -1,6 +1,6 @@
 import { UUID } from 'molstar/lib/mol-util';
-import { Story } from '../state/types';
-import { BuilderLibNamespaces } from '../state/actions';
+import { Story } from '@/app/appstate';
+import { BuilderLibNamespaces } from '@mol-view-stories/lib/src/actions';
 
 const LibraryFns = `// Mol* library functions: ${BuilderLibNamespaces.join(', ')}\n`;
 

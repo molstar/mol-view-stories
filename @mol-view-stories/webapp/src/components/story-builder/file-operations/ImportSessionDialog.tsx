@@ -1,8 +1,9 @@
 'use client';
 
 import { OpenSessionAtom } from '@/app/appstate';
-import { importState, SessionFileExtension } from '@/app/state/actions';
+import { importState } from '@/app/state/actions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { SessionFileExtension } from '@mol-view-stories/lib/src/actions';
 import { useAtom } from 'jotai';
 import { Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';

@@ -1,4 +1,4 @@
-import { Story } from '@/app/state/types';
+import { Story } from '@/app/appstate';
 import { UUID } from 'molstar/lib/mol-util';
 
 interface MolecularVisualizationConfig {
