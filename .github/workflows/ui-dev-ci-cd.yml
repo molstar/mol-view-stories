@@ -11,16 +11,16 @@ on:
       - 'pnpm-workspace.yaml'
       - '.github/ui-deploy-dev.yaml'
       - '.github/workflows/ui-dev-ci-cd.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - '@mol-view-stories/webapp/**'
-      - '@mol-view-stories/lib/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - '.github/ui-deploy-dev.yaml'
-      - '.github/workflows/ui-dev-ci-cd.yml'
+  # pull_request:
+  #   branches: [main]
+  #   paths:
+  #     - '@mol-view-stories/webapp/**'
+  #     - '@mol-view-stories/lib/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - 'pnpm-workspace.yaml'
+  #     - '.github/ui-deploy-dev.yaml'
+  #     - '.github/workflows/ui-dev-ci-cd.yml'
 
 env:
   REGISTRY: cerit.io
