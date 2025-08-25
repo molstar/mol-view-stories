@@ -32,8 +32,8 @@ Useful:
 ### 3) Start the frontend
 From the project root:
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev:web
 ```
 Open `http://localhost:3000`.
 
@@ -50,11 +50,13 @@ Open `http://localhost:3000`.
 
 ## Update MVS Types
 
-To update `mvs-typing.ts` run
+To update `mvs-typing.ts` run from the `@mol-view-stories/webapp` directory:
 
 ```bash
-npm run mvs-types
+pnpm run mvs-types
 ```
+
+This command is also automatically run on build.
 
 ## Switching Environments
 
@@ -102,7 +104,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 
 ```bash
 # Frontend
-npm install
+pnpm install
 
 # API (Python 3.11+)
 cd api
@@ -119,43 +121,18 @@ cd ..
 **Always run these checks:**
 
 ```bash
-# API checks
-cd api && source .venv/bin/activate
-flake8 . --exclude .venv,venv --count --select=E9,F63,F7,F82 --show-source --statistics
-flake8 . --exclude .venv,venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-black --check --diff .
-isort --check-only --diff .
-python -m pytest tests/ -v
-cd ..
-
 # Frontend checks
-npm run lint
-npm run prettier:check
-npm run build
+pnpm prettier:check
+pnpm run build
 ```
 
 **Auto-fix formatting:**
 ```bash
 # API
-cd api && source .venv/bin/activate
-black . && isort .
-cd ..
-```
-
-### Testing
-
-```bash
-# API tests (mocked - no external services needed)
-cd api && source .venv/bin/activate
-python -m pytest tests/ -v
-cd ..
-
-# Frontend
-npm run lint
+pnpm prettier
 ```
 
 ### Common Issues
 
-- **API import errors**: Ensure virtual environment is activated
-- **Frontend build errors**: `rm -rf node_modules package-lock.json && npm install`
+- **Frontend build errors**: `rm -rf node_modules package-lock.yaml && pnpm install`
 - **Port conflicts**: Check `lsof -i :3000` (frontend), `lsof -i :5000` (API)
