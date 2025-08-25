@@ -13,9 +13,12 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# packages
+@mol-view-stories/webapp/.next/
+@mol-view-stories/webapp/out/
+@mol-view-stories/webapp/node_modules/
+@mol-view-stories/webapp/tmp/
+@mol-view-stories/lib/node_modules/
 
 # production
 /build
@@ -23,7 +26,7 @@
 # misc
 .DS_Store
 *.pem
-/tmp
+webapp/tmp
 
 # debug
 npm-debug.log*

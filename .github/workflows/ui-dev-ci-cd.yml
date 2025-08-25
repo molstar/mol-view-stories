@@ -1,0 +1,270 @@
+name: UI Dev CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '@mol-view-stories/webapp/**'
+      - '@mol-view-stories/lib/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/ui-deploy-dev.yaml'
+      - '.github/workflows/ui-dev-ci-cd.yml'
+  # pull_request:
+  #   branches: [main]
+  #   paths:
+  #     - '@mol-view-stories/webapp/**'
+  #     - '@mol-view-stories/lib/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - 'pnpm-workspace.yaml'
+  #     - '.github/ui-deploy-dev.yaml'
+  #     - '.github/workflows/ui-dev-ci-cd.yml'
+
+env:
+  REGISTRY: cerit.io
+  IMAGE_NAME: mol-view-stories/mvs-ui
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      image_digest: ${{ steps.build_and_push.outputs.digest }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for git describe
+
+      - name: Get release version
+        id: release-version
+        run: |
+          # Get the short commit hash for development builds
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+
+          # Always try to get the tag name first (for tag pushes)
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${{ github.ref_name }}"
+            echo "Using branch/tag from push event: $VERSION"
+
+            # For non-tag pushes (like main branch), append commit hash
+            if [[ "$VERSION" != v* && "$VERSION" != release-* ]]; then
+              VERSION="dev-${COMMIT_HASH}"
+              echo "Development build detected, using version: $VERSION"
+            fi
+          else
+            # For manual deployments or PRs, try to get the latest tag or use commit hash
+            LATEST_TAG=$(git describe --abbrev=0 --tags 2>/dev/null || echo "")
+            if [[ -n "$LATEST_TAG" ]]; then
+              VERSION="$LATEST_TAG"
+              echo "Using latest tag from git describe: $VERSION"
+            else
+              VERSION="dev-${COMMIT_HASH}"
+              echo "No tags found, using commit hash: $VERSION"
+            fi
+          fi
+
+          # Validate version format (basic check)
+          if [[ -z "$VERSION" ]]; then
+            echo "Warning: Version is empty, using fallback with commit hash"
+            VERSION="dev-${COMMIT_HASH}"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Final release version: $VERSION"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run linting
+        run: pnpm run --filter=@mol-view-stories/webapp lint
+
+      - name: Run type checking and build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL || 'https://mol-view-stories-dev.dyn.cloud.e-infra.cz' }}
+          NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY || 'https://login.aai.lifescience-ri.eu/oidc' }}
+          NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID || '3963b643-f862-4578-868e-3ba3de08dd2d' }}
+          NEXT_PUBLIC_APP_PREFIX: ${{ vars.NEXT_PUBLIC_APP_PREFIX || 'mol-view-stories/' }}
+          NEXT_PUBLIC_RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: pnpm run --filter=@mol-view-stories/webapp build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.CERIT_REGISTRY_USERNAME }}
+          password: ${{ secrets.CERIT_REGISTRY_PASSWORD }}
+
+      - name: Test Docker login
+        run: |
+          echo "=== Testing Docker login ==="
+          echo "Testing docker login to ${{ env.REGISTRY }}"
+
+          if docker login ${{ env.REGISTRY }} -u "${{ secrets.CERIT_REGISTRY_USERNAME }}" -p "${{ secrets.CERIT_REGISTRY_PASSWORD }}" 2>&1 | grep -q "Login Succeeded"; then
+            echo "✓ Docker login successful"
+          else
+            echo "✗ Docker login failed"
+            exit 1
+          fi
+
+      - name: Prepare Docker tag
+        id: docker-tag
+        run: |
+          # Sanitize ref name for Docker tag (replace invalid characters with dashes)
+          DOCKER_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          echo "docker_tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
+          echo "Original ref: ${{ github.ref_name }}"
+          echo "Docker tag: $DOCKER_TAG"
+
+      - name: Build and push Docker image
+        id: build_and_push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: '@mol-view-stories/webapp/Dockerfile'
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_OIDC_AUTHORITY=${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
+            NEXT_PUBLIC_OIDC_CLIENT_ID=${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
+            NEXT_PUBLIC_APP_PREFIX=${{ vars.NEXT_PUBLIC_APP_PREFIX }}
+            NEXT_PUBLIC_RELEASE_VERSION=${{ steps.release-version.outputs.version }}
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify pushed image
+        run: |
+          echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
+
+      - name: PR Check Summary
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## UI PR Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR Number**: #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Linting**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type Checking**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Build & Push**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tags**: ${{ steps.docker-tag.outputs.docker_tag }}, latest" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment**: ⏸️ Will deploy to development on merge" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ready for merge**: ✅ Yes" >> $GITHUB_STEP_SUMMARY
+
+  deploy-dev:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          KCONF='${{ secrets.K8S_CONTEXT }}'
+          if echo "$KCONF" | base64 -d >/dev/null 2>&1; then
+            echo "Detected base64-encoded kubeconfig"
+            echo "$KCONF" | base64 -d > kubeconfig.yaml
+          else
+            echo "Using raw kubeconfig"
+            printf "%s" "$KCONF" > kubeconfig.yaml
+          fi
+          echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> "$GITHUB_ENV"
+
+      - name: Deploy to development
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+
+          # Set image tag based on branch
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            IMAGE_TAG="latest"
+          else
+            # Use sanitized tag name (replace invalid characters with dashes)
+            IMAGE_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          fi
+
+          # Use digest for branches
+          IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
+          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+
+          # Check if development deployment exists
+          if kubectl get deployment/mol-view-stories-dev-ui -n mol-view-stories-ns >/dev/null 2>&1; then
+            echo "Development UI deployment exists, updating image..."
+            # Update deployment with new image
+            kubectl set image deployment/mol-view-stories-dev-ui \
+              mol-view-stories-dev-ui-container=${IMAGE_REF} \
+              -n mol-view-stories-ns
+
+            # Force restart deployment to ensure new configuration is applied
+            kubectl rollout restart deployment/mol-view-stories-dev-ui -n mol-view-stories-ns
+
+            # Wait for rollout to complete
+            kubectl rollout status deployment/mol-view-stories-dev-ui -n mol-view-stories-ns --timeout=300s
+          else
+            echo "Development UI deployment does not exist, creating new development deployment..."
+            # Create a new development deployment
+            kubectl apply -f .github/ui-deploy-dev.yaml
+
+            # Force image to the digest we just built
+            kubectl set image deployment/mol-view-stories-dev-ui \
+              mol-view-stories-dev-ui-container=${IMAGE_REF} \
+              -n mol-view-stories-ns
+
+            # Wait for rollout to complete
+            kubectl rollout status deployment/mol-view-stories-dev-ui -n mol-view-stories-ns --timeout=300s
+          fi
+
+          echo "✓ Development UI deployment completed successfully"
+
+      - name: Health check
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          # Wait for the deployment to be ready
+          kubectl wait --for=condition=available deployment/mol-view-stories-dev-ui -n mol-view-stories-ns --timeout=300s
+
+          # Get the current pod name and wait for it to be ready
+          POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-ui -o jsonpath='{.items[0].metadata.name}')
+          echo "Waiting for pod: $POD_NAME"
+          kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-ui
+          kubectl get services -n mol-view-stories-ns -l app=mol-view-stories-dev-ui
+          kubectl get ingress -n mol-view-stories-ns -l app=mol-view-stories-dev-ui
+
+      - name: Deployment summary
+        run: |
+          echo "## UI Development Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Digest**: ${{ needs.build-and-test.outputs.image_digest }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successfully deployed to development" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://mol-view-stories-ui-dev.dyn.cloud.e-infra.cz" >> $GITHUB_STEP_SUMMARY

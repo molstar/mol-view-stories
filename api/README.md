@@ -224,3 +224,39 @@ All objects (sessions and states) conform to this metadata schema:
 ```
 
 **Note:** This metadata structure matches the frontend `BaseItem` interface and is strictly enforced to prevent arbitrary data storage.
+
+## Development Guide
+
+### Before Committing
+
+**Always run these checks:**
+
+```bash
+# API checks
+cd api && source .venv/bin/activate
+flake8 . --exclude .venv,venv --count --select=E9,F63,F7,F82 --show-source --statistics
+flake8 . --exclude .venv,venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+black --check --diff .
+isort --check-only --diff .
+python -m pytest tests/ -v
+```
+
+**Auto-fix formatting:**
+```bash
+# API
+cd api && source .venv/bin/activate
+black . && isort .
+cd ..
+```
+
+### Testing
+
+```bash
+# API tests (mocked - no external services needed)
+cd api && source .venv/bin/activate
+python -m pytest tests/ -v
+```
+
+### Common Issues
+
+- **API import errors**: Ensure virtual environment is activated
