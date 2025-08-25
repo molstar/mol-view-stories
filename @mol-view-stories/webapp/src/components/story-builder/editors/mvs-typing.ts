@@ -587,6 +587,7 @@ namespace _ {
                 noise_magnitude: OptionalField<number>;
                 start: OptionalField<number | number[] | null>;
                 end: OptionalField<number | number[] | null>;
+                discrete: OptionalField<boolean>;
                 easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
                 frequency: OptionalField<number>;
                 alternate_direction: OptionalField<boolean>;
@@ -2058,6 +2059,8 @@ namespace _ {
         primitives: (params?: MVSNodeParams<"primitives"> & CustomAndRef) => Primitives;
         primitives_from_uri: (params: MVSNodeParams<"primitives_from_uri"> & CustomAndRef) => PrimitivesFromUri;
         animation(params?: MVSAnimationNodeParams<'animation'> & CustomAndRef): Animation;
+        /** Modifies custom state of the root */
+        extendRootCustomState(custom: Record<string, any>): this;
     }
     declare class Animation {
         private _node;
