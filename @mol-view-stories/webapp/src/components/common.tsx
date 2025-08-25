@@ -51,7 +51,7 @@ function HeaderLogo() {
   );
 }
 
-function PreviewBanner() {
+function BetaBanner() {
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible) return null;
@@ -62,7 +62,7 @@ function PreviewBanner() {
       <div className='relative flex items-center justify-center px-4 py-2 text-sm font-medium'>
         <div className='flex items-center gap-2'>
           <span className='text-lg'>🚧</span>
-          <span>PREVIEW VERSION - Features may change</span>
+          <span>BETA VERSION - Some features may be unstable</span>
         </div>
         <button
           onClick={() => setIsVisible(false)}
@@ -87,7 +87,7 @@ export function Header({
 }) {
   return (
     <header className='bg-gray-50 border-b border-border sticky top-0'>
-      <PreviewBanner />
+      <BetaBanner />
       <div className='flex justify-between items-center px-4 py-2'>
         <div className='flex items-center gap-4'>
           <HeaderLogo />
