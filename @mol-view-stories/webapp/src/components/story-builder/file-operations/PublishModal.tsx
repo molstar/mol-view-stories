@@ -81,7 +81,7 @@ export function PublishModal() {
   };
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value as any);
+    setActiveTab(value as 'new' | 'overwrite' | 'self-hosted');
     if (value === 'new') {
       setSelectedStory(null);
     } else if (value === 'overwrite' && stories && stories.length > 0) {
