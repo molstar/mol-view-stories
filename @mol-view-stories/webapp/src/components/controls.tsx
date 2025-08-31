@@ -42,15 +42,20 @@ export function ImmediateInput({
   value,
   placeholder,
   onChange,
+  onEnter,
+  className,
 }: {
   id?: string;
   value: string;
   placeholder: string;
   onChange: (value: string) => void;
+  onEnter?: (value: string) => void;
+  className?: string;
 }) {
   return (
     <Input
       id={id}
+      className={className}
       value={value}
       placeholder={placeholder}
       onChange={(e) => {
@@ -59,6 +64,7 @@ export function ImmediateInput({
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
           e.currentTarget.blur();
+          onEnter?.(e.currentTarget.value);
         }
       }}
     />

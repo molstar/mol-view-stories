@@ -34,19 +34,21 @@ import {
   PinIcon,
   XIcon,
   RotateCw,
+  LucideMessageCircleQuestion,
+  Copy,
 } from 'lucide-react';
 import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { fileToDataUri } from 'molstar/lib/mol-util/file';
-import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
+import { Plugin, PluginContextContainer, Log } from 'molstar/lib/mol-plugin-ui/plugin';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { Markdown } from 'molstar/lib/mol-plugin-ui/controls/markdown';
 import { PluginConfig } from 'molstar/lib/mol-plugin/config';
 import { PluginSpec } from 'molstar/lib/mol-plugin/spec';
 import { Scheduler } from 'molstar/lib/mol-task';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Label } from '../ui/label';
 import { SceneCodeEditor } from './editors/SceneCodeEditor';
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
@@ -56,6 +58,8 @@ import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { toast } from 'sonner';
 import { UpdateSceneAtom } from '@/app/state/atoms';
 import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
+import Link from 'next/link';
+import { ImmediateInput } from '../controls';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
@@ -360,12 +364,19 @@ function CurrentSceneView() {
   }, [model, story, scene]);
 
   return (
-    <div className='rounded overflow-hidden w-full h-full bg-background relative border'>
-      <div className='w-full h-full relative [&_.msp-plugin-content]:border-none!'>
-        <PluginWrapper plugin={model.plugin} />
-        <LoadingIndicator />
+    <>
+      <div className='rounded-t overflow-hidden w-full h-full bg-background relative border'>
+        <div className='w-full h-full relative [&_.msp-plugin-content]:border-none!'>
+          <PluginWrapper plugin={model.plugin} />
+          <LoadingIndicator />
+        </div>
       </div>
-    </div>
+      <div className='rounded-b overflow-hidden w-full h-40 bg-background relative border [&_.msp-log-entry]:bg-gray-50! [&_.msp-log]:bg-white! border-t-0'>
+        <PluginContextContainer plugin={model.plugin}>
+          <Log />
+        </PluginContextContainer>
+      </div>
+    </>
   );
 }
 
@@ -397,6 +408,20 @@ export function SceneEditors() {
             <div className='space-y-4'>
               <OptionsEditor />
               <Label>Markdown Description</Label>
+              <div className='flex gap-2'>
+                <AssetList />
+                <Button size='sm' variant='outline' asChild>
+                  <Link
+                    href='https://molstar.org/docs/plugin/managers/markdown-extensions/'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    <LucideMessageCircleQuestion />
+                    Markdown Command Docs
+                  </Link>
+                </Button>
+                <EncodeCommand />
+              </div>
               <div className='flex gap-6'>
                 <div className='flex-1'>
                   <SceneMarkdownEditor />
@@ -439,6 +464,30 @@ export function SceneEditors() {
         </CardContent>
       </Card>
     </Tabs>
+  );
+}
+
+function EncodeCommand() {
+  const [command, setCommand] = useState('');
+
+  const copy = () => {
+    navigator.clipboard.writeText(encodeURIComponent(command));
+    toast.success('Copied to clipboard', { duration: 1000 });
+  };
+
+  return (
+    <>
+      <ImmediateInput
+        className='h-8 w-100'
+        value={command}
+        placeholder='URL encode command'
+        onChange={setCommand}
+        onEnter={copy}
+      />
+      <Button variant='outline' size='sm' title='Copy URL-encoded command to clipboard' onClick={copy}>
+        <Copy />
+      </Button>
+    </>
   );
 }
 

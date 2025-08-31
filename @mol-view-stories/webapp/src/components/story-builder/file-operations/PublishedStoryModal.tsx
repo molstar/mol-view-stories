@@ -47,6 +47,8 @@ export function PublishedStoryModal() {
   // Create session builder URL pointing to production MolViewStories
   const sessionBuilderUrl = resolveSessionBuilderUrl(shareModal.data.itemId!);
 
+  const embedCode = `<iframe src="${molstarUrl}" style="width:1280px; height:720px; border:none;" title="Mol* Stories Viewer" allow="autoplay"></iframe>`;
+
   const openSessionInViewer = async () => {
     try {
       // Check if session data is available
@@ -84,19 +86,36 @@ export function PublishedStoryModal() {
           </TabsList>
           <TabsContent value='viewer' className='space-y-4 !flex-none -mb-1'>
             {!isLoadingFormat && (
-              <div className='space-y-2'>
-                <Label htmlFor='molstar-url'>Stories Viewer URL</Label>
-                <p className='text-xs text-muted-foreground'>
-                  Opens the story in the Mol* Stories Viewer
-                  {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
-                </p>
-                <div className='flex gap-2'>
-                  <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm' />
-                  <Button variant='outline' size='sm' onClick={() => copyToClipboard(molstarUrl, 'Stories Viewer URL')}>
-                    <Copy className='h-4 w-4' />
-                  </Button>
+              <>
+                <div className='space-y-2'>
+                  <Label htmlFor='molstar-url'>Stories Viewer URL</Label>
+                  <p className='text-xs text-muted-foreground'>
+                    Opens the story in the Mol* Stories Viewer
+                    {storyFormat && <span className='ml-1'>({storyFormat.toUpperCase()} format)</span>}
+                  </p>
+                  <div className='flex gap-2'>
+                    <Input id='molstar-url' value={molstarUrl} readOnly className='font-mono text-sm h-8' />
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => copyToClipboard(molstarUrl, 'Stories Viewer URL')}
+                    >
+                      <Copy className='h-4 w-4' />
+                    </Button>
+                  </div>
                 </div>
-              </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='molstar-url'>Embed Code</Label>
+                  <p className='text-xs text-muted-foreground'>Embed the story viewer in your own website or blog</p>
+                  <div className='flex gap-2'>
+                    <Input id='molstar-url' value={embedCode} readOnly className='font-mono text-sm h-8' />
+                    <Button variant='outline' size='sm' onClick={() => copyToClipboard(embedCode, 'Embed Code')}>
+                      <Copy className='h-4 w-4' />
+                    </Button>
+                  </div>
+                </div>
+              </>
             )}
 
             <div className='flex gap-2 mb-0'>
@@ -114,7 +133,7 @@ export function PublishedStoryModal() {
               <Label htmlFor='public-url'>Public URL</Label>
               <p className='text-xs text-muted-foreground'>Provides direct access to the story data</p>
               <div className='flex gap-2'>
-                <Input id='public-url' value={publicUrl} readOnly className='font-mono text-sm' />
+                <Input id='public-url' value={publicUrl} readOnly className='font-mono text-sm  h-8' />
                 <Button variant='outline' size='sm' onClick={() => copyToClipboard(publicUrl, 'Public URL')}>
                   <Copy className='h-4 w-4' />
                 </Button>
@@ -125,7 +144,7 @@ export function PublishedStoryModal() {
               <Label htmlFor='session-url'>Public Session URL</Label>
               <p className='text-xs text-muted-foreground'>Provides direct access to the session data</p>
               <div className='flex gap-2'>
-                <Input id='session-url' value={sessionUrl} readOnly className='font-mono text-sm' />
+                <Input id='session-url' value={sessionUrl} readOnly className='font-mono text-sm h-8' />
                 <Button variant='outline' size='sm' onClick={() => copyToClipboard(sessionUrl, 'Session URL')}>
                   <Copy className='h-4 w-4' />
                 </Button>
@@ -136,7 +155,7 @@ export function PublishedStoryModal() {
               <Label htmlFor='session-builder-url'>Session Builder URL</Label>
               <p className='text-xs text-muted-foreground'>Open this session in the mol-view-stories builder</p>
               <div className='flex gap-2'>
-                <Input id='session-builder-url' value={sessionBuilderUrl} readOnly className='font-mono text-sm' />
+                <Input id='session-builder-url' value={sessionBuilderUrl} readOnly className='font-mono text-sm h-8' />
                 <Button
                   variant='outline'
                   size='sm'

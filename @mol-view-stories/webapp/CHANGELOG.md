@@ -31,7 +31,11 @@ All notable changes to this project will be documented in this file, following t
 - **Assets**:
   - Ability to upload additional formats
   - Add Download button
-- **Scene Markdown**: Properly render Mol* specific extensions and locally uploaded assets
+- **Scene Markdown**:
+  - Properly render Mol* specific extensions and locally uploaded assets
+  - Asset list and docs link
+- **Scene editor**:
+  - Mol* log under viewer
 
 ## [v1.0.0]
 
