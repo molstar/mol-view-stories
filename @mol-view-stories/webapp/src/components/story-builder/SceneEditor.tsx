@@ -40,7 +40,7 @@ import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
 import { Camera } from 'molstar/lib/mol-canvas3d/camera';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { fileToDataUri } from 'molstar/lib/mol-util/file';
-import { Plugin } from 'molstar/lib/mol-plugin-ui/plugin';
+import { Plugin, PluginContextContainer, Log } from 'molstar/lib/mol-plugin-ui/plugin';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { Markdown } from 'molstar/lib/mol-plugin-ui/controls/markdown';
 import { PluginConfig } from 'molstar/lib/mol-plugin/config';
@@ -359,14 +359,19 @@ function CurrentSceneView() {
     model.loadStory(story, scene);
   }, [model, story, scene]);
 
-  return (
+  return (<>
     <div className='rounded overflow-hidden w-full h-full bg-background relative border'>
       <div className='w-full h-full relative [&_.msp-plugin-content]:border-none!'>
         <PluginWrapper plugin={model.plugin} />
         <LoadingIndicator />
       </div>
     </div>
-  );
+    <div className='rounded overflow-hidden w-full h-40 bg-background relative border mt-4 [&_.msp-log-entry]:bg-gray-50!'>
+      <PluginContextContainer plugin={model.plugin}>
+        <Log />
+      </PluginContextContainer>
+    </div>
+  </>);
 }
 
 export function SceneEditors() {
