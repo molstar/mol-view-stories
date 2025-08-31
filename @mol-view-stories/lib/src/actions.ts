@@ -5,9 +5,10 @@ import { Zip } from 'molstar/lib/mol-util/zip/zip';
 import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode';
 import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip';
-
+import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 import { CameraData, SceneData, Story, StoryContainer } from './types';
 import { Task } from 'molstar/lib/mol-task';
+import { generateStoriesHtml } from './html-template';
 
 const BuilderLib = {
   Vec3,
@@ -126,4 +127,71 @@ export async function createCompressedStoryContainer(story: Story): Promise<Uint
     return await deflate(ctx, encoded, { level: 3 });
   }).run();
   return new Uint8Array(deflated);
+}
+
+
+const codeCache = new Map<string, Promise<Uint8Array>>();
+
+async function downloadStoriesCode(version: string, asset: 'js' | 'css'): Promise<Uint8Array> {
+  const cacheKey = `${version}:${asset}`;
+  if (codeCache.has(cacheKey)) {
+    return codeCache.get(cacheKey)!;
+  }
+
+  try {
+    const req = fetch(`https://cdn.jsdelivr.net/npm/molstar@${version}/build/mvs-stories/mvs-stories.${asset}`);
+
+    const response = await req;
+    if (!response.ok) {
+      codeCache.delete(cacheKey);
+      throw new Error(`Failed to download MolStar version ${version}`);
+    }
+
+    const data = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(data);
+    codeCache.set(cacheKey, Promise.resolve(uint8Array));
+    return uint8Array;
+  } catch (error) {
+    codeCache.delete(cacheKey);
+    throw error;
+  }
+}
+
+/**
+ * Creates a zip file containing the story and its assets for self-hosting purposes
+ */
+export async function createSelfHostedZip(story: Story, options?: { molstarVersion?: string }): Promise<Uint8Array> {
+  const version = options?.molstarVersion || PLUGIN_VERSION;
+
+  const [js, css, data, session] = await Promise.all([
+    downloadStoriesCode(version, 'js'),
+    downloadStoriesCode(version, 'css'),
+    getMVSData(story),
+    createCompressedStoryContainer(story),
+  ]);
+
+  const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
+
+  const dataPath = `story/data.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`
+  const sessionPath = `story/session${SessionFileExtension}`
+
+  const html = generateStoriesHtml({ kind: 'self-hosted', dataPath, sessionPath, format }, {
+    title: story.metadata.title,
+    jsPath: 'assets/mvs-stories.js',
+    cssPath: 'assets/mvs-stories.css',
+  });
+
+  const encoder = new TextEncoder();
+  const encodedData = data instanceof Uint8Array ? data : encoder.encode(JSON.stringify(data));
+
+  const files: Record<string, Uint8Array> = {
+    'assets/mvs-stories.js': js,
+    'assets/mvs-stories.css': css,
+    [dataPath]: encodedData,
+    [sessionPath]: session,
+    'index.html': encoder.encode(html),
+  };
+
+  const zip = await Zip(files).run();
+  return new Uint8Array(zip);
 }

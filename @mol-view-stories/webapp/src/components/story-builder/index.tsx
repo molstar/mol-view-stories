@@ -139,9 +139,12 @@ function StoryPreview() {
         const data = await getMVSData(story);
         if (!isMounted) return;
 
-        const htmlContent = generateStoriesHtml(data, {
-          title: story.metadata.title,
-        });
+        const htmlContent = generateStoriesHtml(
+          { kind: 'embed', data },
+          {
+            title: story.metadata.title,
+          }
+        );
         if (typeof window !== 'undefined') {
           const src = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' }));
           setSrc(src);

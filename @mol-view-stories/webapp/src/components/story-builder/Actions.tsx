@@ -10,6 +10,7 @@ import {
   Download,
   FileCodeIcon,
   FileType,
+  PackageIcon,
   Plus,
   Share2Icon,
   Upload,
@@ -115,7 +116,13 @@ export function StoryActionButtons() {
           <TooltipWrapper side='left' tooltip='Export the current story as a standalone HTML file'>
             <DropdownMenuItem onClick={() => downloadStory(story, 'html')}>
               <FileCodeIcon className='size-4 mr-2' />
-              Export HTML
+              Export Standalone HTML
+            </DropdownMenuItem>
+          </TooltipWrapper>
+          <TooltipWrapper side='left' tooltip='Export the current story with all assets required to self-host it'>
+            <DropdownMenuItem onClick={() => downloadStory(story, 'self-hosted')}>
+              <PackageIcon className='size-4 mr-2' />
+              Export Self-hosted Package
             </DropdownMenuItem>
           </TooltipWrapper>
         </DropdownMenuContent>
@@ -124,7 +131,7 @@ export function StoryActionButtons() {
       {/* Publish button - Green when shared, with yellow dot for changes */}
       <Tooltip delayDuration={250}>
         <TooltipTrigger asChild>
-          <Button onClick={handlePublishClick} variant='default' size='sm' disabled={!auth.isAuthenticated}>
+          <Button onClick={handlePublishClick} variant='default' size='sm'>
             <Share2Icon className='size-4 mr-1' />
             Publish
           </Button>

@@ -148,7 +148,7 @@ export function LoginButton() {
 
   return (
     <>
-      <Button variant={'default'} onClick={login} disabled={isRedirecting} className={cn('cursor-pointer')}>
+      <Button variant='ghost' size='sm' onClick={login} disabled={isRedirecting} className={cn('cursor-pointer')}>
         <LogInIcon />
         {isRedirecting && 'Authenticating...'}
         {!isRedirecting && 'Log in'}
