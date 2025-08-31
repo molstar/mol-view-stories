@@ -13,9 +13,6 @@ All notable changes to this project will be documented in this file, following t
   - CI/CD pipeline for development and production deployment
   - Comprehensive test suite with pytest coverage
 - `Vec3`, `Mat3`, `Mat4`, `Quat`, `Euler` accessible in the code editor
-- Scene editor:
-  - Mol* log under viewer
-  - Asset list and docs in scene markdown editor
 
 ### Changed
 - **Session Upload Optimization**: Replaced base64 encoding with native FormData uploads
@@ -34,7 +31,11 @@ All notable changes to this project will be documented in this file, following t
 - **Assets**:
   - Ability to upload additional formats
   - Add Download button
-- **Scene Markdown**: Properly render Mol* specific extensions and locally uploaded assets
+- **Scene Markdown**:
+  - Properly render Mol* specific extensions and locally uploaded assets
+  - Asset list and docs link
+- **Scene editor**:
+  - Mol* log under viewer
 
 ## [v1.0.0]
 
