@@ -365,13 +365,13 @@ function CurrentSceneView() {
 
   return (
     <>
-      <div className='rounded overflow-hidden w-full h-full bg-background relative border'>
+      <div className='rounded-t overflow-hidden w-full h-full bg-background relative border'>
         <div className='w-full h-full relative [&_.msp-plugin-content]:border-none!'>
           <PluginWrapper plugin={model.plugin} />
           <LoadingIndicator />
         </div>
       </div>
-      <div className='rounded overflow-hidden w-full h-40 bg-background relative border mt-4 [&_.msp-log-entry]:bg-gray-50!'>
+      <div className='rounded-b overflow-hidden w-full h-40 bg-background relative border [&_.msp-log-entry]:bg-gray-50! [&_.msp-log]:bg-white! border-t-0'>
         <PluginContextContainer plugin={model.plugin}>
           <Log />
         </PluginContextContainer>
