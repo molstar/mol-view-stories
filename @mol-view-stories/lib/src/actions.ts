@@ -17,7 +17,7 @@ const BuilderLib = {
   Mat4,
   Quat,
   Euler,
-  decodeColor
+  decodeColor,
 };
 
 export const BuilderLibNamespaces = Object.keys(BuilderLib);
@@ -131,7 +131,6 @@ export async function createCompressedStoryContainer(story: Story): Promise<Uint
   return new Uint8Array(deflated);
 }
 
-
 const codeCache = new Map<string, Promise<Uint8Array>>();
 
 async function downloadStoriesCode(version: string, asset: 'js' | 'css'): Promise<Uint8Array> {
@@ -174,14 +173,17 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
 
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
-  const dataPath = `story/data.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`
-  const sessionPath = `story/session${SessionFileExtension}`
+  const dataPath = `story/data.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
+  const sessionPath = `story/session${SessionFileExtension}`;
 
-  const html = generateStoriesHtml({ kind: 'self-hosted', dataPath, sessionPath, format }, {
-    title: story.metadata.title,
-    jsPath: 'assets/mvs-stories.js',
-    cssPath: 'assets/mvs-stories.css',
-  });
+  const html = generateStoriesHtml(
+    { kind: 'self-hosted', dataPath, sessionPath, format },
+    {
+      title: story.metadata.title,
+      jsPath: 'assets/mvs-stories.js',
+      cssPath: 'assets/mvs-stories.css',
+    }
+  );
 
   const encoder = new TextEncoder();
   const encodedData = data instanceof Uint8Array ? data : encoder.encode(JSON.stringify(data));

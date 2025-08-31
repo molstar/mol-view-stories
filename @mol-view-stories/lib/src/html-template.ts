@@ -2,7 +2,9 @@ import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 
 export function generateStoriesHtml(
-  data: { kind: 'embed', data: MVSData | Uint8Array } | { kind: 'self-hosted', dataPath: string, sessionPath?: string, format: string },
+  data:
+    | { kind: 'embed'; data: MVSData | Uint8Array }
+    | { kind: 'self-hosted'; dataPath: string; sessionPath?: string; format: string },
   options?: {
     title?: string;
     molstarVersion?: string;
@@ -10,9 +12,18 @@ export function generateStoriesHtml(
     cssPath?: string;
   }
 ): string {
-
-  const js = options?.jsPath ?? `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.js`.replace('{{version}}', options?.molstarVersion ?? PLUGIN_VERSION);
-  const css = options?.cssPath ?? `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.css`.replace('{{version}}', options?.molstarVersion ?? PLUGIN_VERSION);
+  const js =
+    options?.jsPath ??
+    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.js`.replace(
+      '{{version}}',
+      options?.molstarVersion ?? PLUGIN_VERSION
+    );
+  const css =
+    options?.cssPath ??
+    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.css`.replace(
+      '{{version}}',
+      options?.molstarVersion ?? PLUGIN_VERSION
+    );
 
   let loader: string;
   let extraLinks: string = '';
@@ -162,4 +173,4 @@ const Template = `<!DOCTYPE html>
 
 const ExtraLinks = `
         <a href="{{session-link}}" title="Download a session file which can be opened in the MolViewStories Builder">Download Story Session</a>&nbsp;<span class="sep">•</span> 
-`
+`;
