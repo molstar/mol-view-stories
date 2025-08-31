@@ -2,27 +2,62 @@ import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 
 export function generateStoriesHtml(
-  data: MVSData | Uint8Array,
+  data:
+    | { kind: 'embed'; data: MVSData | Uint8Array }
+    | { kind: 'self-hosted'; dataPath: string; sessionPath?: string; format: string },
   options?: {
     title?: string;
     molstarVersion?: string;
+    jsPath?: string;
+    cssPath?: string;
   }
 ): string {
-  const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
+  const js =
+    options?.jsPath ??
+    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.js`.replace(
+      '{{version}}',
+      options?.molstarVersion ?? PLUGIN_VERSION
+    );
+  const css =
+    options?.cssPath ??
+    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.css`.replace(
+      '{{version}}',
+      options?.molstarVersion ?? PLUGIN_VERSION
+    );
 
-  let state;
+  let loader: string;
+  let extraLinks: string = '';
 
-  if (data instanceof Uint8Array) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state = `"base64,${(data as any).toBase64()}"`;
+  if (data.kind === 'embed') {
+    const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
+
+    let state;
+    if (data.data instanceof Uint8Array) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      state = `"base64,${(data.data as any).toBase64()}"`;
+    } else {
+      state = JSON.stringify(data.data);
+    }
+
+    loader = `
+        var mvsData = ${state};
+
+        mvsStories.loadFromData(mvsData, { format: '${format}' });
+    `;
   } else {
-    state = JSON.stringify(data);
+    if (data.sessionPath) {
+      extraLinks = ExtraLinks.replaceAll('{{session-link}}', data.sessionPath.replace('"', '\\\"'));
+    }
+    loader = `
+        mvsStories.loadFromURL('${data.dataPath.replace("'", "\\'")}', { format: '${data.format}' });
+    `;
   }
 
-  const html = Template.replaceAll('{{version}}', options?.molstarVersion ?? PLUGIN_VERSION)
+  const html = Template.replace('{{js-path}}', js)
+    .replace('{{extra-links}}', extraLinks)
+    .replace('{{css-path}}', css)
     .replace('{{title}}', options?.title ?? 'Untitled Story')
-    .replace('{{format}}', format)
-    .replace('{{state}}', state);
+    .replace('{{loader}}', loader);
 
   return html;
 }
@@ -65,6 +100,25 @@ const Template = `<!DOCTYPE html>
             gap: 16px;
         }
 
+        #links {
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 0.6rem;
+            z-index: -1;
+            color: #666;
+        }
+
+        #links a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        #links .sep {
+            color: #aaa;
+        }
+
         @media (orientation:portrait) {
             #viewer {
                 position: absolute;
@@ -88,8 +142,8 @@ const Template = `<!DOCTYPE html>
             }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.css" />
+    <script src="{{js-path}}"></script>
+    <link rel="stylesheet" type="text/css" href="{{css-path}}" />
 </head>
 <body>
     <div id="viewer">
@@ -99,10 +153,24 @@ const Template = `<!DOCTYPE html>
         <mvs-stories-snapshot-markdown style="flex-grow: 1;"></ mvs-stories-snapshot-markdown>
     </div>
 
-    <script>
-        var mvsData = {{state}};
+    <div id="links">
+        {{extra-links}}
+        <a href="#" id="mvs-data" title="MolViewSpec State for this story. Can be opened in the Mol* app.">Download MVS</a> <span class="sep">•</span> 
+        <a href="https://molstar.org/mol-view-stories/" id="mvs-data" target="_blank" rel="noopener noreferrer">Created with MolViewStories</a> <span class="sep">•</span> 
+        <a href="https://molstar.org" id="mvs-data" target="_blank" rel="noopener noreferrer">Mol*</a>
+    </div>
 
-        mvsStories.loadFromData(mvsData, { format: '{{format}}' });
+    <script>
+        {{loader}}
+
+        document.getElementById('mvs-data').addEventListener('click', (e) => {
+            e.preventDefault();
+            mvsStories.downloadCurrentStory();
+        });
     </script>
 </body>
 </html>`;
+
+const ExtraLinks = `
+        <a href="{{session-link}}" title="Download a session file which can be opened in the MolViewStories Builder">Download Story Session</a>&nbsp;<span class="sep">•</span> 
+`;

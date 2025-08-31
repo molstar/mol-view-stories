@@ -2995,4 +2995,5 @@ declare const Mat3: typeof _.Mat3;
 declare const Mat4: typeof _.Mat4;
 declare const Quat: typeof _.Quat;
 declare const Euler: typeof _.Euler;
+declare function decodeColor(input: string): number;
 `;

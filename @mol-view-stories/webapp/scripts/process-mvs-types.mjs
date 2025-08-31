@@ -17,6 +17,7 @@ const final = [
     '',
     'declare const builder: _.Builder;',
     ...lib.map(name => `declare const ${name}: typeof _.${name};`),
+    `declare function decodeColor(input: string): number;`,
     '`;',
 ];
 

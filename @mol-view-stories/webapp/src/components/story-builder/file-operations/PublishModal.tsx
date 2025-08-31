@@ -16,10 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAtom, useAtomValue } from 'jotai';
-import { Share2, Search, Plus, AlertTriangle } from 'lucide-react';
+import { Share2, Search, Plus, AlertTriangle, Package, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { StoryItem } from '@/app/state/types';
 import { useState, useMemo, useEffect } from 'react';
+import { downloadStory, Story } from '@/app/appstate';
 
 export function PublishModal() {
   const story = useAtomValue(StoryAtom);
@@ -32,7 +33,9 @@ export function PublishModal() {
   // State for story selection and search
   const [selectedStory, setSelectedStory] = useState<StoryItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('new');
+  const [activeTab, setActiveTab] = useState<'new' | 'overwrite' | 'self-hosted'>(
+    auth.isAuthenticated ? 'new' : 'self-hosted'
+  );
 
   const handleClose = () => {
     setState((prev) => ({ ...prev, isOpen: false }));
@@ -78,7 +81,7 @@ export function PublishModal() {
   };
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    setActiveTab(value as 'new' | 'overwrite' | 'self-hosted');
     if (value === 'new') {
       setSelectedStory(null);
     } else if (value === 'overwrite' && stories && stories.length > 0) {
@@ -112,7 +115,7 @@ export function PublishModal() {
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className='grid grid-cols-2 w-full'>
+          <TabsList className='grid grid-cols-3 w-full'>
             <TabsTrigger value='new' className='flex items-center gap-2'>
               <Plus className='h-4 w-4' />
               New Story
@@ -121,20 +124,31 @@ export function PublishModal() {
               <Share2 className='h-4 w-4' />
               Overwrite
             </TabsTrigger>
+            <TabsTrigger value='self-hosted' className='flex items-center gap-2'>
+              <Package className='h-4 w-4' />
+              Self-hosted
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='new' className='space-y-4'>
-            <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-              <div className='flex items-start gap-3'>
-                <Plus className='h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0' />
-                <div>
-                  <h4 className='font-medium text-blue-900'>Publish New Story</h4>
-                  <p className='text-sm text-blue-700 mt-1'>
-                    This will publish a new story titled &quot;{story.metadata.title}&quot;
-                  </p>
+            {!auth.isAuthenticated && (
+              <div className='p-4 bg-amber-50 border border-amber-200 rounded-lg'>
+                <p className='text-sm text-amber-800'>Please log in to enable this feature</p>
+              </div>
+            )}
+            {auth.isAuthenticated && (
+              <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+                <div className='flex items-start gap-3'>
+                  <Plus className='h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0' />
+                  <div>
+                    <h4 className='font-medium text-blue-900'>Publish New Story</h4>
+                    <p className='text-sm text-blue-700 mt-1'>
+                      This will publish a new story titled &quot;{story.metadata.title}&quot;
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </TabsContent>
 
           <TabsContent value='overwrite' className='space-y-4 relative'>
@@ -214,19 +228,54 @@ export function PublishModal() {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value='self-hosted' className='space-y-4'>
+            <SelfHostedTab story={story} />
+          </TabsContent>
         </Tabs>
 
-        <DialogFooter>
-          <Button
-            variant='default'
-            onClick={publish}
-            disabled={publishModal.status === 'processing' || (activeTab === 'overwrite' && !selectedStory)}
-          >
-            <Share2 className='size-4' />
-            {activeTab === 'overwrite' && selectedStory ? 'Overwrite Selected Story' : 'Publish New Story'}
-          </Button>
-        </DialogFooter>
+        {activeTab !== 'self-hosted' && (
+          <DialogFooter>
+            <Button
+              variant='default'
+              onClick={publish}
+              disabled={publishModal.status === 'processing' || (activeTab === 'overwrite' && !selectedStory)}
+            >
+              <Share2 className='size-4' />
+              {activeTab === 'overwrite' && selectedStory ? 'Overwrite Selected Story' : 'Publish New Story'}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SelfHostedTab({ story }: { story: Story }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const download = () => {
+    setIsLoading(true);
+    downloadStory(story, 'self-hosted').finally(() => setIsLoading(false));
+  };
+
+  return (
+    <>
+      <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+        <div className='flex items-start gap-3'>
+          <Package className='h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0' />
+          <div>
+            <h4 className='font-medium text-blue-900'>Self-host this story</h4>
+            <p className='text-sm text-blue-700 mt-1'>
+              The self-hosted package contains all files necessary to host this story on your own web server or static
+              site hosting service (e.g., GitHub Pages).
+            </p>
+          </div>
+        </div>
+      </div>
+      <Button variant='default' onClick={download} className='w-full' disabled={isLoading}>
+        <Download className='size-4' />
+        Self-hosted Package (.zip)
+      </Button>
+    </>
   );
 }

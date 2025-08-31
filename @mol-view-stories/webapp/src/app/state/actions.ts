@@ -3,6 +3,7 @@
 import { tryFindIfStoryIsShared } from '@/lib/data-utils';
 import {
   createCompressedStoryContainer,
+  createSelfHostedZip,
   getMVSData as getMVSDataLib,
   readStoryContainer,
   SessionFileExtension,
@@ -96,25 +97,41 @@ export function newStory() {
 
 // Should be sync with typing generation in the scripts directory
 
-export async function downloadStory(story: Story, how: 'state' | 'html') {
+function normalizeStoryFilename(filename: string) {
+  return (
+    filename
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+      .toLowerCase()
+      .substring(0, 20) || 'story'
+  );
+}
+
+export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-hosted') {
   // TODO:
   // - download as HTML with embedded state
   try {
     const data = await getMVSData(story);
     let blob: Blob;
     let filename: string;
-    if (how === 'html') {
-      const htmlContent = generateStoriesHtml(data, {
-        title: story.metadata.title,
-      });
+    if (how === 'self-hosted') {
+      const zip = await createSelfHostedZip(story);
+      blob = new Blob([zip as Uint8Array<ArrayBuffer>], { type: 'application/zip' });
+      filename = `${normalizeStoryFilename(story.metadata.title)}-self_hosted.zip`;
+    } else if (how === 'html') {
+      const htmlContent = generateStoriesHtml(
+        { kind: 'embed', data },
+        {
+          title: story.metadata.title,
+        }
+      );
       blob = new Blob([htmlContent], { type: 'text/html' });
-      filename = `story-${Date.now()}.html`;
+      filename = `${normalizeStoryFilename(story.metadata.title)}.html`;
     } else if (how === 'state') {
       blob =
         data instanceof Uint8Array
           ? new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' })
           : new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      filename = `story-${Date.now()}.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
+      filename = `${normalizeStoryFilename(story.metadata.title)}.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
     } else {
       console.warn("Invalid download type specified. Use 'state' or 'html'.");
       return;
