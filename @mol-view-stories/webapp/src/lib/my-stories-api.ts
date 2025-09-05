@@ -205,7 +205,7 @@ async function loadStorySession(storyId: string) {
  * Updates global state with the session's story data
  * Used with ?session-url= parameter for cross-origin session loading
  */
-export async function loadSessionFromUrl(url: string) {
+export async function loadSessionFromUrl(url: string, options?: { doNotCleanSessionId?: boolean }) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
@@ -220,17 +220,8 @@ export async function loadSessionFromUrl(url: string) {
     const blob = await response.blob();
     await importState(blob, {
       throwOnError: true,
-      doNotCleanSessionId: false, // Clean session ID for external loads
+      doNotCleanSessionId: options?.doNotCleanSessionId,
     });
-
-    // Clear the session-url parameter from URL
-    try {
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.delete('session-url');
-      window.history.replaceState({}, '', currentUrl.toString());
-    } catch (error) {
-      console.warn('Failed to clear session-url parameter:', error);
-    }
   } catch (err) {
     console.error('Error loading session from URL:', err);
     const errorMessage = err instanceof Error ? err.message : 'Failed to load session data';

@@ -100,19 +100,17 @@ function Features() {
   ];
 
   return (
-    <section className='py-10 px-4 md:px-8 bg-background'>
-      <div className='max-w-6xl mx-auto'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-          {features.map((feature, index) => (
-            <div key={index} className='p-6 rounded-lg border border-border bg-card hover:shadow-lg transition-shadow'>
-              <div className='text-primary mb-4'>{feature.icon}</div>
-              <h3 className='text-xl font-semibold text-foreground mb-3'>{feature.title}</h3>
-              <p className='text-muted-foreground leading-relaxed'>{feature.description}</p>
-            </div>
-          ))}
-        </div>
+    <div className='max-w-6xl mx-auto'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+        {features.map((feature, index) => (
+          <div key={index} className='p-6 rounded-lg border border-border bg-card hover:shadow-lg transition-shadow'>
+            <div className='text-primary mb-4'>{feature.icon}</div>
+            <h3 className='text-xl font-semibold text-foreground mb-3'>{feature.title}</h3>
+            <p className='text-muted-foreground leading-relaxed'>{feature.description}</p>
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -122,22 +120,19 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Main className='flex-1'>
-        <section className='py-20 px-4 md:px-8 bg-gradient-to-br from-background to-muted/20'>
+      <Main className='flex-1 gap-0'>
+        <section className='pt-20 pb-10 px-4 md:px-8 bg-gradient-to-br from-background to-muted/20'>
           <div className='max-w-4xl mx-auto text-center'>
-            <h1 className='text-5xl md:text-6xl font-bold text-foreground mb-6'>
-              Create Interactive
-              <span className='text-primary'> Molecular Stories</span>
-            </h1>
+            <h1 className='text-5xl md:text-6xl font-bold text-foreground mb-6'>MolViewStories</h1>
 
             <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
-              Build engaging, interactive molecular visualizations with code. Combine MolStar&apos;s powerful 3D
-              rendering with custom scripts to tell your scientific story.
+              Build engaging and interactive molecular visualizations with code by combining Mol*&apos;s powerful 3D
+              rendering with custom scripts to tell your scientific story
             </p>
 
-            <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mb-8'>
+            <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
               <Link
-                href='/builder?template=Empty'
+                href='/builder?template=empty'
                 className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex gap-2 items-center'
               >
                 <BookOpen className='w-4 h-4' />
@@ -189,26 +184,52 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </section>
 
+        <section className='py-10 px-4 bg-background'>
           <div className='max-w-4xl mx-auto text-center'>
-            <h2 className='text-3xl md:text-3xl font-bold text-foreground mb-6'>Examples</h2>
+            <h2 className='text-3xl md:text-3xl font-bold text-foreground mb-6'>Example Stories</h2>
           </div>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-            {ExampleStoryList.map((example) => (
-              <Link
-                key={example.key}
-                className='border border-border px-8 py-3 rounded-lg font-semibold text-foreground hover:bg-muted/50 transition-colors'
-                href={`/builder?template=${example.key}`}
-              >
-                {example.name}
-              </Link>
-            ))}
+
+          <div className='max-w-6xl mx-auto'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+              {ExampleStoryList.map((example) => (
+                <Example key={example.path} path={example.path} name={example.name} />
+              ))}
+            </div>
           </div>
         </section>
 
-        <Features />
+        <section className='py-10 px-4 md:px-8 bg-background'>
+          <div className='max-w-4xl mx-auto mb-20'>
+            <div className='border-t'></div>
+          </div>
+          <Features />
+        </section>
         <div className='text-right text-sm text-muted-foreground py-6 mt-10'>Version {APP_VERSION}</div>
       </Main>
     </>
+  );
+}
+
+function Example({ path, name }: { path: string; name: string }) {
+  return (
+    <Link
+      key={path}
+      className='border border-gray-300 rounded-lg font-semibold text-foreground hover:shadow-lg transition-shadow transition-colors relative justify-center flex h-45'
+      style={{
+        backgroundImage: `url(/${process.env.NEXT_PUBLIC_APP_PREFIX ?? ''}examples/${path}/thumb.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      href={`/builder?template=${path}`}
+    >
+      <div
+        className='absolute text-center w-full bottom-0 px-3 py-2 rounded-b-lg'
+        style={{ background: 'rgba(255, 255, 255, 0.85)' }}
+      >
+        {name}
+      </div>
+    </Link>
   );
 }
