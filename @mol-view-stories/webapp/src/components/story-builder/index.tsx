@@ -34,22 +34,13 @@ export default function StoryBuilderPage() {
 
     const url = sessionUrl ?? resolvePublishedSessionUrl(publishedSessionId);
     if (url) {
-      loadSessionFromUrl(url);
-      try {
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.delete('session-url');
-        currentUrl.searchParams.delete('published-session-id');
-        window.history.replaceState({}, '', currentUrl.toString());
-      } catch (error) {
-        console.warn('Failed to clear URL params for external session load:', error);
-      }
+      loadSessionFromUrl(url, { doNotCleanSessionId: true });
       return;
     }
 
     if (sessionId) {
       // Load session with type information to avoid unnecessary API calls
       loadSession(sessionId, sessionType ? { type: sessionType } : undefined);
-
       return;
     }
 
@@ -57,20 +48,22 @@ export default function StoryBuilderPage() {
     if (!templateName) return;
 
     let story = ExampleStories[templateName as keyof typeof ExampleStories];
-    if (!story) story = ExampleStories.Empty;
+    if (!story) story = ExampleStories.empty;
+
+    if (typeof story === 'string') {
+      const url = `/${process.env.NEXT_PUBLIC_APP_PREFIX ?? ''}examples/${templateName}/story.mvstory`;
+      loadSessionFromUrl(url, { doNotCleanSessionId: true });
+      return;
+    }
 
     store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
     store.set(SessionMetadataAtom, null);
 
-    // clear search params
-    try {
+    if (templateName.toLowerCase() === 'empty') {
       const url = new URL(window.location.href);
-      url.searchParams.delete('template');
+      url.search = '';
       window.history.replaceState({}, '', url.toString());
-    } catch (error) {
-      // window APIs might not be available
-      console.warn('Failed to clear search params:', error);
     }
   }, [store]);
 

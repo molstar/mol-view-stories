@@ -4,8 +4,10 @@ import { KinaseStory } from './kinase';
 import { ComprehensiveStory } from './mvs_examples';
 
 export const ExampleStories = {
-  Empty: EmptyStory,
-  Simple: SimpleStory,
-  Kinase: KinaseStory,
-  'MVS-Examples': ComprehensiveStory,
+  empty: EmptyStory,
+  simple: SimpleStory,
+  kinase: KinaseStory,
+  'mvs-examples': ComprehensiveStory,
+  'terms-of-entrapment': 'download',
+  exosome: 'download',
 };

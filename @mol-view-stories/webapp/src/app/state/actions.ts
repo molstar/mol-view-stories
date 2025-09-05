@@ -39,10 +39,9 @@ export function setIsDirty(isDirty: boolean = true) {
 
 export function setSessionIdUrl(sessionId: string | undefined) {
   const url = new URL(window.location.href);
+  url.search = '';
   if (sessionId) {
     url.searchParams.set('session-id', sessionId);
-  } else {
-    url.searchParams.delete('session-id');
   }
   window.history.replaceState({}, '', url.toString());
 }
@@ -89,7 +88,7 @@ export function addScene(options?: { duplicate?: boolean }) {
 export function newStory() {
   const store = getDefaultStore();
   store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
-  store.set(StoryAtom, ExampleStories.Empty);
+  store.set(StoryAtom, ExampleStories.empty);
   store.set(SessionMetadataAtom, null); // Clear session metadata for new stories
   setIsDirty(false);
   setSessionIdUrl(undefined);
@@ -146,7 +145,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
 export const exportState = async (story: Story) => {
   const container = await createCompressedStoryContainer(story);
   const blob = new Blob([container as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
-  const filename = `story-${Date.now()}${SessionFileExtension}`;
+  const filename = `${normalizeStoryFilename(story.metadata.title)}${SessionFileExtension}`;
   download(blob, filename);
 };
 

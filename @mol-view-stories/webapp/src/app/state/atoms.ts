@@ -91,7 +91,7 @@ export function compareStories(currentStory: Story, initialStory: Story): boolea
 
 export const IsSessionLoadingAtom = atom<boolean>(false);
 
-export const StoryAtom = atom<Story>(ExampleStories.Empty);
+export const StoryAtom = atom<Story>(ExampleStories.empty);
 
 export const CurrentViewAtom = atom<CurrentView>({ type: 'story-options', subview: 'story-metadata' });
 

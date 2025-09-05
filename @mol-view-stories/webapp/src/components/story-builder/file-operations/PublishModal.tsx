@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAtom, useAtomValue } from 'jotai';
-import { Share2, Search, Plus, AlertTriangle, Package, Download } from 'lucide-react';
+import { Share2, Search, Plus, AlertTriangle, Package, Download, Replace } from 'lucide-react';
 import { toast } from 'sonner';
 import { StoryItem } from '@/app/state/types';
 import { useState, useMemo, useEffect } from 'react';
@@ -121,7 +121,7 @@ export function PublishModal() {
               New Story
             </TabsTrigger>
             <TabsTrigger value='overwrite' className='flex items-center gap-2'>
-              <Share2 className='h-4 w-4' />
+              <Replace className='h-4 w-4' />
               Overwrite
             </TabsTrigger>
             <TabsTrigger value='self-hosted' className='flex items-center gap-2'>
@@ -197,7 +197,6 @@ export function PublishModal() {
                           }`}
                         >
                           <div className='flex items-start gap-3' title={storyItem.title}>
-                            {/* <Share2 className='h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0' /> */}
                             <div className='flex-1 min-w-0'>
                               <div className='font-medium text-gray-900 text-sm truncate'>{storyItem.title}</div>
                               {storyItem.description && (
@@ -230,34 +229,48 @@ export function PublishModal() {
           </TabsContent>
 
           <TabsContent value='self-hosted' className='space-y-4'>
-            <SelfHostedTab story={story} />
+            <SelfHostedTab />
           </TabsContent>
         </Tabs>
 
-        {activeTab !== 'self-hosted' && (
-          <DialogFooter>
+        <DialogFooter>
+          {activeTab !== 'self-hosted' && (
             <Button
               variant='default'
               onClick={publish}
-              disabled={publishModal.status === 'processing' || (activeTab === 'overwrite' && !selectedStory)}
+              disabled={
+                publishModal.status === 'processing' ||
+                (activeTab === 'overwrite' && !selectedStory) ||
+                !auth.isAuthenticated
+              }
             >
               <Share2 className='size-4' />
               {activeTab === 'overwrite' && selectedStory ? 'Overwrite Selected Story' : 'Publish New Story'}
             </Button>
-          </DialogFooter>
-        )}
+          )}
+          {activeTab === 'self-hosted' && <DownloadSelfHoster story={story} />}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-function SelfHostedTab({ story }: { story: Story }) {
+function DownloadSelfHoster({ story }: { story: Story }) {
   const [isLoading, setIsLoading] = useState(false);
   const download = () => {
     setIsLoading(true);
     downloadStory(story, 'self-hosted').finally(() => setIsLoading(false));
   };
 
+  return (
+    <Button variant='default' onClick={download} disabled={isLoading}>
+      <Download className='size-4' />
+      Self-hosted Package (.zip)
+    </Button>
+  );
+}
+
+function SelfHostedTab() {
   return (
     <>
       <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
@@ -272,10 +285,6 @@ function SelfHostedTab({ story }: { story: Story }) {
           </div>
         </div>
       </div>
-      <Button variant='default' onClick={download} className='w-full' disabled={isLoading}>
-        <Download className='size-4' />
-        Self-hosted Package (.zip)
-      </Button>
     </>
   );
 }
