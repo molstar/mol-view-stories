@@ -16,8 +16,6 @@ on:
     tags:
       - 'v*'
       - 'release-*'
-  pull_request:
-    branches: [ main ]
 
 env:
   REGISTRY: cerit.io
@@ -40,12 +38,8 @@ jobs:
       - name: Get release version
         id: release-version
         run: |
-          # For PR deployments, use the specified dev image tag
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            VERSION="v1.0.0-dev.2"
-            echo "Using PR test image tag: $VERSION"
           # Always try to get the tag name first (for tag pushes)
-          elif [ "${{ github.event_name }}" = "push" ]; then
+          if [ "${{ github.event_name }}" = "push" ]; then
             VERSION="${{ github.ref_name }}"
             echo "Using tag from push event: $VERSION"
           else
@@ -291,6 +285,12 @@ jobs:
               kubectl logs $pod -n mol-view-stories-ns --tail=50 || true
               # Don't exit on individual pod failure during rolling update
               echo "WARNING: Continuing despite pod $pod readiness issue"
+            }
+            
+            # Test health endpoint
+            echo "Testing health endpoint for pod $pod..."
+            kubectl exec $pod -n mol-view-stories-ns -- curl -f -s --max-time 10 http://localhost:5000/health >/dev/null || {
+              echo "WARNING: Health endpoint test failed for pod $pod"
             }
           done
 

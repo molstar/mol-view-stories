@@ -2,7 +2,7 @@ name: UI Dev CI/CD Pipeline
 
 on:
   push:
-    branches-ignore: []
+    branches: [ main ]
     paths:
       - '@mol-view-stories/webapp/**'
       - '@mol-view-stories/lib/**'
@@ -136,7 +136,7 @@ jobs:
         with:
           context: .
           file: '@mol-view-stories/webapp/Dockerfile'
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
@@ -151,6 +151,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Verify pushed image
+        if: github.event_name != 'pull_request'
         run: |
           echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
@@ -173,8 +174,8 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    # Run dev deployment from PRs (so feature branches with PRs deploy to dev)
-    if: github.event_name == 'pull_request'
+    # Run dev deployment only on pushes to main
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository

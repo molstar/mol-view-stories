@@ -35,6 +35,64 @@ app.register_blueprint(story_bp)
 app.register_blueprint(admin_bp)
 
 
+@app.route("/health", methods=["GET"])
+@app.route("/ready", methods=["GET"])
+def health():
+    """Health check endpoint that verifies application and dependencies."""
+    health_status = {"status": "healthy", "timestamp": None, "checks": {}}
+
+    try:
+        from datetime import datetime
+
+        health_status["timestamp"] = datetime.utcnow().isoformat() + "Z"
+
+        # Check MinIO connectivity
+        try:
+            from storage.client import MINIO_BUCKET, MINIO_ENABLED, minio_client
+
+            if MINIO_ENABLED and minio_client:
+                # Test MinIO connection by listing buckets
+                buckets = minio_client.list_buckets()
+                health_status["checks"]["minio"] = {
+                    "status": "healthy",
+                    "buckets_count": len(buckets),
+                    "configured_bucket": MINIO_BUCKET,
+                }
+            else:
+                health_status["checks"]["minio"] = {
+                    "status": "disabled",
+                    "message": "MinIO not configured",
+                }
+        except Exception as e:
+            health_status["checks"]["minio"] = {"status": "unhealthy", "error": str(e)}
+            health_status["status"] = "unhealthy"
+
+        # Check Flask app status
+        health_status["checks"]["flask"] = {
+            "status": "healthy",
+            "environment": app.config.get("ENVIRONMENT", "unknown"),
+        }
+
+        # Determine overall status
+        if health_status["status"] == "healthy":
+            return jsonify(health_status), 200
+        else:
+            return jsonify(health_status), 503
+
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "status": "unhealthy",
+                    "error": str(e),
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                }
+            ),
+            500,
+        )
+
+
 # Global error handler for file size limits
 @app.errorhandler(RequestEntityTooLarge)
 def handle_file_too_large(e):

@@ -2,7 +2,7 @@ name: API CI/CD Pipeline
 
 on:
   push:
-    branches-ignore: []
+    branches: [ main ]
     paths:
       - 'api/Dockerfile'
       - 'api/app.py'
@@ -16,6 +16,7 @@ on:
       - 'api/requirements.txt'
       - '.github/workflows/ci-cd.yml'
       - 'api/deploy-dev.yaml'
+
   pull_request:
     branches: [ main ]
     paths:
@@ -31,6 +32,7 @@ on:
       - 'api/requirements.txt'
       - '.github/workflows/ci-cd.yml'
       - 'api/deploy-dev.yaml'
+
 
 env:
   REGISTRY: cerit.io
@@ -100,7 +102,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./api
-        push: true
+        push: ${{ github.event_name != 'pull_request' }}
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
@@ -109,12 +111,13 @@ jobs:
         cache-to: type=gha,mode=max
 
     - name: Verify pushed image
+      if: github.event_name != 'pull_request'
       run: |
         echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
 
     - name: PR Check Summary
-      if: github.event_name == 'pull_request'
+      if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
       run: |
         echo "## API PR Check Summary" >> $GITHUB_STEP_SUMMARY
         echo "- **PR Number**: #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
@@ -130,8 +133,7 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    # Run dev deployment from PRs (so feature branches with PRs deploy to dev)
-    if: github.event_name == 'pull_request'
+    if: github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout repository
@@ -296,6 +298,12 @@ jobs:
               kubectl logs $pod -n mol-view-stories-ns --tail=50 || true
               # Don't exit on individual pod failure during rolling update
               echo "WARNING: Continuing despite pod $pod readiness issue"
+            }
+            
+            # Test health endpoint
+            echo "Testing health endpoint for pod $pod..."
+            kubectl exec $pod -n mol-view-stories-ns -- curl -f -s --max-time 10 http://localhost:5000/health >/dev/null || {
+              echo "WARNING: Health endpoint test failed for pod $pod"
             }
           done
 
