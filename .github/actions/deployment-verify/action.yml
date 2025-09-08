@@ -1,0 +1,20 @@
+name: 'Deployment Verify'
+description: 'Verify Kubernetes deployment resources (pods, services, ingress)'
+inputs:
+  app-label:
+    description: 'App label selector for resources'
+    required: true
+  namespace:
+    description: 'Kubernetes namespace'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Verify deployment resources
+      run: |
+        echo "Verifying deployment resources..."
+        kubectl get pods -n ${{ inputs.namespace }} -l ${{ inputs.app-label }}
+        kubectl get services -n ${{ inputs.namespace }} -l ${{ inputs.app-label }}
+        kubectl get ingress -n ${{ inputs.namespace }} -l ${{ inputs.app-label }}
+      shell: bash

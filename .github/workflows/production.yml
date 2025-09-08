@@ -187,36 +187,8 @@ jobs:
             # Restart deployment to ensure new image is pulled
             kubectl rollout restart deployment/mol-view-stories-api -n mol-view-stories-ns
             
-            # Monitor rollout with detailed logging
+            # Monitor rollout using composite action
             echo "Starting rollout monitoring..."
-            timeout 600s bash -c '
-              while true; do
-                echo "=== Rollout Status Check $(date) ==="
-                kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=30s || {
-                  echo "Rollout status check timed out, investigating..."
-                  echo "Current deployment summary:"
-                  kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns -o wide
-                  echo "Deployment details (conditions):"
-                  kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns -o yaml | grep -A 10 -B 10 -E "(replicas|conditions|message)"
-                  echo "Current pods:"
-                  kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o wide || true
-                  echo "ReplicaSet status:"
-                  kubectl get rs -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o wide || true
-                  echo "Recent events:"
-                  kubectl get events -n mol-view-stories-ns --sort-by=.lastTimestamp | tail -20 || true
-                  continue
-                }
-                echo "Rollout completed successfully!"
-                break
-              done
-            ' || {
-              echo "ERROR: Deployment timed out after 10 minutes"
-              echo "Final deployment state:"
-              kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns -o yaml
-              kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o wide
-              kubectl describe deployment/mol-view-stories-api -n mol-view-stories-ns
-              exit 1
-            }
           else
             echo "Production deployment does not exist, creating new production deployment..."
             # Create a new production deployment using the deployment file with proper image replacement
@@ -234,71 +206,44 @@ jobs:
             
             # Wait for rollout to complete with monitoring
             echo "Waiting for new deployment to become ready..."
-            kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=600s || {
-              echo "ERROR: New deployment failed to become ready"
-              kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns -o yaml
-              kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o wide
-              kubectl describe deployment/mol-view-stories-api -n mol-view-stories-ns
-              exit 1
-            }
           fi
           
           echo "✓ Production deployment completed successfully"
+
+      - name: Monitor rollout
+        uses: ./.github/actions/rollout-monitor
+        with:
+          deployment-name: mol-view-stories-api
+          namespace: mol-view-stories-ns
+          app-label: deployment-id=mol-view-stories-api
+          timeout: '600'
 
       - name: Health check
         run: |
           export KUBECONFIG=kubeconfig
           echo "Performing comprehensive health check..."
-          
-          # Wait for deployment to be available
-          echo "Waiting for deployment to be available..."
-          kubectl wait --for=condition=available deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=600s || {
-            echo "ERROR: Deployment not available after 10 minutes"
-            kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns -o yaml
-            exit 1
-          }
+        shell: bash
 
-          # Verify all pods are ready
-          echo "Verifying all pods are ready and healthy..."
-          # Get current pods (may change during loop, so re-fetch each time)
-          for i in {1..3}; do
-            READY_PODS=$(kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
-            if [[ -z "$READY_PODS" ]]; then
-              echo "No running pods found on attempt $i, waiting..."
-              sleep 5
-              continue
-            fi
-            break
-          done
-
-          for pod in $READY_PODS; do
-            echo "Checking pod: $pod"
-            # Skip if pod no longer exists (normal during rolling updates)
-            if ! kubectl get pod/$pod -n mol-view-stories-ns >/dev/null 2>&1; then
-              echo "Pod $pod no longer exists, skipping (normal during rolling update)"
-              continue
-            fi
-            
-            kubectl wait --for=condition=ready pod/$pod -n mol-view-stories-ns --timeout=60s || {
-              echo "ERROR: Pod $pod not ready after 60s"
-              kubectl describe pod $pod -n mol-view-stories-ns || true
-              kubectl logs $pod -n mol-view-stories-ns --tail=50 || true
-              # Don't exit on individual pod failure during rolling update
-              echo "WARNING: Continuing despite pod $pod readiness issue"
-            }
-            
-            # Test health endpoint
-            echo "Testing health endpoint for pod $pod..."
-            kubectl exec $pod -n mol-view-stories-ns -- curl -f -s --max-time 10 http://localhost:5000/health >/dev/null || {
-              echo "WARNING: Health endpoint test failed for pod $pod"
-            }
-          done
+      - name: Run deployment health check
+        uses: ./.github/actions/deployment-health-check
+        with:
+          deployment-name: mol-view-stories-api
+          namespace: mol-view-stories-ns
+          app-label: deployment-id=mol-view-stories-api
+          health-port: '5000'
+          health-path: '/health'
+          timeout: '600'
 
       - name: Verify deployment
         run: |
           export KUBECONFIG=kubeconfig
-          kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api
-          kubectl get services -n mol-view-stories-ns -l deployment-id=mol-view-stories-api
+        shell: bash
+
+      - name: Run deployment verification
+        uses: ./.github/actions/deployment-verify
+        with:
+          app-label: deployment-id=mol-view-stories-api
+          namespace: mol-view-stories-ns
 
       - name: Deployment summary
         run: |

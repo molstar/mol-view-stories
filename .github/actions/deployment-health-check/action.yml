@@ -1,0 +1,75 @@
+name: 'Deployment Health Check'
+description: 'Comprehensive health check for Kubernetes deployments with pod readiness and health endpoint testing'
+inputs:
+  deployment-name:
+    description: 'Name of the deployment to check'
+    required: true
+  namespace:
+    description: 'Kubernetes namespace'
+    required: true
+  app-label:
+    description: 'App label selector for pods'
+    required: true
+  health-port:
+    description: 'Port for health endpoint testing'
+    required: true
+    default: '8080'
+  health-path:
+    description: 'Path for health endpoint'
+    required: true
+    default: '/health'
+  timeout:
+    description: 'Timeout for deployment availability in seconds'
+    required: false
+    default: '600'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Wait for deployment availability
+      run: |
+        echo "Waiting for deployment to be available..."
+        kubectl wait --for=condition=available deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }} --timeout=${{ inputs.timeout }}s || {
+          echo "ERROR: Deployment not available after ${{ inputs.timeout }}s"
+          kubectl get deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }} -o yaml
+          exit 1
+        }
+      shell: bash
+
+    - name: Verify pod readiness
+      run: |
+        echo "Verifying all pods are ready and healthy..."
+        # Get current pods (may change during loop, so re-fetch each time)
+        for i in {1..3}; do
+          READY_PODS=$(kubectl get pods -n ${{ inputs.namespace }} -l ${{ inputs.app-label }} --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+          if [[ -z "$READY_PODS" ]]; then
+            echo "No running pods found on attempt $i, waiting..."
+            sleep 5
+            continue
+          fi
+          break
+        done
+
+        for pod in $READY_PODS; do
+          echo "Checking pod: $pod"
+          # Skip if pod no longer exists (normal during rolling updates)
+          if ! kubectl get pod/$pod -n ${{ inputs.namespace }} >/dev/null 2>&1; then
+            echo "Pod $pod no longer exists, skipping (normal during rolling update)"
+            continue
+          fi
+          
+          kubectl wait --for=condition=ready pod/$pod -n ${{ inputs.namespace }} --timeout=60s || {
+            echo "ERROR: Pod $pod not ready after 60s"
+            kubectl describe pod $pod -n ${{ inputs.namespace }} || true
+            kubectl logs $pod -n ${{ inputs.namespace }} --tail=50 || true
+            # Don't exit on individual pod failure during rolling update
+            echo "WARNING: Continuing despite pod $pod readiness issue"
+          }
+          
+          # Test health endpoint
+          echo "Testing health endpoint for pod $pod..."
+          kubectl exec $pod -n ${{ inputs.namespace }} -- curl -f -s --max-time 10 http://localhost:${{ inputs.health-port }}${{ inputs.health-path }} >/dev/null || {
+            echo "WARNING: Health endpoint test failed for pod $pod"
+          }
+        done
+      shell: bash
