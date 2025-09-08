@@ -58,6 +58,8 @@ metadata:
     app: mol-view-stories-dev-ui
 spec:
   replicas: 1
+  revisionHistoryLimit: 5
+  minReadySeconds: 10
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -71,6 +73,7 @@ spec:
       labels:
         app: mol-view-stories-dev-ui
     spec:
+      terminationGracePeriodSeconds: 90
       imagePullSecrets:
         - name: cerit-registry-secret
       containers:
@@ -84,6 +87,22 @@ spec:
               value: "development"
             - name: NEXT_PUBLIC_APP_PREFIX
               value: "mol-view-stories"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    echo "Received termination signal, initiating graceful shutdown..."
+                    # Wait for load balancer to deregister this pod
+                    sleep 15
+                    # Send SIGTERM to nginx to start graceful shutdown
+                    if [ -f /var/run/nginx.pid ]; then
+                      kill -QUIT $(cat /var/run/nginx.pid) 2>/dev/null || true
+                    fi
+                    # Give nginx additional time to finish processing requests
+                    sleep 30
           readinessProbe:
             httpGet:
               path: /health

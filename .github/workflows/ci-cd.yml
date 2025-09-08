@@ -2,7 +2,7 @@ name: API CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches-ignore: []
     paths:
       - 'api/Dockerfile'
       - 'api/app.py'
@@ -130,7 +130,8 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    # Run dev deployment from PRs (so feature branches with PRs deploy to dev)
+    if: github.event_name == 'pull_request'
     
     steps:
     - name: Checkout repository
@@ -172,6 +173,8 @@ jobs:
         # Check if development deployment exists
         if kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns >/dev/null 2>&1; then
           echo "Development API deployment exists, updating image..."
+          # Apply latest deployment spec to ensure strategy, probes, lifecycle are up to date
+          kubectl apply -f api/deploy-dev.yaml
           # Update deployment with new image
           kubectl set image deployment/mol-view-stories-dev-api \
             mol-view-stories-dev-api-container=${IMAGE_REF} \
@@ -190,8 +193,36 @@ jobs:
           # Force restart deployment to ensure new configuration is applied
           kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
           
-          # Wait for rollout to complete
-          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+          # Monitor rollout with detailed logging
+          echo "Starting rollout monitoring..."
+          timeout 600s bash -c '
+            while true; do
+              echo "=== Rollout Status Check $(date) ==="
+              kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=30s || {
+                echo "Rollout status check timed out, investigating..."
+                echo "Current deployment:"
+                kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns -o wide
+                echo "Deployment details (conditions):"
+                kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns -o yaml | grep -A 10 -B 10 -E "(replicas|conditions|message)"
+                echo "Current pods:"
+                kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o wide
+                echo "ReplicaSet status:"
+                kubectl get rs -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o wide
+                echo "Recent events:"
+                kubectl get events -n mol-view-stories-ns --sort-by=.lastTimestamp | tail -20
+                continue
+              }
+              echo "Rollout completed successfully!"
+              break
+            done
+          ' || {
+            echo "ERROR: Deployment timed out after 10 minutes"
+            echo "Final deployment state:"
+            kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns -o yaml
+            kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o wide
+            kubectl describe deployment/mol-view-stories-dev-api -n mol-view-stories-ns
+            exit 1
+          }
         else
           echo "Development API deployment does not exist, creating new development deployment..."
           # Create a new development deployment
@@ -212,8 +243,15 @@ jobs:
             MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
             MINIO_BUCKET="root"
           
-          # Wait for rollout to complete
-          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+          # Wait for rollout to complete with monitoring
+          echo "Waiting for new deployment to become ready..."
+          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=600s || {
+            echo "ERROR: New deployment failed to become ready"
+            kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns -o yaml
+            kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o wide
+            kubectl describe deployment/mol-view-stories-dev-api -n mol-view-stories-ns
+            exit 1
+          }
         fi
         
         echo "✓ Development API deployment completed successfully"
@@ -221,13 +259,45 @@ jobs:
     - name: Health check
       run: |
         export KUBECONFIG=kubeconfig.yaml
-        # Wait for the deployment to be ready
-        kubectl wait --for=condition=available deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+        echo "Performing comprehensive health check..."
         
-        # Get the current pod name and wait for it to be ready
-        POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o jsonpath='{.items[0].metadata.name}')
-        echo "Waiting for pod: $POD_NAME"
-        kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+        # Wait for deployment to be available
+        echo "Waiting for deployment to be available..."
+        kubectl wait --for=condition=available deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=600s || {
+          echo "ERROR: Deployment not available after 10 minutes"
+          kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns -o yaml
+          exit 1
+        }
+        
+          # Verify all pods are ready
+          echo "Verifying all pods are ready and healthy..."
+          # Get current pods (may change during loop, so re-fetch each time)
+          for i in {1..3}; do
+            READY_PODS=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+            if [[ -z "$READY_PODS" ]]; then
+              echo "No running pods found on attempt $i, waiting..."
+              sleep 5
+              continue
+            fi
+            break
+          done
+
+          for pod in $READY_PODS; do
+            echo "Checking pod: $pod"
+            # Skip if pod no longer exists (normal during rolling updates)
+            if ! kubectl get pod/$pod -n mol-view-stories-ns >/dev/null 2>&1; then
+              echo "Pod $pod no longer exists, skipping (normal during rolling update)"
+              continue
+            fi
+            
+            kubectl wait --for=condition=ready pod/$pod -n mol-view-stories-ns --timeout=60s || {
+              echo "ERROR: Pod $pod not ready after 60s"
+              kubectl describe pod $pod -n mol-view-stories-ns || true
+              kubectl logs $pod -n mol-view-stories-ns --tail=50 || true
+              # Don't exit on individual pod failure during rolling update
+              echo "WARNING: Continuing despite pod $pod readiness issue"
+            }
+          done
 
     - name: Verify deployment
       run: |

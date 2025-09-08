@@ -55,6 +55,13 @@ metadata:
     app: mol-view-stories-dev-api
 spec:
   replicas: 1
+  revisionHistoryLimit: 5
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: mol-view-stories-dev-api
@@ -63,6 +70,7 @@ spec:
       labels:
         app: mol-view-stories-dev-api
     spec:
+      terminationGracePeriodSeconds: 90
       imagePullSecrets:
         - name: cerit-registry-secret
       containers:
@@ -74,6 +82,16 @@ spec:
           env:
             - name: ENVIRONMENT
               value: "development"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    echo "Initiating graceful shutdown preStop..."
+                    # Wait for endpoints/lb to drain before SIGTERM is sent
+                    sleep 30
           readinessProbe:
             httpGet:
               path: /ready
