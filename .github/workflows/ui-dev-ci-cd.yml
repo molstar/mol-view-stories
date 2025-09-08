@@ -147,8 +147,8 @@ jobs:
             NEXT_PUBLIC_APP_PREFIX=${{ vars.NEXT_PUBLIC_APP_PREFIX }}
             NEXT_PUBLIC_RELEASE_VERSION=${{ steps.release-version.outputs.version }}
           platforms: linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Verify pushed image
         if: github.event_name != 'pull_request'
@@ -174,7 +174,7 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    # Run dev deployment only on pushes to main
+    # Run dev deployment only on pushes to main  # Run dev deployment on pushes to main or PRs (temporarily for testing)
     if: github.ref == 'refs/heads/main'
 
     steps:
