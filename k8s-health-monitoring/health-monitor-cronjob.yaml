@@ -1,0 +1,256 @@
+# MINIMAL RBAC - only what's needed
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: health-monitor
+  namespace: mol-view-stories-ns
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: health-monitor-role
+  namespace: mol-view-stories-ns
+rules:
+# Only allow updating the health status ConfigMap
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["api-health-status"]  # Restrict to specific ConfigMap
+  verbs: ["get", "patch"]
+# Read access to check our own service
+- apiGroups: [""]
+  resources: ["services"]
+  resourceNames: ["mol-view-stories-api-svc-dev"]  # Your actual service name
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: health-monitor-binding
+  namespace: mol-view-stories-ns
+subjects:
+- kind: ServiceAccount
+  name: health-monitor
+  namespace: mol-view-stories-ns
+roleRef:
+  kind: Role
+  name: health-monitor-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# SMTP Secret Template - Replace with your actual settings
+apiVersion: v1
+kind: Secret
+metadata:
+  name: health-monitor-smtp
+  namespace: mol-view-stories-ns
+  labels:
+    app: health-monitor
+type: Opaque
+data:
+  # TO CREATE: echo -n "your-actual-value" | base64
+  # EXAMPLE VALUES BELOW - REPLACE WITH YOURS:
+  smtp_server: c210cC5nb29nbGUuY29t  # smtp.google.com  
+  smtp_port: NTg3  # 587
+  smtp_username: eW91ci1lbWFpbEBnbWFpbC5jb20=  # your-email@gmail.com
+  smtp_password: eW91ci1hcHAtcGFzc3dvcmQ=  # your-app-password  
+  alert_to: eW91ci1hbGVydHNAZ21haWwuY29t  # your-alerts@gmail.com
+  alert_from: eW91ci1lbWFpbEBnbWFpbC5jb20=  # your-email@gmail.com
+
+---
+# MINIMAL monitoring script - uses existing /health endpoint
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: health-monitor-script
+  namespace: mol-view-stories-ns
+  labels:
+    app: health-monitor
+data:
+  monitor.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Configuration - monitoring both dev and prod APIs
+    DEV_SERVICE="mol-view-stories-api-svc-dev"
+    PROD_SERVICE="mol-view-stories-api-svc-prod"  # Adjust if different
+    NAMESPACE="mol-view-stories-ns" 
+    HEALTH_CONFIG_MAP="api-health-status"
+    
+    echo "$(date): Multi-API health check starting..."
+    
+    # Check API health endpoint - handles both dev (simple) and prod (JSON) responses
+    check_api_health() {
+        local service_name="$1"
+        local api_name="$2"
+        
+        if kubectl get service $service_name >/dev/null 2>&1; then
+            # Port forward briefly to check health
+            kubectl port-forward service/$service_name 8888:5000 &
+            PF_PID=$!
+            sleep 2
+            
+            # Get health response
+            HEALTH_RESPONSE=$(wget -q -O - --timeout=5 http://localhost:8888/health 2>/dev/null || echo "")
+            kill $PF_PID 2>/dev/null || true
+            
+            if [ -n "$HEALTH_RESPONSE" ]; then
+                echo "$api_name:$HEALTH_RESPONSE"
+                return 0  # healthy response
+            else
+                echo "$api_name:no_response"
+                return 1  # no response
+            fi
+        else
+            echo "$api_name:service_not_found"
+            return 1  # service not found
+        fi
+    }
+    
+    # Send email alert on status changes
+    send_alert() {
+        local subject="$1"
+        local body="$2"
+        
+        # Skip if no SMTP secret configured
+        if ! kubectl get secret health-monitor-smtp >/dev/null 2>&1; then
+            echo "No SMTP secret configured, skipping email"
+            return
+        fi
+        
+        SMTP_USER=$(kubectl get secret health-monitor-smtp -o jsonpath="{.data.smtp_username}" | base64 -d)
+        SMTP_PASS=$(kubectl get secret health-monitor-smtp -o jsonpath="{.data.smtp_password}" | base64 -d)
+        ALERT_TO=$(kubectl get secret health-monitor-smtp -o jsonpath="{.data.alert_to}" | base64 -d)
+        
+        # Send email
+        curl --silent --max-time 10 \
+             --url "smtps://smtp.gmail.com:465" \
+             --ssl-reqd --user "$SMTP_USER:$SMTP_PASS" \
+             --mail-from "$SMTP_USER" --mail-rcpt "$ALERT_TO" \
+             -T <(echo -e "Subject: $subject\n\n$body\n\nTime: $(date)") \
+             || echo "Email send failed"
+    }
+    
+    # Main health check - check both dev and prod APIs
+    CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    
+    # Check both APIs
+    DEV_RESPONSE=$(check_api_health "$DEV_SERVICE" "dev")
+    PROD_RESPONSE=$(check_api_health "$PROD_SERVICE" "prod")
+    
+    # Parse responses
+    DEV_STATUS="unknown"
+    PROD_STATUS="unknown"
+    DEV_MINIO="unknown"
+    PROD_MINIO="unknown"
+    
+    # Parse dev response (simple "healthy" text)
+    if echo "$DEV_RESPONSE" | grep -q "dev:healthy"; then
+        DEV_STATUS="healthy"
+    elif echo "$DEV_RESPONSE" | grep -q "dev:"; then
+        DEV_STATUS="unhealthy"
+    fi
+    
+    # Parse prod response (JSON with MinIO)
+    if echo "$PROD_RESPONSE" | grep -q "prod:"; then
+        PROD_JSON=$(echo "$PROD_RESPONSE" | sed 's/prod://')
+        PROD_STATUS=$(echo "$PROD_JSON" | grep -o '"status":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
+        PROD_MINIO=$(echo "$PROD_JSON" | grep -o '"minio":{"status":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
+    fi
+    
+    # Overall system health (both APIs must be healthy)
+    if [ "$DEV_STATUS" = "healthy" ] && [ "$PROD_STATUS" = "healthy" ]; then
+        SYSTEM_HEALTHY=true
+        echo "✅ Both APIs healthy - Dev: $DEV_STATUS, Prod: $PROD_STATUS (MinIO: $PROD_MINIO)"
+    else
+        SYSTEM_HEALTHY=false
+        echo "❌ API issues - Dev: $DEV_STATUS, Prod: $PROD_STATUS (MinIO: $PROD_MINIO)"
+    fi
+    
+    # Get previous overall status for alerting
+    PREV_HEALTHY=$(kubectl get configmap $HEALTH_CONFIG_MAP -o jsonpath='{.data.status\.json}' 2>/dev/null | grep -o '"healthy":[^,}]*' | cut -d: -f2 || echo "true")
+    
+    # Update ConfigMap with current status
+    NEW_STATUS=$(cat << EOF
+    {
+      "healthy": $SYSTEM_HEALTHY,
+      "lastCheck": "$CURRENT_TIME",
+      "dev": {
+        "status": "$DEV_STATUS"
+      },
+      "prod": {
+        "status": "$PROD_STATUS",
+        "minio": "$PROD_MINIO"
+      }
+    }
+    EOF
+    )
+    
+    kubectl patch configmap $HEALTH_CONFIG_MAP --type merge \
+        -p "{\"data\":{\"status.json\":\"$(echo "$NEW_STATUS" | tr -d '\n' | sed 's/"/\\"/g')\"}}"
+    
+    # Send alerts on overall health status changes
+    if [ "$PREV_HEALTHY" != "$SYSTEM_HEALTHY" ]; then
+        if [ "$SYSTEM_HEALTHY" = "true" ]; then
+            send_alert "✅ MolViewStories APIs Recovered" "Both APIs are healthy again. Dev: $DEV_STATUS, Prod: $PROD_STATUS (MinIO: $PROD_MINIO)"
+        else
+            send_alert "🚨 MolViewStories API Issues" "API health check failed. Dev: $DEV_STATUS, Prod: $PROD_STATUS (MinIO: $PROD_MINIO)"
+        fi
+    fi
+    
+    echo "$(date): Health check complete - Overall: $([ "$SYSTEM_HEALTHY" = "true" ] && echo "HEALTHY" || echo "UNHEALTHY")"
+
+---
+# Secure CronJob following your security patterns
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: health-monitor
+  namespace: mol-view-stories-ns
+  labels:
+    app: health-monitor
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  successfulJobsHistoryLimit: 2  # Keep minimal history
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: health-monitor
+          restartPolicy: OnFailure
+          # Security: Following your deploy-dev.yaml patterns
+          terminationGracePeriodSeconds: 30
+          containers:
+          - name: health-monitor
+            image: alpine/k8s:1.28.2  # Pinned version with kubectl, curl, wget
+            command: ["/bin/sh"]
+            args: ["/scripts/monitor.sh"]
+            # Security context - same as your API
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              seccompProfile:
+                type: RuntimeDefault
+            # Minimal resources
+            resources:
+              requests:
+                memory: "32Mi"
+                cpu: "50m"
+              limits:
+                memory: "64Mi"
+                cpu: "100m"
+            volumeMounts:
+            - name: script
+              mountPath: /scripts
+              readOnly: true  # Read-only for security
+          volumes:
+          - name: script
+            configMap:
+              name: health-monitor-script
+              defaultMode: 0755
