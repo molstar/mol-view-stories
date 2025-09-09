@@ -16,6 +16,7 @@ on:
       - 'api/requirements.txt'
       - '.github/workflows/ci-cd.yml'
       - 'api/deploy-dev.yaml'
+
   pull_request:
     branches: [ main ]
     paths:
@@ -31,6 +32,7 @@ on:
       - 'api/requirements.txt'
       - '.github/workflows/ci-cd.yml'
       - 'api/deploy-dev.yaml'
+
 
 env:
   REGISTRY: cerit.io
@@ -100,21 +102,22 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./api
-        push: true
+        push: ${{ github.event_name != 'pull_request' }}
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
         platforms: linux/amd64
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+        cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
     - name: Verify pushed image
+      if: github.event_name != 'pull_request'
       run: |
         echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
 
     - name: PR Check Summary
-      if: github.event_name == 'pull_request'
+      if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
       run: |
         echo "## API PR Check Summary" >> $GITHUB_STEP_SUMMARY
         echo "- **PR Number**: #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
@@ -130,7 +133,7 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout repository
@@ -165,13 +168,19 @@ jobs:
           IMAGE_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
         fi
         
-        # Use digest for branches
+        # Use digest for main branch, tag for PRs
         IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
-        IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+        if [[ -n "$IMAGE_DIGEST" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+        else
+          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
+        fi
 
         # Check if development deployment exists
         if kubectl get deployment/mol-view-stories-dev-api -n mol-view-stories-ns >/dev/null 2>&1; then
           echo "Development API deployment exists, updating image..."
+          # Apply latest deployment spec to ensure strategy, probes, lifecycle are up to date
+          kubectl apply -f api/deploy-dev.yaml
           # Update deployment with new image
           kubectl set image deployment/mol-view-stories-dev-api \
             mol-view-stories-dev-api-container=${IMAGE_REF} \
@@ -189,9 +198,6 @@ jobs:
           
           # Force restart deployment to ensure new configuration is applied
           kubectl rollout restart deployment/mol-view-stories-dev-api -n mol-view-stories-ns
-          
-          # Wait for rollout to complete
-          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
         else
           echo "Development API deployment does not exist, creating new development deployment..."
           # Create a new development deployment
@@ -212,29 +218,46 @@ jobs:
             MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
             MINIO_BUCKET="root"
           
-          # Wait for rollout to complete
-          kubectl rollout status deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
+          # Wait for rollout to complete with monitoring
+          echo "Waiting for new deployment to become ready..."
         fi
         
         echo "✓ Development API deployment completed successfully"
 
+    - name: Monitor rollout
+      uses: ./.github/actions/rollout-monitor
+      with:
+        deployment-name: mol-view-stories-dev-api
+        namespace: mol-view-stories-ns
+        app-label: app=mol-view-stories-dev-api
+        timeout: '600'
+
     - name: Health check
       run: |
         export KUBECONFIG=kubeconfig.yaml
-        # Wait for the deployment to be ready
-        kubectl wait --for=condition=available deployment/mol-view-stories-dev-api -n mol-view-stories-ns --timeout=300s
-        
-        # Get the current pod name and wait for it to be ready
-        POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api -o jsonpath='{.items[0].metadata.name}')
-        echo "Waiting for pod: $POD_NAME"
-        kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+        echo "Performing comprehensive health check..."
+      shell: bash
+
+    - name: Run deployment health check
+      uses: ./.github/actions/deployment-health-check
+      with:
+        deployment-name: mol-view-stories-dev-api
+        namespace: mol-view-stories-ns
+        app-label: app=mol-view-stories-dev-api
+        health-port: '5000'
+        health-path: '/health'
+        timeout: '600'
 
     - name: Verify deployment
       run: |
         export KUBECONFIG=kubeconfig.yaml
-        kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-api
-        kubectl get services -n mol-view-stories-ns -l app=mol-view-stories-dev-api
-        kubectl get ingress -n mol-view-stories-ns -l app=mol-view-stories-dev-api
+      shell: bash
+
+    - name: Run deployment verification
+      uses: ./.github/actions/deployment-verify
+      with:
+        app-label: app=mol-view-stories-dev-api
+        namespace: mol-view-stories-ns
 
     - name: Deployment summary
       run: |

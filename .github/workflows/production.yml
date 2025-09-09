@@ -123,8 +123,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release-version.outputs.docker_version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           platforms: linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Verify pushed image
         run: |
@@ -167,6 +167,8 @@ jobs:
           # Check if production deployment exists
           if kubectl get deployment/mol-view-stories-api -n mol-view-stories-ns >/dev/null 2>&1; then
             echo "Production deployment exists, updating image..."
+            # Apply latest production deployment spec to ensure strategy, probes, lifecycle are up to date
+            kubectl apply -f api/deploy.yaml
             # Update deployment with new image
             kubectl set image deployment/mol-view-stories-api \
               mol-view-stories-api-container=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.docker_version }} \
@@ -185,8 +187,8 @@ jobs:
             # Restart deployment to ensure new image is pulled
             kubectl rollout restart deployment/mol-view-stories-api -n mol-view-stories-ns
             
-            # Wait for rollout to complete
-            kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+            # Monitor rollout using composite action
+            echo "Starting rollout monitoring..."
           else
             echo "Production deployment does not exist, creating new production deployment..."
             # Create a new production deployment using the deployment file with proper image replacement
@@ -202,28 +204,46 @@ jobs:
               MINIO_SECRET_KEY="${{ secrets.MINIO_PROD_PASSWORD }}" \
               MINIO_BUCKET="mol-view-stories"
             
-            # Wait for rollout to complete
-            kubectl rollout status deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
+            # Wait for rollout to complete with monitoring
+            echo "Waiting for new deployment to become ready..."
           fi
           
           echo "✓ Production deployment completed successfully"
 
+      - name: Monitor rollout
+        uses: ./.github/actions/rollout-monitor
+        with:
+          deployment-name: mol-view-stories-api
+          namespace: mol-view-stories-ns
+          app-label: deployment-id=mol-view-stories-api
+          timeout: '600'
+
       - name: Health check
         run: |
           export KUBECONFIG=kubeconfig
-          # Wait for the deployment to be ready (this handles the rolling update properly)
-          kubectl wait --for=condition=available deployment/mol-view-stories-api -n mol-view-stories-ns --timeout=300s
-          
-          # Get the current pod name and wait for it to be ready
-          POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api -o jsonpath='{.items[0].metadata.name}')
-          echo "Waiting for pod: $POD_NAME"
-          kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+          echo "Performing comprehensive health check..."
+        shell: bash
+
+      - name: Run deployment health check
+        uses: ./.github/actions/deployment-health-check
+        with:
+          deployment-name: mol-view-stories-api
+          namespace: mol-view-stories-ns
+          app-label: deployment-id=mol-view-stories-api
+          health-port: '5000'
+          health-path: '/health'
+          timeout: '600'
 
       - name: Verify deployment
         run: |
           export KUBECONFIG=kubeconfig
-          kubectl get pods -n mol-view-stories-ns -l deployment-id=mol-view-stories-api
-          kubectl get services -n mol-view-stories-ns -l deployment-id=mol-view-stories-api
+        shell: bash
+
+      - name: Run deployment verification
+        uses: ./.github/actions/deployment-verify
+        with:
+          app-label: deployment-id=mol-view-stories-api
+          namespace: mol-view-stories-ns
 
       - name: Deployment summary
         run: |

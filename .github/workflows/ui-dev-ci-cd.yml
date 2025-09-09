@@ -2,7 +2,7 @@ name: UI Dev CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main ]
     paths:
       - '@mol-view-stories/webapp/**'
       - '@mol-view-stories/lib/**'
@@ -11,16 +11,16 @@ on:
       - 'pnpm-workspace.yaml'
       - '.github/ui-deploy-dev.yaml'
       - '.github/workflows/ui-dev-ci-cd.yml'
-  # pull_request:
-  #   branches: [main]
-  #   paths:
-  #     - '@mol-view-stories/webapp/**'
-  #     - '@mol-view-stories/lib/**'
-  #     - 'package.json'
-  #     - 'pnpm-lock.yaml'
-  #     - 'pnpm-workspace.yaml'
-  #     - '.github/ui-deploy-dev.yaml'
-  #     - '.github/workflows/ui-dev-ci-cd.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '@mol-view-stories/webapp/**'
+      - '@mol-view-stories/lib/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/ui-deploy-dev.yaml'
+      - '.github/workflows/ui-dev-ci-cd.yml'
 
 env:
   REGISTRY: cerit.io
@@ -136,7 +136,7 @@ jobs:
         with:
           context: .
           file: '@mol-view-stories/webapp/Dockerfile'
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.docker_tag }}
@@ -147,10 +147,11 @@ jobs:
             NEXT_PUBLIC_APP_PREFIX=${{ vars.NEXT_PUBLIC_APP_PREFIX }}
             NEXT_PUBLIC_RELEASE_VERSION=${{ steps.release-version.outputs.version }}
           platforms: linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Verify pushed image
+        if: github.event_name != 'pull_request'
         run: |
           echo "Pushed digest: ${{ steps.build_and_push.outputs.digest }}"
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_and_push.outputs.digest }}
@@ -173,7 +174,8 @@ jobs:
   deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    # Run dev deployment only on pushes to main  # Run dev deployment on pushes to main or PRs (temporarily for testing)
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
@@ -208,23 +210,33 @@ jobs:
             IMAGE_TAG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
           fi
 
-          # Use digest for branches
+          # Use digest for main branch, tag for PRs
           IMAGE_DIGEST='${{ needs.build-and-test.outputs.image_digest }}'
-          IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+          if [[ -n "$IMAGE_DIGEST" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+          else
+            IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
+          fi
 
           # Check if development deployment exists
           if kubectl get deployment/mol-view-stories-dev-ui -n mol-view-stories-ns >/dev/null 2>&1; then
-            echo "Development UI deployment exists, updating image..."
+            echo "Development UI deployment exists, performing rolling update..."
+            
+            # Get current deployment status
+            echo "Current deployment status:"
+            kubectl get deployment/mol-view-stories-dev-ui -n mol-view-stories-ns -o wide
+            kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-ui -o wide
+            
+            # Apply latest deployment spec to ensure strategy, probes, and lifecycle are up to date
+            kubectl apply -f .github/ui-deploy-dev.yaml
+
             # Update deployment with new image
             kubectl set image deployment/mol-view-stories-dev-ui \
               mol-view-stories-dev-ui-container=${IMAGE_REF} \
               -n mol-view-stories-ns
 
-            # Force restart deployment to ensure new configuration is applied
-            kubectl rollout restart deployment/mol-view-stories-dev-ui -n mol-view-stories-ns
-
-            # Wait for rollout to complete
-            kubectl rollout status deployment/mol-view-stories-dev-ui -n mol-view-stories-ns --timeout=300s
+            # Monitor rollout using composite action
+            echo "Starting rollout monitoring..."
           else
             echo "Development UI deployment does not exist, creating new development deployment..."
             # Create a new development deployment
@@ -235,29 +247,46 @@ jobs:
               mol-view-stories-dev-ui-container=${IMAGE_REF} \
               -n mol-view-stories-ns
 
-            # Wait for rollout to complete
-            kubectl rollout status deployment/mol-view-stories-dev-ui -n mol-view-stories-ns --timeout=300s
+            # Wait for rollout to complete with monitoring
+            echo "Waiting for new deployment to become ready..."
           fi
 
           echo "✓ Development UI deployment completed successfully"
 
+      - name: Monitor rollout
+        uses: ./.github/actions/rollout-monitor
+        with:
+          deployment-name: mol-view-stories-dev-ui
+          namespace: mol-view-stories-ns
+          app-label: app=mol-view-stories-dev-ui
+          timeout: '600'
+
       - name: Health check
         run: |
           export KUBECONFIG=kubeconfig.yaml
-          # Wait for the deployment to be ready
-          kubectl wait --for=condition=available deployment/mol-view-stories-dev-ui -n mol-view-stories-ns --timeout=300s
+          echo "Performing comprehensive health check..."
+        shell: bash
 
-          # Get the current pod name and wait for it to be ready
-          POD_NAME=$(kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-ui -o jsonpath='{.items[0].metadata.name}')
-          echo "Waiting for pod: $POD_NAME"
-          kubectl wait --for=condition=ready pod/$POD_NAME -n mol-view-stories-ns --timeout=300s
+      - name: Run deployment health check
+        uses: ./.github/actions/deployment-health-check
+        with:
+          deployment-name: mol-view-stories-dev-ui
+          namespace: mol-view-stories-ns
+          app-label: app=mol-view-stories-dev-ui
+          health-port: '8080'
+          health-path: '/health'
+          timeout: '300'
 
       - name: Verify deployment
         run: |
           export KUBECONFIG=kubeconfig.yaml
-          kubectl get pods -n mol-view-stories-ns -l app=mol-view-stories-dev-ui
-          kubectl get services -n mol-view-stories-ns -l app=mol-view-stories-dev-ui
-          kubectl get ingress -n mol-view-stories-ns -l app=mol-view-stories-dev-ui
+        shell: bash
+
+      - name: Run deployment verification
+        uses: ./.github/actions/deployment-verify
+        with:
+          app-label: app=mol-view-stories-dev-ui
+          namespace: mol-view-stories-ns
 
       - name: Deployment summary
         run: |

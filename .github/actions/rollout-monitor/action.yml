@@ -1,0 +1,52 @@
+name: 'Rollout Monitor'
+description: 'Monitor Kubernetes deployment rollout with detailed logging and diagnostics'
+inputs:
+  deployment-name:
+    description: 'Name of the deployment to monitor'
+    required: true
+  namespace:
+    description: 'Kubernetes namespace'
+    required: true
+  app-label:
+    description: 'App label selector for pods'
+    required: true
+  timeout:
+    description: 'Timeout for rollout completion in seconds'
+    required: false
+    default: '600'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Monitor rollout with detailed logging
+      run: |
+        echo "Starting rollout monitoring..."
+        timeout ${{ inputs.timeout }}s bash -c '
+          while true; do
+            echo "=== Rollout Status Check $(date) ==="
+            kubectl rollout status deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }} --timeout=30s || {
+              echo "Rollout status check timed out, investigating..."
+              echo "Current deployment:"
+              kubectl get deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }} -o wide
+              echo "Deployment details (conditions):"
+              kubectl get deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }} -o yaml | grep -A 10 -B 10 -E "(replicas|conditions|message)"
+              echo "Current pods:"
+              kubectl get pods -n ${{ inputs.namespace }} -l ${{ inputs.app-label }} -o wide
+              echo "ReplicaSet status:"
+              kubectl get rs -n ${{ inputs.namespace }} -l ${{ inputs.app-label }} -o wide
+              echo "Recent events:"
+              kubectl get events -n ${{ inputs.namespace }} --sort-by=.lastTimestamp | tail -20
+              continue
+            }
+            echo "Rollout completed successfully!"
+            break
+          done
+        ' || {
+          echo "ERROR: Deployment timed out after ${{ inputs.timeout }}s"
+          echo "Final deployment state:"
+          kubectl get deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }} -o yaml
+          kubectl get pods -n ${{ inputs.namespace }} -l ${{ inputs.app-label }} -o wide
+          kubectl describe deployment/${{ inputs.deployment-name }} -n ${{ inputs.namespace }}
+          exit 1
+        }
+      shell: bash
