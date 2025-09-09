@@ -191,7 +191,7 @@ jobs:
           kubectl set env deployment/mol-view-stories-dev-api \
             -n mol-view-stories-ns \
             -c mol-view-stories-dev-api-container \
-            MINIO_ENDPOINT="https://s3-mol-view-stories-s3-dev-mol-view-stories-ns.dyn.cloud.e-infra.cz/" \
+            MINIO_ENDPOINT=${{ vars.MINIO_DEV_URL }} \
             MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
             MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
             MINIO_BUCKET="root"
@@ -213,7 +213,7 @@ jobs:
           kubectl set env deployment/mol-view-stories-dev-api \
             -n mol-view-stories-ns \
             -c mol-view-stories-dev-api-container \
-            MINIO_ENDPOINT="${{ secrets.MINIO_DEV_URL }}" \
+            MINIO_ENDPOINT="${{ vars.MINIO_DEV_URL }}" \
             MINIO_ACCESS_KEY="${{ secrets.MINIO_DEV_USERNAME }}" \
             MINIO_SECRET_KEY="${{ secrets.MINIO_DEV_PASSWORD }}" \
             MINIO_BUCKET="root"
