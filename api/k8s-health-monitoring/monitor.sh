@@ -66,9 +66,23 @@ check_api_health() {
         return 1
     fi
     
-    # Make health check request
+    # Make health check request with retry
     local response
-    if response=$(wget -q -O - --timeout=5 "http://127.0.0.1:8888/health" 2>/dev/null); then
+    local success=false
+    
+    for attempt in 1 2 3; do
+        if response=$(wget -q -O - --timeout=5 "http://127.0.0.1:8888/health" 2>/dev/null); then
+            success=true
+            break
+        else
+            if [ $attempt -lt 3 ]; then
+                echo "$api_name: Attempt $attempt failed, retrying..." >&2
+                sleep 10
+            fi
+        fi
+    done
+    
+    if [ "$success" = true ]; then
         # Parse JSON response for status and minio status
         local api_status minio_status
         api_status=$(echo "$response" | grep -o '"status":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
@@ -77,7 +91,7 @@ check_api_health() {
         echo "$api_name: $api_status" >&2
         echo "$api_name:$api_status:$minio_status"
     else
-        echo "$api_name: Health check failed" >&2
+        echo "$api_name: Health check failed after 3 attempts" >&2
         echo "$api_name:request_failed:unknown"
     fi
     
