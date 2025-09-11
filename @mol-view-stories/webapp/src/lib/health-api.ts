@@ -97,7 +97,7 @@ export async function checkEnvironmentHealth(
     }
   } catch (error) {
     result.responseTime = Date.now() - startTime;
-    
+
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         result.status = 'unreachable';

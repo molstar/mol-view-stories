@@ -208,8 +208,7 @@ export default function Home() {
           <Features />
         </section>
         <div className='flex justify-between items-center text-sm text-muted-foreground py-6 mt-10'>
-          <div className='flex-1'>
-          </div>
+          <div className='flex-1'></div>
           <div className='flex items-center gap-3'>
             <ApiStatus />
             <span>|</span>
