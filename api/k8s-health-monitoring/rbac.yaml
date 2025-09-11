@@ -1,0 +1,52 @@
+# MINIMAL RBAC - only what's needed
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: health-monitor
+  namespace: mol-view-stories-ns
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: health-monitor-role
+  namespace: mol-view-stories-ns
+rules:
+# Only allow updating the health status ConfigMap
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["api-health-status"]  # Restrict to specific ConfigMap
+  verbs: ["get", "patch"]
+# Read access to check both dev and prod services
+- apiGroups: [""]
+  resources: ["services"]
+  resourceNames: ["mol-view-stories-api-svc-dev", "mol-view-stories-api-svc"]  # Both dev and prod services
+  verbs: ["get"]
+# Port forwarding requires pod access
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+# Port forwarding also requires this permission
+- apiGroups: [""]
+  resources: ["pods/portforward"]
+  verbs: ["create"]
+# Email functionality requires secret access
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["health-monitor-smtp"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: health-monitor-binding
+  namespace: mol-view-stories-ns
+subjects:
+- kind: ServiceAccount
+  name: health-monitor
+  namespace: mol-view-stories-ns
+roleRef:
+  kind: Role
+  name: health-monitor-role
+  apiGroup: rbac.authorization.k8s.io

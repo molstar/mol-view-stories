@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: health-monitor
+  namespace: mol-view-stories-ns
+  labels:
+    app: health-monitor
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  successfulJobsHistoryLimit: 2  # Keep minimal history
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: health-monitor
+          restartPolicy: OnFailure
+          # Security: Following your deploy-dev.yaml patterns
+          terminationGracePeriodSeconds: 30
+          containers:
+          - name: health-monitor
+            image: alpine/k8s:1.28.2  # Pinned version with kubectl, curl, wget
+            command: ["/bin/bash"]
+            args: ["/scripts/monitor.sh"]
+            # Security context - same as your API
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              seccompProfile:
+                type: RuntimeDefault
+            # Minimal resources
+            resources:
+              requests:
+                memory: "32Mi"
+                cpu: "50m"
+              limits:
+                memory: "64Mi"
+                cpu: "100m"
+            env:
+            - name: SCRIPT_CONTENT
+              valueFrom:
+                configMapKeyRef:
+                  name: health-monitor-script-data
+                  key: monitor.sh
+            volumeMounts:
+            - name: script
+              mountPath: /scripts
+              readOnly: true  # Read-only for security
+          volumes:
+          - name: script
+            configMap:
+              name: health-monitor-script-data
+              defaultMode: 0755

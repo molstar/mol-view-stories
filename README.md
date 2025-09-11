@@ -23,8 +23,3 @@ What the script does:
 - Web App: http://localhost:3000
 - API: http://localhost:5000
 - MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
-
-After setup, start the web app:
-```bash
-pnpm run dev:web
-```

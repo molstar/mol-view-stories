@@ -4,7 +4,7 @@
 import { getEnv, isDevelopment, isProduction, isTest } from './env-config';
 
 // Environment-specific API configurations
-const ENV_CONFIGS = {
+export const ENV_CONFIGS = {
   development: {
     apiBaseUrl: 'https://mol-view-stories-dev.dyn.cloud.e-infra.cz',
     name: 'Development',
@@ -16,6 +16,10 @@ const ENV_CONFIGS = {
   test: {
     apiBaseUrl: 'http://localhost:8000', // For testing
     name: 'Test',
+  },
+  local: {
+    apiBaseUrl: 'http://localhost:5000', // Local docker-compose backend
+    name: 'Local',
   },
 } as const;
 
