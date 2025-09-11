@@ -5,24 +5,22 @@ import { API_CONFIG } from '@/lib/config';
 import { getHealthStatusIcon } from '@/lib/health-api';
 
 /**
- * SimpleApiStatus Component
+ * ApiStatus Component
  * 
- * This component provides real-time health monitoring for API endpoints.
+ * This component provides health monitoring for API endpoints.
  * 
  * What it does:
- * - Calls the /health endpoint of the current API only
+ * - Calls the /health endpoint of the current API
  * - Shows current environment health status in the footer
  * - Automatically refreshes every 30 seconds
- * 
- * When it appears:
- * - Dev/Prod/Local environments: Always shows in footer with current environment health
  * 
  * Environment detection:
  * - Dev: https://mol-view-stories-dev.dyn.cloud.e-infra.cz
  * - Prod: https://stories.molstar.org  
- * - Local: http://localhost:* (hidden by default in footer)
+ * - Local: http://localhost:5000
  */
-export function SimpleApiStatus() {
+
+export function ApiStatus() {
   const [status, setStatus] = useState<'checking' | 'healthy' | 'unhealthy' | 'unreachable'>('checking');
 
   const checkHealth = useCallback(async () => {

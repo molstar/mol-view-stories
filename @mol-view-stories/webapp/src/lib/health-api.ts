@@ -69,7 +69,6 @@ export async function checkEnvironmentHealth(
     if (response.ok) {
       const responseText = await response.text();
 
-      // Handle both JSON response (prod) and simple "healthy" text (dev)
       if (responseText.trim() === 'healthy') {
         result.status = 'healthy';
         result.data = {
@@ -88,7 +87,6 @@ export async function checkEnvironmentHealth(
           result.status = health.status === 'healthy' ? 'healthy' : 'unhealthy';
           result.data = health;
         } catch {
-          // If it's not JSON and not "healthy", treat as unhealthy
           result.status = 'unhealthy';
           result.error = 'Invalid health response format';
         }

@@ -7,7 +7,7 @@ import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
 import { BookOpen, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { SimpleApiStatus } from '@/components/get-api-status';
+import { ApiStatus } from '@/components/get-api-status';
 import { APP_VERSION } from './version';
 
 function Features() {
@@ -211,7 +211,7 @@ export default function Home() {
           <div className='flex-1'>
           </div>
           <div className='flex items-center gap-3'>
-            <SimpleApiStatus />
+            <ApiStatus />
             <span>|</span>
             <span>Version {APP_VERSION}</span>
           </div>
