@@ -4,6 +4,9 @@ import { StoryManager } from '@mol-view-stories/lib/StoryManager';
 import { parseStoryFolder } from './build.ts';
 import { generateMVSJViewerHtml, generateMVSXViewerHtml } from '../templates/mvs-viewer-template.ts';
 
+// WebSocket clients for live reload
+const wsClients = new Set<WebSocket>();
+
 export async function watchStory(
   folderPath: string,
   options: { port?: number } = {}
@@ -39,6 +42,20 @@ export async function watchStory(
   console.error(`📁 Created temp directory: ${tempDir}`);
 
   let abortController = new AbortController();
+
+  // Broadcast reload message to all connected WebSocket clients
+  function broadcastReload() {
+    wsClients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        try {
+          client.send(JSON.stringify({ type: 'reload' }));
+        } catch (error) {
+          console.error('Failed to send reload message:', error);
+          wsClients.delete(client);
+        }
+      }
+    });
+  }
 
   // Function to rebuild the story
   async function rebuildStory() {
@@ -91,6 +108,10 @@ export async function watchStory(
       }
 
       console.error('✅ Story rebuilt successfully');
+
+      // Notify all connected browsers to reload
+      broadcastReload();
+      console.error('📡 Sent reload signal to connected browsers');
     } catch (error) {
       console.error('❌ Failed to rebuild story:', error instanceof Error ? error.message : error);
     }
@@ -140,6 +161,28 @@ export async function watchStory(
     },
     async (request) => {
       const url = new URL(request.url);
+
+      // Handle WebSocket upgrade for live reload
+      if (url.pathname === '/ws' && request.headers.get('upgrade') === 'websocket') {
+        const { socket, response } = Deno.upgradeWebSocket(request);
+
+        socket.onopen = () => {
+          wsClients.add(socket);
+          console.error('🔌 WebSocket client connected for live reload');
+        };
+
+        socket.onclose = () => {
+          wsClients.delete(socket);
+          console.error('🔌 WebSocket client disconnected');
+        };
+
+        socket.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          wsClients.delete(socket);
+        };
+
+        return response;
+      }
 
       // Handle direct MVS file serving for direct mode
       if (useDirectServing) {
@@ -217,13 +260,101 @@ export async function watchStory(
         try {
           if (await exists(mvsxPath)) {
             const story = await parseStoryFolder(folderPath);
-            const html = generateMVSXViewerHtml({ title: story.metadata?.title });
+            let html = generateMVSXViewerHtml({ title: story.metadata?.title });
+
+            // Inject live reload script
+            const liveReloadScript = `
+<script>
+  (function() {
+    const ws = new WebSocket('ws://' + window.location.host + '/ws');
+    let reconnectTimeout;
+
+    function connect() {
+      const ws = new WebSocket('ws://' + window.location.host + '/ws');
+
+      ws.onopen = function() {
+        console.log('Live reload connected');
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
+      };
+
+      ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.type === 'reload') {
+          console.log('Reloading page...');
+          window.location.reload();
+        }
+      };
+
+      ws.onclose = function() {
+        console.log('Live reload disconnected. Reconnecting...');
+        reconnectTimeout = setTimeout(connect, 1000);
+      };
+
+      ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+      };
+    }
+
+    connect();
+  })();
+</script>`;
+
+            // Inject the script before closing </body> tag
+            html = html.replace('</body>', liveReloadScript + '\n</body>');
+
             return new Response(html, {
               headers: { 'content-type': 'text/html' },
             });
           } else if (await exists(mvsjPath)) {
             const story = await parseStoryFolder(folderPath);
-            const html = generateMVSJViewerHtml({ title: story.metadata?.title });
+            let html = generateMVSJViewerHtml({ title: story.metadata?.title });
+
+            // Inject live reload script
+            const liveReloadScript = `
+<script>
+  (function() {
+    const ws = new WebSocket('ws://' + window.location.host + '/ws');
+    let reconnectTimeout;
+
+    function connect() {
+      const ws = new WebSocket('ws://' + window.location.host + '/ws');
+
+      ws.onopen = function() {
+        console.log('Live reload connected');
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
+      };
+
+      ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.type === 'reload') {
+          console.log('Reloading page...');
+          window.location.reload();
+        }
+      };
+
+      ws.onclose = function() {
+        console.log('Live reload disconnected. Reconnecting...');
+        reconnectTimeout = setTimeout(connect, 1000);
+      };
+
+      ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+      };
+    }
+
+    connect();
+  })();
+</script>`;
+
+            // Inject the script before closing </body> tag
+            html = html.replace('</body>', liveReloadScript + '\n</body>');
+
             return new Response(html, {
               headers: { 'content-type': 'text/html' },
             });
@@ -289,6 +420,16 @@ export async function watchStory(
       } catch (error) {
         // Server cleanup errors can be ignored
       }
+
+      // Close all WebSocket connections
+      wsClients.forEach((client) => {
+        try {
+          client.close();
+        } catch (error) {
+          // Ignore close errors
+        }
+      });
+      wsClients.clear();
 
       // Clean up temp directory
       try {
