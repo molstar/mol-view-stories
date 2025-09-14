@@ -7,8 +7,8 @@ A command-line tool for creating and managing MolViewPack molecular visualizatio
 ### Method 1: Install from Source (Recommended)
 
 ```bash
-git clone https://github.com/zachcp/mvs-cli.git
-cd mvs-cli
+git clone git@github.com:molstar/mol-view-stories.git
+cd cli
 deno task build
 deno install --global --allow-read --allow-write --allow-env --allow-net --allow-scripts --config deno.json -f -n mvs main.ts
 ```
@@ -16,8 +16,8 @@ deno install --global --allow-read --allow-write --allow-env --allow-net --allow
 ### Method 2: Run Directly with Deno
 
 ```bash
-git clone https://github.com/zachcp/mvs-cli.git
-cd mvs-cli
+git clone  git@github.com:molstar/mol-view-stories.git
+cd cli
 deno run --allow-read --allow-write --allow-env --allow-net main.ts [command] [options]
 ```
 
@@ -107,7 +107,7 @@ The MVS CLI uses **YAML configuration files** for easy editing and supports **mu
 ### Export Formats
 
 - **JSON** (`.json`) - Human-readable StoryContainer format, default output
-- **MVSX** (`.mvsx`) - Binary format with embedded molecular assets (ZIP-based)  
+- **MVSX** (`.mvsx`) - Binary format with embedded molecular assets (ZIP-based)
 - **MVStory** (`.mvstory`) - MolViewPack story format for direct loading
 
 ### Story Configuration (`story.yaml`)
@@ -212,7 +212,7 @@ The repository includes pre-built example files in all supported formats:
 
 **Complex Example** (`examples/localfile/`) - *With molecular assets*:
 - **`examples/localfile.json`** - JSON format StoryContainer (50.9KB)
-- **`examples/localfile.mvsx`** - MVSX format with embedded assets (50.9KB) 
+- **`examples/localfile.mvsx`** - MVSX format with embedded assets (50.9KB)
 - **`examples/localfile.mvstory`** - MVStory format for direct loading (50.9KB)
 
 **Simple Example** (`examples/simple/`) - *Configuration only*:
@@ -251,10 +251,10 @@ These demonstrate the different export formats available and can be used for tes
    ```bash
    # Export as JSON (default)
    mvs build . -o folding-story.json
-   
+
    # Export as MVSX with embedded assets
    mvs build . --format mvsx -o folding-story.mvsx
-   
+
    # Export as MVStory for direct loading
    mvs build . --format mvstory -o folding-story.mvstory
    ```
@@ -263,10 +263,10 @@ These demonstrate the different export formats available and can be used for tes
    ```bash
    # Export the complex example (with assets) in different formats
    mvs build examples/localfile --format json -o my-complex.json
-   mvs build examples/localfile --format mvsx -o my-complex.mvsx  
+   mvs build examples/localfile --format mvsx -o my-complex.mvsx
    mvs build examples/localfile --format mvstory -o my-complex.mvstory
-   
-   # Export the simple example (configuration only) 
+
+   # Export the simple example (configuration only)
    mvs build examples/simple --format json -o my-simple.json
    mvs build examples/simple --format mvsx -o my-simple.mvsx
    mvs build examples/simple --format mvstory -o my-simple.mvstory

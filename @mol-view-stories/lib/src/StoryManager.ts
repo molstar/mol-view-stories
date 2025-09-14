@@ -1,12 +1,12 @@
-import { Story, SceneData, SceneAsset, StoryContainer } from './types';
-import { UUID } from 'molstar/lib/mol-util';
-import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
-import { Task } from 'molstar/lib/mol-task';
-import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
-import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode';
-import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip';
-import { generateStoriesHtml } from './html-template';
-import * as actions from './actions';
+import { Story, SceneData, SceneAsset, StoryContainer } from './types.ts';
+import { UUID } from 'molstar/lib/mol-util/uuid.js';
+import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data.js';
+import { Task } from 'molstar/lib/mol-task/index.js';
+import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode.js';
+import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode.js';
+import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip.js';
+import { generateStoriesHtml } from './html-template.ts';
+import * as actions from './actions.ts';
 
 /**
  * StoryManager - Complete story management and export/import system
