@@ -9,8 +9,18 @@ import { generateStoriesHtml } from './html-template';
 import * as actions from './actions';
 
 /**
- * StoryManager - Complete story management and export/import
- * Handles all operations on a Story object and format conversions
+ * StoryManager - Complete story management and export/import system
+ *
+ * This class provides a comprehensive interface for managing Story objects, including
+ * creation, modification, and persistence operations. It handles all CRUD operations
+ * on stories, scenes, and assets, while providing multiple export formats including
+ * JSON, compressed containers (.mvstory), MVS data for Mol* viewer integration,
+ * standalone HTML files, and self-hosted zip packages.
+ *
+ * The manager also supports importing stories from various formats and provides
+ * utilities for scene reordering, metadata management, and asset handling. It serves
+ * as the primary interface between the application and the underlying story data
+ * structure, ensuring data integrity and providing format conversions.
  */
 export class StoryManager {
   private story: Story;
