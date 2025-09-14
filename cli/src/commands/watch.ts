@@ -1,6 +1,6 @@
 import { exists } from '@std/fs';
 import { join } from '@std/path';
-import { StoryManager } from '../deps.ts';
+import { StoryManager } from '@mol-view-stories/lib/StoryManager';
 import { parseStoryFolder } from './build.ts';
 import { generateMVSJViewerHtml, generateMVSXViewerHtml } from '../templates/mvs-viewer-template.ts';
 

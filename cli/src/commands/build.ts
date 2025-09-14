@@ -1,19 +1,14 @@
+import { exists, walk } from '@std/fs';
+import { basename, dirname, extname, join, relative } from '@std/path';
+import { parse as parseYaml } from '@std/yaml';
 import {
-  parseYaml,
-  exists,
-  walk,
-  basename,
-  dirname,
-  extname,
-  join,
-  relative,
   type CameraData,
   type SceneAsset,
   type SceneData,
   type Story,
   type StoryMetadata,
-  StoryManager,
-} from '../deps.ts';
+} from '@mol-view-stories/lib/types';
+import { StoryManager } from '@mol-view-stories/lib/StoryManager';
 
 export type BuildFormat = 'json' | 'mvsx' | 'mvstory' | 'html';
 
