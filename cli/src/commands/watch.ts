@@ -464,7 +464,7 @@ export async function watchStory(
         const mvsData = await storyManager.toMVS();
 
         if (mvsData instanceof Uint8Array) {
-          return new Response(mvsData, {
+          return new Response(mvsData as BodyInit, {
             headers: {
               'content-type': 'application/zip',
               'content-disposition': 'attachment; filename="story.mvsx"',
