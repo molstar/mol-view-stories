@@ -109,7 +109,7 @@ export async function buildStory(folderPath: string, outputFile?: string, format
   }
 }
 
-async function parseStoryFolder(folderPath: string): Promise<Story> {
+export async function parseStoryFolder(folderPath: string): Promise<Story> {
   console.error('Parsing story folder structure...');
 
   // Read main story.yaml
@@ -186,7 +186,7 @@ async function parseStoryFolder(folderPath: string): Promise<Story> {
   return story;
 }
 
-async function parseSceneFolder(sceneDir: string, rootPath: string, sceneIndex: number): Promise<SceneData> {
+export async function parseSceneFolder(sceneDir: string, rootPath: string, sceneIndex: number): Promise<SceneData> {
   const sceneName = basename(sceneDir);
 
   // Read scene YAML file
@@ -242,7 +242,7 @@ async function parseSceneFolder(sceneDir: string, rootPath: string, sceneIndex: 
   return scene;
 }
 
-async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]> {
+export async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]> {
   const assetsDir = join(rootPath, 'assets');
 
   if (!(await exists(assetsDir))) {
