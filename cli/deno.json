@@ -34,7 +34,24 @@
     "@mol-view-stories/lib/": "../@mol-view-stories/lib/src/",
     "@mol-view-stories/lib/StoryManager": "../@mol-view-stories/lib/src/StoryManager.ts",
     "@mol-view-stories/lib/types": "../@mol-view-stories/lib/src/types.ts",
-    "molstar": "npm:molstar@5.0.0-dev.13"
+    "molstar": "npm:molstar@5.0.0-dev.13",
+    "molstar/vec3": "npm:molstar@5.0.0-dev.13/lib/mol-math/linear-algebra/3d/vec3.js",
+    "molstar/mvs-data": "npm:molstar@5.0.0-dev.13/lib/extensions/mvs/mvs-data.js",
+    "molstar/zip": "npm:molstar@5.0.0-dev.13/lib/mol-util/zip/zip.js",
+    "molstar/msgpack-encode": "npm:molstar@5.0.0-dev.13/lib/mol-io/common/msgpack/encode.js",
+    "molstar/msgpack-decode": "npm:molstar@5.0.0-dev.13/lib/mol-io/common/msgpack/decode.js",
+    "molstar/task": "npm:molstar@5.0.0-dev.13/lib/mol-task/task.js",
+    "molstar/lib/extensions/mvs/mvs-data": "npm:molstar@5.0.0-dev.13/lib/extensions/mvs/mvs-data.js",
+    "molstar/lib/mol-plugin/version": "npm:molstar@5.0.0-dev.13/lib/mol-plugin/version.js",
+    "molstar/lib/mol-util/uuid": "npm:molstar@5.0.0-dev.13/lib/mol-util/uuid.js",
+    "molstar/lib/mol-task/index.js": "npm:molstar@5.0.0-dev.13/lib/mol-task/index.js",
+    "molstar/lib/mol-io/common/msgpack/encode": "npm:molstar@5.0.0-dev.13/lib/mol-io/common/msgpack/encode.js",
+    "molstar/lib/mol-io/common/msgpack/decode": "npm:molstar@5.0.0-dev.13/lib/mol-io/common/msgpack/decode.js",
+    "molstar/lib/mol-util/zip/zip": "npm:molstar@5.0.0-dev.13/lib/mol-util/zip/zip.js",
+    "molstar/lib/mol-math/linear-algebra": "npm:molstar@5.0.0-dev.13/lib/mol-math/linear-algebra.js",
+    "molstar/lib/mol-math/linear-algebra/3d/euler": "npm:molstar@5.0.0-dev.13/lib/mol-math/linear-algebra/3d/euler.js",
+    "molstar/lib/mol-util/color/utils": "npm:molstar@5.0.0-dev.13/lib/mol-util/color/utils.js",
+    "molstar/lib/mol-task": "npm:molstar@5.0.0-dev.13/lib/mol-task/index.js"
   },
   "compilerOptions": {
     "strict": true
