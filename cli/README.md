@@ -4,21 +4,22 @@ A command-line tool for creating and managing MolViewPack molecular visualizatio
 
 ## Installation
 
-### Method 1: Install from Source (Recommended)
+
+### Method 1: Run Directly with Deno
+
+```bash
+git clone  git@github.com:molstar/mol-view-stories.git
+cd cli
+deno run --allow-read --allow-write --allow-env --allow-net main.ts [command] [options]
+```
+
+### Method 2: Install from Source (Recommended)
 
 ```bash
 git clone git@github.com:molstar/mol-view-stories.git
 cd cli
 deno task build
 deno install --global --allow-read --allow-write --allow-env --allow-net --allow-scripts --config deno.json -f -n mvs main.ts
-```
-
-### Method 2: Run Directly with Deno
-
-```bash
-git clone  git@github.com:molstar/mol-view-stories.git
-cd cli
-deno run --allow-read --allow-write --allow-env --allow-net main.ts [command] [options]
 ```
 
 ### Verify Installation
