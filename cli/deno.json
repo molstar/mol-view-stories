@@ -1,24 +1,17 @@
 {
-  "name": "@zachcp/mvs-cli",
+  "name": "@molstar/mvs-cli",
   "version": "0.1.0",
   "description": "A command-line tool for creating and managing MolViewPack molecular visualization stories",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zachcp/mvs-cli.git"
+    "url": "git+https://github.com/molstar/mol-view-stories.git"
   },
-  "homepage": "https://github.com/zachcp/mvs-cli",
+  "homepage": "https://github.com/molstar/mol-view-stories.git",
   "bugs": {
-    "url": "https://github.com/zachcp/mvs-cli/issues"
+    "url": "https://github.com/molstar/mol-view-stories/issues"
   },
-  "keywords": [
-    "molecular-visualization",
-    "cli",
-    "molstar",
-    "protein",
-    "chemistry",
-    "bioinformatics"
-  ],
+  "keywords": ["molecular-visualization", "cli", "molstar", "protein", "chemistry", "bioinformatics"],
   "exports": {
     ".": "./mod.ts",
     "./cli": "./main.ts"
@@ -38,7 +31,10 @@
     "@std/fs": "jsr:@std/fs@1",
     "@std/path": "jsr:@std/path@1",
     "@std/cli": "jsr:@std/cli@^1.0.21",
-    "@zachcp/molviewstory-types": "jsr:@zachcp/molviewstory-types@0.2.1"
+    "@mol-view-stories/lib/": "../@mol-view-stories/lib/src/",
+    "@mol-view-stories/lib/StoryManager": "../@mol-view-stories/lib/src/StoryManager.ts",
+    "@mol-view-stories/lib/types": "../@mol-view-stories/lib/src/types.ts",
+    "molstar": "npm:molstar@5.0.0-dev.13"
   },
   "compilerOptions": {
     "strict": true

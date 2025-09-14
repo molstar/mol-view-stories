@@ -1,22 +1,23 @@
-import { parse as parseYaml } from "@std/yaml";
-import { exists, walk } from "@std/fs";
-import { basename, dirname, extname, join, relative } from "@std/path";
 import {
+  parseYaml,
+  exists,
+  walk,
+  basename,
+  dirname,
+  extname,
+  join,
+  relative,
   type CameraData,
   type SceneAsset,
   type SceneData,
   type Story,
-  StoryContainer,
   type StoryMetadata,
-} from "@zachcp/molviewstory-types";
+  StoryManager,
+} from '../deps.ts';
 
-export type BuildFormat = "json" | "mvsx" | "mvstory";
+export type BuildFormat = 'json' | 'mvsx' | 'mvstory' | 'html';
 
-export async function buildStory(
-  folderPath: string,
-  outputFile?: string,
-  format?: BuildFormat,
-): Promise<void> {
+export async function buildStory(folderPath: string, outputFile?: string, format?: BuildFormat): Promise<void> {
   console.error(`Building story from: ${folderPath}`);
 
   // Validate folder exists
@@ -33,85 +34,88 @@ export async function buildStory(
     // Parse the story structure
     const story = await parseStoryFolder(folderPath);
 
-    // Create StoryContainer with the parsed story
-    const storyContainer = new StoryContainer(story);
+    // Create StoryManager with the parsed story
+    const manager = new StoryManager(story);
 
-    // Generate data based on explicit format or auto-detect
-    let mvsData: any;
+    // Generate output using StoryManager methods
+    let output: string | Uint8Array;
     let actualFormat: string;
 
-    if (format) {
-      // Use explicit format with filename-based detection
-      let tempFilename: string;
-      switch (format) {
-        case "json":
-          tempFilename = "temp.json";
-          break;
-        case "mvsx":
-          tempFilename = "temp.mvsx";
-          break;
-        case "mvstory":
-          tempFilename = "temp.mvstory";
-          break;
-        default:
-          throw new Error(`Unsupported format: ${format}`);
+    switch (format || 'auto') {
+      case 'json':
+        output = manager.toJSON();
+        actualFormat = 'JSON';
+        break;
+
+      case 'mvstory':
+        output = await manager.toContainer();
+        actualFormat = 'MVStory';
+        break;
+
+      case 'mvsx': {
+        const mvsData = await manager.toMVS();
+        if (mvsData instanceof Uint8Array) {
+          output = mvsData;
+          actualFormat = 'MVSX';
+        } else {
+          output = JSON.stringify(mvsData, null, 2);
+          actualFormat = 'MVSJ';
+        }
+        break;
       }
 
-      const exported = await storyContainer.exportStory(tempFilename);
-      mvsData = exported.data;
-      actualFormat = format.toUpperCase();
+      case 'html':
+        output = await manager.toHTML();
+        actualFormat = 'HTML';
+        break;
 
-      // Handle special case where MVSX might fall back to other format if no assets
-      if (format === "mvsx" && !(mvsData instanceof Uint8Array)) {
-        console.error(
-          "⚠ Warning: No assets found, MVSX export returned JSON format",
-        );
-        actualFormat = "JSON (no assets for MVSX)";
+      case 'auto':
+      default: {
+        const mvsData = await manager.toMVS();
+        if (mvsData instanceof Uint8Array) {
+          output = mvsData;
+          actualFormat = 'MVSX';
+        } else {
+          output = JSON.stringify(mvsData, null, 2);
+          actualFormat = 'MVSJ';
+        }
+        break;
       }
-    } else {
-      // Auto-detect format (existing behavior)
-      mvsData = await storyContainer.generate();
-      actualFormat = mvsData instanceof Uint8Array ? "MVSX" : "JSON";
     }
 
     // Output to stdout or file
     if (outputFile) {
-      if (mvsData instanceof Uint8Array) {
-        // Write binary file (MVSX)
-        await Deno.writeFile(outputFile, mvsData);
-        console.error(
-          `✓ ${actualFormat} file saved to: ${outputFile} (${mvsData.length} bytes)`,
-        );
+      if (output instanceof Uint8Array) {
+        // Write binary file
+        await Deno.writeFile(outputFile, output);
+        console.error(`✓ ${actualFormat} file saved to: ${outputFile} (${output.length} bytes)`);
       } else {
-        // Write text file (JSON/MVStory)
-        const textOutput = JSON.stringify(mvsData, null, 2);
-        await Deno.writeTextFile(outputFile, textOutput);
+        // Write text file
+        await Deno.writeTextFile(outputFile, output);
         console.error(`✓ ${actualFormat} file saved to: ${outputFile}`);
       }
     } else {
-      if (mvsData instanceof Uint8Array) {
+      if (output instanceof Uint8Array) {
         // Cannot output binary to stdout, convert to base64
-        const base64 = btoa(String.fromCharCode(...mvsData));
+        const base64 = btoa(String.fromCharCode(...output));
         console.log(`${actualFormat}_BASE64:${base64}`);
       } else {
         // Output to stdout
-        console.log(JSON.stringify(mvsData, null, 2));
+        console.log(output);
       }
     }
   } catch (error) {
-    throw new Error(
-      `Failed to build story: ${error instanceof Error ? error.message : error}`,
-    );
+    throw new Error(`Failed to build story: ${error instanceof Error ? error.message : error}`);
   }
 }
 
 async function parseStoryFolder(folderPath: string): Promise<Story> {
-  console.error("Parsing story folder structure...");
+  console.error('Parsing story folder structure...');
 
   // Read main story.yaml
-  const storyYamlPath = join(folderPath, "story.yaml");
+  const storyYamlPath = join(folderPath, 'story.yaml');
   if (!(await exists(storyYamlPath))) {
-    throw new Error("story.yaml not found in the root directory");
+    throw new Error('story.yaml not found in the root directory');
   }
 
   const storyYamlContent = await Deno.readTextFile(storyYamlPath);
@@ -125,7 +129,7 @@ async function parseStoryFolder(folderPath: string): Promise<Story> {
   console.error(`✓ Loaded story metadata: ${metadata.title}`);
 
   // Parse scenes
-  const scenesDir = join(folderPath, "scenes");
+  const scenesDir = join(folderPath, 'scenes');
   const scenes: SceneData[] = [];
 
   if (await exists(scenesDir)) {
@@ -152,24 +156,20 @@ async function parseStoryFolder(folderPath: string): Promise<Story> {
   }
 
   if (scenes.length === 0) {
-    console.error("⚠ Warning: No scenes found in the story");
+    console.error('⚠ Warning: No scenes found in the story');
   }
 
   // Parse assets
   const assets = await parseAssetsFolder(folderPath);
 
   // Read optional story.js file for global JavaScript
-  const storyJsPath = join(folderPath, "story.js");
-  let storyJavaScript = "";
+  const storyJsPath = join(folderPath, 'story.js');
+  let storyJavaScript = '';
   if (await exists(storyJsPath)) {
     storyJavaScript = await Deno.readTextFile(storyJsPath);
-    console.error(
-      `✓ Loaded story.js with ${storyJavaScript.length} characters`,
-    );
+    console.error(`✓ Loaded story.js with ${storyJavaScript.length} characters`);
   } else {
-    console.error(
-      "⚠ Warning: story.js not found, using empty story JavaScript",
-    );
+    console.error('⚠ Warning: story.js not found, using empty story JavaScript');
   }
 
   // Use only the user-provided JavaScript for story.javascript
@@ -186,19 +186,13 @@ async function parseStoryFolder(folderPath: string): Promise<Story> {
   return story;
 }
 
-async function parseSceneFolder(
-  sceneDir: string,
-  rootPath: string,
-  sceneIndex: number,
-): Promise<SceneData> {
+async function parseSceneFolder(sceneDir: string, rootPath: string, sceneIndex: number): Promise<SceneData> {
   const sceneName = basename(sceneDir);
 
   // Read scene YAML file
   const yamlPath = join(sceneDir, `${sceneName}.yaml`);
   if (!(await exists(yamlPath))) {
-    throw new Error(
-      `${sceneName}.yaml not found in scene directory: ${sceneName}`,
-    );
+    throw new Error(`${sceneName}.yaml not found in scene directory: ${sceneName}`);
   }
 
   const yamlContent = await Deno.readTextFile(yamlPath);
@@ -206,31 +200,27 @@ async function parseSceneFolder(
 
   // Read scene description from MD file
   const mdPath = join(sceneDir, `${sceneName}.md`);
-  let description = "";
+  let description = '';
   if (await exists(mdPath)) {
     description = await Deno.readTextFile(mdPath);
   } else {
-    console.error(
-      `⚠ Warning: ${sceneName}.md not found, using empty description`,
-    );
+    console.error(`⚠ Warning: ${sceneName}.md not found, using empty description`);
   }
 
   // Read scene JavaScript from JS file
   const jsPath = join(sceneDir, `${sceneName}.js`);
-  let javascript = "";
+  let javascript = '';
   if (await exists(jsPath)) {
     javascript = await Deno.readTextFile(jsPath);
   } else {
-    console.error(
-      `⚠ Warning: ${sceneName}.js not found, using empty JavaScript`,
-    );
+    console.error(`⚠ Warning: ${sceneName}.js not found, using empty JavaScript`);
   }
 
   // Extract camera configuration if present
   let camera: CameraData | undefined;
   if (sceneData.camera) {
     camera = {
-      mode: sceneData.camera.mode || "perspective",
+      mode: sceneData.camera.mode || 'perspective',
       target: sceneData.camera.target || [0, 0, 0],
       position: sceneData.camera.position || [10, 10, 10],
       up: sceneData.camera.up || [0, 1, 0],
@@ -253,10 +243,10 @@ async function parseSceneFolder(
 }
 
 async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]> {
-  const assetsDir = join(rootPath, "assets");
+  const assetsDir = join(rootPath, 'assets');
 
   if (!(await exists(assetsDir))) {
-    console.error("⚠ Warning: assets/ directory not found");
+    console.error('⚠ Warning: assets/ directory not found');
     return [];
   }
 

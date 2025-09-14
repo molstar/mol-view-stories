@@ -1,27 +1,24 @@
-import { exists } from "@std/fs";
-import { join } from "@std/path";
-import { StoryContainer } from "@zachcp/molviewstory-types";
-import { buildStory } from "./build.ts";
-import {
-  generateMVSJViewerHtml,
-  generateMVSXViewerHtml,
-} from "../templates/mvs-viewer-template.ts";
+import { exists } from '@std/fs';
+import { join } from '@std/path';
+import { StoryManager } from '../deps.ts';
+import { buildStory } from './build.ts';
+import { generateMVSJViewerHtml, generateMVSXViewerHtml } from '../templates/mvs-viewer-template.ts';
 
-import { parse as parseYaml } from "@std/yaml";
-import { walk } from "@std/fs";
-import { basename, extname, relative } from "@std/path";
+import { parse as parseYaml } from '@std/yaml';
+import { walk } from '@std/fs';
+import { basename, extname, relative } from '@std/path';
 
 // Import the parseStoryFolder function from build.ts
 async function parseStoryFolder(folderPath: string) {
   // We'll need to extract this function from build.ts or duplicate the logic
   // For now, let's use a simplified approach by calling buildStory indirectly
 
-  console.error("Parsing story folder structure...");
+  console.error('Parsing story folder structure...');
 
   // Read main story.yaml
-  const storyYamlPath = join(folderPath, "story.yaml");
+  const storyYamlPath = join(folderPath, 'story.yaml');
   if (!(await exists(storyYamlPath))) {
-    throw new Error("story.yaml not found in the root directory");
+    throw new Error('story.yaml not found in the root directory');
   }
 
   const storyYamlContent = await Deno.readTextFile(storyYamlPath);
@@ -35,7 +32,7 @@ async function parseStoryFolder(folderPath: string) {
   console.error(`✓ Loaded story metadata: ${metadata.title}`);
 
   // Parse scenes
-  const scenesDir = join(folderPath, "scenes");
+  const scenesDir = join(folderPath, 'scenes');
   const scenes: any[] = [];
 
   if (await exists(scenesDir)) {
@@ -62,24 +59,20 @@ async function parseStoryFolder(folderPath: string) {
   }
 
   if (scenes.length === 0) {
-    console.error("⚠ Warning: No scenes found in the story");
+    console.error('⚠ Warning: No scenes found in the story');
   }
 
   // Parse assets
   const assets = await parseAssetsFolder(folderPath);
 
   // Read optional story.js file for global JavaScript
-  const storyJsPath = join(folderPath, "story.js");
-  let storyJavaScript = "";
+  const storyJsPath = join(folderPath, 'story.js');
+  let storyJavaScript = '';
   if (await exists(storyJsPath)) {
     storyJavaScript = await Deno.readTextFile(storyJsPath);
-    console.error(
-      `✓ Loaded story.js with ${storyJavaScript.length} characters`,
-    );
+    console.error(`✓ Loaded story.js with ${storyJavaScript.length} characters`);
   } else {
-    console.error(
-      "⚠ Warning: story.js not found, using empty story JavaScript",
-    );
+    console.error('⚠ Warning: story.js not found, using empty story JavaScript');
   }
 
   const javascript = storyJavaScript;
@@ -95,19 +88,13 @@ async function parseStoryFolder(folderPath: string) {
   return story;
 }
 
-async function parseSceneFolder(
-  sceneDir: string,
-  rootPath: string,
-  sceneIndex: number,
-) {
+async function parseSceneFolder(sceneDir: string, rootPath: string, sceneIndex: number) {
   const sceneName = basename(sceneDir);
 
   // Read scene YAML file
   const yamlPath = join(sceneDir, `${sceneName}.yaml`);
   if (!(await exists(yamlPath))) {
-    throw new Error(
-      `${sceneName}.yaml not found in scene directory: ${sceneName}`,
-    );
+    throw new Error(`${sceneName}.yaml not found in scene directory: ${sceneName}`);
   }
 
   const yamlContent = await Deno.readTextFile(yamlPath);
@@ -115,31 +102,27 @@ async function parseSceneFolder(
 
   // Read scene description from MD file
   const mdPath = join(sceneDir, `${sceneName}.md`);
-  let description = "";
+  let description = '';
   if (await exists(mdPath)) {
     description = await Deno.readTextFile(mdPath);
   } else {
-    console.error(
-      `⚠ Warning: ${sceneName}.md not found, using empty description`,
-    );
+    console.error(`⚠ Warning: ${sceneName}.md not found, using empty description`);
   }
 
   // Read scene JavaScript from JS file
   const jsPath = join(sceneDir, `${sceneName}.js`);
-  let javascript = "";
+  let javascript = '';
   if (await exists(jsPath)) {
     javascript = await Deno.readTextFile(jsPath);
   } else {
-    console.error(
-      `⚠ Warning: ${sceneName}.js not found, using empty JavaScript`,
-    );
+    console.error(`⚠ Warning: ${sceneName}.js not found, using empty JavaScript`);
   }
 
   // Extract camera configuration if present
   let camera;
   if (sceneData.camera) {
     camera = {
-      mode: sceneData.camera.mode || "perspective",
+      mode: sceneData.camera.mode || 'perspective',
       target: sceneData.camera.target || [0, 0, 0],
       position: sceneData.camera.position || [10, 10, 10],
       up: sceneData.camera.up || [0, 1, 0],
@@ -162,10 +145,10 @@ async function parseSceneFolder(
 }
 
 async function parseAssetsFolder(rootPath: string) {
-  const assetsDir = join(rootPath, "assets");
+  const assetsDir = join(rootPath, 'assets');
 
   if (!(await exists(assetsDir))) {
-    console.error("⚠ Warning: assets/ directory not found");
+    console.error('⚠ Warning: assets/ directory not found');
     return [];
   }
 
@@ -198,26 +181,22 @@ async function parseAssetsFolder(rootPath: string) {
 
 export async function watchStory(
   folderPath: string,
-  options: { port?: number } = {},
+  options: { port?: number } = {}
 ): Promise<{ cleanup: () => Promise<void> }> {
   const port = options.port || 8080;
 
   // Check if we should use direct MVS serving (redirecting to mol-view-stories)
-  const useDirectServing = Deno.env.get("MVS_DIRECT_SERVE") === "true";
+  const useDirectServing = Deno.env.get('MVS_DIRECT_SERVE') === 'true';
 
   // Validate port
   if (port < 1 || port > 65535) {
-    throw new Error("Port must be between 1 and 65535");
+    throw new Error('Port must be between 1 and 65535');
   }
 
   console.error(`Starting watch server for: ${folderPath}`);
   console.error(`Server will be available at: http://localhost:${port}`);
   console.error(
-    `Serving mode: ${
-      useDirectServing
-        ? "Direct (redirect to mol-view-stories)"
-        : "Local (embedded viewer)"
-    }`,
+    `Serving mode: ${useDirectServing ? 'Direct (redirect to mol-view-stories)' : 'Local (embedded viewer)'}`
   );
 
   // Validate folder exists and is a directory
@@ -234,10 +213,10 @@ export async function watchStory(
   }
 
   // Create temporary directory for unpacked MVSX
-  const tempDir = await Deno.makeTempDir({ prefix: "mvs-watch-" });
+  const tempDir = await Deno.makeTempDir({ prefix: 'mvs-watch-' });
   console.error(`📁 Created temp directory: ${tempDir}`);
 
-  let currentHtml = "";
+  let currentHtml = '';
   let isBuilding = false;
   let assetsUnpacked = false;
 
@@ -253,10 +232,10 @@ export async function watchStory(
       await Deno.remove(path);
     },
     async runUnzip(args: string[]): Promise<boolean> {
-      const unzipProcess = new Deno.Command("unzip", {
+      const unzipProcess = new Deno.Command('unzip', {
         args,
-        stdout: "null",
-        stderr: "null",
+        stdout: 'null',
+        stderr: 'null',
       });
       const result = await unzipProcess.output();
       return result.success;
@@ -267,20 +246,15 @@ export async function watchStory(
   function createUnpackMVSX(tempDir: string, utils: typeof denoUtils) {
     return async function unpackMVSX(mvsxData: Uint8Array): Promise<void> {
       // Write MVSX to temp file
-      const tempMvsxPath = join(tempDir, "temp.mvsx");
+      const tempMvsxPath = join(tempDir, 'temp.mvsx');
       await utils.writeFile(tempMvsxPath, mvsxData);
 
       try {
         // Use unzip command to extract MVSX (which is a ZIP file)
-        const success = await utils.runUnzip([
-          "-o",
-          tempMvsxPath,
-          "-d",
-          tempDir,
-        ]);
+        const success = await utils.runUnzip(['-o', tempMvsxPath, '-d', tempDir]);
 
         if (!success) {
-          throw new Error("Failed to unzip MVSX file");
+          throw new Error('Failed to unzip MVSX file');
         }
 
         // Remove the temp MVSX file
@@ -289,7 +263,7 @@ export async function watchStory(
         console.error(`📦 Unpacked MVSX to: ${tempDir}`);
 
         // Flatten assets directory - move all files from assets/ to root level
-        const assetsDir = join(tempDir, "assets");
+        const assetsDir = join(tempDir, 'assets');
         try {
           if (await exists(assetsDir)) {
             for await (const entry of Deno.readDir(assetsDir)) {
@@ -310,17 +284,13 @@ export async function watchStory(
         // Debug: List files in temp directory
         try {
           for await (const entry of Deno.readDir(tempDir)) {
-            console.error(
-              `  📄 ${entry.name} (${entry.isFile ? "file" : "dir"})`,
-            );
+            console.error(`  📄 ${entry.name} (${entry.isFile ? 'file' : 'dir'})`);
           }
         } catch (e) {
           console.error(`  ⚠️ Could not list temp directory: ${e}`);
         }
       } catch (error) {
-        throw new Error(
-          `Failed to unpack MVSX: ${error instanceof Error ? error.message : error}`,
-        );
+        throw new Error(`Failed to unpack MVSX: ${error instanceof Error ? error.message : error}`);
       }
     };
   }
@@ -329,9 +299,7 @@ export async function watchStory(
 
   // Function to generate redirect HTML for direct MVS serving
   function generateDirectViewerHtml(title: string, hasAssets: boolean): string {
-    const fileUrl = hasAssets
-      ? `http://localhost:${port}/story.mvsx`
-      : `http://localhost:${port}/story.mvsj`;
+    const fileUrl = hasAssets ? `http://localhost:${port}/story.mvsx` : `http://localhost:${port}/story.mvsj`;
 
     const viewerUrl = hasAssets
       ? `https://molstar.org/mol-view-stories/?mvsx-url=${encodeURIComponent(fileUrl)}`
@@ -362,20 +330,20 @@ export async function watchStory(
 
     isBuilding = true;
     try {
-      console.error("\n🔄 Rebuilding story...");
+      console.error('\n🔄 Rebuilding story...');
 
       // Parse the story structure
       const story = await parseStoryFolder(folderPath);
 
-      // Create StoryContainer with the parsed story
-      const storyContainer = new StoryContainer(story);
+      // Create StoryManager with the parsed story
+      const storyManager = new StoryManager(story);
 
       // Generate MVSX data or JSON
-      const mvsData = await storyContainer.generate();
+      const mvsData = await storyManager.toMVS();
 
       if (mvsData instanceof Uint8Array) {
         // MVSX format (has assets) - unpack the zip file
-        console.error("📦 Processing MVSX format (with assets)");
+        console.error('📦 Processing MVSX format (with assets)');
 
         // Unpack MVSX to temp directory (only once, or if assets changed)
         if (!assetsUnpacked) {
@@ -383,59 +351,42 @@ export async function watchStory(
           assetsUnpacked = true;
         } else {
           // Only update the JSON file for fast reload
-          const tempMvsxPath = join(tempDir, "temp.mvsx");
+          const tempMvsxPath = join(tempDir, 'temp.mvsx');
           await denoUtils.writeFile(tempMvsxPath, mvsData);
 
-          const success = await denoUtils.runUnzip([
-            "-o",
-            tempMvsxPath,
-            "index.mvsj",
-            "-d",
-            tempDir,
-          ]);
+          const success = await denoUtils.runUnzip(['-o', tempMvsxPath, 'index.mvsj', '-d', tempDir]);
 
           if (!success) {
-            throw new Error("Failed to update JSON file");
+            throw new Error('Failed to update JSON file');
           }
 
           await denoUtils.remove(tempMvsxPath);
-          console.error("📝 Updated index.mvsj");
+          console.error('📝 Updated index.mvsj');
         }
       } else {
         // JSON format (no assets) - write JSON directly
-        console.error("📄 Processing JSON format (no assets)");
+        console.error('📄 Processing JSON format (no assets)');
 
-        const indexPath = join(tempDir, "index.mvsj");
+        const indexPath = join(tempDir, 'index.mvsj');
         const jsonContent = JSON.stringify(mvsData, null, 2);
         await Deno.writeTextFile(indexPath, jsonContent);
-        console.error("📝 Created index.mvsj from JSON");
+        console.error('📝 Created index.mvsj from JSON');
 
         assetsUnpacked = true; // Mark as processed
       }
 
       // Generate HTML - either direct redirect or local viewer
       if (useDirectServing) {
-        currentHtml = generateDirectViewerHtml(
-          story.metadata?.title || "MVS Story",
-          mvsData instanceof Uint8Array,
-        );
-        console.error(
-          `🔗 Using direct serving mode - will redirect to mol-view-stories`,
-        );
+        currentHtml = generateDirectViewerHtml(story.metadata?.title || 'MVS Story', mvsData instanceof Uint8Array);
+        console.error(`🔗 Using direct serving mode - will redirect to mol-view-stories`);
       } else {
-        currentHtml = generateMVSXViewerHtml(
-          story.metadata?.title || "MVS Story",
-        );
-        console.error(
-          `🖥️ Using local viewer mode - serving with embedded templates`,
-        );
+        currentHtml = generateMVSXViewerHtml(story.metadata?.title || 'MVS Story');
+        console.error(`🖥️ Using local viewer mode - serving with embedded templates`);
       }
 
-      console.error("✅ Story rebuilt successfully");
+      console.error('✅ Story rebuilt successfully');
     } catch (error) {
-      throw new Error(
-        `Failed to rebuild story: ${error instanceof Error ? error.message : error}`,
-      );
+      throw new Error(`Failed to rebuild story: ${error instanceof Error ? error.message : error}`);
     } finally {
       isBuilding = false;
     }
@@ -457,14 +408,8 @@ export async function watchStory(
       for await (const event of watcher) {
         if (watcherClosed) break;
 
-        if (
-          event.kind === "modify" ||
-          event.kind === "create" ||
-          event.kind === "remove"
-        ) {
-          console.error(
-            `📝 File change detected: ${event.kind} - ${event.paths.join(", ")}`,
-          );
+        if (event.kind === 'modify' || event.kind === 'create' || event.kind === 'remove') {
+          console.error(`📝 File change detected: ${event.kind} - ${event.paths.join(', ')}`);
 
           // Clear any existing timeout
           if (rebuildTimeout) {
@@ -479,7 +424,7 @@ export async function watchStory(
       }
     } catch (error) {
       if (!watcherClosed) {
-        console.error("Watcher error:", error);
+        console.error('Watcher error:', error);
       }
     }
   })();
@@ -489,100 +434,94 @@ export async function watchStory(
     const url = new URL(req.url);
 
     // Handle CORS preflight requests
-    if (req.method === "OPTIONS") {
+    if (req.method === 'OPTIONS') {
       return new Response(null, {
         status: 200,
         headers: {
-          "access-control-allow-origin": "*",
-          "access-control-allow-methods": "GET, OPTIONS",
-          "access-control-allow-headers": "Content-Type",
+          'access-control-allow-origin': '*',
+          'access-control-allow-methods': 'GET, OPTIONS',
+          'access-control-allow-headers': 'Content-Type',
         },
       });
     }
 
-    if (url.pathname === "/" || url.pathname.endsWith(".html")) {
+    if (url.pathname === '/' || url.pathname.endsWith('.html')) {
       return new Response(currentHtml, {
         headers: {
-          "content-type": "text/html; charset=utf-8",
-          "cache-control": "no-cache, no-store, must-revalidate",
-          "access-control-allow-origin": "*",
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'no-cache, no-store, must-revalidate',
+          'access-control-allow-origin': '*',
         },
       });
     }
 
     // Handle direct MVS file serving for direct mode
     if (useDirectServing) {
-      if (url.pathname === "/story.mvsx") {
+      if (url.pathname === '/story.mvsx') {
         // Rebuild story to get latest MVSX data
         const story = await parseStoryFolder(folderPath);
-        const storyContainer = new StoryContainer(story);
-        const mvsData = await storyContainer.generate();
+        const storyManager = new StoryManager(story);
+        const mvsData = await storyManager.toMVS();
 
         if (mvsData instanceof Uint8Array) {
           return new Response(mvsData, {
             headers: {
-              "content-type": "application/zip",
-              "content-disposition": 'attachment; filename="story.mvsx"',
-              "access-control-allow-origin": "*",
+              'content-type': 'application/zip',
+              'content-disposition': 'attachment; filename="story.mvsx"',
+              'access-control-allow-origin': '*',
             },
           });
         } else {
-          return new Response("MVSX not available for this story", {
+          return new Response('MVSX not available for this story', {
             status: 404,
           });
         }
       }
 
-      if (url.pathname === "/story.mvsj") {
+      if (url.pathname === '/story.mvsj') {
         // Rebuild story to get latest MVSJ data
         const story = await parseStoryFolder(folderPath);
-        const storyContainer = new StoryContainer(story);
-        const mvsData = await storyContainer.generate();
+        const storyManager = new StoryManager(story);
+        const mvsData = await storyManager.toMVS();
 
         if (!(mvsData instanceof Uint8Array)) {
           return new Response(JSON.stringify(mvsData, null, 2), {
             headers: {
-              "content-type": "application/json",
-              "access-control-allow-origin": "*",
+              'content-type': 'application/json',
+              'access-control-allow-origin': '*',
             },
           });
         } else {
-          return new Response(
-            "MVSJ not available - story has assets, use MVSX",
-            { status: 404 },
-          );
+          return new Response('MVSJ not available - story has assets, use MVSX', { status: 404 });
         }
       }
 
-      if (url.pathname === "/info") {
+      if (url.pathname === '/info') {
         // Provide story info
         const story = await parseStoryFolder(folderPath);
-        const storyContainer = new StoryContainer(story);
-        const mvsData = await storyContainer.generate();
+        const storyManager = new StoryManager(story);
+        const mvsData = await storyManager.toMVS();
 
         const info = {
-          title: story.metadata?.title || "Untitled",
+          title: story.metadata?.title || 'Untitled',
           scenes: story.scenes.length,
           assets: story.assets.length,
           hasAssets: mvsData instanceof Uint8Array,
-          format: mvsData instanceof Uint8Array ? "mvsx" : "mvsj",
-          size:
-            mvsData instanceof Uint8Array
-              ? mvsData.length
-              : JSON.stringify(mvsData).length,
+          format: mvsData instanceof Uint8Array ? 'mvsx' : 'mvsj',
+          size: mvsData instanceof Uint8Array ? mvsData.length : JSON.stringify(mvsData).length,
         };
 
         return new Response(JSON.stringify(info, null, 2), {
           headers: {
-            "content-type": "application/json",
-            "access-control-allow-origin": "*",
+            'content-type': 'application/json',
+            'access-control-allow-origin': '*',
           },
         });
       }
     }
 
     // Serve files from temp directory (MVSX unpacked files)
-    if (url.pathname !== "/" && !url.pathname.includes("..")) {
+    if (url.pathname !== '/' && !url.pathname.includes('..')) {
       const fileName = url.pathname.substring(1); // Remove leading slash
       const filePath = join(tempDir, fileName);
 
@@ -594,21 +533,21 @@ export async function watchStory(
 
             // Determine content type based on file extension
             const ext = extname(filePath).toLowerCase();
-            let contentType = "application/octet-stream";
-            if (ext === ".mvsj") contentType = "application/json";
-            else if (ext === ".pdb") contentType = "text/plain";
-            else if (ext === ".mol2") contentType = "text/plain";
-            else if (ext === ".sdf") contentType = "text/plain";
-            else if (ext === ".cif") contentType = "text/plain";
-            else if (ext === ".bcif") contentType = "application/octet-stream";
+            let contentType = 'application/octet-stream';
+            if (ext === '.mvsj') contentType = 'application/json';
+            else if (ext === '.pdb') contentType = 'text/plain';
+            else if (ext === '.mol2') contentType = 'text/plain';
+            else if (ext === '.sdf') contentType = 'text/plain';
+            else if (ext === '.cif') contentType = 'text/plain';
+            else if (ext === '.bcif') contentType = 'application/octet-stream';
 
             return new Response(content, {
               headers: {
-                "content-type": contentType,
-                "cache-control": "no-cache, no-store, must-revalidate",
-                "access-control-allow-origin": "*",
-                "access-control-allow-methods": "GET, OPTIONS",
-                "access-control-allow-headers": "Content-Type",
+                'content-type': contentType,
+                'cache-control': 'no-cache, no-store, must-revalidate',
+                'access-control-allow-origin': '*',
+                'access-control-allow-methods': 'GET, OPTIONS',
+                'access-control-allow-headers': 'Content-Type',
               },
             });
           }
@@ -630,12 +569,12 @@ export async function watchStory(
     }
 
     // Handle other requests with a simple 404
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   });
 
   console.error(`🚀 Watch server started on http://localhost:${port}`);
-  console.error("👀 Watching for file changes...");
-  console.error("Press Ctrl+C to stop");
+  console.error('👀 Watching for file changes...');
+  console.error('Press Ctrl+C to stop');
 
   // Return cleanup function for testing
   const cleanup = async () => {
@@ -663,7 +602,7 @@ export async function watchStory(
   };
 
   // In production, wait for server to finish
-  if (Deno.env.get("DENO_TESTING") !== "true") {
+  if (Deno.env.get('DENO_TESTING') !== 'true') {
     await server.finished;
   }
 
