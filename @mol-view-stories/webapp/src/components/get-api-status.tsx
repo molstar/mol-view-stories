@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { API_CONFIG } from '@/lib/config';
-import { getHealthStatusIcon } from '@/lib/health-api';
+import { getHealthStatusIcon, checkEnvironmentHealth, type EnvironmentType } from '@/lib/health-api';
+import { isDevelopment, isProduction } from '@/lib/env-config';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 /**
  * ApiStatus Component
@@ -25,30 +27,9 @@ export function ApiStatus() {
 
   const checkHealth = useCallback(async () => {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-      const response = await fetch(`${API_CONFIG.baseUrl}/health`, {
-        method: 'GET',
-        cache: 'no-store',
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const text = await response.text();
-        if (text.trim() === 'healthy') {
-          setStatus('healthy');
-        } else {
-          try {
-            const json = JSON.parse(text);
-            setStatus(json.status === 'healthy' ? 'healthy' : 'unhealthy');
-          } catch {
-            setStatus('unhealthy');
-          }
-        }
-      } else {
-        setStatus('unhealthy');
-      }
+      const environment: EnvironmentType = isDevelopment() ? 'development' : isProduction() ? 'production' : 'local';
+      const result = await checkEnvironmentHealth(environment, 8000);
+      setStatus(result.status);
     } catch {
       setStatus('unreachable');
     }
@@ -61,7 +42,6 @@ export function ApiStatus() {
   }, [checkHealth]);
 
   const icon = getHealthStatusIcon(status);
-  const url = new URL(API_CONFIG.baseUrl).hostname;
   const color =
     status === 'healthy'
       ? 'text-green-600'
@@ -85,7 +65,16 @@ export function ApiStatus() {
     <div className='flex items-center gap-2 text-xs'>
       <span className='flex items-center gap-1'>
         <span className={status === 'unreachable' ? 'text-red-600' : ''}>{icon}</span>
-        <span className='text-muted-foreground'>API ({url})</span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className='text-muted-foreground cursor-help'>API</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>{API_CONFIG.baseUrl}</span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <span className={color}>{statusText}</span>
       </span>
     </div>
