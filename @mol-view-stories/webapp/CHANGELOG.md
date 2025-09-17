@@ -38,6 +38,9 @@ All notable changes to this project will be documented in this file, following t
 - **Scene editor**:
   - Mol* log under viewer
 
+### Fixed
+- **Auth Page**: Fixed infinite loop when no code or error is present
+
 ## [v1.0.0]
 
 - Initial release

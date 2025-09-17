@@ -29,8 +29,12 @@ export default function AuthPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [timeoutReached, setTimeoutReached] = useState(false);
+  const [authProcessed, setAuthProcessed] = useState(false);
 
   const processAuth = useCallback(async () => {
+    // Prevent multiple processing attempts
+    if (authProcessed) return;
+    setAuthProcessed(true);
     try {
       setStatus('loading');
       setMessage('Processing authentication...');
@@ -70,9 +74,11 @@ export default function AuthPage() {
       setError(errorMessage);
       setMessage('Authentication failed');
     }
-  }, [router]);
+  }, [router, authProcessed]);
 
   useEffect(() => {
+    // Only run once when component mounts
+    if (authProcessed) return;
     // Check if this is an OAuth callback by looking for code parameter
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -88,6 +94,7 @@ export default function AuthPage() {
 
     if (error) {
       // Handle OAuth error
+      setAuthProcessed(true);
       setStatus('error');
       const errorDescription = urlParams.get('error_description') || error;
       setError(errorDescription);
@@ -96,13 +103,14 @@ export default function AuthPage() {
       // Process OAuth callback
       processAuth();
     } else {
+      setAuthProcessed(true);
       setTimeout(() => {
         router.push('/');
       }, 10);
     }
 
     return () => clearTimeout(timeout);
-  }, [router, status, processAuth]);
+  }, [router, status, processAuth, authProcessed, status]);
 
   const getStatusIcon = () => {
     switch (status) {
