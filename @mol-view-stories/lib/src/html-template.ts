@@ -29,7 +29,7 @@ export function generateStoriesHtml(
   let extraLinks: string = '';
 
   if (data.kind === 'embed') {
-    const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
+    const format = data.data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
     let state;
     if (data.data instanceof Uint8Array) {
