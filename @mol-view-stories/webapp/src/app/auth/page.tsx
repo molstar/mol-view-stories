@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleOAuthCallback, handlePopupCallback } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,12 +29,12 @@ export default function AuthPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [timeoutReached, setTimeoutReached] = useState(false);
-  const [authProcessed, setAuthProcessed] = useState(false);
+  const authProcessed = useRef(false);
 
   const processAuth = useCallback(async () => {
     // Prevent multiple processing attempts
-    if (authProcessed) return;
-    setAuthProcessed(true);
+    if (authProcessed.current) return;
+    authProcessed.current = true;
     try {
       setStatus('loading');
       setMessage('Processing authentication...');
@@ -74,11 +74,11 @@ export default function AuthPage() {
       setError(errorMessage);
       setMessage('Authentication failed');
     }
-  }, [router, authProcessed]);
+  }, [router]);
 
   useEffect(() => {
     // Only run once when component mounts
-    if (authProcessed) return;
+    if (authProcessed.current) return;
     // Check if this is an OAuth callback by looking for code parameter
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -94,7 +94,7 @@ export default function AuthPage() {
 
     if (error) {
       // Handle OAuth error
-      setAuthProcessed(true);
+      authProcessed.current = true;
       setStatus('error');
       const errorDescription = urlParams.get('error_description') || error;
       setError(errorDescription);
@@ -103,14 +103,14 @@ export default function AuthPage() {
       // Process OAuth callback
       processAuth();
     } else {
-      setAuthProcessed(true);
+      authProcessed.current = true;
       setTimeout(() => {
         router.push('/');
       }, 10);
     }
 
     return () => clearTimeout(timeout);
-  }, [router, status, processAuth, authProcessed, status]);
+  }, [router, status, processAuth]);
 
   const getStatusIcon = () => {
     switch (status) {
