@@ -7,6 +7,7 @@ import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
 import { BookOpen, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { ApiStatus } from '@/components/get-api-status';
 import { APP_VERSION } from './version';
 
 function Features() {
@@ -206,7 +207,14 @@ export default function Home() {
           </div>
           <Features />
         </section>
-        <div className='text-right text-sm text-muted-foreground py-6 mt-10'>Version {APP_VERSION}</div>
+        <div className='flex justify-between items-center text-sm text-muted-foreground py-6 mt-10'>
+          <div className='flex-1'></div>
+          <div className='flex items-center gap-3'>
+            <ApiStatus />
+            <span>|</span>
+            <span>Version {APP_VERSION}</span>
+          </div>
+        </div>
       </Main>
     </>
   );

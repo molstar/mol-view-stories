@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file, following t
   - Docker containerization with production and deployment configuration
   - CI/CD pipeline for development and production deployment
   - Comprehensive test suite with pytest coverage
+- **Health Monitoring System**: Automated monitoring of dev/prod API services with email alerts on status changes and UI status indicator
 - `Vec3`, `Mat3`, `Mat4`, `Quat`, `Euler` accessible in the code editor
 - Self-hosting support (in Export and Publish)
 
