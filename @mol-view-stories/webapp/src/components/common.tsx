@@ -86,7 +86,7 @@ export function Header({
   hideAutoLogin?: boolean;
 }) {
   return (
-    <header className='bg-gray-50 border-b border-border sticky top-0'>
+    <header className='bg-gray-50 border-b border-border sticky top-0 z-50'>
       <BetaBanner />
       <div className='flex justify-between items-center px-4 py-2'>
         <div className='flex items-center gap-4'>
