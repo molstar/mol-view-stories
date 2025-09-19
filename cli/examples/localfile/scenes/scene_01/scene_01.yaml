@@ -1,0 +1,4 @@
+header: "Awesome Thing 01"
+key: "scene_01"
+linger_duration_ms: 5000
+transition_duration_ms: 1000
