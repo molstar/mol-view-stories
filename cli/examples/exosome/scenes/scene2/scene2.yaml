@@ -1,0 +1,25 @@
+header: Explore
+key: AB
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - 1735.3417520682701
+    - 160.95427269029886
+    - -876.6824794531449
+  up:
+    - -0.0482960530652803
+    - 0.9987750388137713
+    - -0.010766294667520434
+  target:
+    - 35.141512211385475
+    - 85.3959010195214
+    - -259.27922115321667
+  radius: 1089.232871060273
+  radiusMax: 1089.232871060273
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0
+linger_duration_ms: null
+transition_duration_ms: null
