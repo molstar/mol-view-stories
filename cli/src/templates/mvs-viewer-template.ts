@@ -11,8 +11,8 @@ export interface ViewerTemplateOptions {
  * This is used by the watch command when serving from a directory structure
  */
 export function generateMVSJViewerHtml(options?: ViewerTemplateOptions): string {
-  const title = options?.title ?? "MVS Story";
-  const version = options?.molstarVersion ?? "latest";
+  const title = options?.title ?? 'MVS Story';
+  const version = options?.molstarVersion ?? '5.0.0-dev.13';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -148,8 +148,8 @@ export function generateMVSJViewerHtml(options?: ViewerTemplateOptions): string 
  * This is used when serving a complete MVSX zip file
  */
 export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string {
-  const title = options?.title ?? "MVS Story";
-  const version = options?.molstarVersion ?? "latest";
+  const title = options?.title ?? 'MVS Story';
+  const version = options?.molstarVersion ?? '5.0.0-dev.13';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -227,7 +227,17 @@ export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string 
         // Load MVSX file directly
         console.log('Loading MVSX file...');
 
-        fetch('/story.mvsx')
+        // Add console warning override to suppress non-critical MVS warnings
+        var originalWarn = console.warn;
+        console.warn = function(message) {
+            if (typeof message === 'string' && message.includes('Invalid MVS tree')) {
+                console.log('ℹ️ MVS validation info (non-critical):', message);
+                return;
+            }
+            originalWarn.apply(console, arguments);
+        };
+
+        fetch('/index.mvsx')
             .then(function(response) {
                 console.log('MVSX fetch response status:', response.status);
                 if (!response.ok) {
@@ -241,19 +251,32 @@ export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string 
                 // Convert ArrayBuffer to Uint8Array for MVS Stories
                 var mvsx = new Uint8Array(arrayBuffer);
 
-                // Load MVSX data using MVS Stories
-                mvsStories.loadFromData(mvsx, { format: 'mvsx' });
+                // Load MVSX data using MVS Stories with error handling
+                try {
+                    mvsStories.loadFromData(mvsx, { format: 'mvsx' });
+                    console.log('✅ MVSX Story loaded successfully!');
 
-                console.log('✅ MVSX Story loaded successfully!');
+                    // Wait a bit and check if the viewer actually loaded content
+                    setTimeout(function() {
+                        var viewer = document.querySelector('mvs-stories-viewer');
+                        if (viewer) {
+                            console.log('✅ MVS Stories viewer is active');
+                        }
+                    }, 1000);
+                } catch (loadError) {
+                    console.error('❌ Error during MVSX loading:', loadError);
+                    throw loadError;
+                }
             })
             .catch(function(error) {
                 console.error('❌ Error loading MVSX Story:', error);
-                console.error('Error stack:', error.stack);
                 document.body.innerHTML =
                     '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; color: red; flex-direction: column;">' +
                     '<h2>Error Loading MVSX Story</h2>' +
                     '<p>' + error.message + '</p>' +
-                    '<small>' + (error.stack ? error.stack.split('\\n')[0] : 'No stack trace') + '</small>' +
+                    '<small style="margin-top: 10px; max-width: 80%; text-align: center;">' +
+                    'Try refreshing the page or check the browser console for more details.' +
+                    '</small>' +
                     '</div>';
             });
     </script>
@@ -265,13 +288,10 @@ export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string 
  * Generate HTML template with inline data (like the original molstar/mol-view-stories template)
  * This is used for build command when generating standalone HTML files
  */
-export function generateInlineStoriesHtml(
-  data: any | Uint8Array,
-  options?: ViewerTemplateOptions,
-): string {
-  const title = options?.title ?? "MVS Story";
-  const version = options?.molstarVersion ?? "latest";
-  const format = data instanceof Uint8Array ? "mvsx" : "mvsj";
+export function generateInlineStoriesHtml(data: any | Uint8Array, options?: ViewerTemplateOptions): string {
+  const title = options?.title ?? 'MVS Story';
+  const version = options?.molstarVersion ?? '5.0.0-dev.13';
+  const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   let state: string;
 

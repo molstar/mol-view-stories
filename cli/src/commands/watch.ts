@@ -370,6 +370,33 @@ export async function watchStory(
         }
       }
 
+      // Handle specific file requests for MVSX/MVSJ
+      if (url.pathname === '/index.mvsx' || url.pathname === '/story.mvsx') {
+        const mvsxPath = join(tempDir, 'index.mvsx');
+        if (await exists(mvsxPath)) {
+          const content = await Deno.readFile(mvsxPath);
+          return new Response(content, {
+            headers: {
+              'content-type': 'application/zip',
+              'access-control-allow-origin': '*',
+            },
+          });
+        }
+      }
+
+      if (url.pathname === '/index.mvsj' || url.pathname === '/story.mvsj') {
+        const mvsjPath = join(tempDir, 'index.mvsj');
+        if (await exists(mvsjPath)) {
+          const content = await Deno.readTextFile(mvsjPath);
+          return new Response(content, {
+            headers: {
+              'content-type': 'application/json',
+              'access-control-allow-origin': '*',
+            },
+          });
+        }
+      }
+
       // Serve static files from temp directory
       try {
         const filePath = join(tempDir, url.pathname.slice(1));
