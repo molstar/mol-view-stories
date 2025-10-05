@@ -285,7 +285,11 @@ class CurrentStoryViewModel {
         // there was an edge case where the `loadMVSData` was called before
         // the canvas was ready.
         await Scheduler.immediatePromise();
-        await loadMVSData(this.plugin, data, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
+        const typedData =
+          data instanceof Uint8Array
+            ? new Uint8Array(data.buffer as ArrayBuffer, data.byteOffset, data.byteLength)
+            : data;
+        await loadMVSData(this.plugin, typedData, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
       } catch (error) {
         toast.error(
           <>
