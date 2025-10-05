@@ -118,7 +118,14 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
       filename = `${normalizeStoryFilename(story.metadata.title)}-self_hosted.zip`;
     } else if (how === 'html') {
       const htmlContent = generateStoriesHtml(
-        { kind: 'embed', data },
+        {
+          kind: 'embed',
+          data:
+            data instanceof Uint8Array
+              ? (new Uint8Array(data.buffer, data.byteOffset, data.byteLength) as Uint8Array<ArrayBuffer>)
+              : data,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
         {
           title: story.metadata.title,
         }
