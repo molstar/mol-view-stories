@@ -100,13 +100,13 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
   }
 
   const zip = await Zip(files).run();
-  return new Uint8Array(zip);
+  return new Uint8Array(zip) as Uint8Array<ArrayBuffer>;
 }
 
 export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
-  const inflated = await Task.create('Inflate Story Data', async (ctx) => {
+  const inflated = (await Task.create('Inflate Story Data', async (ctx) => {
     return await inflate(ctx, bytes);
-  }).run();
+  }).run()) as Uint8Array<ArrayBuffer>;
   const decoded = decodeMsgPack(inflated) as StoryContainer;
   if (decoded.version !== 1) {
     throw new Error(`Unsupported story version: ${decoded.version}. Expected version 1.`);
@@ -197,5 +197,5 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
   };
 
   const zip = await Zip(files).run();
-  return new Uint8Array(zip);
+  return new Uint8Array(zip) as Uint8Array<ArrayBuffer>;
 }

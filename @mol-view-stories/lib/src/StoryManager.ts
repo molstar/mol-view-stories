@@ -192,9 +192,9 @@ export class StoryManager {
    * Import from compressed container
    */
   static async fromContainer(bytes: Uint8Array): Promise<StoryManager> {
-    const inflated = await Task.create('Inflate Story Data', async (ctx) => {
+    const inflated = (await Task.create('Inflate Story Data', async (ctx) => {
       return await inflate(ctx, bytes);
-    }).run();
+    }).run()) as Uint8Array<ArrayBuffer>;
 
     const decoded = decodeMsgPack(inflated) as StoryContainer;
     if (decoded.version !== 1) {
