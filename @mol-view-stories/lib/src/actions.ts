@@ -92,11 +92,11 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
   }
 
   const encoder = new TextEncoder();
-  const files: Record<string, Uint8Array> = {
-    'index.mvsj': encoder.encode(JSON.stringify(index)),
+  const files: Record<string, Uint8Array<ArrayBuffer>> = {
+    'index.mvsj': encoder.encode(JSON.stringify(index)) as Uint8Array<ArrayBuffer>,
   };
   for (const asset of story.assets) {
-    files[asset.name] = asset.content;
+    files[asset.name] = asset.content as Uint8Array<ArrayBuffer>;
   }
 
   const zip = await Zip(files).run();
@@ -188,12 +188,12 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
   const encoder = new TextEncoder();
   const encodedData = data instanceof Uint8Array ? data : encoder.encode(JSON.stringify(data));
 
-  const files: Record<string, Uint8Array> = {
-    'assets/mvs-stories.js': js,
-    'assets/mvs-stories.css': css,
-    [dataPath]: encodedData,
-    [sessionPath]: session,
-    'index.html': encoder.encode(html),
+  const files: Record<string, Uint8Array<ArrayBuffer>> = {
+    'assets/mvs-stories.js': js as Uint8Array<ArrayBuffer>,
+    'assets/mvs-stories.css': css as Uint8Array<ArrayBuffer>,
+    [dataPath]: encodedData as Uint8Array<ArrayBuffer>,
+    [sessionPath]: session as Uint8Array<ArrayBuffer>,
+    'index.html': encoder.encode(html) as Uint8Array<ArrayBuffer>,
   };
 
   const zip = await Zip(files).run();

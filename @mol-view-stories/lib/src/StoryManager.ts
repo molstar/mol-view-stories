@@ -74,7 +74,7 @@ export class StoryManager {
   }
 
   updateScene(id: string, updates: Partial<Omit<SceneData, 'id'>>): boolean {
-    const index = this.story.scenes.findIndex((s) => s.id === id);
+    const index = this.story.scenes.findIndex((s: SceneData) => s.id === id);
     if (index === -1) return false;
 
     this.story.scenes[index] = { ...this.story.scenes[index], ...updates };
@@ -86,7 +86,7 @@ export class StoryManager {
       throw new Error('Cannot remove the last scene');
     }
 
-    const index = this.story.scenes.findIndex((s) => s.id === id);
+    const index = this.story.scenes.findIndex((s: SceneData) => s.id === id);
     if (index === -1) return false;
 
     this.story.scenes.splice(index, 1);
@@ -94,7 +94,7 @@ export class StoryManager {
   }
 
   reorderScene(id: string, newIndex: number): boolean {
-    const currentIndex = this.story.scenes.findIndex((s) => s.id === id);
+    const currentIndex = this.story.scenes.findIndex((s: SceneData) => s.id === id);
     if (currentIndex === -1) return false;
     if (newIndex < 0 || newIndex >= this.story.scenes.length) return false;
 
@@ -104,19 +104,19 @@ export class StoryManager {
   }
 
   getScene(id: string): SceneData | undefined {
-    return this.story.scenes.find((s) => s.id === id);
+    return this.story.scenes.find((s: SceneData) => s.id === id);
   }
 
   // --- Asset Operations ---
 
   addAsset(asset: SceneAsset): void {
     // Replace if exists
-    this.story.assets = this.story.assets.filter((a) => a.name !== asset.name);
+    this.story.assets = this.story.assets.filter((a: SceneAsset) => a.name !== asset.name);
     this.story.assets.push(asset);
   }
 
   removeAsset(name: string): boolean {
-    const index = this.story.assets.findIndex((a) => a.name === name);
+    const index = this.story.assets.findIndex((a: SceneAsset) => a.name === name);
     if (index === -1) return false;
 
     this.story.assets.splice(index, 1);
@@ -124,7 +124,7 @@ export class StoryManager {
   }
 
   getAsset(name: string): SceneAsset | undefined {
-    return this.story.assets.find((a) => a.name === name);
+    return this.story.assets.find((a: SceneAsset) => a.name === name);
   }
 
   // --- Export Operations ---
