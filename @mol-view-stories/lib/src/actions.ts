@@ -105,7 +105,7 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
 
 export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   const inflated = await Task.create('Inflate Story Data', async (ctx) => {
-    return await inflate(ctx, bytes);
+    return await inflate(ctx, new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength));
   }).run();
 
   const decoded = decodeMsgPack(
