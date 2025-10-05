@@ -197,7 +197,7 @@ export class StoryManager {
     }).run();
 
     const decoded = decodeMsgPack(
-      new Uint8Array(inflated.buffer, inflated.byteOffset, inflated.byteLength) as Uint8Array<ArrayBuffer>
+      new Uint8Array(inflated.buffer as ArrayBuffer, inflated.byteOffset, inflated.byteLength)
     ) as StoryContainer;
     if (decoded.version !== 1) {
       throw new Error(`Unsupported story version: ${decoded.version}`);
