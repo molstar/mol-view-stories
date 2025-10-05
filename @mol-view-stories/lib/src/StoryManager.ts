@@ -196,8 +196,9 @@ export class StoryManager {
       return await inflate(ctx, bytes);
     }).run();
 
-    // @ts-ignore - inflate returns Uint8Array<ArrayBufferLike> but decodeMsgPack expects Uint8Array<ArrayBuffer>
-    const decoded = decodeMsgPack(inflated) as StoryContainer;
+    const decoded = decodeMsgPack(
+      new Uint8Array(inflated.buffer, inflated.byteOffset, inflated.byteLength) as Uint8Array<ArrayBuffer>
+    ) as StoryContainer;
     if (decoded.version !== 1) {
       throw new Error(`Unsupported story version: ${decoded.version}`);
     }
