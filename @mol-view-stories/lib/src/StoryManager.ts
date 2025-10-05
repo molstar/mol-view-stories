@@ -192,15 +192,11 @@ export class StoryManager {
    * Import from compressed container
    */
   static async fromContainer(bytes: Uint8Array): Promise<StoryManager> {
-    const inflatedRaw = await Task.create('Inflate Story Data', async (ctx) => {
+    const inflated = await Task.create('Inflate Story Data', async (ctx) => {
       return await inflate(ctx, bytes);
     }).run();
 
-    const inflated: Uint8Array<ArrayBuffer> = new Uint8Array(
-      inflatedRaw.buffer,
-      inflatedRaw.byteOffset,
-      inflatedRaw.byteLength
-    );
+    // @ts-ignore - inflate returns Uint8Array<ArrayBufferLike> but decodeMsgPack expects Uint8Array<ArrayBuffer>
     const decoded = decodeMsgPack(inflated) as StoryContainer;
     if (decoded.version !== 1) {
       throw new Error(`Unsupported story version: ${decoded.version}`);

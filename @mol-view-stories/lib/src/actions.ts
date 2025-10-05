@@ -104,15 +104,11 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
 }
 
 export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
-  const inflatedRaw = await Task.create('Inflate Story Data', async (ctx) => {
+  const inflated = await Task.create('Inflate Story Data', async (ctx) => {
     return await inflate(ctx, bytes);
   }).run();
 
-  const inflated: Uint8Array<ArrayBuffer> = new Uint8Array(
-    inflatedRaw.buffer,
-    inflatedRaw.byteOffset,
-    inflatedRaw.byteLength
-  );
+  // @ts-ignore - inflate returns Uint8Array<ArrayBufferLike> but decodeMsgPack expects Uint8Array<ArrayBuffer>
   const decoded = decodeMsgPack(inflated) as StoryContainer;
   if (decoded.version !== 1) {
     throw new Error(`Unsupported story version: ${decoded.version}. Expected version 1.`);
