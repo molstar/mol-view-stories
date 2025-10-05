@@ -122,7 +122,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
           kind: 'embed',
           data:
             data instanceof Uint8Array
-              ? (new Uint8Array(data.buffer, data.byteOffset, data.byteLength) as Uint8Array<ArrayBuffer>)
+              ? new Uint8Array(data.buffer as ArrayBuffer, data.byteOffset, data.byteLength)
               : data,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
