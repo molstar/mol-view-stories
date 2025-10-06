@@ -92,11 +92,11 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
   }
 
   const encoder = new TextEncoder();
-  const files: Record<string, Uint8Array> = {
+  const files: Record<string, Uint8Array<ArrayBuffer>> = {
     'index.mvsj': encoder.encode(JSON.stringify(index)),
   };
   for (const asset of story.assets) {
-    files[asset.name] = asset.content;
+    files[asset.name] = asset.content as Uint8Array<ArrayBuffer>;
   }
 
   const zip = await Zip(files).run();
@@ -105,7 +105,7 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
 
 export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   const inflated = await Task.create('Inflate Story Data', async (ctx) => {
-    return await inflate(ctx, bytes);
+    return await inflate(ctx, bytes as Uint8Array<ArrayBuffer>);
   }).run();
   const decoded = decodeMsgPack(inflated) as StoryContainer;
   if (decoded.version !== 1) {
@@ -196,6 +196,6 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
     'index.html': encoder.encode(html),
   };
 
-  const zip = await Zip(files).run();
+  const zip = await Zip(files as Record<string, Uint8Array<ArrayBuffer>>).run();
   return new Uint8Array(zip);
 }
