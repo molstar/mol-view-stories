@@ -48,7 +48,6 @@ export function setSessionIdUrl(sessionId: string | undefined) {
 
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
   try {
-    toast.dismiss('state-build-error');
     return await getMVSDataLib(story, scenes);
   } catch (error) {
     console.error('Error fetching MVS data:', error);
