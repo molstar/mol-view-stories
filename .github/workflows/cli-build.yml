@@ -2,7 +2,7 @@ name: CLI Build Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, 20250914-story-manager-and-CLI] # Added branch for testing
     paths:
       - 'cli/**'
       - '@mol-view-stories/lib/**'
