@@ -276,25 +276,32 @@ class CurrentStoryViewModel {
 
     this.queue.run(async () => {
       try {
-        toast.dismiss('mvs-load-error');
         this.store?.set(IsLoadingAtom, true);
-        const data = await getMVSData(story, [scene]);
+        // First, build MVS data; errors here are already reported by getMVSData
+        let data: Awaited<ReturnType<typeof getMVSData>>;
+        try {
+          data = await getMVSData(story, [scene]);
+        } catch {
+          return;
+        }
         await this.plugin.initialized;
         // The plugin.initialized get triggered after plugin.init(),
         // before plugin.initContainer() is called. Depending on the use case,
         // there was an edge case where the `loadMVSData` was called before
         // the canvas was ready.
         await Scheduler.immediatePromise();
-        await loadMVSData(this.plugin, data as Uint8Array<ArrayBuffer>, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
-      } catch (error) {
-        toast.error(
-          <>
-            <b>MVS Load Error:</b>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{String(error)}. See console for details.</div>
-          </>,
-          { duration: 5000, id: 'mvs-load-error', closeButton: true }
-        );
-        console.error('Error loading MVS data into Molstar:', error);
+        try {
+          await loadMVSData(this.plugin, data as Uint8Array<ArrayBuffer>, data instanceof Uint8Array ? 'mvsx' : 'mvsj');
+        } catch (error) {
+          toast.error(
+            <>
+              <b>MVS Load Error:</b>
+              <div style={{ whiteSpace: 'pre-wrap' }}>{String(error)}. See console for details.</div>
+            </>,
+            { duration: 5000, id: 'mvs-load-error', closeButton: true }
+          );
+          console.error('Error loading MVS data into Molstar:', error);
+        }
       } finally {
         this.store?.set(IsLoadingAtom, false);
       }
