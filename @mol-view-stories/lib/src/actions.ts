@@ -7,9 +7,9 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip';
 import { decodeColor } from 'molstar/lib/mol-util/color/utils';
 import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
-import { CameraData, SceneData, Story, StoryContainer } from './types';
+import { CameraData, SceneData, Story, StoryContainer } from './types.ts';
 import { Task } from 'molstar/lib/mol-task';
-import { generateStoriesHtml } from './html-template';
+import { generateStoriesHtml } from './html-template.ts';
 
 const BuilderLib = {
   Vec3,
@@ -93,21 +93,24 @@ export async function getMVSData(story: Story, scenes: SceneData[] = story.scene
 
   const encoder = new TextEncoder();
   const files: Record<string, Uint8Array<ArrayBuffer>> = {
-    'index.mvsj': encoder.encode(JSON.stringify(index)),
+    'index.mvsj': encoder.encode(JSON.stringify(index)) as Uint8Array<ArrayBuffer>,
   };
   for (const asset of story.assets) {
     files[asset.name] = asset.content as Uint8Array<ArrayBuffer>;
   }
 
   const zip = await Zip(files).run();
-  return new Uint8Array(zip);
+  return new Uint8Array(zip) as Uint8Array<ArrayBuffer>;
 }
 
 export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   const inflated = await Task.create('Inflate Story Data', async (ctx) => {
-    return await inflate(ctx, bytes as Uint8Array<ArrayBuffer>);
+    return await inflate(ctx, new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength));
   }).run();
-  const decoded = decodeMsgPack(inflated) as StoryContainer;
+
+  const decoded = decodeMsgPack(
+    new Uint8Array(inflated.buffer as ArrayBuffer, inflated.byteOffset, inflated.byteLength)
+  ) as StoryContainer;
   if (decoded.version !== 1) {
     throw new Error(`Unsupported story version: ${decoded.version}. Expected version 1.`);
   }
@@ -188,14 +191,14 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
   const encoder = new TextEncoder();
   const encodedData = data instanceof Uint8Array ? data : encoder.encode(JSON.stringify(data));
 
-  const files: Record<string, Uint8Array> = {
-    'assets/mvs-stories.js': js,
-    'assets/mvs-stories.css': css,
-    [dataPath]: encodedData,
-    [sessionPath]: session,
-    'index.html': encoder.encode(html),
+  const files: Record<string, Uint8Array<ArrayBuffer>> = {
+    'assets/mvs-stories.js': js as Uint8Array<ArrayBuffer>,
+    'assets/mvs-stories.css': css as Uint8Array<ArrayBuffer>,
+    [dataPath]: encodedData as Uint8Array<ArrayBuffer>,
+    [sessionPath]: session as Uint8Array<ArrayBuffer>,
+    'index.html': encoder.encode(html) as Uint8Array<ArrayBuffer>,
   };
 
-  const zip = await Zip(files as Record<string, Uint8Array<ArrayBuffer>>).run();
-  return new Uint8Array(zip);
+  const zip = await Zip(files).run();
+  return new Uint8Array(zip) as Uint8Array<ArrayBuffer>;
 }

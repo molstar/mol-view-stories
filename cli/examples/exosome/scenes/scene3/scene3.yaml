@@ -1,0 +1,25 @@
+header: IdealizedModel
+key: A
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - 1705.5408416424402
+    - 207.80331455900412
+    - 317.9602040614681
+  up:
+    - -0.05542228629436854
+    - 0.9576573530654494
+    - -0.2825256878614443
+  target:
+    - 10.013563026351534
+    - -2.480553357028251
+    - -62.21724068166435
+  radius: 669.8126544769613
+  radiusMax: 2503.5664558410645
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0
+linger_duration_ms: null
+transition_duration_ms: null

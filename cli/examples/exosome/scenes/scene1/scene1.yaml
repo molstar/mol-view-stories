@@ -1,0 +1,26 @@
+header: Intro
+key: AA
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - 1901.3444944129033
+    - 200.6901994321004
+    - -201.08176589688227
+  up:
+    - -0.0482960530652807
+    - 0.9987750388137827
+    - -0.01076629466752058
+  target:
+    - 11.398555227087003
+    - 111.34442887186162
+    - -11.545442277918179
+  radius: 1028.0655315594875
+  radiusMax: 1028.0655315594875
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0
+  scale: 1
+linger_duration_ms: null
+transition_duration_ms: null
