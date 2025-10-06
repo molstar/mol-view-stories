@@ -55,16 +55,22 @@ export async function serveTemplate(options: ServeOptions = {}): Promise<{ clean
     };
 
     // Set up cleanup on process termination
-    const signals = ['SIGINT', 'SIGTERM'] as const;
+    // Windows only supports SIGINT, SIGBREAK, and SIGHUP
+    const signals: Deno.Signal[] = Deno.build.os === 'windows' ? ['SIGINT', 'SIGBREAK'] : ['SIGINT', 'SIGTERM'];
 
     for (const signal of signals) {
-      const handler = async () => {
-        console.log(`\n📡 Received ${signal}, cleaning up...`);
-        await cleanup();
-        Deno.exit(0);
-      };
-      signalHandlers.set(signal, handler);
-      Deno.addSignalListener(signal, handler);
+      try {
+        const handler = async () => {
+          console.log(`\n📡 Received ${signal}, cleaning up...`);
+          await cleanup();
+          Deno.exit(0);
+        };
+        signalHandlers.set(signal, handler);
+        Deno.addSignalListener(signal, handler);
+      } catch (error) {
+        // Skip signals not supported on this platform
+        console.error(`⚠️  Could not add listener for ${signal}: ${error instanceof Error ? error.message : error}`);
+      }
     }
 
     console.log(`\n🎉 Template server is running!`);
