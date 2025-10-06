@@ -142,6 +142,13 @@ export async function watchStory(
       if (!abortController.signal.aborted) {
         console.error('❌ File watcher error:', error);
       }
+    } finally {
+      // Ensure watcher is closed when loop ends
+      try {
+        watcher.close();
+      } catch (error) {
+        // Ignore close errors
+      }
     }
   };
 
@@ -441,6 +448,13 @@ export async function watchStory(
     async cleanup() {
       console.error('\n🛑 Stopping watch server...');
       abortController.abort();
+
+      // Close the file watcher
+      try {
+        watcher.close();
+      } catch (error) {
+        // Ignore close errors
+      }
 
       try {
         await server.finished;
