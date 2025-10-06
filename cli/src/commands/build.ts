@@ -255,7 +255,7 @@ export async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]>
 
     // Create content class that extends Uint8Array with toBase64 method
     class ContentWithBase64 extends Uint8Array {
-      toBase64() {
+      override toBase64() {
         return btoa(String.fromCharCode.apply(null, Array.from(this)));
       }
     }
