@@ -253,14 +253,12 @@ export async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]>
     const filename = basename(entry.path);
     const rawContent = await Deno.readFile(entry.path);
 
-    // Create content class that extends Uint8Array with toBase64 method
-    class ContentWithBase64 extends Uint8Array {
+    // Create content object with toBase64 method
+    const content = Object.assign(rawContent, {
       toBase64() {
-        return btoa(String.fromCharCode.apply(null, Array.from(this)));
-      }
-    }
-
-    const content = new ContentWithBase64(rawContent);
+        return btoa(String.fromCharCode.apply(null, Array.from(rawContent)));
+      },
+    });
 
     assets.push({
       name: filename,
