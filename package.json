@@ -9,7 +9,7 @@
     "tsc:check": "pnpm run --filter=* tsc:check"
   },
   "dependencies": {
-    "molstar": "5.0.0-dev.12"
+    "molstar": "5.0.0"
      
   },
   "devDependencies": {

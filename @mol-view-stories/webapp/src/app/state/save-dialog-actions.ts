@@ -70,7 +70,7 @@ export function updateSaveDialogFormField(field: 'note', value: string) {
 }
 
 // Direct share story function - saves as public story and shows share modal
-export async function publishStory(options?: { storyId?: string }): Promise<boolean> {
+export async function publishStory(options?: { storyId?: string }): Promise<{ success: boolean; storyId?: string }> {
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
 
@@ -105,7 +105,7 @@ export async function publishStory(options?: { storyId?: string }): Promise<bool
       });
     }
 
-    return true;
+    return { success: true, storyId: result.id };
   } catch (error) {
     console.error('Share failed:', error);
 
@@ -128,7 +128,7 @@ export async function publishStory(options?: { storyId?: string }): Promise<bool
         : undefined,
     });
 
-    return false;
+    return { success: false };
   }
 }
 

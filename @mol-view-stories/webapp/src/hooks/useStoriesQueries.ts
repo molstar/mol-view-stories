@@ -100,9 +100,13 @@ export function usePublishStory() {
 
   return useMutation({
     mutationFn: ({ storyId }: { storyId?: string }) => publishStory({ storyId }),
-    onSuccess: () => {
+    onSuccess: (result) => {
       // Invalidate and refetch stories to show the new/updated story
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stories });
+
+      if (result.storyId) {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.storyFormat(result.storyId) });
+      }
     },
     onError: (error) => {
       console.error('Failed to publish story (mutation):', error);
