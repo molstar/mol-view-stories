@@ -80,6 +80,63 @@ jobs:
             exit 1
           }
 
+      - name: Test CLI - Version (Unix)
+        if: runner.os != 'Windows'
+        working-directory: cli
+        run: |
+          ./mvs --version
+          echo "✓ Version command works"
+
+      - name: Test CLI - Version (Windows)
+        if: runner.os == 'Windows'
+        working-directory: cli
+        shell: pwsh
+        run: |
+          .\mvs.exe --version
+          Write-Host "✓ Version command works"
+
+      - name: Test CLI - Help (Unix)
+        if: runner.os != 'Windows'
+        working-directory: cli
+        run: |
+          ./mvs --help
+          echo "✓ Help command works"
+
+      - name: Test CLI - Help (Windows)
+        if: runner.os == 'Windows'
+        working-directory: cli
+        shell: pwsh
+        run: |
+          .\mvs.exe --help
+          Write-Host "✓ Help command works"
+
+      - name: Test CLI - Create command (Unix)
+        if: runner.os != 'Windows'
+        working-directory: cli
+        run: |
+          ./mvs create test-story
+          if [ -d "test-story" ] && [ -f "test-story/story.yaml" ]; then
+            echo "✓ Create command works"
+            rm -rf test-story
+          else
+            echo "✗ Create command failed"
+            exit 1
+          fi
+
+      - name: Test CLI - Create command (Windows)
+        if: runner.os == 'Windows'
+        working-directory: cli
+        shell: pwsh
+        run: |
+          .\mvs.exe create test-story
+          if ((Test-Path "test-story") -and (Test-Path "test-story/story.yaml")) {
+            Write-Host "✓ Create command works"
+            Remove-Item -Recurse -Force test-story
+          } else {
+            Write-Host "✗ Create command failed"
+            exit 1
+          }
+
     # - name: Upload build artifact
     #   uses: actions/upload-artifact@v3
     #   with:
