@@ -41,6 +41,7 @@ All notable changes to this project will be documented in this file, following t
 
 ### Fixed
 - **Auth Page**: Fixed infinite loop when no code or error is present
+- **Story Format**: Fixed story format change issue when updating story
 
 ## [v1.0.0]
 

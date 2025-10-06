@@ -95,6 +95,37 @@ def _validate_save_inputs(data_type, data, metadata):
     validate_metadata(metadata, data_type)
 
 
+def _delete_old_story_data_files(object_path, new_extension):
+    """Delete old story data files with different extensions when format changes.
+
+    Args:
+        object_path: Path to the story object
+        new_extension: The new file extension (e.g., '.mvsx' or '.mvsj')
+    """
+    try:
+        # Determine the intended target data key for the new/updated save
+        target_data_key = f"{object_path}/data{new_extension}"
+
+        # List all data files for this story
+        data_files = _find_story_data_files(object_path)
+
+        # Keep only data.* files with MVS extensions that are not the target
+        files_to_delete = [
+            key
+            for key in data_files
+            if key != target_data_key
+            and (key.endswith(".mvsj") or key.endswith(".mvsx"))
+        ]
+
+        if not files_to_delete:
+            return
+
+        delete_objects_spec = [{"key": key} for key in files_to_delete]
+        _delete_objects(delete_objects_spec)
+    except Exception as e:
+        logger.warning(f"Failed to delete old story data files: {str(e)}")
+
+
 def _save_metadata(object_path, metadata):
     """Save metadata to MinIO."""
     metadata_key = f"{object_path}/metadata.json"
@@ -118,6 +149,9 @@ def _save_data(object_path, data, data_type):
     extension = get_data_file_extension(data_type, filename)
     data_key = f"{object_path}/data{extension}"
     content_type = get_content_type(data_type)
+
+    if data_type == "story":
+        _delete_old_story_data_files(object_path, extension)
 
     if data_type == "story":
         # For .mvsx, handle binary data (from FormData) or base64 string (from JSON)
@@ -651,6 +685,9 @@ def _save_updated_story_data(object_path, metadata, update_data, story_id):
             if ext in [".mvsj", ".mvsx"]:
                 data_file_extension = ext
                 break
+
+    # Delete any old data files with different extensions before saving
+    _delete_old_story_data_files(object_path, data_file_extension)
 
     data_key = f"{object_path}/data{data_file_extension}"
 
