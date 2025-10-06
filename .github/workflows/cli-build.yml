@@ -1,0 +1,110 @@
+name: CLI Build Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cli/**'
+      - '@mol-view-stories/lib/**'
+      - '.github/workflows/cli-build.yml'
+
+  pull_request:
+    branches: [main]
+    paths:
+      - 'cli/**'
+      - '@mol-view-stories/lib/**'
+      - '.github/workflows/cli-build.yml'
+
+jobs:
+  build:
+    name: Build CLI on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.deno
+            ~/.cache/deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('cli/deno.json', 'cli/deno.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-
+
+      - name: Build CLI (Unix)
+        if: runner.os != 'Windows'
+        working-directory: cli
+        run: deno task build
+
+      - name: Build CLI (Windows)
+        if: runner.os == 'Windows'
+        working-directory: cli
+        run: deno task build
+        shell: pwsh
+
+      - name: Verify build output (Unix)
+        if: runner.os != 'Windows'
+        working-directory: cli
+        run: |
+          if [ -f "mvs" ]; then
+            echo "✓ CLI binary built successfully"
+            ls -lh mvs
+            file mvs
+          else
+            echo "✗ CLI binary not found"
+            exit 1
+          fi
+
+      - name: Verify build output (Windows)
+        if: runner.os == 'Windows'
+        working-directory: cli
+        shell: pwsh
+        run: |
+          if (Test-Path "mvs.exe") {
+            Write-Host "✓ CLI binary built successfully"
+            Get-Item mvs.exe | Format-List
+          } else {
+            Write-Host "✗ CLI binary not found"
+            exit 1
+          }
+
+    # - name: Upload build artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: mvs-cli-${{ matrix.os }}
+    #     path: |
+    #       cli/mvs
+    #       cli/mvs.exe
+    #     if-no-files-found: ignore
+    #     retention-days: 7
+
+  summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## CLI Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Linux**: ${{ needs.build.result == 'success' && '✅' || '❌' }} ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **macOS**: ${{ needs.build.result == 'success' && '✅' || '❌' }} ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Windows**: ${{ needs.build.result == 'success' && '✅' || '❌' }} ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
