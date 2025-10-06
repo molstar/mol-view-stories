@@ -2,7 +2,7 @@ name: CLI Build Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, 20250914-story-manager-and-CLI]
     paths:
       - 'cli/**'
       - '@mol-view-stories/lib/**'
@@ -42,6 +42,10 @@ jobs:
           key: ${{ runner.os }}-deno-${{ hashFiles('cli/deno.json', 'cli/deno.lock') }}
           restore-keys: |
             ${{ runner.os }}-deno-
+
+      - name: Run tests
+        working-directory: cli
+        run: deno task test
 
       - name: Build CLI (Unix)
         if: runner.os != 'Windows'
