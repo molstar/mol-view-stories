@@ -32,7 +32,7 @@
     "@std/path": "jsr:@std/path@1",
     "@std/cli": "jsr:@std/cli@^1.0.21",
     "@mol-view-stories/lib/": "../@mol-view-stories/lib/src/",
-    "@mol-view-stories/lib/StoryManager": "../@mol-view-stories/lib/src/StoryManager.ts",
+    "@mol-view-stories/lib/StoryManager": "../@mol-view-stories/lib/src/story-manager.ts",
     "@mol-view-stories/lib/types": "../@mol-view-stories/lib/src/types.ts",
     "molstar": "npm:molstar@5.0.0-dev.13",
     "molstar/vec3": "npm:molstar@5.0.0-dev.13/lib/mol-math/linear-algebra/3d/vec3.js",
