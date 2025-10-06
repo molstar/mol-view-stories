@@ -7,9 +7,9 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
 import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip';
 import { decodeColor } from 'molstar/lib/mol-util/color/utils';
 import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
-import { CameraData, SceneData, Story, StoryContainer } from './types.ts';
+import { CameraData, SceneData, Story, StoryContainer } from './types';
 import { Task } from 'molstar/lib/mol-task';
-import { generateStoriesHtml } from './html-template.ts';
+import { generateStoriesHtml } from './html-template';
 
 const BuilderLib = {
   Vec3,
