@@ -1,0 +1,13 @@
+header: "TATA-Binding Protein"
+key: "intro"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [155.18, 118.49, 49.18]
+  target: [74.81, 66.8, 30.7]
+  up: [-0.55, 0.83, 0.1]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500

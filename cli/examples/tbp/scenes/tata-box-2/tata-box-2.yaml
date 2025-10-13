@@ -1,0 +1,13 @@
+header: "TBP: Phenylalanine [3/5]"
+key: "tata-box-2"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [111.01, 69.92, -3.14]
+  target: [85.52, 57.53, 19.15]
+  up: [-0.51, 0.85, -0.11]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500
