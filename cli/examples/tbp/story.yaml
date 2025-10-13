@@ -1,0 +1,44 @@
+# MolViewPack Story Configuration
+metadata:
+  title: 'The Structural Story of TATA-Binding Protein and its Role in Transcription Initiation'
+  description: 'An interactive journey through the structural biology of TATA-binding protein (TBP), exploring how this essential protein recognizes DNA promoters and initiates transcription in eukaryotic cells.'
+  author: 'David Sehnal & Sebastian Bittrich'
+  version: '1.0.0'
+  created: '2025-01-13'
+  tags:
+    - 'molecular-visualization'
+    - 'protein'
+    - 'DNA-binding'
+    - 'transcription'
+    - 'TBP'
+    - 'TATA-box'
+    - 'structural-biology'
+
+# Global story settings
+settings:
+  autoPlay: false
+  loopStory: false
+  showControls: true
+  backgroundColor: '#000000'
+
+# Story-level assets that can be referenced by scenes
+assets:
+  structures:
+    - id: '1vok'
+      url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1vok.bcif'
+      format: 'bcif'
+      description: 'TBP from Arabidopsis thaliana (apo form)'
+    - id: '1cdw'
+      url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif'
+      format: 'bcif'
+      description: 'Human TBP bound to DNA'
+    - id: '1vtl'
+      url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1vtl.bcif'
+      format: 'bcif'
+      description: 'A. thaliana TBP bound to DNA'
+    - id: '7enc'
+      url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/7enc.bcif'
+      format: 'bcif'
+      description: 'Pol II pre-initiation complex'
+  images: []
+  other: []
