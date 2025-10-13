@@ -9,17 +9,17 @@
 // Scene 4: Oxygen Bound
 // Shows oxygen binding to myoglobin and protein breathing motions
 
-// Myoglobin with bound oxygen (1mbo) - transformed to align with NMR structure
-const _1mbo = structure(builder, '1mbo').transform({ matrix: alignMboMatrix });
-
-// Play audio when this scene loads
-_1mbo.primitives({
+// Set audio to play on load
+builder.canvas({
   custom: {
     molstar_on_load_markdown_commands: {
       'play-audio': _Audio3,
     },
   },
 });
+
+// Myoglobin with bound oxygen (1mbo) - transformed to align with NMR structure
+const _1mbo = structure(builder, '1mbo').transform({ matrix: alignMboMatrix });
 
 // NMR structure showing multiple conformations (1myf)
 const _1myf = builder

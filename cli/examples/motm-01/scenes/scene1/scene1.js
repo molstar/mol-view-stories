@@ -11,15 +11,6 @@
 
 const _1mbn = build1mbn(builder, '1MBN');
 
-// Dispose any previously playing audio when entering this scene
-_1mbn.struct.primitives({
-  custom: {
-    molstar_on_load_markdown_commands: {
-      'dispose-audio': _Audio1,
-    },
-  },
-});
-
 const anim = builder.animation({
   custom: {
     molstar_trackball: {

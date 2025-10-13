@@ -9,17 +9,17 @@
 // Scene 3: Myoglobin and Whales
 // Comparison of whale and pig myoglobin showing charged residues
 
-// Whale myoglobin (1mbn)
-const _1mbn = structure(builder, '1mbn').transform({ ref: 'whalex', translation: [-30, 0, 0] });
-
-// Play audio when this scene loads
-_1mbn.primitives({
+// Set audio to play on load
+builder.canvas({
   custom: {
     molstar_on_load_markdown_commands: {
       'play-audio': _Audio2,
     },
   },
 });
+
+// Whale myoglobin (1mbn)
+const _1mbn = structure(builder, '1mbn').transform({ ref: 'whalex', translation: [-30, 0, 0] });
 
 // Whale - spacefill representation with CPK colors
 _1mbn

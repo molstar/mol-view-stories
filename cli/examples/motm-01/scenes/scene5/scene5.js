@@ -9,16 +9,16 @@
 // Scene 5: Conclusion
 // Shows different amino acid types and salt bridges in myoglobin
 
-const _1mbn = structure(builder, '1mbn');
-
-// Play audio when this scene loads
-_1mbn.primitives({
+// Set audio to play on load
+builder.canvas({
   custom: {
     molstar_on_load_markdown_commands: {
       'play-audio': _Audio4,
     },
   },
 });
+
+const _1mbn = structure(builder, '1mbn');
 
 // Define amino acid groups
 // Carbon-rich amino acids (hydrophobic)

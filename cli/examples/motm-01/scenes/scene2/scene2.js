@@ -9,19 +9,17 @@
 // Scene 2: Molecule of the Month: Myoglobin
 // Main introduction to myoglobin with animations highlighting the heme group and structure
 
-// No outline here
-builder.canvas({ custom: { molstar_postprocessing: { enable_outline: false } } });
-
-const _1mbn = build1mbn(builder, '1MBN');
-
-// Play audio when this scene loads
-_1mbn.struct.primitives({
+// No outline here, and set audio to play on load
+builder.canvas({
   custom: {
+    molstar_postprocessing: { enable_outline: false },
     molstar_on_load_markdown_commands: {
       'play-audio': _Audio1,
     },
   },
 });
+
+const _1mbn = build1mbn(builder, '1MBN');
 
 // Whale myoglobin - spacefill representation with CPK colors
 _1mbn.struct
