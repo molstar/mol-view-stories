@@ -44,15 +44,15 @@ _1mbn
 // Create ellipse visualization for first salt bridge
 // ASP44 OD1: 22.300 33.300 -6.200
 // LYS47 NZ: 23.200 32.000 -8.400
-const r44 = Vec3.create(22.3, 33.3, -6.2);
-const r47 = Vec3.create(23.2, 32.0, -8.4);
+const r44 = [22.3, 33.3, -6.2];
+const r47 = [23.2, 32.0, -8.4];
 getEllipse(builder, r44, r47, 'salt1');
 
 // Create ellipse visualization for second salt bridge
 // GLU18 OE1: 16.600 22.500 20.500
 // LYS77 NZ: 14.100 23.600 22.200
-const r18 = Vec3.create(16.6, 22.5, 20.5);
-const r77 = Vec3.create(14.1, 23.6, 22.2);
+const r18 = [16.6, 22.5, 20.5];
+const r77 = [14.1, 23.6, 22.2];
 getEllipse(builder, r18, r77, 'salt2');
 
 // Carbon-rich amino acids representation

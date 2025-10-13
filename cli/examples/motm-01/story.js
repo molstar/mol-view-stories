@@ -125,10 +125,15 @@ const addNextButton = (builder, snapshotKey, position) => {
 };
 
 // Helper function to create an ellipsoid (for salt bridges) - using const for proper scoping
+// Accepts plain arrays or Vec3 objects as positions
 const getEllipse = (builder, pos1, pos2, ref) => {
-  const center = Vec3.add(Vec3(), pos1, pos2);
+  // Convert arrays to Vec3 if needed
+  const p1 = Array.isArray(pos1) ? Vec3.fromArray(Vec3(), pos1, 0) : pos1;
+  const p2 = Array.isArray(pos2) ? Vec3.fromArray(Vec3(), pos2, 0) : pos2;
+
+  const center = Vec3.add(Vec3(), p1, p2);
   Vec3.scale(center, center, 0.5);
-  const major_axis = Vec3.sub(Vec3(), pos2, pos1);
+  const major_axis = Vec3.sub(Vec3(), p2, p1);
   const z_axis = Vec3.create(0, 0, 1);
   // cross to get minor axis
   const minor_axis = Vec3.cross(Vec3(), major_axis, z_axis);
