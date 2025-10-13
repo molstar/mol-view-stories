@@ -1,0 +1,139 @@
+name: Publish Library to JSR
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'release-*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Perform a dry run (no actual publication)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish-lib:
+    name: Publish @mol-view-stories/lib to JSR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Required for JSR provenance
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for version extraction
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${{ github.ref_name }}"
+            echo "Using tag from push event: $VERSION"
+          else
+            # For manual deployments, get the latest tag
+            VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo "0.0.1")
+            echo "Using latest tag from git describe: $VERSION"
+          fi
+
+          # Remove 'v' prefix if present (e.g., v1.0.0 -> 1.0.0)
+          VERSION="${VERSION#v}"
+
+          # Remove 'release-' prefix if present (e.g., release-1.0.0 -> 1.0.0)
+          VERSION="${VERSION#release-}"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Basic semver validation (X.Y.Z or X.Y.Z-prerelease)
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
+            echo "Error: Invalid version format '$VERSION'"
+            echo "Expected semver format (e.g., 1.0.0 or 1.0.0-beta.1)"
+            exit 1
+          fi
+          echo "✓ Version format is valid: $VERSION"
+
+      - name: Update version in deno.json
+        working-directory: '@mol-view-stories/lib'
+        run: |
+          # Backup original
+          cp deno.json deno.json.bak
+
+          # Update version in deno.json to match git tag
+          if command -v jq >/dev/null 2>&1; then
+            jq --arg ver "${{ steps.version.outputs.version }}" '.version = $ver' deno.json > deno.json.tmp
+            mv deno.json.tmp deno.json
+          else
+            # Fallback if jq is not available
+            sed -i.tmp 's/"version": *"[^"]*"/"version": "${{ steps.version.outputs.version }}"/' deno.json
+            rm -f deno.json.tmp
+          fi
+
+          echo "Updated deno.json version:"
+          grep -A1 '"version"' deno.json
+
+      - name: Run type checking
+        working-directory: '@mol-view-stories/lib'
+        run: |
+          echo "Running type checks..."
+          deno task check || deno check mod.ts src/*.ts
+
+      - name: Run tests
+        working-directory: '@mol-view-stories/lib'
+        run: |
+          echo "Running tests..."
+          deno task test
+
+      - name: Dry run publish
+        if: github.event.inputs.dry_run == 'true'
+        working-directory: '@mol-view-stories/lib'
+        run: |
+          echo "=== DRY RUN MODE ==="
+          echo "Would publish @molstar/mol-view-stories@${{ steps.version.outputs.version }} to JSR"
+          deno publish --dry-run
+
+      - name: Publish to JSR
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: '@mol-view-stories/lib'
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.JSR_TOKEN }}
+        run: |
+          echo "Publishing to JSR..."
+          deno publish --allow-dirty
+
+      - name: Restore original deno.json
+        if: always()
+        working-directory: '@mol-view-stories/lib'
+        run: |
+          if [ -f deno.json.bak ]; then
+            mv deno.json.bak deno.json
+            echo "Restored original deno.json"
+          fi
+
+      - name: Create release summary
+        if: always()
+        run: |
+          echo "## JSR Publication Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package**: @molstar/mol-view-stories" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dry Run**: ${{ github.event.inputs.dry_run == 'true' && '✅ Yes' || '❌ No' }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
+            echo "- **Status**: ${{ job.status == 'success' && '✅ Published successfully' || '❌ Publication failed' }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "View on JSR: https://jsr.io/@molstar/mol-view-stories" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status**: ℹ️ Dry run completed" >> $GITHUB_STEP_SUMMARY
+          fi
