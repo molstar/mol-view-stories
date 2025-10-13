@@ -87,13 +87,13 @@ jobs:
         working-directory: '@mol-view-stories/lib'
         run: |
           echo "Running type checks..."
-          deno task check || deno check mod.ts src/*.ts
+          deno check mod.ts src/*.ts
 
       - name: Run tests
         working-directory: '@mol-view-stories/lib'
         run: |
           echo "Running tests..."
-          deno task test
+          deno test
 
       - name: Dry run publish
         if: github.event.inputs.dry_run == 'true'
@@ -101,13 +101,11 @@ jobs:
         run: |
           echo "=== DRY RUN MODE ==="
           echo "Would publish @molstar/mol-view-stories@${{ steps.version.outputs.version }} to JSR"
-          deno publish --dry-run
+          deno publish --dry-run --allow-dirty
 
       - name: Publish to JSR
         if: github.event.inputs.dry_run != 'true'
         working-directory: '@mol-view-stories/lib'
-        env:
-          DENO_DEPLOY_TOKEN: ${{ secrets.JSR_TOKEN }}
         run: |
           echo "Publishing to JSR..."
           deno publish --allow-dirty
