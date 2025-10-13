@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1": "1.0.14",
     "jsr:@std/cli@^1.0.21": "1.0.23",
     "jsr:@std/fs@1": "1.0.19",
     "jsr:@std/internal@^1.0.10": "1.0.12",
@@ -12,6 +13,12 @@
     "npm:molstar@5.0.0": "5.0.0_react@19.2.0_react-dom@19.2.0__react@19.2.0"
   },
   "jsr": {
+    "@std/assert@1.0.14": {
+      "integrity": "68d0d4a43b365abc927f45a9b85c639ea18a9fab96ad92281e493e4ed84abaa4",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.10"
+      ]
+    },
     "@std/cli@1.0.23": {
       "integrity": "bf95b7a9425ba2af1ae5a6359daf58c508f2decf711a76ed2993cd352498ccca",
       "dependencies": [
