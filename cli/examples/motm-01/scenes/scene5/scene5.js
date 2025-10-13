@@ -11,6 +11,15 @@
 
 const _1mbn = structure(builder, '1mbn');
 
+// Play audio when this scene loads
+_1mbn.primitives({
+  custom: {
+    molstar_on_load_markdown_commands: {
+      'play-audio': _Audio4,
+    },
+  },
+});
+
 // Define amino acid groups
 // Carbon-rich amino acids (hydrophobic)
 const carb = ['ALA', 'VAL', 'LEU', 'ILE', 'MET', 'PHE', 'TRP', 'PRO'].map((amk) => ({ label_comp_id: amk }));

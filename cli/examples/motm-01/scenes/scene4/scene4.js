@@ -12,6 +12,15 @@
 // Myoglobin with bound oxygen (1mbo) - transformed to align with NMR structure
 const _1mbo = structure(builder, '1mbo').transform({ matrix: alignMboMatrix });
 
+// Play audio when this scene loads
+_1mbo.primitives({
+  custom: {
+    molstar_on_load_markdown_commands: {
+      'play-audio': _Audio3,
+    },
+  },
+});
+
 // NMR structure showing multiple conformations (1myf)
 const _1myf = builder
   .download({ url: pdbUrl('1myf') })

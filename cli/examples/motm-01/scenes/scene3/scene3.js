@@ -12,6 +12,15 @@
 // Whale myoglobin (1mbn)
 const _1mbn = structure(builder, '1mbn').transform({ ref: 'whalex', translation: [-30, 0, 0] });
 
+// Play audio when this scene loads
+_1mbn.primitives({
+  custom: {
+    molstar_on_load_markdown_commands: {
+      'play-audio': _Audio2,
+    },
+  },
+});
+
 // Whale - spacefill representation with CPK colors
 _1mbn
   .component({ selector: { label_asym_id: 'A' } })

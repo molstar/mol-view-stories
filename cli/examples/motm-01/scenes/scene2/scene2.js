@@ -14,6 +14,15 @@ builder.canvas({ custom: { molstar_postprocessing: { enable_outline: false } } }
 
 const _1mbn = build1mbn(builder, '1MBN');
 
+// Play audio when this scene loads
+_1mbn.struct.primitives({
+  custom: {
+    molstar_on_load_markdown_commands: {
+      'play-audio': _Audio1,
+    },
+  },
+});
+
 // Whale myoglobin - spacefill representation with CPK colors
 _1mbn.struct
   .component({ selector: { label_asym_id: 'A' } })

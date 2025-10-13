@@ -62,15 +62,11 @@ const GColors3 = {
   },
 };
 
-// Audio file paths
-const audioPathBase = 'https://raw.githubusercontent.com/molstar/molstar/master';
-// For local development, uncomment:
-// const audioPathBase = '';
-
-const _Audio1 = audioPathBase + '/examples/audio/AudioMOM1_A.mp3';
-const _Audio2 = audioPathBase + '/examples/audio/AudioMOM1_B.mp3';
-const _Audio3 = audioPathBase + '/examples/audio/AudioMOM1_C.mp3';
-const _Audio4 = audioPathBase + '/examples/audio/AudioMOM1_D.mp3';
+// Audio file paths - using local assets directory
+const _Audio1 = 'AudioMOM1_A.mp3';
+const _Audio2 = 'AudioMOM1_B.mp3';
+const _Audio3 = 'AudioMOM1_C.mp3';
+const _Audio4 = 'AudioMOM1_D.mp3';
 
 // Query helper function - using const for proper scoping
 const q = (expr, lang = 'pymol') => `!query=${encodeURIComponent(expr)}&lang=${lang}&action=highlight,focus`;
