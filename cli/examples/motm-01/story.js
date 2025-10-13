@@ -68,26 +68,6 @@ const _Audio2 = 'AudioMOM1_B.mp3';
 const _Audio3 = 'AudioMOM1_C.mp3';
 const _Audio4 = 'AudioMOM1_D.mp3';
 
-// Query helper function - using const for proper scoping
-const q = (expr, lang = 'pymol') => `!query=${encodeURIComponent(expr)}&lang=${lang}&action=highlight,focus`;
-
-// Simple query strings for use in markdown links
-// Note: MolScript queries would require the MS global which may not be available
-// Using simple PyMOL-style queries instead
-const firstEntity1 = q('chain A', 'pymol');
-const firstEntity2 = q('chain A', 'pymol');
-const charged_residues = q('resi 12+140+87', 'pymol');
-
-// Helper function to create audio controls - using const for proper scoping
-const createAudioControls = (url) => {
-  return `
-  [‹ **▶ Play** ›](${encodeURIComponent(`!play-audio=${url}`)})
-  [‹ **⏸ Pause** ›](!pause-audio)
-  [‹ **⏹ Stop** ›](!stop-audio)
-  [‹ **Hide** ›](!dispose-audio)
-  `;
-};
-
 // Helper function to get PDB URL - using const for proper scoping
 const pdbUrl = (id) => {
   return `https://www.ebi.ac.uk/pdbe/entry-files/download/${id.toLowerCase()}.bcif`;
