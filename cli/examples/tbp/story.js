@@ -16,18 +16,28 @@ const Colors = {
 };
 
 // Superposition transformation matrices (obtained using https://www.rcsb.org/alignment)
+// Format: [rotation (3x3 as 9 numbers), translation (3 numbers)]
 const Superpositions = {
   '1cdw': [
-    -0.4665815186, 0.6063873444, -0.6438913535, 0, -0.581544075, -0.7588303199, -0.2932286385, 0, -0.6664144171,
-    0.2376361381, 0.7066971703, 0, 135.0863694935, 105.5007997009, 153.6890178993, 1,
+    [
+      -0.4665815186, 0.6063873444, -0.6438913535, -0.581544075, -0.7588303199, -0.2932286385, -0.6664144171,
+      0.2376361381, 0.7066971703,
+    ],
+    [135.0863694935, 105.5007997009, 153.6890178993],
   ],
   '1vtl': [
-    -0.4769460004, 0.7214347188, -0.5020502557, 0, -0.297882932, 0.4047204695, 0.8645617968, 0, 0.8269149119,
-    0.5619014932, 0.0218732801, 0, 65.6043682658, -3.7328402905, -16.8650755387, 1,
+    [
+      -0.4769460004, 0.7214347188, -0.5020502557, -0.297882932, 0.4047204695, 0.8645617968, 0.8269149119, 0.5619014932,
+      0.0218732801,
+    ],
+    [65.6043682658, -3.7328402905, -16.8650755387],
   ],
   '7enc': [
-    0.8975055044, -0.4316347566, -0.0904174009, 0, 0.247274877, 0.3227849997, 0.9136000105, 0, -0.3651561375,
-    -0.8423189899, 0.3964337454, 0, -189.7572972798, 304.0841220076, -411.5005782853, 1,
+    [
+      0.8975055044, -0.4316347566, -0.0904174009, 0.247274877, 0.3227849997, 0.9136000105, -0.3651561375, -0.8423189899,
+      0.3964337454,
+    ],
+    [-189.7572972798, 304.0841220076, -411.5005782853],
   ],
 };
 
@@ -44,16 +54,7 @@ function pdbUrl(id) {
 // Helper function to apply transformation matrix to a structure
 function applyTransform(structure, transformationId) {
   if (Superpositions[transformationId]) {
-    const matrix = Superpositions[transformationId];
-    // Extract rotation (3x3) from 4x4 matrix
-    const rotation = [
-      [matrix[0], matrix[1], matrix[2]],
-      [matrix[4], matrix[5], matrix[6]],
-      [matrix[8], matrix[9], matrix[10]],
-    ];
-    // Extract translation from 4x4 matrix
-    const translation = [matrix[12], matrix[13], matrix[14]];
-
+    const [rotation, translation] = Superpositions[transformationId];
     return structure.transform({ rotation, translation });
   }
   return structure;
