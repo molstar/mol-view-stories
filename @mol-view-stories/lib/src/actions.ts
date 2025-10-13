@@ -1,15 +1,17 @@
-import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data';
-import { Mat3, Mat4, Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra';
-import { Euler } from 'molstar/lib/mol-math/linear-algebra/3d/euler';
-import { Zip } from 'molstar/lib/mol-util/zip/zip';
-import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode';
-import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode';
+import { MVSData, Snapshot } from 'molstar/lib/extensions/mvs/mvs-data.js';
+import { Mat3, Mat4, Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra.js';
+import { Euler } from 'molstar/lib/mol-math/linear-algebra/3d/euler.js';
+import { Zip } from 'molstar/lib/mol-util/zip/zip.js';
+import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode.js';
+import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode.js';
 import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip';
 import { decodeColor } from 'molstar/lib/mol-util/color/utils';
 import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 import { CameraData, SceneData, Story, StoryContainer } from './types.ts';
 import { Task } from 'molstar/lib/mol-task';
 import { generateStoriesHtml } from './html-template.ts';
+import { MolScriptBuilder } from 'molstar/lib/mol-script/language/builder.js';
+import { formatMolScript } from 'molstar/lib/mol-script/language/expression-formatter.js';
 
 const BuilderLib = {
   Vec3,
@@ -18,6 +20,8 @@ const BuilderLib = {
   Quat,
   Euler,
   decodeColor,
+  MolScriptBuilder,
+  formatMolScript,
 };
 
 export const BuilderLibNamespaces = Object.keys(BuilderLib);

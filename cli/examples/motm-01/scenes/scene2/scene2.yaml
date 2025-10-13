@@ -1,0 +1,21 @@
+# Scene Configuration for Molecule of the Month: Myoglobin
+header: 'Molecule of the Month: Myoglobin'
+key: 'intro'
+
+# Camera configuration
+camera:
+  mode: 'perspective'
+  position: [13.5, 21.1, 73.1]
+  target: [13.5, 21.1, 7.7]
+  up: [0, 1, 0]
+  fov: 45
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 45000
+transition_duration_ms: 500
+
+# Additional scene parameters
+settings:
+  autoRotate: false
+  showAxes: false
+  backgroundColor: null # inherit from story

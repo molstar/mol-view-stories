@@ -21,16 +21,16 @@
  */
 
 // Re-export command functions for programmatic use
-export { createStory } from "./src/commands/create.ts";
-export { buildStory, type BuildFormat } from "./src/commands/build.ts";
-export { watchStory } from "./src/commands/watch.ts";
-export { serveTemplate } from "./src/commands/serve.ts";
+export { createStory } from './src/commands/create.ts';
+export { buildStory, type BuildFormat } from './src/commands/build.ts';
+export { watchStory } from './src/commands/watch.ts';
+export { serveTemplate } from './src/commands/serve.ts';
 
-// Re-export types from molviewstory-types
-export type { StoryContainer } from "@zachcp/molviewstory-types";
+// Re-export types from local lib package
+export type { StoryContainer } from '@mol-view-stories/lib/types';
 
 // Export version
-export const VERSION = "0.1.0";
+export const VERSION = '0.1.0';
 
 // Note: main.ts is the CLI entry point, not intended for programmatic import
 // Use the individual command functions above for programmatic access
