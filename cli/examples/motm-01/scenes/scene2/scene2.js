@@ -9,15 +9,8 @@
 // Scene 2: Molecule of the Month: Myoglobin
 // Main introduction to myoglobin with animations highlighting the heme group and structure
 
-// No outline here, and set audio to play on load
-builder.canvas({
-  custom: {
-    molstar_postprocessing: { enable_outline: false },
-    molstar_on_load_markdown_commands: {
-      'play-audio': _Audio1,
-    },
-  },
-});
+// No outline here
+builder.canvas({ custom: { molstar_postprocessing: { enable_outline: false } } });
 
 const _1mbn = build1mbn(builder, '1MBN');
 
@@ -91,6 +84,13 @@ anim.interpolate({
   property: 'opacity',
   start: 0.0,
   end: 1.0,
+});
+
+// Play audio when this scene loads
+builder.extendRootCustomState({
+  molstar_on_load_markdown_commands: {
+    'play-audio': _Audio1,
+  },
 });
 
 // Fade in the spacefill representation of the heme

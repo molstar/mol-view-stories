@@ -9,15 +9,6 @@
 // Scene 5: Conclusion
 // Shows different amino acid types and salt bridges in myoglobin
 
-// Set audio to play on load
-builder.canvas({
-  custom: {
-    molstar_on_load_markdown_commands: {
-      'play-audio': _Audio4,
-    },
-  },
-});
-
 const _1mbn = structure(builder, '1mbn');
 
 // Define amino acid groups
@@ -180,4 +171,11 @@ anim.interpolate({
   property: 'label_opacity',
   start: 0.0,
   end: 1.0,
+});
+
+// Play audio when this scene loads
+builder.extendRootCustomState({
+  molstar_on_load_markdown_commands: {
+    'play-audio': _Audio4,
+  },
 });

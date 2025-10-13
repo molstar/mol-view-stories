@@ -9,15 +9,6 @@
 // Scene 3: Myoglobin and Whales
 // Comparison of whale and pig myoglobin showing charged residues
 
-// Set audio to play on load
-builder.canvas({
-  custom: {
-    molstar_on_load_markdown_commands: {
-      'play-audio': _Audio2,
-    },
-  },
-});
-
 // Whale myoglobin (1mbn)
 const _1mbn = structure(builder, '1mbn').transform({ ref: 'whalex', translation: [-30, 0, 0] });
 
@@ -198,6 +189,13 @@ anim.interpolate({
   property: 'label_opacity',
   start: 0.0,
   end: 1.0,
+});
+
+// Play audio when this scene loads
+builder.extendRootCustomState({
+  molstar_on_load_markdown_commands: {
+    'play-audio': _Audio2,
+  },
 });
 
 // Pulse the charged residues surface
