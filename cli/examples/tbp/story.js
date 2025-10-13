@@ -178,4 +178,47 @@ function transitionToScene(sceneKey, duration = 1500) {
   console.log(`Transitioning to ${sceneKey} over ${duration}ms`);
 }
 
+// Helper function to setup common 1CDW scene (protein C + DNA A/B)
+function setup1CDWScene(structure, proteinColor, dnaColor) {
+  // Show protein chain C
+  selectAndStyle(structure, {
+    color: proteinColor,
+    selector: { label_asym_id: 'C' },
+  });
+
+  // Show DNA chains
+  selectAndStyle(structure, {
+    color: dnaColor,
+    selector: { label_asym_id: 'A' },
+  });
+
+  selectAndStyle(structure, {
+    color: dnaColor,
+    selector: { label_asym_id: 'B' },
+  });
+}
+
+// Helper function to show multiple DNA chains with the same styling
+function showDNAChains(structure, chains, color, opacity = 0.5) {
+  chains.forEach((chain) => {
+    selectAndStyle(structure, {
+      color: color,
+      selector: { label_asym_id: chain },
+      opacity: opacity,
+    });
+  });
+}
+
+// Helper function to show interacting residues as ball-and-stick
+function showInteractingResidues(structure, residues) {
+  const component = structure.component({ selector: residues });
+  const representation = component.representation({ type: 'ball_and_stick' });
+  representation.color({
+    custom: {
+      molstar_color_theme_name: 'element-symbol',
+      molstar_color_theme_params: { carbonColor: { name: 'element-symbol', params: {} } },
+    },
+  });
+}
+
 console.log('TBP Story global functions loaded successfully');
