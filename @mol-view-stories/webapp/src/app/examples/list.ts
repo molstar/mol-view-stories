@@ -5,4 +5,6 @@ export const ExampleStoryList = [
   { path: 'terms-of-entrapment', name: 'Terms of Entrapment' },
   { path: 'simple', name: 'Simple' },
   { path: 'mvs-examples', name: 'MolViewSpec Basics' },
+  { path: 'motm-01', name: 'Hemoglobin' },
+  { path: 'tbp', name: 'TATA Binding Protein' },
 ];
