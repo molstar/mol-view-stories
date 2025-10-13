@@ -6,9 +6,6 @@
  * @author Victoria Doshchenko <doshchenko.victoria@gmail.com>
  */
 
-// Import shared helpers from story.js
-import { structure, align, GColors2, GColors3, addNextButton, _Audio2 } from '../../story.js';
-
 // Scene 3: Myoglobin and Whales
 // Comparison of whale and pig myoglobin showing charged residues
 
@@ -99,7 +96,7 @@ seld
   .colorFromSource(GColors3);
 
 // Pig myoglobin (1pmb) - transformed to align with whale
-const _1pmb = structure(builder, '1pmb').transform({ ref: 'pig', matrix: align });
+const _1pmb = structure(builder, '1pmb').transform({ ref: 'pig', matrix: alignMatrix });
 
 // Pig - spacefill representation
 _1pmb
@@ -127,12 +124,6 @@ _1pmb
     position: { label_asym_id: 'A', auth_seq_id: 8 },
     label_size: 10,
   });
-
-builder.extendRootCustomState({
-  molstar_on_load_markdown_commands: {
-    'play-audio': _Audio2,
-  },
-});
 
 const anim = builder.animation({
   custom: {

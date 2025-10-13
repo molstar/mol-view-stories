@@ -6,9 +6,6 @@
  * @author Victoria Doshchenko <doshchenko.victoria@gmail.com>
  */
 
-// Import shared helpers from story.js
-import { structure, ill_color, getEllipse, addNextButton, Vec3, _Audio4 } from '../../story.js';
-
 // Scene 5: Conclusion
 // Shows different amino acid types and salt bridges in myoglobin
 
@@ -60,9 +57,7 @@ getEllipse(builder, r18, r77, 'salt2');
 
 // Carbon-rich amino acids representation
 const a = _1mbn.component({ selector: carb });
-a.representation({ type: 'ball_and_stick' })
-  .color({ color: '#bec0f2' })
-  .opacity({ ref: 'carb', opacity: 1.0 });
+a.representation({ type: 'ball_and_stick' }).color({ color: '#bec0f2' }).opacity({ ref: 'carb', opacity: 1.0 });
 
 // Positively charged amino acids representation
 const b = _1mbn.component({ selector: chargedp });
@@ -95,12 +90,6 @@ _1mbn
     },
   })
   .color({ color: 'orange' });
-
-builder.extendRootCustomState({
-  molstar_on_load_markdown_commands: {
-    'play-audio': _Audio4,
-  },
-});
 
 const anim = builder.animation({});
 

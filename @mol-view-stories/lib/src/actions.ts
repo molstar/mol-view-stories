@@ -10,6 +10,8 @@ import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 import { CameraData, SceneData, Story, StoryContainer } from './types.ts';
 import { Task } from 'molstar/lib/mol-task';
 import { generateStoriesHtml } from './html-template.ts';
+import { MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
+import { formatMolScript } from 'molstar/lib/mol-script/language/expression-formatter';
 
 const BuilderLib = {
   Vec3,
@@ -18,6 +20,8 @@ const BuilderLib = {
   Quat,
   Euler,
   decodeColor,
+  MolScriptBuilder,
+  formatMolScript,
 };
 
 export const BuilderLibNamespaces = Object.keys(BuilderLib);

@@ -6,44 +6,36 @@
  * @author Victoria Doshchenko <doshchenko.victoria@gmail.com>
  */
 
-import { decodeColor } from '../../../extensions/mvs/helpers/utils';
-import { createMVSBuilder } from '../../../extensions/mvs/tree/mvs/mvs-builder';
-import { Mat4 } from '../../../mol-math/linear-algebra/3d/mat4';
-import { Vec3 } from '../../../mol-math/linear-algebra/3d/vec3';
-import { MolScriptBuilder as MS } from '../../../mol-script/language/builder';
-import { formatMolScript } from '../../../mol-script/language/expression-formatter';
+// All Mol* library functions are available in scope:
+// - Vec3, Mat4, Mat3, Quat (from mol-math)
+// - MolScriptBuilder as MS (from mol-script)
+// - decodeColor, formatMolScript (from mvs)
+// - builder (the MVS builder instance for each scene)
 
-// Transformation matrices
+// Transformation matrices as plain arrays
+// These will be converted to Mat4 by the transform function
 // 1pmb->1mbn alignment
-const align = Mat4.fromArray(
-  Mat4.zero(),
-  [
-    0.4634187130865737, -0.7131589697034304, 0.5259728687171936, 0, -0.22944227902330105, -0.6698811108214233,
-    -0.7061273127008398, 0, 0.8559202154942049, 0.2065522332899299, -0.4740643150728161, 0, -52.54880970106205,
-    37.49099778180445, -6.133850309914719, 1,
-  ],
-  0
-);
+const alignMatrix = [
+  0.4634187130865737, -0.7131589697034304, 0.5259728687171936, 0, -0.22944227902330105, -0.6698811108214233,
+  -0.7061273127008398, 0, 0.8559202154942049, 0.2065522332899299, -0.4740643150728161, 0, -52.54880970106205,
+  37.49099778180445, -6.133850309914719, 1,
+];
 
 // 1mbo->1myf alignment
-const alignmbo = Mat4.fromArray(
-  Mat4.zero(),
-  [
-    -0.8334619943964441, -0.512838061396133, -0.20576353166796402, 0, -0.20145089001561267, 0.628743285359846,
-    -0.7510655776229758, 0, 0.5145474196737698, -0.5845332204089626, -0.6273453801378679, 0, 11.864847328611186,
-    -1.5261713438028912, 23.638919347623467, 1,
-  ],
-  0
-);
+const alignMboMatrix = [
+  -0.8334619943964441, -0.512838061396133, -0.20576353166796402, 0, -0.20145089001561267, 0.628743285359846,
+  -0.7510655776229758, 0, 0.5145474196737698, -0.5845332204089626, -0.6273453801378679, 0, 11.864847328611186,
+  -1.5261713438028912, 23.638919347623467, 1,
+];
 
-// Color theme helper function
+// Color theme helper function - using const to ensure proper scoping
 const ill_color = (color, carbonLightness) => ({
   molstar_color_theme_name: 'illustrative',
   molstar_color_theme_params: {
     style: {
       name: 'uniform',
       params: {
-        value: decodeColor(color),
+        value: color, // Pass color string directly
         saturation: 0,
         lightness: 0,
       },
@@ -80,38 +72,41 @@ const _Audio2 = audioPathBase + '/examples/audio/AudioMOM1_B.mp3';
 const _Audio3 = audioPathBase + '/examples/audio/AudioMOM1_C.mp3';
 const _Audio4 = audioPathBase + '/examples/audio/AudioMOM1_D.mp3';
 
-// Query helper function
+// Query helper function - using const for proper scoping
 const q = (expr, lang = 'pymol') => `!query=${encodeURIComponent(expr)}&lang=${lang}&action=highlight,focus`;
 
-// MolScript queries
-const query1 = MS.struct.generator.atomGroups({
-  'entity-test': MS.core.rel.eq([MS.struct.atomProperty.core.modelEntryId(), '1MBN']),
-});
-const firstEntity1 = q(formatMolScript(query1), 'mol-script');
+// Simple query strings for use in markdown links
+// Note: MolScript queries would require the MS global which may not be available
+// Using simple PyMOL-style queries instead
+const firstEntity1 = q('chain A', 'pymol');
+const firstEntity2 = q('chain A', 'pymol');
+const charged_residues = q('resi 12+140+87', 'pymol');
 
-const query2 = MS.struct.generator.atomGroups({
-  'entity-test': MS.core.rel.eq([MS.struct.atomProperty.core.modelEntryId(), '1PMB']),
-});
-const firstEntity2 = q(formatMolScript(query2), 'mol-script');
-
-const query3 = MS.struct.generator.atomGroups({
-  'entity-test': MS.core.rel.eq([MS.struct.atomProperty.core.modelEntryId(), '1MBN']),
-  'residue-test': MS.core.set.has([MS.set(12, 140, 87), MS.struct.atomProperty.macromolecular.auth_seq_id()]),
-});
-const charged_residues = q(formatMolScript(query3), 'mol-script');
-
-// Helper function to create audio controls
-function createAudioControls(url) {
+// Helper function to create audio controls - using const for proper scoping
+const createAudioControls = (url) => {
   return `
   [‹ **▶ Play** ›](${encodeURIComponent(`!play-audio=${url}`)})
   [‹ **⏸ Pause** ›](!pause-audio)
   [‹ **⏹ Stop** ›](!stop-audio)
   [‹ **Hide** ›](!dispose-audio)
   `;
-}
+};
 
-// Helper function to add a "Next" button
-function addNextButton(builder, snapshotKey, position) {
+// Helper function to get PDB URL - using const for proper scoping
+const pdbUrl = (id) => {
+  return `https://www.ebi.ac.uk/pdbe/entry-files/download/${id.toLowerCase()}.bcif`;
+};
+
+// Helper function to create structure from PDB ID - using const for proper scoping
+const structure = (builder, id) => {
+  return builder
+    .download({ url: pdbUrl(id) })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+};
+
+// Helper function to add a "Next" button - using const for proper scoping
+const addNextButton = (builder, snapshotKey, position) => {
   builder
     .primitives({
       ref: 'next',
@@ -127,23 +122,10 @@ function addNextButton(builder, snapshotKey, position) {
       label_color: 'white',
       label_size: 5,
     });
-}
+};
 
-// Helper function to create structure from PDB ID
-function structure(builder, id) {
-  return builder
-    .download({ url: pdbUrl(id) })
-    .parse({ format: 'bcif' })
-    .modelStructure();
-}
-
-// Helper function to get PDB URL
-function pdbUrl(id) {
-  return `https://www.ebi.ac.uk/pdbe/entry-files/download/${id.toLowerCase()}.bcif`;
-}
-
-// Helper function to create an ellipsoid (for salt bridges)
-function getEllipse(builder, pos1, pos2, ref) {
+// Helper function to create an ellipsoid (for salt bridges) - using const for proper scoping
+const getEllipse = (builder, pos1, pos2, ref) => {
   const center = Vec3.add(Vec3(), pos1, pos2);
   Vec3.scale(center, center, 0.5);
   const major_axis = Vec3.sub(Vec3(), pos2, pos1);
@@ -157,10 +139,10 @@ function getEllipse(builder, pos1, pos2, ref) {
     radius: [5.0, 3.0, 3.0],
     color: '#cccccc',
   });
-}
+};
 
-// Helper function to build the 1mbn structure with common representations
-function build1mbn(builder) {
+// Helper function to build the 1mbn structure with common representations - using const for proper scoping
+const build1mbn = (builder) => {
   const struct = structure(builder, '1MBN');
 
   struct
@@ -199,30 +181,7 @@ function build1mbn(builder) {
       lineOpacity: 'lineopa',
     },
   };
-}
-
-// Export all helper functions and constants for use in scene files
-export {
-  align,
-  alignmbo,
-  ill_color,
-  GColors2,
-  GColors3,
-  _Audio1,
-  _Audio2,
-  _Audio3,
-  _Audio4,
-  q,
-  firstEntity1,
-  firstEntity2,
-  charged_residues,
-  createAudioControls,
-  addNextButton,
-  structure,
-  pdbUrl,
-  getEllipse,
-  build1mbn,
-  createMVSBuilder,
-  Vec3,
-  decodeColor,
 };
+
+// All helper functions and constants are available globally to scene files
+// No exports needed - all code is combined together

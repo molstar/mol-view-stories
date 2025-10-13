@@ -6,9 +6,6 @@
  * @author Victoria Doshchenko <doshchenko.victoria@gmail.com>
  */
 
-// Import shared helpers from story.js
-import { build1mbn, addNextButton, GColors2, _Audio1 } from '../../story.js';
-
 // Scene 2: Molecule of the Month: Myoglobin
 // Main introduction to myoglobin with animations highlighting the heme group and structure
 
@@ -45,12 +42,6 @@ _1mbn.struct
   .opacity({ ref: 'cpkopa2', opacity: 0.0 });
 
 addNextButton(builder, 'whale', [13.5, -4, 7.7]);
-
-builder.extendRootCustomState({
-  molstar_on_load_markdown_commands: {
-    'play-audio': _Audio1,
-  },
-});
 
 const anim = builder.animation({
   custom: {

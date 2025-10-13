@@ -6,19 +6,10 @@
  * @author Victoria Doshchenko <doshchenko.victoria@gmail.com>
  */
 
-// Import shared helpers from story.js
-import { build1mbn, _Audio1 } from '../../story.js';
-
 // Scene 1: Introduction
 // This is the opening scene with a spinning myoglobin structure and a "Start story" button
 
 const _1mbn = build1mbn(builder, '1MBN');
-
-builder.extendRootCustomState({
-  molstar_on_load_markdown_commands: {
-    'dispose-audio': _Audio1,
-  },
-});
 
 const anim = builder.animation({
   custom: {

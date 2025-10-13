@@ -6,14 +6,11 @@
  * @author Victoria Doshchenko <doshchenko.victoria@gmail.com>
  */
 
-// Import shared helpers from story.js
-import { structure, pdbUrl, alignmbo, addNextButton, decodeColor, _Audio3 } from '../../story.js';
-
 // Scene 4: Oxygen Bound
 // Shows oxygen binding to myoglobin and protein breathing motions
 
 // Myoglobin with bound oxygen (1mbo) - transformed to align with NMR structure
-const _1mbo = structure(builder, '1mbo').transform({ matrix: alignmbo });
+const _1mbo = structure(builder, '1mbo').transform({ matrix: alignMboMatrix });
 
 // NMR structure showing multiple conformations (1myf)
 const _1myf = builder
@@ -43,7 +40,7 @@ _1mbo
       molstar_color_theme_params: {
         carbonColor: {
           name: 'uniform',
-          params: { value: decodeColor(red2) },
+          params: { value: red2 },
         },
       },
     },
@@ -76,12 +73,6 @@ _1mbo
   .representation({ type: 'spacefill' })
   .color({ color: blue1 })
   .opacity({ ref: 'oxop', opacity: 0.0 });
-
-builder.extendRootCustomState({
-  molstar_on_load_markdown_commands: {
-    'play-audio': _Audio3,
-  },
-});
 
 const anim = builder.animation({
   custom: {
