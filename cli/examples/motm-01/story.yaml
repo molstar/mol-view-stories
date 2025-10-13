@@ -1,0 +1,23 @@
+# MolViewPack Story Configuration
+metadata:
+  title: "motm-01"
+  description: "A molecular visualization story created with MVS CLI"
+  author: "zcpowers"
+  version: "1.0.0"
+  created: "2025-10-13"
+  tags:
+    - "molecular-visualization"
+    - "protein"
+
+# Global story settings
+settings:
+  autoPlay: false
+  loopStory: false
+  showControls: true
+  backgroundColor: "#000000"
+
+# Story-level assets that can be referenced by scenes
+assets:
+  commonStructures: []
+  images: []
+  other: []

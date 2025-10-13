@@ -1,0 +1,21 @@
+# Scene Configuration for Conclusion
+header: 'Conclusion'
+key: 'end'
+
+# Camera configuration
+camera:
+  mode: 'perspective'
+  position: [16.0, 47.2, 67.8]
+  target: [13.6, 21.1, 7.6]
+  up: [0.1, 0.9, -0.4]
+  fov: 45
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 20000
+transition_duration_ms: 500
+
+# Additional scene parameters
+settings:
+  autoRotate: false
+  showAxes: false
+  backgroundColor: null # inherit from story

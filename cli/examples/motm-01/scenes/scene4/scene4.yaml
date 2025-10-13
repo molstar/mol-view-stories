@@ -1,0 +1,21 @@
+# Scene Configuration for Oxygen Bound
+header: 'Oxygen Bound'
+key: 'oxygen'
+
+# Camera configuration
+camera:
+  mode: 'perspective'
+  position: [-2.2, 0.7, -78.5]
+  target: [-0.1, 0.7, 0.6]
+  up: [0, 1, 0]
+  fov: 45
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 18000
+transition_duration_ms: 500
+
+# Additional scene parameters
+settings:
+  autoRotate: false
+  showAxes: false
+  backgroundColor: null # inherit from story

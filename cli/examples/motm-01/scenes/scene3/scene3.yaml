@@ -1,0 +1,21 @@
+# Scene Configuration for Myoglobin and Whales
+header: 'Myoglobin and Whales'
+key: 'whale'
+
+# Camera configuration
+camera:
+  mode: 'perspective'
+  position: [-14.6, 116.1, 66.5]
+  target: [-18.9, 21.1, 7.3]
+  up: [-0.0, 0.5, -0.8]
+  fov: 45
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 41000
+transition_duration_ms: 500
+
+# Additional scene parameters
+settings:
+  autoRotate: false
+  showAxes: false
+  backgroundColor: null # inherit from story
