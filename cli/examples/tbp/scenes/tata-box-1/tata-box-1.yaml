@@ -1,0 +1,13 @@
+header: "TBP: Arginine [2/5]"
+key: "tata-box-1"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [113.87, 71.89, 26.29]
+  target: [77.29, 61.61, 18.73]
+  up: [-0.28, 0.96, 0.04]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500

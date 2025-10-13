@@ -1,0 +1,13 @@
+header: "The End"
+key: "end"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [461.95, 218.66, 140.67]
+  target: [87.56, -22.14, 54.59]
+  up: [-0.55, 0.83, 0.1]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500

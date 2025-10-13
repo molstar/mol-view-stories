@@ -1,0 +1,13 @@
+header: "TBP: H-Bonds in Minor Groove [4/5]"
+key: "tata-box-3"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [69.71, 56.65, 17.62]
+  target: [75.68, 63.48, 32.29]
+  up: [-0.9, 0.39, 0.18]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500

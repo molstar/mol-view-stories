@@ -1,0 +1,13 @@
+header: "TBP: Minor Groove [2/2]"
+key: "highly-conserved-2"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [108.48, 92.12, 4.1]
+  target: [80.16, 56.15, 28.96]
+  up: [-0.71, 0.68, 0.17]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500

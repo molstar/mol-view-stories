@@ -1,0 +1,13 @@
+header: "TBP: Highly Conserved in Eukaryotes [1/2]"
+key: "highly-conserved-1"
+
+# Camera configuration
+camera:
+  mode: "perspective"
+  position: [122.15, 104.37, 72.23]
+  target: [77.48, 59.61, 30.36]
+  up: [-0.73, 0.68, 0.06]
+
+# Timing configuration (in milliseconds)
+linger_duration_ms: 5000
+transition_duration_ms: 1500
