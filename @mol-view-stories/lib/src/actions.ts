@@ -24,7 +24,7 @@ const BuilderLib = {
   formatMolScript,
 };
 
-export const BuilderLibNamespaces = Object.keys(BuilderLib);
+export const BuilderLibNamespaces: string[] = Object.keys(BuilderLib);
 
 const createStateProvider = (code: string) => {
   return new Function('builder', 'index', '__lib__', code);
