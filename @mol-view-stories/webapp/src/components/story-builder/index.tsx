@@ -48,7 +48,6 @@ export default function StoryBuilderPage() {
     if (!templateName) return;
 
     let story = ExampleStories[templateName as keyof typeof ExampleStories];
-    console.log(story, templateName);
     if (!story) story = ExampleStories.empty;
 
     if (typeof story === 'string') {
