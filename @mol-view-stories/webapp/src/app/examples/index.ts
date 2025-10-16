@@ -10,4 +10,6 @@ export const ExampleStories = {
   'mvs-examples': ComprehensiveStory,
   'terms-of-entrapment': 'download',
   exosome: 'download',
+  tbp: 'download',
+  'motm-01': 'download',
 };
