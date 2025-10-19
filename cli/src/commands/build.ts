@@ -1,5 +1,5 @@
 import { exists, walk } from '@std/fs';
-import { basename, dirname, extname, join, relative } from '@std/path';
+import { basename, join, relative } from '@std/path';
 import { parse as parseYaml } from '@std/yaml';
 import {
   type CameraData,
@@ -116,37 +116,85 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
   const storyYamlContent = await Deno.readTextFile(storyYamlPath);
   const storyData = parseYaml(storyYamlContent) as any;
 
-  // Extract metadata
+  // Extract metadata - support both flat structure (new) and nested metadata (old)
+  const title = storyData.title || storyData.metadata?.title || basename(folderPath);
   const metadata: StoryMetadata = {
-    title: storyData.metadata?.title || basename(folderPath),
+    title: title,
   };
 
   console.error(`✓ Loaded story metadata: ${metadata.title}`);
 
   // Parse scenes
-  const scenesDir = join(folderPath, 'scenes');
   const scenes: SceneData[] = [];
 
-  if (await exists(scenesDir)) {
-    const sceneNames: string[] = [];
+  // Check if scenes are defined inline in story.yaml
+  if (storyData.scenes && Array.isArray(storyData.scenes)) {
+    console.error('✓ Using inline scenes from story.yaml');
 
-    // Get all scene directories
-    for await (const entry of Deno.readDir(scenesDir)) {
-      if (entry.isDirectory) {
-        sceneNames.push(entry.name);
+    for (let i = 0; i < storyData.scenes.length; i++) {
+      const sceneSpec = storyData.scenes[i];
+
+      if (sceneSpec.folder) {
+        // Load from folder reference
+        const sceneDir = join(folderPath, 'scenes', sceneSpec.folder);
+        if (!(await exists(sceneDir))) {
+          throw new Error(`Scene folder '${sceneSpec.folder}' referenced in story.yaml does not exist`);
+        }
+        const scene = await parseSceneFolder(sceneDir, folderPath, i);
+        scenes.push(scene);
+        console.error(`✓ Loaded scene from folder: ${scene.header}`);
+      } else {
+        // Parse inline scene definition
+        const scene = parseInlineScene(sceneSpec, i);
+        scenes.push(scene);
+        console.error(`✓ Loaded inline scene: ${scene.header}`);
       }
     }
+  } else {
+    // Fallback to folder-based scene loading
+    const scenesDir = join(folderPath, 'scenes');
 
-    // Sort scene names to ensure consistent ordering
-    sceneNames.sort();
+    if (await exists(scenesDir)) {
+      // Check for explicit scene_order
+      if (storyData.scene_order && Array.isArray(storyData.scene_order)) {
+        console.error('✓ Using explicit scene_order from story.yaml');
 
-    let sceneIndex = 0;
-    for (const sceneName of sceneNames) {
-      const sceneDir = join(scenesDir, sceneName);
-      const scene = await parseSceneFolder(sceneDir, folderPath, sceneIndex);
-      scenes.push(scene);
-      console.error(`✓ Loaded scene: ${scene.header}`);
-      sceneIndex++;
+        for (let i = 0; i < storyData.scene_order.length; i++) {
+          const sceneName = storyData.scene_order[i];
+          const sceneDir = join(scenesDir, sceneName);
+
+          if (!(await exists(sceneDir))) {
+            throw new Error(`Scene '${sceneName}' listed in scene_order does not exist in scenes/`);
+          }
+
+          const scene = await parseSceneFolder(sceneDir, folderPath, i);
+          scenes.push(scene);
+          console.error(`✓ Loaded scene: ${scene.header}`);
+        }
+      } else {
+        // Default: alphabetical sorting
+        console.error('✓ Using alphabetical scene ordering');
+        const sceneNames: string[] = [];
+
+        // Get all scene directories
+        for await (const entry of Deno.readDir(scenesDir)) {
+          if (entry.isDirectory) {
+            sceneNames.push(entry.name);
+          }
+        }
+
+        // Sort scene names to ensure consistent ordering
+        sceneNames.sort();
+
+        let sceneIndex = 0;
+        for (const sceneName of sceneNames) {
+          const sceneDir = join(scenesDir, sceneName);
+          const scene = await parseSceneFolder(sceneDir, folderPath, sceneIndex);
+          scenes.push(scene);
+          console.error(`✓ Loaded scene: ${scene.header}`);
+          sceneIndex++;
+        }
+      }
     }
   }
 
@@ -157,18 +205,20 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
   // Parse assets
   const assets = await parseAssetsFolder(folderPath);
 
-  // Read optional story.js file for global JavaScript
-  const storyJsPath = join(folderPath, 'story.js');
-  let storyJavaScript = '';
-  if (await exists(storyJsPath)) {
-    storyJavaScript = await Deno.readTextFile(storyJsPath);
-    console.error(`✓ Loaded story.js with ${storyJavaScript.length} characters`);
-  } else {
-    console.error('⚠ Warning: story.js not found, using empty story JavaScript');
-  }
+  // Read global JavaScript - support global_js in YAML (new) or story.js file (old)
+  let javascript = storyData.global_js || '';
 
-  // Use only the user-provided JavaScript for story.javascript
-  const javascript = storyJavaScript;
+  if (!javascript) {
+    const storyJsPath = join(folderPath, 'story.js');
+    if (await exists(storyJsPath)) {
+      javascript = await Deno.readTextFile(storyJsPath);
+      console.error(`✓ Loaded story.js with ${javascript.length} characters`);
+    } else {
+      console.error('⚠ Warning: No global JavaScript found (story.js or global_js in YAML)');
+    }
+  } else {
+    console.error(`✓ Loaded global_js from story.yaml with ${javascript.length} characters`);
+  }
 
   const story: Story = {
     metadata,
@@ -269,4 +319,38 @@ export async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]>
   }
 
   return assets;
+}
+
+function parseInlineScene(sceneSpec: any, index: number): SceneData {
+  // Validate required fields
+  if (!sceneSpec.id && !sceneSpec.header) {
+    throw new Error(`Scene at index ${index} missing required 'id' or 'header' field`);
+  }
+
+  const id = sceneSpec.id || `scene_${index + 1}`;
+  const header = sceneSpec.header || id;
+  const key = sceneSpec.key || id;
+
+  // Extract camera configuration if present
+  let camera: CameraData | undefined;
+  if (sceneSpec.camera) {
+    camera = {
+      mode: sceneSpec.camera.mode || 'perspective',
+      target: sceneSpec.camera.target || [0, 0, 0],
+      position: sceneSpec.camera.position || [10, 10, 10],
+      up: sceneSpec.camera.up || [0, 1, 0],
+      fov: sceneSpec.camera.fov || 45,
+    };
+  }
+
+  return {
+    id,
+    header,
+    key,
+    description: sceneSpec.description || '',
+    javascript: sceneSpec.javascript || '',
+    camera,
+    linger_duration_ms: sceneSpec.linger_duration_ms || 5000,
+    transition_duration_ms: sceneSpec.transition_duration_ms || 1000,
+  };
 }
