@@ -1,6 +1,20 @@
 # MolViewPack Story Configuration
+title: 'The Structural Story of TATA-Binding Protein and its Role in Transcription Initiation'
+
+# Define the correct order of scenes
+scene_order:
+  - intro
+  - highly-conserved-1
+  - highly-conserved-2
+  - tata-box-overview
+  - tata-box-1
+  - tata-box-2
+  - tata-box-3
+  - tata-box-4
+  - pre-init-complex
+  - end
+
 metadata:
-  title: 'The Structural Story of TATA-Binding Protein and its Role in Transcription Initiation'
   description: 'An interactive journey through the structural biology of TATA-binding protein (TBP), exploring how this essential protein recognizes DNA promoters and initiates transcription in eukaryotic cells.'
   author: 'David Sehnal & Sebastian Bittrich'
   version: '1.0.0'
