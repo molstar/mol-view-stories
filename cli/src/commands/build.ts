@@ -118,8 +118,11 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
 
   // Extract metadata - support both flat structure (new) and nested metadata (old)
   const title = storyData.title || storyData.metadata?.title || basename(folderPath);
+  const author_note = storyData.author_note || storyData.metadata?.author_note;
+
   const metadata: StoryMetadata = {
     title: title,
+    ...(author_note && { author_note }),
   };
 
   console.error(`✓ Loaded story metadata: ${metadata.title}`);
