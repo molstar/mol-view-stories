@@ -1,0 +1,465 @@
+title: 'MolViewSpec Basics'
+author_note: 'Comprehensive examples demonstrating core MolViewSpec builder API features'
+
+global_js: |
+  // Helper function for PDBe URLs
+  function urlForMmcif(pdbId) {
+    return `https://www.ebi.ac.uk/pdbe/entry-files/download/${pdbId}_updated.cif`;
+  }
+
+scenes:
+  - id: basic-structure
+    header: 'Basic Structure'
+    key: 'basic-structure'
+    description: |
+      # Basic Structure Loading
+
+      The simplest example: download a structure, parse it, and display it with a single color.
+
+      - Downloads 1cbs from PDBe
+      - Parses as mmCIF format
+      - Creates model structure
+      - Represents all components
+      - Colors everything blue
+
+    javascript: |
+      const structure = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/1cbs_updated.cif" })
+        .parse({ format: "mmcif" })
+        .modelStructure({});
+
+      const comp = structure.component({});
+      const repr = comp.representation({});
+      repr.color({ color: "blue" });
+
+    linger_duration_ms: 3000
+    transition_duration_ms: 1000
+
+  - id: residue-coloring
+    header: 'Residue Coloring & Labeling'
+    key: 'residue-coloring'
+    description: |
+      # Selective Coloring and Labeling
+
+      Demonstrates how to:
+      - Color specific residues
+      - Add custom labels
+      - Focus on specific components
+
+      This example highlights residue ALA 120 in chain A.
+
+    javascript: |
+      const structure = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/1lap_updated.cif" })
+        .parse({ format: "mmcif" })
+        .modelStructure({});
+
+      // Represent everything as cartoon and color specific residue red
+      const whole = structure.component({});
+      const wholeRepr = whole.representation({});
+      wholeRepr.color({
+        color: "red",
+        selector: { label_asym_id: "A", label_seq_id: 120 }
+      });
+
+      // Label and focus on the residue
+      const residue = structure.component({
+        selector: { label_asym_id: "A", label_seq_id: 120 }
+      });
+      residue.label({ text: "ALA 120 A: My Label" });
+      residue.focus({});
+
+    linger_duration_ms: 4000
+    transition_duration_ms: 1000
+
+  - id: assembly-multi-component
+    header: 'Assembly with Multiple Components'
+    key: 'assembly-multi-component'
+    description: |
+      # Biological Assembly
+
+      Shows how to work with biological assemblies and multiple component types:
+      - Protein (orange cartoon)
+      - RNA/DNA (blue cartoon)
+      - Ligand (green ball-and-stick)
+      - Key residues (red ball-and-stick with labels)
+
+      Example: PheRS (1c0a) with signature residues and tRNA substrate.
+
+    javascript: |
+      const structure = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/1c0a_updated.cif" })
+        .parse({ format: "mmcif" })
+        .assemblyStructure({});
+
+      // Protein as cartoon
+      const protein = structure.component({ selector: "protein" });
+      protein.representation({}).color({ color: "#e19039" });
+
+      // Nucleic acid as cartoon
+      const nucleic = structure.component({ selector: "nucleic" });
+      nucleic.representation({}).color({ color: "#4b7fcc" });
+
+      // Ligand in active site as ball-and-stick
+      const ligand = structure.component({
+        selector: { label_asym_id: 'E' }
+      });
+      ligand.representation({ type: "ball_and_stick" }).color({ color: "#229954" });
+
+      // Crucial arginine residues as red ball-and-stick with labels
+      const argB217 = structure.component({
+        selector: { label_asym_id: "B", label_seq_id: 217 }
+      });
+      argB217.representation({ type: "ball_and_stick" }).color({ color: "#ff0000" });
+      argB217.label({ text: "aaRS Class II Signature" });
+
+      const argB537 = structure.component({
+        selector: { label_asym_id: "B", label_seq_id: 537 }
+      });
+      argB537.representation({ type: "ball_and_stick" }).color({ color: "#ff0000" });
+      argB537.label({ text: "aaRS Class II Signature" });
+
+      // Focus on ligand and signature residues
+      structure.component({
+        selector: [
+          { label_asym_id: 'E' },
+          { label_asym_id: "B", label_seq_id: 217 },
+          { label_asym_id: "B", label_seq_id: 537 }
+        ]
+      }).focus({});
+
+    linger_duration_ms: 5000
+    transition_duration_ms: 1000
+
+  - id: multiple-structures
+    header: 'Multiple Structures with Transforms'
+    key: 'multiple-structures'
+    description: |
+      # Loading Multiple Structures
+
+      Demonstrates loading multiple structures into the same scene:
+      - Load first structure (4hhb - deoxy hemoglobin) in red
+      - Load second structure (1oj6 - oxy hemoglobin) in blue
+      - Apply rotation and translation matrix to align them
+
+      Useful for comparing conformational changes or different states.
+
+    javascript: |
+      // Load first structure and color it red
+      const struct1 = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/4hhb_updated.cif" })
+        .parse({ format: "mmcif" })
+        .modelStructure({});
+
+      struct1.component({}).representation({}).color({ color: "red" });
+
+      // Load second structure, apply matrix transform, and color it blue
+      const struct2 = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/1oj6_updated.cif" })
+        .parse({ format: "mmcif" })
+        .modelStructure({})
+        .transform({
+          rotation: [
+            -0.7202161, -0.33009904, -0.61018308,
+            0.36257631, 0.57075962, -0.73673053,
+            0.59146191, -0.75184312, -0.29138417
+          ],
+          translation: [-12.54, 46.79, 94.50]
+        });
+
+      struct2.component({}).representation({}).color({ color: "blue" });
+
+    linger_duration_ms: 4000
+    transition_duration_ms: 1000
+
+  - id: symmetry-structure
+    header: 'Symmetry Structure'
+    key: 'symmetry-structure'
+    description: |
+      # Crystal Symmetry
+
+      Generate symmetry mates to visualize crystal packing:
+      - Uses `symmetryStructure()` instead of `modelStructure()`
+      - Generates neighboring unit cells with `ijkMin` and `ijkMax`
+      - Shows crystal lattice environment
+
+      Example: 1tqn with 3x3x3 unit cell expansion.
+
+    javascript: |
+      const structure = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/1tqn_updated.cif" })
+        .parse({ format: "mmcif" })
+        .symmetryStructure({
+          ijkMin: [-1, -1, -1],
+          ijkMax: [1, 1, 1]
+        });
+
+      const comp = structure.component({});
+      comp.representation({}).color({ color: "teal" });
+
+    linger_duration_ms: 4000
+    transition_duration_ms: 1000
+
+  - id: annotations-from-uri
+    header: 'Annotations from URI'
+    key: 'annotations-from-uri'
+    description: |
+      # External Annotations
+
+      Load component definitions, colors, labels, and tooltips from external annotation files:
+      - `componentFromUri()` - define selections from external file
+      - `colorFromUri()` - apply color schemes from external file
+      - `labelFromUri()` - add labels from external file
+      - `tooltipFromUri()` - add tooltips from external file
+
+      Example: 1h9t with protein, DNA, and ion annotations from mmCIF file.
+
+    javascript: |
+      const structure_url = "https://files.wwpdb.org/download/1h9t.cif";
+      const annotation_url = "https://molstar.org/mol-view-spec/examples/annotations/annotations-1h9t.cif";
+
+      // Load structure
+      const structure = builder
+        .download({ url: structure_url })
+        .parse({ format: "mmcif" })
+        .modelStructure({});
+
+      // Create components using MVS annotations
+      const protein = structure.componentFromUri({
+        uri: annotation_url,
+        format: "cif",
+        block_header: "1h9t_annotations",
+        category_name: "components",
+        field_name: "component",
+        field_values: ["Protein"],
+        schema: "chain"
+      });
+
+      const dna = structure.componentFromUri({
+        uri: annotation_url,
+        format: "cif",
+        category_name: "components",
+        field_values: ["DNA"],
+        schema: "chain"
+      });
+
+      const ions = structure.componentFromUri({
+        uri: annotation_url,
+        format: "cif",
+        category_name: "components",
+        field_values: ["Gold", "Chloride"],
+        schema: "chain"
+      });
+
+      // Create representations
+      const protein_repr = protein.representation({ type: "cartoon" });
+      const dna_repr = dna.representation({ type: "ball_and_stick" });
+      const ions_repr = ions.representation({ type: "surface" });
+
+      // Apply coloring using MVS annotations
+      protein_repr.colorFromUri({
+        uri: annotation_url,
+        format: "cif",
+        block_header: "1h9t_annotations",
+        category_name: "annotations",
+        field_name: "color",
+        schema: "residue_range"
+      });
+
+      dna_repr.colorFromUri({
+        uri: annotation_url,
+        format: "cif",
+        category_name: "annotations",
+        schema: "residue_range"
+      });
+
+      ions_repr.colorFromUri({
+        uri: annotation_url,
+        format: "cif",
+        category_name: "annotations",
+        schema: "residue_range"
+      });
+
+      // Add labels using MVS annotations
+      structure.labelFromUri({
+        uri: annotation_url,
+        format: "cif",
+        block_header: "1h9t_annotations",
+        category_name: "annotations",
+        field_name: "label",
+        schema: "residue_range"
+      });
+
+      // Add tooltips using MVS annotations
+      structure.tooltipFromUri({
+        uri: annotation_url,
+        format: "cif",
+        block_header: "1h9t_annotations",
+        category_name: "annotations",
+        field_name: "label",
+        schema: "residue_range"
+      });
+
+    linger_duration_ms: 5000
+    transition_duration_ms: 1000
+
+  - id: primitives
+    header: 'Geometric Primitives'
+    key: 'primitives'
+    description: |
+      # Drawing Primitives
+
+      Create custom geometric shapes:
+      - **Ellipses** - arcs in 3D space (XY, XZ, YZ planes)
+      - **Arrows** - directional indicators
+      - **Ellipsoid** - 3D elliptical solid
+
+      Useful for annotations, axes, regions of interest, etc.
+
+    javascript: |
+      // Create ellipses on different planes
+      builder.primitives({ opacity: 0.66 })
+        .ellipse({
+          color: "red",
+          center: [1, 1, 1],
+          major_axis: [1.5, 0, 0],
+          minor_axis: [0, 2, 0],
+          theta_start: 0,
+          theta_end: Math.PI / 2,
+          tooltip: "XY"
+        })
+        .ellipse({
+          color: "green",
+          center: [1, 1, 1],
+          major_axis_endpoint: [1.5 + 1, 0 + 1, 0 + 1],
+          minor_axis_endpoint: [0 + 1, 0 + 1, 1 + 1],
+          theta_start: 0,
+          theta_end: Math.PI / 2,
+          tooltip: "XZ"
+        })
+        .ellipse({
+          color: "blue",
+          center: [1, 1, 1],
+          major_axis: [0, 10, 0],
+          minor_axis: [0, 0, 1],
+          radius_major: 2,
+          radius_minor: 1,
+          theta_start: 0,
+          theta_end: Math.PI / 2,
+          tooltip: "YZ"
+        })
+        .arrow({
+          start: [1, 1, 1],
+          end: [1 + 1.5, 1 + 0, 1 + 0],
+          tube_radius: 0.05,
+          length: 1.5 + 0.2,
+          show_end_cap: true,
+          color: "#ffff00",
+          tooltip: "X"
+        })
+        .arrow({
+          start: [1, 1, 1],
+          direction: [0, 2 + 0.2, 0],
+          tube_radius: 0.05,
+          show_end_cap: true,
+          color: "#ff00ff",
+          tooltip: "Y"
+        })
+        .arrow({
+          end: [1, 1, 1],
+          start: [1 + 0, 1 + 0, 1 + 1 + 0.2],
+          show_start_cap: true,
+          tube_radius: 0.05,
+          color: "#00ffff",
+          tooltip: "Z"
+        });
+
+      // Create semi-transparent ellipsoid
+      builder.primitives({ opacity: 0.33 })
+        .ellipsoid({
+          center: [1, 1, 1],
+          major_axis: [1, 0, 0],
+          minor_axis: [0, 1, 0],
+          radius: [1.5, 2, 1],
+          color: "#cccccc"
+        });
+
+    linger_duration_ms: 4000
+    transition_duration_ms: 1000
+
+  - id: volume-data
+    header: 'Volume Data (Electron Density)'
+    key: 'volume-data'
+    description: |
+      # Electron Density Maps
+
+      Visualize volumetric data like electron density maps:
+      - Load structure and volume data separately
+      - Display 2Fo-Fc map (blue wireframe at 1.5σ)
+      - Display Fo-Fc difference map (green at +3σ, red at -3σ)
+      - Focus on ligand binding site
+
+      Uses PDBe Volume Server for on-demand density map regions.
+
+    javascript: |
+      const structure = builder
+        .download({ url: urlForMmcif("1tqn") })
+        .parse({ format: "mmcif" })
+        .modelStructure({});
+
+      // Protein as white cartoon
+      const polymer = structure.component({ selector: "polymer" });
+      polymer.representation({ type: "cartoon" }).color({ color: "white" });
+
+      // Ligand as ball-and-stick with element colors
+      const ligand = structure.component({ selector: "ligand" });
+      ligand
+        .representation({ type: "ball_and_stick" })
+        .color({ custom: { molstar_color_theme_name: "element-symbol" } });
+
+      ligand.focus({
+        up: [0.98, -0.19, 0],
+        direction: [-28.47, -17.66, -16.32],
+        radius: 14,
+        radius_extent: 5
+      });
+
+      // Load volume data from PDBe Volume Server
+      const volumeData = builder
+        .download({
+          url: "https://www.ebi.ac.uk/pdbe/densities/x-ray/1tqn/box/-22.367,-33.367,-21.634/-7.106,-10.042,-0.937?detail=3"
+        })
+        .parse({ format: "bcif" });
+
+      // 2FO-FC map (blue wireframe at 1.5σ)
+      const twoFoFc = volumeData.volume({ channel_id: "2FO-FC" });
+      const twoFoFcRepr = twoFoFc.representation({
+        type: "isosurface",
+        relative_isovalue: 1.5,
+        show_wireframe: true,
+        show_faces: false
+      });
+      twoFoFcRepr.color({ color: "blue" });
+      twoFoFcRepr.opacity({ opacity: 0.3 });
+
+      // FO-FC positive (green wireframe at 3σ)
+      const foFc = volumeData.volume({ channel_id: "FO-FC" });
+      const foFcPosRepr = foFc.representation({
+        type: "isosurface",
+        relative_isovalue: 3,
+        show_wireframe: true
+      });
+      foFcPosRepr.color({ color: "green" });
+      foFcPosRepr.opacity({ opacity: 0.3 });
+
+      // FO-FC negative (red wireframe at -3σ)
+      const foFcNegRepr = foFc.representation({
+        type: "isosurface",
+        relative_isovalue: -3,
+        show_wireframe: true
+      });
+      foFcNegRepr.color({ color: "red" });
+      foFcNegRepr.opacity({ opacity: 0.3 });
+
+    linger_duration_ms: 5000
+    transition_duration_ms: 1000

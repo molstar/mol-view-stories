@@ -21,5 +21,3 @@ camera:
   clipFar: true
   minNear: 5
   minFar: 0
-linger_duration_ms: null
-transition_duration_ms: null

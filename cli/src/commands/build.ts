@@ -127,6 +127,12 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
 
   console.error(`✓ Loaded story metadata: ${metadata.title}`);
 
+  // Extract global scene defaults
+  const sceneDefaults = storyData.scene_defaults || {};
+  if (Object.keys(sceneDefaults).length > 0) {
+    console.error('✓ Using global scene defaults from story.yaml');
+  }
+
   // Parse scenes
   const scenes: SceneData[] = [];
 
@@ -148,7 +154,7 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
         console.error(`✓ Loaded scene from folder: ${scene.header}`);
       } else {
         // Parse inline scene definition
-        const scene = parseInlineScene(sceneSpec, i);
+        const scene = await parseInlineScene(sceneSpec, i, folderPath);
         scenes.push(scene);
         console.error(`✓ Loaded inline scene: ${scene.header}`);
       }
@@ -324,7 +330,7 @@ export async function parseAssetsFolder(rootPath: string): Promise<SceneAsset[]>
   return assets;
 }
 
-function parseInlineScene(sceneSpec: any, index: number): SceneData {
+async function parseInlineScene(sceneSpec: any, index: number, folderPath: string): Promise<SceneData> {
   // Validate required fields
   if (!sceneSpec.id && !sceneSpec.header) {
     throw new Error(`Scene at index ${index} missing required 'id' or 'header' field`);
@@ -346,12 +352,26 @@ function parseInlineScene(sceneSpec: any, index: number): SceneData {
     };
   }
 
+  // Load JavaScript - either inline or from builder file
+  // Support both 'javascript' and 'js' as keys
+  let javascript = sceneSpec.javascript || sceneSpec.js || '';
+
+  if (sceneSpec.builder) {
+    const builderPath = join(folderPath, sceneSpec.builder);
+    if (await exists(builderPath)) {
+      javascript = await Deno.readTextFile(builderPath);
+      console.error(`  ✓ Loaded builder script: ${sceneSpec.builder}`);
+    } else {
+      throw new Error(`Builder file '${sceneSpec.builder}' not found for scene '${id}'`);
+    }
+  }
+
   return {
     id,
     header,
     key,
     description: sceneSpec.description || '',
-    javascript: sceneSpec.javascript || '',
+    javascript,
     camera,
     linger_duration_ms: sceneSpec.linger_duration_ms || 5000,
     transition_duration_ms: sceneSpec.transition_duration_ms || 1000,
