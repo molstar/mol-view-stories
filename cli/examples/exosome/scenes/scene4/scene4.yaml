@@ -22,5 +22,3 @@ camera:
   minNear: 5
   minFar: 0
   scale: 1
-linger_duration_ms: null
-transition_duration_ms: null
