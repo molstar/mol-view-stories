@@ -1,6 +1,5 @@
-import { X } from 'lucide-react';
 import Image from 'next/image';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import { LoginButton } from './login';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
