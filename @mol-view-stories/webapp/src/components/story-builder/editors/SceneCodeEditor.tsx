@@ -5,7 +5,7 @@ import { getDefaultStore, useAtomValue, useStore } from 'jotai';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { ActiveSceneAtom, modifyCurrentScene, StoryAtom } from '@/app/appstate';
-import { setupMonacoCodeCompletion } from './common';
+import { clearMonacoEditHistory, setupMonacoCodeCompletion } from './common';
 import { UpdateSceneAtom } from '@/app/state/atoms';
 
 export function SceneCodeEditor() {
@@ -15,13 +15,6 @@ export function SceneCodeEditor() {
 
   const parentRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
-
-  // Sync with active scene when it changes
-  useEffect(() => {
-    if (activeScene) {
-      setCurrentCode(activeScene.javascript || '');
-    }
-  }, [activeScene]);
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -50,6 +43,14 @@ export function SceneCodeEditor() {
       javascript: value,
     });
   };
+
+  // Sync with active scene when it changes
+  useEffect(() => {
+    if (activeScene) {
+      setCurrentCode(activeScene.javascript || '');
+    }
+    clearMonacoEditHistory(editorRef.current);
+  }, [activeScene]);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;

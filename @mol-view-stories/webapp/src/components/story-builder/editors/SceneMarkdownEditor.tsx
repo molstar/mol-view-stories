@@ -1,17 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import { useAtomValue } from 'jotai';
 import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
+import { clearMonacoEditHistory } from './common';
 
 export function SceneMarkdownEditor() {
   const activeScene = useAtomValue(ActiveSceneAtom);
   const [currentMarkdown, setCurrentMarkdown] = useState('');
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
 
   // Sync with active scene when it changes
   useEffect(() => {
     setCurrentMarkdown(activeScene?.description || '');
+    clearMonacoEditHistory(editorRef.current);
   }, [activeScene?.description]);
 
   const handleMarkdownChange: OnChange = (newMarkdown) => {
@@ -19,6 +23,8 @@ export function SceneMarkdownEditor() {
   };
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+    
     // Add Alt+S keyboard shortcut for saving markdown
     for (const cmd of [
       monaco.KeyMod.Alt | monaco.KeyCode.KeyS,
