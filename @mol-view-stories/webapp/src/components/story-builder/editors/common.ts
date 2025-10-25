@@ -32,7 +32,7 @@ export async function clearMonacoEditHistory(editor?: monaco.editor.IStandaloneC
   const model = editor.getModel();
   if (model) {
     // Use the internal method to clear undo/redo stacks
-    (model as any)._commandManager?.clear?.();
+    (model as { _commandManager?: { clear?: () => void } })._commandManager?.clear?.();
     // Alternative approach using pushStackElement to reset
     model.pushStackElement();
   }
