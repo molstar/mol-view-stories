@@ -38,6 +38,8 @@ All notable changes to this project will be documented in this file, following t
   - Asset list and docs link
 - **Scene editor**:
   - Mol* log under viewer
+  - Fix undo behavior for code editor
+  - Add "copy camera position"
 
 ### Fixed
 - **Auth Page**: Fixed infinite loop when no code or error is present

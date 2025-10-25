@@ -51,30 +51,30 @@ function HeaderLogo() {
   );
 }
 
-function BetaBanner() {
-  const [isVisible, setIsVisible] = useState(true);
+// function BetaBanner() {
+//   const [isVisible, setIsVisible] = useState(true);
 
-  if (!isVisible) return null;
+//   if (!isVisible) return null;
 
-  return (
-    <div className='bg-gradient-to-r from-orange-500 via-pink-500 to-orange-600 text-white relative overflow-hidden'>
-      <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse'></div>
-      <div className='relative flex items-center justify-center px-4 py-2 text-sm font-medium'>
-        <div className='flex items-center gap-2'>
-          <span className='text-lg'>🚧</span>
-          <span>BETA VERSION - Some features may be unstable</span>
-        </div>
-        <button
-          onClick={() => setIsVisible(false)}
-          className='absolute right-4 p-1 hover:bg-white/20 rounded-full transition-colors'
-          aria-label='Dismiss preview banner'
-        >
-          <X className='w-4 h-4' />
-        </button>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className='bg-gradient-to-r from-orange-500 via-pink-500 to-orange-600 text-white relative overflow-hidden'>
+//       <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse'></div>
+//       <div className='relative flex items-center justify-center px-4 py-2 text-sm font-medium'>
+//         <div className='flex items-center gap-2'>
+//           <span className='text-lg'>🚧</span>
+//           <span>BETA VERSION - Some features may be unstable</span>
+//         </div>
+//         <button
+//           onClick={() => setIsVisible(false)}
+//           className='absolute right-4 p-1 hover:bg-white/20 rounded-full transition-colors'
+//           aria-label='Dismiss preview banner'
+//         >
+//           <X className='w-4 h-4' />
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
 
 export function Header({
   children,
@@ -87,7 +87,6 @@ export function Header({
 }) {
   return (
     <header className='bg-gray-50 border-b border-border sticky top-0 z-50'>
-      <BetaBanner />
       <div className='flex justify-between items-center px-4 py-2'>
         <div className='flex items-center gap-4'>
           <HeaderLogo />
