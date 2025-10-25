@@ -1,5 +1,6 @@
 import { Monaco } from '@monaco-editor/react';
 import { MVSTypes } from './mvs-typing';
+import * as monaco from 'monaco-editor';
 
 export function setupMonacoCodeCompletion(monaco: Monaco) {
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
@@ -22,4 +23,28 @@ export function setupMonacoCodeCompletion(monaco: Monaco) {
     typeRoots: [],
     lib: ['es2020'],
   });
+}
+
+export function clearMonacoEditHistory(editor?: monaco.editor.IStandaloneCodeEditor | null) {
+  if (!editor) return;
+
+  const model = editor.getModel();
+  if (model) {
+    // Push a stack element to separate before/after
+    model.pushStackElement();
+    // Clear the entire edit history
+    const range = model.getFullModelRange();
+    model.pushEditOperations(
+      [],
+      [
+        {
+          range: range,
+          text: model.getValue(),
+          forceMoveMarkers: true,
+        },
+      ],
+      () => null
+    );
+    model.pushStackElement();
+  }
 }

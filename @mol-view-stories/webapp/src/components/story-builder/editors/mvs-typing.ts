@@ -10,7 +10,7 @@ namespace _ {
     /**
      * @since 2.11.0
      */
-    interface Predicate<A> {
+    interface Predicate$1<A> {
       (a: A): boolean
     }
     /**
@@ -25,7 +25,7 @@ namespace _ {
     type URI$8 = typeof URI$8
     declare module './HKT' {
       interface URItoKind<A> {
-        readonly [URI$8]: Predicate<A>
+        readonly [URI$8]: Predicate$1<A>
       }
     }
     
@@ -251,6 +251,21 @@ namespace _ {
     }
     
     /**
+     * @since 2.0.0
+     */
+    
+    /**
+     * Use \`Predicate\` module instead.
+     *
+     * @category zone of death
+     * @since 2.0.0
+     * @deprecated
+     */
+    interface Predicate<A> {
+      (a: A): boolean
+    }
+    
+    /**
      * @category model
      * @since 2.0.0
      */
@@ -349,10 +364,24 @@ namespace _ {
      */
     interface Any extends Type<any, any, any> {}
     /**
+     * @since 1.0.0
+     */
+    interface Mixed extends Type<any, any, unknown> {}
+    /**
      * @category Codec
      * @since 1.0.0
      */
     type TypeOf<C extends Any> = C['_A']
+    /**
+     * @category Codec
+     * @since 1.0.0
+     */
+    type InputOf<C extends Any> = C['_I']
+    /**
+     * @category Codec
+     * @since 1.0.0
+     */
+    type OutputOf<C extends Any> = C['_O']
     /**
      * @category Codec
      * @since 1.0.0
@@ -422,6 +451,204 @@ namespace _ {
        */
       decode(i: I): Validation<A>
     }
+    /**
+     * @since 1.0.0
+     */
+    interface Props {
+      [key: string]: Mixed
+    }
+    /**
+     * @since 1.0.0
+     */
+    declare class StringType extends Type<string> {
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'StringType'
+      constructor()
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface StringC extends StringType {}
+    /**
+     * @since 1.0.0
+     */
+    declare class NumberType extends Type<number> {
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'NumberType'
+      constructor()
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface NumberC extends NumberType {}
+    /**
+     * @since 1.0.0
+     */
+    declare class RefinementType<C extends Any, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly type: C
+      readonly predicate: Predicate<A>
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'RefinementType'
+      constructor(
+        name: string,
+        is: RefinementType<C, A, O, I>['is'],
+        validate: RefinementType<C, A, O, I>['validate'],
+        encode: RefinementType<C, A, O, I>['encode'],
+        type: C,
+        predicate: Predicate<A>
+      )
+    }
+    /**
+     * @since 1.0.0
+     */
+    declare class ArrayType<C extends Any, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly type: C
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'ArrayType'
+      constructor(
+        name: string,
+        is: ArrayType<C, A, O, I>['is'],
+        validate: ArrayType<C, A, O, I>['validate'],
+        encode: ArrayType<C, A, O, I>['encode'],
+        type: C
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface ArrayC<C extends Mixed> extends ArrayType<C, Array<TypeOf<C>>, Array<OutputOf<C>>, unknown> {}
+    /**
+     * @since 1.0.0
+     */
+    declare class PartialType<P, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly props: P
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'PartialType'
+      constructor(
+        name: string,
+        is: PartialType<P, A, O, I>['is'],
+        validate: PartialType<P, A, O, I>['validate'],
+        encode: PartialType<P, A, O, I>['encode'],
+        props: P
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface PartialC<P extends Props>
+      extends PartialType<
+        P,
+        {
+          [K in keyof P]?: TypeOf<P[K]>
+        },
+        {
+          [K in keyof P]?: OutputOf<P[K]>
+        },
+        unknown
+      > {}
+    /**
+     * @since 1.0.0
+     */
+    declare class UnionType<CS extends Array<Any>, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly types: CS
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'UnionType'
+      constructor(
+        name: string,
+        is: UnionType<CS, A, O, I>['is'],
+        validate: UnionType<CS, A, O, I>['validate'],
+        encode: UnionType<CS, A, O, I>['encode'],
+        types: CS
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface UnionC<CS extends [Mixed, Mixed, ...Array<Mixed>]>
+      extends UnionType<CS, TypeOf<CS[number]>, OutputOf<CS[number]>, unknown> {}
+    /**
+     * @since 1.0.0
+     */
+    declare class TupleType<CS extends Array<Any>, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly types: CS
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'TupleType'
+      constructor(
+        name: string,
+        is: TupleType<CS, A, O, I>['is'],
+        validate: TupleType<CS, A, O, I>['validate'],
+        encode: TupleType<CS, A, O, I>['encode'],
+        types: CS
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface TupleC<CS extends [Mixed, ...Array<Mixed>]>
+      extends TupleType<
+        CS,
+        CS extends {
+          length: 1
+        }
+          ? [TypeOf<CS[0]>]
+          : CS extends {
+              length: 2
+            }
+          ? [TypeOf<CS[0]>, TypeOf<CS[1]>]
+          : CS extends {
+              length: 3
+            }
+          ? [TypeOf<CS[0]>, TypeOf<CS[1]>, TypeOf<CS[2]>]
+          : CS extends {
+              length: 4
+            }
+          ? [TypeOf<CS[0]>, TypeOf<CS[1]>, TypeOf<CS[2]>, TypeOf<CS[3]>]
+          : CS extends {
+              length: 5
+            }
+          ? [TypeOf<CS[0]>, TypeOf<CS[1]>, TypeOf<CS[2]>, TypeOf<CS[3]>, TypeOf<CS[4]>]
+          : unknown,
+        CS extends {
+          length: 1
+        }
+          ? [OutputOf<CS[0]>]
+          : CS extends {
+              length: 2
+            }
+          ? [OutputOf<CS[0]>, OutputOf<CS[1]>]
+          : CS extends {
+              length: 3
+            }
+          ? [OutputOf<CS[0]>, OutputOf<CS[1]>, OutputOf<CS[2]>]
+          : CS extends {
+              length: 4
+            }
+          ? [OutputOf<CS[0]>, OutputOf<CS[1]>, OutputOf<CS[2]>, OutputOf<CS[3]>]
+          : CS extends {
+              length: 5
+            }
+          ? [OutputOf<CS[0]>, OutputOf<CS[1]>, OutputOf<CS[2]>, OutputOf<CS[3]>, OutputOf<CS[4]>]
+          : unknown,
+        unknown
+      > {}
+    /**
+     * @since 1.5.3
+     */
+    interface RefinementC<C extends Any, B = TypeOf<C>> extends RefinementType<C, B, OutputOf<C>, InputOf<C>> {}
     
     /**
      * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
@@ -696,7 +923,7 @@ namespace _ {
         }>;
         parse: SimpleParamsSchema<{
             /** Format of the input data resource. */
-            format: RequiredField<"map" | "pdb" | "xyz" | "gro" | "mol" | "mol2" | "lammpstrj" | "sdf" | "bcif" | "xtc" | "mmcif" | "pdbqt">;
+            format: RequiredField<"map" | "dx" | "pdb" | "xyz" | "gro" | "mol" | "mol2" | "lammpstrj" | "sdf" | "bcif" | "xtc" | "mmcif" | "pdbqt" | "dxbin">;
         }>;
         coordinates: SimpleParamsSchema<{}>;
         structure: SimpleParamsSchema<{
@@ -754,6 +981,7 @@ namespace _ {
                 end_auth_seq_id?: number | undefined;
                 label_comp_id?: string | undefined;
                 auth_comp_id?: string | undefined;
+                residue_index?: number | undefined;
                 label_atom_id?: string | undefined;
                 auth_atom_id?: string | undefined;
                 type_symbol?: string | undefined;
@@ -773,6 +1001,7 @@ namespace _ {
                 end_auth_seq_id?: number | undefined;
                 label_comp_id?: string | undefined;
                 auth_comp_id?: string | undefined;
+                residue_index?: number | undefined;
                 label_atom_id?: string | undefined;
                 auth_atom_id?: string | undefined;
                 type_symbol?: string | undefined;
@@ -885,6 +1114,7 @@ namespace _ {
                 end_auth_seq_id?: number | undefined;
                 label_comp_id?: string | undefined;
                 auth_comp_id?: string | undefined;
+                residue_index?: number | undefined;
                 label_atom_id?: string | undefined;
                 auth_atom_id?: string | undefined;
                 type_symbol?: string | undefined;
@@ -904,6 +1134,7 @@ namespace _ {
                 end_auth_seq_id?: number | undefined;
                 label_comp_id?: string | undefined;
                 auth_comp_id?: string | undefined;
+                residue_index?: number | undefined;
                 label_atom_id?: string | undefined;
                 auth_atom_id?: string | undefined;
                 type_symbol?: string | undefined;
@@ -1220,6 +1451,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1242,6 +1474,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1263,6 +1496,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1285,6 +1519,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1311,6 +1546,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1333,6 +1569,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1354,6 +1591,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1376,6 +1614,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1417,6 +1656,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1439,6 +1679,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1460,6 +1701,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1482,6 +1724,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1508,6 +1751,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1530,6 +1774,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1551,6 +1796,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1573,6 +1819,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1594,6 +1841,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1616,6 +1864,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1651,6 +1900,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1673,6 +1923,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1702,6 +1953,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1724,6 +1976,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1747,6 +2000,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1769,6 +2023,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1790,6 +2045,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1812,6 +2068,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1841,6 +2098,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1863,6 +2121,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1886,6 +2145,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1908,6 +2168,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1929,6 +2190,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1951,6 +2213,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -1977,6 +2240,7 @@ namespace _ {
                     end_auth_seq_id?: number | undefined;
                     label_comp_id?: string | undefined;
                     auth_comp_id?: string | undefined;
+                    residue_index?: number | undefined;
                     label_atom_id?: string | undefined;
                     auth_atom_id?: string | undefined;
                     type_symbol?: string | undefined;
@@ -1999,6 +2263,7 @@ namespace _ {
                         end_auth_seq_id?: number | undefined;
                         label_comp_id?: string | undefined;
                         auth_comp_id?: string | undefined;
+                        residue_index?: number | undefined;
                         label_atom_id?: string | undefined;
                         auth_atom_id?: string | undefined;
                         type_symbol?: string | undefined;
@@ -2025,6 +2290,69 @@ namespace _ {
     type MVSTree = TreeFor<typeof MVSTreeSchema>;
     /** Any subtree in a \`MVSTree\` (e.g. its root doesn't need to be 'root') */
     type MVSSubtree<TKind extends MVSKind = MVSKind> = SubtreeOfKind<MVSTree, TKind>;
+    
+    /**
+     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author Adam Midlik <midlik@gmail.com>
+     * @author David Sehnal <david.sehnal@gmail.com>
+     */
+    
+    declare const PrimitivePositionT: UnionC<[TupleC<[NumberC, NumberC, NumberC]>, PartialC<{
+        label_entity_id: StringC;
+        label_asym_id: StringC;
+        auth_asym_id: StringC;
+        label_seq_id: RefinementC<NumberC, number>;
+        auth_seq_id: RefinementC<NumberC, number>;
+        pdbx_PDB_ins_code: StringC;
+        beg_label_seq_id: RefinementC<NumberC, number>;
+        end_label_seq_id: RefinementC<NumberC, number>;
+        beg_auth_seq_id: RefinementC<NumberC, number>;
+        end_auth_seq_id: RefinementC<NumberC, number>;
+        label_comp_id: StringC;
+        auth_comp_id: StringC;
+        /** 0-based residue index in the source file */
+        residue_index: RefinementC<NumberC, number>;
+        label_atom_id: StringC;
+        auth_atom_id: StringC;
+        type_symbol: StringC;
+        atom_id: RefinementC<NumberC, number>;
+        atom_index: RefinementC<NumberC, number>;
+        /** Instance identifier to distinguish instances of the same chain created by applying different symmetry operators,
+         * like 'ASM-X0-1' for assemblies or '1_555' for crystals */
+        instance_id: StringC;
+    }>, PartialC<{
+        structure_ref: StringC;
+        expression_schema: Type<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic", "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic", unknown>;
+        expressions: ArrayC<PartialC<{
+            label_entity_id: StringC;
+            label_asym_id: StringC;
+            auth_asym_id: StringC;
+            label_seq_id: RefinementC<NumberC, number>;
+            auth_seq_id: RefinementC<NumberC, number>;
+            pdbx_PDB_ins_code: StringC;
+            beg_label_seq_id: RefinementC<NumberC, number>;
+            end_label_seq_id: RefinementC<NumberC, number>;
+            beg_auth_seq_id: RefinementC<NumberC, number>;
+            end_auth_seq_id: RefinementC<NumberC, number>;
+            label_comp_id: StringC;
+            auth_comp_id: StringC;
+            /** 0-based residue index in the source file */
+            residue_index: RefinementC<NumberC, number>;
+            label_atom_id: StringC;
+            auth_atom_id: StringC;
+            type_symbol: StringC;
+            atom_id: RefinementC<NumberC, number>;
+            atom_index: RefinementC<NumberC, number>;
+            /** Instance identifier to distinguish instances of the same chain created by applying different symmetry operators,
+             * like 'ASM-X0-1' for assemblies or '1_555' for crystals */
+            instance_id: StringC;
+        }>>;
+    }>]>;
+    type PrimitivePositionT = ValueFor<typeof PrimitivePositionT>;
+    /** \`color\` parameter values for \`color\` node in MVS tree */
+    declare const ColorT: UnionC<[Type<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3", "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3", unknown>, Type<\`#\${string}\`, \`#\${string}\`, unknown>]>;
+    type ColorT = ValueFor<typeof ColorT>;
     
     /**
      * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
@@ -2063,7 +2391,7 @@ namespace _ {
             radius_extent?: number | undefined;
         } & CustomAndRef) | undefined) => this;
         primitives: (params?: MVSNodeParams<"primitives"> & CustomAndRef) => Primitives;
-        primitives_from_uri: (params: MVSNodeParams<"primitives_from_uri"> & CustomAndRef) => PrimitivesFromUri;
+        primitivesFromUri: (params: MVSNodeParams<"primitives_from_uri"> & CustomAndRef) => PrimitivesFromUri;
         animation(params?: MVSAnimationNodeParams<'animation'> & CustomAndRef): Animation;
         /** Modifies custom state of the root */
         extendRootCustomState(custom: Record<string, any>): this;
@@ -2134,7 +2462,7 @@ namespace _ {
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         primitives: (params?: MVSNodeParams<"primitives"> & CustomAndRef) => Primitives;
-        primitives_from_uri: (params: MVSNodeParams<"primitives_from_uri"> & CustomAndRef) => PrimitivesFromUri;
+        primitivesFromUri: (params: MVSNodeParams<"primitives_from_uri"> & CustomAndRef) => PrimitivesFromUri;
     }
     /** MVS builder pointing to a 'component' or 'component_from_uri' or 'component_from_source' node */
     declare class Component extends _Base<'component' | 'component_from_uri' | 'component_from_source'> implements FocusMixin, TransformMixin {
@@ -2232,12 +2560,22 @@ namespace _ {
         arrow(params: MVSPrimitiveSubparams<'arrow'> & CustomAndRef): Primitives;
         /** Defines a tube, connecting a start and an end point, with label containing distance between start and end. */
         distance(params: MVSPrimitiveSubparams<'distance_measurement'> & CustomAndRef): Primitives;
+        /** Defines an angle between vectors (b - a) and (c - b). */
+        angle(params: MVSPrimitiveSubparams<'angle_measurement'> & CustomAndRef): Primitives;
         /** Defines a label. */
         label(params: MVSPrimitiveSubparams<'label'> & CustomAndRef): Primitives;
         /** Defines an ellipse. */
         ellipse(params: MVSPrimitiveSubparams<'ellipse'> & CustomAndRef): Primitives;
-        /** Defines an ellipsoid */
+        /** Defines an ellipsoid. */
         ellipsoid(params: MVSPrimitiveSubparams<'ellipsoid'> & CustomAndRef): Primitives;
+        /** Defines a sphere (a special case of ellipsoid). */
+        sphere(params: {
+            center: PrimitivePositionT;
+            radius?: number | null;
+            radius_extent?: number | null;
+            color?: ColorT | null;
+            tooltip?: string | null;
+        } & CustomAndRef): Primitives;
         /** Defines a box. */
         box(params: MVSPrimitiveSubparams<'box'> & CustomAndRef): Primitives;
         focus: (params?: ({} & {
@@ -2266,7 +2604,7 @@ namespace _ {
         /** Allows the definition of a (group of) geometric primitives. You can add any number of primitives and then assign shared options (color, opacity etc.). */
         primitives(params: MVSNodeParams<'primitives'> & CustomAndRef): Primitives;
         /** Allows the definition of a (group of) geometric primitives provided dynamically. */
-        primitives_from_uri(params: MVSNodeParams<'primitives_from_uri'> & CustomAndRef): PrimitivesFromUri;
+        primitivesFromUri(params: MVSNodeParams<'primitives_from_uri'> & CustomAndRef): PrimitivesFromUri;
     }
     interface TransformMixin {
         /** Add a 'transform' node and return builder pointing back to this node. 'transform' node instructs to rotate and/or translate coordinates. */

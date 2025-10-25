@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
-import { BookOpen, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
+import { BookOpen, Eye, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { ApiStatus } from '@/components/get-api-status';
 import { APP_VERSION } from './version';
@@ -193,7 +193,7 @@ export default function Home() {
           </div>
 
           <div className='max-w-6xl mx-auto'>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
               {ExampleStoryList.map((example) => (
                 <Example key={example.path} path={example.path} name={example.name} />
               ))}
@@ -224,7 +224,7 @@ function Example({ path, name }: { path: string; name: string }) {
   return (
     <Link
       key={path}
-      className='border border-gray-300 rounded-lg font-semibold text-foreground hover:shadow-lg transition-shadow transition-colors relative justify-center flex h-45'
+      className='border border-gray-300 rounded-lg font-semibold text-foreground hover:shadow-lg transition-shadow transition-colors relative justify-center flex h-45 group'
       style={{
         backgroundImage: `url(/${process.env.NEXT_PUBLIC_APP_PREFIX ?? ''}examples/${path}/thumb.jpg)`,
         backgroundSize: 'cover',
@@ -238,6 +238,13 @@ function Example({ path, name }: { path: string; name: string }) {
       >
         {name}
       </div>
+
+      <Link
+        href={`/builder?template=${path}&preview=1`}
+        className='absolute flex top-2 right-2 text-gray-600 text-xs items-center bg-white rounded-full p-1 shadow invisible group-hover:visible hover:bg-gray-100 transition-colors px-2'
+      >
+        <Eye className='w-4 h-4 me-1' /> Preview
+      </Link>
     </Link>
   );
 }

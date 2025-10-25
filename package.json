@@ -9,8 +9,7 @@
     "tsc:check": "pnpm run --filter=* tsc:check"
   },
   "dependencies": {
-    "molstar": "5.0.0"
-     
+    "molstar": "^5.1.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

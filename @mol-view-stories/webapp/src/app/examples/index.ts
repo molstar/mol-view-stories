@@ -12,4 +12,8 @@ export const ExampleStories = {
   exosome: 'download',
   tbp: 'download',
   'motm-01': 'download',
+  'npc-basket': 'download',
+  alphafind: 'download',
+  'emdb-maps': 'download',
+  'mvs-features': 'download',
 };
