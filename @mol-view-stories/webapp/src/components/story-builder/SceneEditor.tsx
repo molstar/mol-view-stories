@@ -297,6 +297,8 @@ class CurrentStoryViewModel {
 
     this.queue.run(async () => {
       try {
+        this.plugin.managers.markdownExtensions.audio.stop();
+
         this.store?.set(IsLoadingAtom, true);
         // First, build MVS data; errors here are already reported by getMVSData
         let data: Awaited<ReturnType<typeof getMVSData>>;
@@ -390,6 +392,10 @@ function CurrentSceneView() {
   useEffect(() => {
     model.loadStory(story, scene);
   }, [model, story, scene]);
+
+  useEffect(() => {
+    return () => model.plugin.managers.markdownExtensions.audio.stop();
+  }, []);
 
   return (
     <>

@@ -38,12 +38,14 @@ All notable changes to this project will be documented in this file, following t
   - Asset list and docs link
 - **Scene editor**:
   - Mol* log under viewer
-  - Fix undo behavior for code editor
   - Add "copy camera position"
 
 ### Fixed
 - **Auth Page**: Fixed infinite loop when no code or error is present
-- **Scene editor**: Fixed error toast when loading MVS data
+- **Scene editor**:
+  - Fixed error toast when loading MVS data
+  - Fixed audio playback not stopping when viewer is closed
+  - Fix undo behavior for code editor
 - **Story Format**: Fixed story format change issue when updating story
 
 ## [v1.0.0]
