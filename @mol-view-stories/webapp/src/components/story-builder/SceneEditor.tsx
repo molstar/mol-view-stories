@@ -16,10 +16,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn, SingleTaskQueue } from '@/lib/utils';
+import { cn, copyToClipboard, SingleTaskQueue } from '@/lib/utils';
 import { atom, getDefaultStore, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai/index';
 import {
   Axis3D,
@@ -60,6 +61,7 @@ import { UpdateSceneAtom } from '@/app/state/atoms';
 import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 import Link from 'next/link';
 import { ImmediateInput } from '../controls';
+import { adjustedCameraPosition } from '@mol-view-stories/lib/src/actions';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
@@ -121,7 +123,7 @@ function AssetList() {
             <DropdownMenuItem
               key={`${asset.name}-${index}`}
               onClick={() => {
-                navigator.clipboard.writeText(asset.name);
+                copyToClipboard(asset.name, 'Asset name');
               }}
               title='Click to copy asset name'
             >
@@ -146,8 +148,7 @@ function copyClipToClipboard(kind: 'plane' | 'sphere', snapshot: Camera.Snapshot
   point: [${snapshot.target[0].toFixed(2)}, ${snapshot.target[1].toFixed(2)}, ${snapshot.target[2].toFixed(2)}],
   normal: [${dir[0].toFixed(2)}, ${dir[1].toFixed(2)}, ${dir[2].toFixed(2)}]
 })`;
-    navigator.clipboard.writeText(text);
-    toast.success('Clip plane copied to clipboard');
+    copyToClipboard(text, 'Clip plane');
   } else if (kind === 'sphere') {
     const text = `.clip({
   type: 'sphere',
@@ -155,9 +156,22 @@ function copyClipToClipboard(kind: 'plane' | 'sphere', snapshot: Camera.Snapshot
   radius: 1.0
 })`;
 
-    navigator.clipboard.writeText(text);
-    toast.success('Clip sphere copied to clipboard');
+    copyToClipboard(text, 'Clip sphere');
   }
+}
+
+function copyFovAdjustedCameraToClipboard(snapshot: Camera.Snapshot | CameraData | null | undefined) {
+  if (!snapshot) return;
+
+  const adjustedPosition = adjustedCameraPosition(snapshot as CameraData);
+
+  const text = `builder.camera({
+  position: [${adjustedPosition[0].toFixed(2)}, ${adjustedPosition[1].toFixed(2)}, ${adjustedPosition[2].toFixed(2)}],
+  target: [${snapshot.target[0].toFixed(2)}, ${snapshot.target[1].toFixed(2)}, ${snapshot.target[2].toFixed(2)}],
+  up: [${snapshot.up[0].toFixed(2)}, ${snapshot.up[1].toFixed(2)}, ${snapshot.up[2].toFixed(2)}],
+});`;
+
+  copyToClipboard(text, 'Camera position');
 }
 
 function CameraActions() {
@@ -184,13 +198,20 @@ function CameraActions() {
             title='Save current camera position to use for this scene'
           >
             <PinIcon className='h-3 w-3 mr-1' /> Save Position
-          </DropdownMenuItem>
+          </DropdownMenuItem> 
           <DropdownMenuItem
             disabled={!scene?.camera}
             onClick={() => modifyCurrentScene({ camera: undefined })}
             title='Clear stored camera position'
           >
             <XIcon className='h-3 w-3 mr-1' /> Clear Position
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => copyFovAdjustedCameraToClipboard(cameraSnapshot)}
+            title='Copy current camera position to clipboard'
+          >
+            <CopyIcon className='h-3 w-3 mr-1' /> Copy Position
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -478,8 +499,7 @@ function EncodeCommand() {
   const [command, setCommand] = useState('');
 
   const copy = () => {
-    navigator.clipboard.writeText(encodeURIComponent(command));
-    toast.success('Copied to clipboard', { duration: 1000 });
+    copyToClipboard(encodeURIComponent(command), 'URL encode command');
   };
 
   return (

@@ -12,6 +12,7 @@ import { API_CONFIG } from '@/lib/config';
 import { useAtom } from 'jotai';
 import { Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import { copyToClipboard } from '@/lib/utils';
 
 export function PublishedStoryModal() {
   const [shareModal, setShareModal] = useAtom(PublishedStoryModalAtom);
@@ -23,16 +24,6 @@ export function PublishedStoryModal() {
 
   const handleClose = () => {
     setShareModal((prev) => ({ ...prev, isOpen: false }));
-  };
-
-  const copyToClipboard = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${label} copied to clipboard!`);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-      toast.error(`Failed to copy ${label.toLowerCase()}`);
-    }
   };
 
   if (!shareModal.isOpen || !shareModal.data) {

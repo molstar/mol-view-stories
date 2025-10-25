@@ -4,6 +4,7 @@ import { MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from '@/comp
 import { StoryAssetsAtom } from '@/app/appstate';
 import { useAtomValue } from 'jotai';
 import { CopyIcon, FolderIcon } from 'lucide-react';
+import { copyToClipboard } from '@/lib/utils';
 
 export function AssetsMenu() {
   const storyAssets = useAtomValue(StoryAssetsAtom);
@@ -22,7 +23,7 @@ export function AssetsMenu() {
             <MenubarItem
               key={`${asset.name}-${index}`}
               onClick={() => {
-                navigator.clipboard.writeText(asset.name);
+                copyToClipboard(asset.name, 'Asset name');
               }}
               title='Click to copy asset name'
             >
@@ -34,3 +35,4 @@ export function AssetsMenu() {
     </MenubarMenu>
   );
 }
+
