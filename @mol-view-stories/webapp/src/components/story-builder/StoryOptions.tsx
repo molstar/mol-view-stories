@@ -168,6 +168,8 @@ function FileUploadZone() {
       'application/x-xtc': ['.xtc'],
       // Volumes
       'application/x-map': ['.map'],
+      'application/x-dx': ['.dx'],
+      'application/x-dxbin': ['.dxbin'],
       // Images
       'image/png': ['.png'],
       'image/jpeg': ['.jpg', '.jpeg'],
@@ -201,7 +203,7 @@ function FileUploadZone() {
               <ul className='list-disc list-inside text-left'>
                 <li>
                   Molecular: Structure (mmCIF, CIF, PDB, BCIF, MOL, SDF, XYZ, GRO, MOL2), Coordinates (LAMMPSTRJ, XTC),
-                  Volumes (MAP)
+                  Volumes (MAP, DX, DXBIN)
                 </li>
                 <li>Media: Images (PNG, JPG, GIF, WEBP), Audio (MP3, WAV, OGG)</li>
                 <li>Raw data: JSON</li>

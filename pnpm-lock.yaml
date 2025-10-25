@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       molstar:
-        specifier: ^5.1.0
-        version: 5.1.0(@types/react@19.1.11)(fp-ts@2.16.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^5.1.1
+        version: 5.1.1(@types/react@19.1.11)(fp-ts@2.16.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -2589,8 +2589,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  molstar@5.1.0:
-    resolution: {integrity: sha512-pqh6snJbmGScWutaBZRpk0H7h6bQj9L5+6BzJGze+nnHj2BFA63Gn2JfYBqyX88SjnLdo/3v9r25NYYi8SmgYg==}
+  molstar@5.1.1:
+    resolution: {integrity: sha512-EnHSH9LzFI2HWky9CVfrHXIIY18rUvUc4cmmxLDqmGG6hL46wgwxxbjPX3mMGwrYBbnWj4+17sXFJCv3TUZ/3Q==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
@@ -6080,7 +6080,7 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
-  molstar@5.1.0(@types/react@19.1.11)(fp-ts@2.16.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  molstar@5.1.1(@types/react@19.1.11)(fp-ts@2.16.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       '@types/argparse': 2.0.17
       '@types/benchmark': 2.1.5
