@@ -35,11 +35,11 @@ export class SingleTaskQueue {
 }
 
 export async function copyToClipboard(text: string, label: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${label} copied to clipboard!`, { duration: 1500 });
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-      toast.error(`Failed to copy ${label.toLowerCase()}`);
-    }
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success(`${label} copied to clipboard!`, { duration: 1500 });
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+    toast.error(`Failed to copy ${label.toLowerCase()}`);
+  }
 }

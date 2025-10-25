@@ -198,7 +198,7 @@ function CameraActions() {
             title='Save current camera position to use for this scene'
           >
             <PinIcon className='h-3 w-3 mr-1' /> Save Position
-          </DropdownMenuItem> 
+          </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!scene?.camera}
             onClick={() => modifyCurrentScene({ camera: undefined })}

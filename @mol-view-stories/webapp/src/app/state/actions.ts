@@ -155,7 +155,10 @@ export const exportState = async (story: Story) => {
   download(blob, filename);
 };
 
-export const importState = async (blob: Blob, options?: { throwOnError?: boolean; doNotCleanSessionId?: boolean }) => {
+export const importState = async (
+  blob: Blob,
+  options?: { throwOnError?: boolean; doNotCleanSessionId?: boolean; preview?: boolean }
+) => {
   const store = getDefaultStore();
 
   const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -167,7 +170,10 @@ export const importState = async (blob: Blob, options?: { throwOnError?: boolean
     console.error('Error reading story container:', error);
     return;
   }
-  store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+  store.set(
+    CurrentViewAtom,
+    options?.preview ? { type: 'preview' } : { type: 'story-options', subview: 'story-metadata' }
+  );
   store.set(StoryAtom, story);
   store.set(SessionMetadataAtom, null); // Clear session metadata for imported sessions
   setIsDirty(false);

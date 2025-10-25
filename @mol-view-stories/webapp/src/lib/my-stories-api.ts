@@ -136,7 +136,10 @@ export function loadAllMyStoriesData(isAuthenticated: boolean) {
  * Updates global state with the session's story data and metadata
  * Handles both regular session IDs and story IDs (for story sessions)
  */
-export async function loadSession(sessionId: string, options?: { type?: 'session' | 'story' }) {
+export async function loadSession(
+  sessionId: string,
+  options?: { type?: 'session' | 'story' | null; preview?: boolean }
+) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
@@ -160,6 +163,7 @@ export async function loadSession(sessionId: string, options?: { type?: 'session
         await importState(new Blob([bytes as Uint8Array<ArrayBuffer>]), {
           throwOnError: true,
           doNotCleanSessionId: true,
+          preview: options?.preview,
         });
         return;
       }
@@ -182,7 +186,7 @@ export async function loadSession(sessionId: string, options?: { type?: 'session
 /**
  * Load a story session specifically
  */
-async function loadStorySession(storyId: string) {
+async function loadStorySession(storyId: string, options?: { preview?: boolean }) {
   const storySessionResponse = await fetch(`${API_CONFIG.baseUrl}/api/story/${storyId}/session-data`);
 
   if (!storySessionResponse.ok) {
@@ -197,6 +201,7 @@ async function loadStorySession(storyId: string) {
   await importState(sessionBlob, {
     throwOnError: true,
     doNotCleanSessionId: true,
+    preview: options?.preview,
   });
 }
 
@@ -205,7 +210,7 @@ async function loadStorySession(storyId: string) {
  * Updates global state with the session's story data
  * Used with ?session-url= parameter for cross-origin session loading
  */
-export async function loadSessionFromUrl(url: string, options?: { doNotCleanSessionId?: boolean }) {
+export async function loadSessionFromUrl(url: string, options?: { doNotCleanSessionId?: boolean; preview?: boolean }) {
   const store = getDefaultStore();
   try {
     store.set(IsSessionLoadingAtom, true);
@@ -221,6 +226,7 @@ export async function loadSessionFromUrl(url: string, options?: { doNotCleanSess
     await importState(blob, {
       throwOnError: true,
       doNotCleanSessionId: options?.doNotCleanSessionId,
+      preview: options?.preview,
     });
   } catch (err) {
     console.error('Error loading session from URL:', err);

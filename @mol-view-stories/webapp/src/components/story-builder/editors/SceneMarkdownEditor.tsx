@@ -24,7 +24,7 @@ export function SceneMarkdownEditor() {
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
-    
+
     // Add Alt+S keyboard shortcut for saving markdown
     for (const cmd of [
       monaco.KeyMod.Alt | monaco.KeyCode.KeyS,

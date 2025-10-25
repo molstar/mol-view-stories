@@ -36,11 +36,13 @@ export function clearMonacoEditHistory(editor?: monaco.editor.IStandaloneCodeEdi
     const range = model.getFullModelRange();
     model.pushEditOperations(
       [],
-      [{
-        range: range,
-        text: model.getValue(),
-        forceMoveMarkers: true
-      }],
+      [
+        {
+          range: range,
+          text: model.getValue(),
+          forceMoveMarkers: true,
+        },
+      ],
       () => null
     );
     model.pushStackElement();

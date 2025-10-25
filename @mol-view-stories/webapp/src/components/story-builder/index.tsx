@@ -30,17 +30,18 @@ export default function StoryBuilderPage() {
     const publishedSessionId = searchParams.get('published-session-id');
     const sessionUrl = searchParams.get('session-url');
     const templateName = searchParams.get('template');
+    const preview = searchParams.get('preview') === '1';
     const sessionType = searchParams.get('type') as 'session' | 'story' | null;
 
     const url = sessionUrl ?? resolvePublishedSessionUrl(publishedSessionId);
     if (url) {
-      loadSessionFromUrl(url, { doNotCleanSessionId: true });
+      loadSessionFromUrl(url, { doNotCleanSessionId: true, preview });
       return;
     }
 
     if (sessionId) {
       // Load session with type information to avoid unnecessary API calls
-      loadSession(sessionId, sessionType ? { type: sessionType } : undefined);
+      loadSession(sessionId, { type: sessionType, preview });
       return;
     }
 
@@ -52,11 +53,11 @@ export default function StoryBuilderPage() {
 
     if (typeof story === 'string') {
       const url = `/${process.env.NEXT_PUBLIC_APP_PREFIX ?? ''}examples/${templateName}/story.mvstory`;
-      loadSessionFromUrl(url, { doNotCleanSessionId: true });
+      loadSessionFromUrl(url, { doNotCleanSessionId: true, preview });
       return;
     }
 
-    store.set(CurrentViewAtom, { type: 'story-options', subview: 'story-metadata' });
+    store.set(CurrentViewAtom, preview ? { type: 'preview' } : { type: 'story-options', subview: 'story-metadata' });
     store.set(StoryAtom, story);
     store.set(SessionMetadataAtom, null);
 
