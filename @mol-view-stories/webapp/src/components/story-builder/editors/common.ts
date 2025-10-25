@@ -25,26 +25,15 @@ export function setupMonacoCodeCompletion(monaco: Monaco) {
   });
 }
 
-export function clearMonacoEditHistory(editor?: monaco.editor.IStandaloneCodeEditor | null) {
+export async function clearMonacoEditHistory(editor?: monaco.editor.IStandaloneCodeEditor | null) {
   if (!editor) return;
 
+  await new Promise((resolve) => setTimeout(resolve, 0));
   const model = editor.getModel();
   if (model) {
-    // Push a stack element to separate before/after
-    model.pushStackElement();
-    // Clear the entire edit history
-    const range = model.getFullModelRange();
-    model.pushEditOperations(
-      [],
-      [
-        {
-          range: range,
-          text: model.getValue(),
-          forceMoveMarkers: true,
-        },
-      ],
-      () => null
-    );
+    // Use the internal method to clear undo/redo stacks
+    (model as any)._commandManager?.clear?.();
+    // Alternative approach using pushStackElement to reset
     model.pushStackElement();
   }
 }
