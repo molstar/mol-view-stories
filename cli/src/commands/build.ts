@@ -116,9 +116,25 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
   const storyYamlContent = await Deno.readTextFile(storyYamlPath);
   const storyData = parseYaml(storyYamlContent) as any;
 
-  // Extract metadata - support both flat structure (new) and nested metadata (old)
-  const title = storyData.title || storyData.metadata?.title || basename(folderPath);
-  const author_note = storyData.author_note || storyData.metadata?.author_note;
+  // Extract metadata - NEW FORMAT ONLY (no metadata wrapper)
+  if (storyData.metadata !== undefined) {
+    throw new Error(
+      'ERROR: Old format with "metadata:" wrapper is no longer supported.\n' +
+        'Please update your story.yaml to use the new format:\n' +
+        '  title: "Your Story Title"\n' +
+        '  author_note: "Optional author note"\n' +
+        '  scenes:\n' +
+        '    - folder: scene1\n' +
+        'See https://github.com/zachcp/mvs-cli for migration guide.'
+    );
+  }
+
+  if (!storyData.title) {
+    throw new Error('ERROR: story.yaml is missing required "title:" field. New format requires title at root level.');
+  }
+
+  const title = storyData.title;
+  const author_note = storyData.author_note;
 
   const metadata: StoryMetadata = {
     title: title,

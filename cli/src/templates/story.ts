@@ -1,4 +1,5 @@
 // Templates for story and scene configurations with new structure
+// New format: title and author_note at root level, no metadata wrapper
 
 // ============================================================================
 // INLINE FORMAT TEMPLATES (Single File with Embedded Scenes)

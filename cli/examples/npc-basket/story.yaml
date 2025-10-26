@@ -1,5 +1,6 @@
-metadata:
-  title: NPC Basket
+title: NPC Basket
+author_note: 'Exploring the Nuclear Pore Complex Basket Structure'
+
 scenes:
   - folder: 1-the-story-of-the-npc-basket-a-gatekeeper-with-hidden-complexity
     header: '1. The Story of the NPC Basket: A Gatekeeper with Hidden Complexity'

@@ -1,2 +1,6 @@
-metadata:
-  title: "Simple Molecular Visualization Story"
+title: 'Simple Molecular Visualization Story'
+author_note: 'A basic example to get started with MVS'
+
+scenes:
+  - folder: scene1
+  - folder: scene2
