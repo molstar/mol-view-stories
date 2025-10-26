@@ -13,21 +13,28 @@ async function createTestStoryStructure(baseDir: string): Promise<string> {
   await ensureDir(join(storyDir, 'scenes', 'scene2'));
   await ensureDir(join(storyDir, 'assets'));
 
-  // Create story.yaml
+  // Create story.yaml with new format (no metadata wrapper, scenes key required)
   const storyYaml = `
-metadata:
-  title: Test Story
-  description: A test story for unit testing
-  author: Test Author
+title: Test Story
+author_note: A test story for unit testing
+scenes:
+  - folder: scene1
+  - folder: scene2
 `;
   await Deno.writeTextFile(join(storyDir, 'story.yaml'), storyYaml);
 
-  // Create story.js
-  const storyJs = `
-// Global story JavaScript
-console.log('Story initialized');
+  // Create global_js inline in story.yaml
+  const storyYamlWithJs = `
+title: Test Story
+author_note: A test story for unit testing
+global_js: |
+  // Global story JavaScript
+  console.log('Story initialized');
+scenes:
+  - folder: scene1
+  - folder: scene2
 `;
-  await Deno.writeTextFile(join(storyDir, 'story.js'), storyJs);
+  await Deno.writeTextFile(join(storyDir, 'story.yaml'), storyYamlWithJs);
 
   // Create scene1 files
   const scene1Yaml = `
@@ -125,11 +132,11 @@ Deno.test('parseStoryFolder - Complete Story Structure', async (t) => {
       assertEquals(scene2.linger_duration_ms, 2000);
 
       // Check assets
-      const asset1 = story.assets.find(a => a.name === 'test.pdb');
+      const asset1 = story.assets.find((a) => a.name === 'test.pdb');
       assertExists(asset1);
       assertEquals(Array.from(asset1.content), [1, 2, 3, 4, 5]);
 
-      const asset2 = story.assets.find(a => a.name === 'molecule.cif');
+      const asset2 = story.assets.find((a) => a.name === 'molecule.cif');
       assertExists(asset2);
       assertEquals(Array.from(asset2.content), [6, 7, 8, 9, 10]);
     });
@@ -138,21 +145,17 @@ Deno.test('parseStoryFolder - Complete Story Structure', async (t) => {
       const invalidDir = join(tempDir, 'invalid-story');
       await ensureDir(invalidDir);
 
-      await assertRejects(
-        async () => await parseStoryFolder(invalidDir),
-        Error,
-        'story.yaml not found'
-      );
+      await assertRejects(async () => await parseStoryFolder(invalidDir), Error, 'story.yaml not found');
     });
 
     await t.step('should handle missing optional files gracefully', async () => {
       const minimalDir = join(tempDir, 'minimal-story');
       await ensureDir(minimalDir);
 
-      // Create only story.yaml
+      // Create story.yaml with new format - must have scenes key
       const storyYaml = `
-metadata:
-  title: Minimal Story
+title: Minimal Story
+scenes: []
 `;
       await Deno.writeTextFile(join(minimalDir, 'story.yaml'), storyYaml);
 
@@ -162,7 +165,7 @@ metadata:
       assertEquals(story.metadata.title, 'Minimal Story');
       assertEquals(story.scenes.length, 0);
       assertEquals(story.assets.length, 0);
-      assertEquals(story.javascript, ''); // Should be empty when story.js is missing
+      assertEquals(story.javascript, ''); // Should be empty when global_js is missing
     });
   } finally {
     await Deno.remove(tempDir, { recursive: true });
@@ -272,17 +275,17 @@ Deno.test('parseAssetsFolder - Asset Parsing', async (t) => {
       assertEquals(assets.length, 3);
 
       // Check first asset
-      const asset1 = assets.find(a => a.name === 'molecule1.pdb');
+      const asset1 = assets.find((a) => a.name === 'molecule1.pdb');
       assertExists(asset1);
       assertEquals(Array.from(asset1.content), [1, 2, 3]);
 
       // Check second asset
-      const asset2 = assets.find(a => a.name === 'molecule2.cif');
+      const asset2 = assets.find((a) => a.name === 'molecule2.cif');
       assertExists(asset2);
       assertEquals(Array.from(asset2.content), [4, 5, 6]);
 
       // Check nested asset
-      const asset3 = assets.find(a => a.name === 'nested.pdb');
+      const asset3 = assets.find((a) => a.name === 'nested.pdb');
       assertExists(asset3);
       assertEquals(Array.from(asset3.content), [7, 8, 9]);
     });
@@ -320,10 +323,11 @@ Deno.test('parseStoryFolder - Special Characters and Edge Cases', async (t) => {
       const sceneDir = join(storyDir, 'scenes', 'scene-with-dash');
       await ensureDir(sceneDir);
 
-      // Create story.yaml
+      // Create story.yaml with new format
       const storyYaml = `
-metadata:
-  title: Special Story
+title: Special Story
+scenes:
+  - folder: scene-with-dash
 `;
       await Deno.writeTextFile(join(storyDir, 'story.yaml'), storyYaml);
 
@@ -349,10 +353,11 @@ key: scene-with-dash-key
       const sceneDir = join(storyDir, 'scenes', '01-intro');
       await ensureDir(sceneDir);
 
-      // Create story.yaml
+      // Create story.yaml with new format
       const storyYaml = `
-metadata:
-  title: Numbered Story
+title: Numbered Story
+scenes:
+  - folder: 01-intro
 `;
       await Deno.writeTextFile(join(storyDir, 'story.yaml'), storyYaml);
 

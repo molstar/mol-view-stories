@@ -1,5 +1,6 @@
-metadata:
-  title: MVS Features Overview
+title: MVS Features Overview
+author_note: Comprehensive walkthrough of core MVS features and capabilities
+
 scenes:
   - folder: molviewspec-features-overview
     header: MolViewSpec Features Overview

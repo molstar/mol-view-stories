@@ -1,5 +1,11 @@
-metadata:
-  title: Terms of Entrapment
+title: Terms of Entrapment
+author_note: 'Exploring the structure and function of Superoxide Dismutase'
+
+settings:
+  autoPlay: false
+  loopStory: false
+  showControls: true
+  backgroundColor: '#000000'
 scenes:
   - folder: start
     header: Start

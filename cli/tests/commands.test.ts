@@ -19,31 +19,21 @@ Deno.test('Create Command', async (t) => {
 
       const storyPath = join(tempDir, storyName);
 
-      // Verify directory structure
+      // Verify directory structure (inline format by default)
       assertEquals(await exists(storyPath), true);
       assertEquals(await exists(join(storyPath, 'story.yaml')), true);
-      assertEquals(await exists(join(storyPath, 'story.js')), true);
       assertEquals(await exists(join(storyPath, 'README.md')), true);
       assertEquals(await exists(join(storyPath, 'assets')), true);
-      assertEquals(await exists(join(storyPath, 'scenes')), true);
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene1')), true);
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene2')), true);
 
-      // Verify scene1 files
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene1', 'scene1.yaml')), true);
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene1', 'scene1.md')), true);
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene1', 'scene1.js')), true);
+      // Inline format should NOT have scenes folder or story.js
+      assertEquals(await exists(join(storyPath, 'scenes')), false);
+      assertEquals(await exists(join(storyPath, 'story.js')), false);
 
-      // Verify scene2 files
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene2', 'scene2.yaml')), true);
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene2', 'scene2.md')), true);
-      assertEquals(await exists(join(storyPath, 'scenes', 'scene2', 'scene2.js')), true);
-
-      // Verify content of story.yaml
+      // Verify content of story.yaml (new format - no metadata wrapper)
       const storyYaml = await Deno.readTextFile(join(storyPath, 'story.yaml'));
-      assertEquals(storyYaml.includes(storyName), true);
-      assertEquals(storyYaml.includes('metadata:'), true);
       assertEquals(storyYaml.includes('title:'), true);
+      assertEquals(storyYaml.includes('scenes:'), true);
+      assertEquals(storyYaml.includes('metadata:'), false);
     });
 
     await t.step('should handle story name with special characters', async () => {
@@ -63,17 +53,13 @@ Deno.test('Create Command', async (t) => {
       Deno.chdir(tempDir);
 
       const storyName = 'unique-ids-story';
-      await createStory(storyName);
+      await createStory(storyName, { scenesAsFolders: true });
 
       const storyPath = join(tempDir, storyName);
 
       // Read scene YAML files and verify they have different content
-      const scene1Yaml = await Deno.readTextFile(
-        join(storyPath, 'scenes', 'scene1', 'scene1.yaml')
-      );
-      const scene2Yaml = await Deno.readTextFile(
-        join(storyPath, 'scenes', 'scene2', 'scene2.yaml')
-      );
+      const scene1Yaml = await Deno.readTextFile(join(storyPath, 'scenes', 'scene1', 'scene1.yaml'));
+      const scene2Yaml = await Deno.readTextFile(join(storyPath, 'scenes', 'scene2', 'scene2.yaml'));
 
       // Scenes should have different headers
       assertEquals(scene1Yaml.includes('Initial View'), true);
@@ -119,7 +105,7 @@ Deno.test('Watch Command', async (t) => {
             controller.signal.addEventListener('abort', () => {
               resolve({ cleanup: () => {} });
             });
-          })
+          }),
         ]);
 
         assertExists(result);
@@ -155,7 +141,7 @@ Deno.test('Watch Command', async (t) => {
             controller.signal.addEventListener('abort', () => {
               resolve({ cleanup: () => {} });
             });
-          })
+          }),
         ]);
 
         assertExists(result);
@@ -195,7 +181,7 @@ Deno.test('Serve Template Command', async (t) => {
           controller.signal.addEventListener('abort', () => {
             resolve({ cleanup: () => {} });
           });
-        })
+        }),
       ]);
 
       assertExists(result);
@@ -223,7 +209,7 @@ Deno.test('Serve Template Command', async (t) => {
           controller.signal.addEventListener('abort', () => {
             resolve({ cleanup: () => {} });
           });
-        })
+        }),
       ]);
 
       assertExists(result);

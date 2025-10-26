@@ -59,7 +59,6 @@ Deno.test('Integration - Full Story Pipeline', async (t) => {
         assertExists(htmlExport);
         assertEquals(htmlExport.includes('<!DOCTYPE html>'), true);
         assertEquals(htmlExport.includes(storyName), true);
-
       } finally {
         // Restore original working directory
         Deno.chdir(originalCwd);
@@ -73,10 +72,11 @@ Deno.test('Integration - Full Story Pipeline', async (t) => {
       // Create a minimal story structure
       await ensureDir(join(storyPath, 'scenes', 'scene1'));
 
-      // Create story.yaml
+      // Create story.yaml with new format (no metadata wrapper)
       const storyYaml = `
-metadata:
-  title: Build Test Story
+title: Build Test Story
+scenes:
+  - folder: scene1
 `;
       await Deno.writeTextFile(join(storyPath, 'story.yaml'), storyYaml);
 
@@ -85,10 +85,7 @@ metadata:
 header: Test Scene
 key: test
 `;
-      await Deno.writeTextFile(
-        join(storyPath, 'scenes', 'scene1', 'scene1.yaml'),
-        sceneYaml
-      );
+      await Deno.writeTextFile(join(storyPath, 'scenes', 'scene1', 'scene1.yaml'), sceneYaml);
 
       // Test building to JSON file
       const jsonOutput = join(tempDir, 'output.json');
@@ -211,10 +208,9 @@ Deno.test('Integration - Error Handling', async (t) => {
 
       // Create an invalid story.yaml with bad YAML syntax
       const invalidYaml = `
-metadata:
-  title: Invalid Story
-  bad_indent
-    this_will_fail: true
+title: Invalid Story
+bad_indent
+  this_will_fail: true
 `;
       await Deno.writeTextFile(join(invalidStoryPath, 'story.yaml'), invalidYaml);
 
@@ -258,17 +254,14 @@ metadata:
       const sceneDir = join(storyPath, 'scenes', 'incomplete-scene');
       await ensureDir(sceneDir);
 
-      // Create story.yaml
+      // Create story.yaml with new format - must include scenes key
       await Deno.writeTextFile(
         join(storyPath, 'story.yaml'),
-        'metadata:\n  title: Incomplete Story\n'
+        'title: Incomplete Story\nscenes:\n  - folder: incomplete-scene\n'
       );
 
       // Create scene with only YAML (missing .md and .js files)
-      await Deno.writeTextFile(
-        join(sceneDir, 'incomplete-scene.yaml'),
-        'header: Incomplete Scene\n'
-      );
+      await Deno.writeTextFile(join(sceneDir, 'incomplete-scene.yaml'), 'header: Incomplete Scene\n');
 
       // Should parse successfully with empty values for missing files
       const story = await parseStoryFolder(storyPath);

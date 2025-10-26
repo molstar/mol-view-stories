@@ -116,9 +116,25 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
   const storyYamlContent = await Deno.readTextFile(storyYamlPath);
   const storyData = parseYaml(storyYamlContent) as any;
 
-  // Extract metadata - support both flat structure (new) and nested metadata (old)
-  const title = storyData.title || storyData.metadata?.title || basename(folderPath);
-  const author_note = storyData.author_note || storyData.metadata?.author_note;
+  // Extract metadata - NEW FORMAT ONLY (no metadata wrapper)
+  if (storyData.metadata !== undefined) {
+    throw new Error(
+      'ERROR: Old format with "metadata:" wrapper is no longer supported.\n' +
+        'Please update your story.yaml to use the new format:\n' +
+        '  title: "Your Story Title"\n' +
+        '  author_note: "Optional author note"\n' +
+        '  scenes:\n' +
+        '    - folder: scene1\n' +
+        'See https://github.com/zachcp/mvs-cli for migration guide.'
+    );
+  }
+
+  if (!storyData.title) {
+    throw new Error('ERROR: story.yaml is missing required "title:" field. New format requires title at root level.');
+  }
+
+  const title = storyData.title;
+  const author_note = storyData.author_note;
 
   const metadata: StoryMetadata = {
     title: title,
@@ -160,51 +176,6 @@ export async function parseStoryFolder(folderPath: string): Promise<Story> {
       }
     }
   } else {
-    // Fallback to folder-based scene loading
-    const scenesDir = join(folderPath, 'scenes');
-
-    if (await exists(scenesDir)) {
-      // Check for explicit scene_order
-      if (storyData.scene_order && Array.isArray(storyData.scene_order)) {
-        console.error('✓ Using explicit scene_order from story.yaml');
-
-        for (let i = 0; i < storyData.scene_order.length; i++) {
-          const sceneName = storyData.scene_order[i];
-          const sceneDir = join(scenesDir, sceneName);
-
-          if (!(await exists(sceneDir))) {
-            throw new Error(`Scene '${sceneName}' listed in scene_order does not exist in scenes/`);
-          }
-
-          const scene = await parseSceneFolder(sceneDir, folderPath, i);
-          scenes.push(scene);
-          console.error(`✓ Loaded scene: ${scene.header}`);
-        }
-      } else {
-        // Default: alphabetical sorting
-        console.error('✓ Using alphabetical scene ordering');
-        const sceneNames: string[] = [];
-
-        // Get all scene directories
-        for await (const entry of Deno.readDir(scenesDir)) {
-          if (entry.isDirectory) {
-            sceneNames.push(entry.name);
-          }
-        }
-
-        // Sort scene names to ensure consistent ordering
-        sceneNames.sort();
-
-        let sceneIndex = 0;
-        for (const sceneName of sceneNames) {
-          const sceneDir = join(scenesDir, sceneName);
-          const scene = await parseSceneFolder(sceneDir, folderPath, sceneIndex);
-          scenes.push(scene);
-          console.error(`✓ Loaded scene: ${scene.header}`);
-          sceneIndex++;
-        }
-      }
-    }
   }
 
   if (scenes.length === 0) {
