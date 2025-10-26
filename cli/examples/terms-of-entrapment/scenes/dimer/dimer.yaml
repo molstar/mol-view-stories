@@ -1,0 +1,19 @@
+header: Dimer
+key: dimer
+camera:
+  mode: perspective
+  target:
+    - 0.07792640928261918
+    - -0.588256630593695
+    - 0
+  position:
+    - 0.07792640928261918
+    - -0.588256630593695
+    - 112.36441497936838
+  up:
+    - 0
+    - 1
+    - 0
+  fov: 0.7853981633974483
+linger_duration_ms: 5000
+transition_duration_ms: 1000
