@@ -3,7 +3,8 @@ import { join } from '@std/path';
 import {
   getDefaultInlineTemplateVars,
   getDefaultTemplateVars,
-  README_TEMPLATE,
+  README_FOLDER_TEMPLATE,
+  README_INLINE_TEMPLATE,
   replaceTemplateVars,
   SCENE_JS_TEMPLATE,
   SCENE_MD_TEMPLATE,
@@ -72,8 +73,8 @@ async function createInlineStory(storyName: string): Promise<void> {
     await Deno.writeTextFile(join(storyName, 'story.yaml'), storyYaml);
     console.log(`✓ Created file: ${storyName}/story.yaml`);
 
-    // Create README.md
-    const readme = replaceTemplateVars(README_TEMPLATE, templateVars);
+    // Create README.md for inline format
+    const readme = replaceTemplateVars(README_INLINE_TEMPLATE, templateVars);
     await Deno.writeTextFile(join(storyName, 'README.md'), readme);
     console.log(`✓ Created file: ${storyName}/README.md`);
 
@@ -129,8 +130,8 @@ async function createSplitStory(storyName: string): Promise<void> {
     await Deno.writeTextFile(join(storyName, 'story.js'), storyJs);
     console.log(`✓ Created file: ${storyName}/story.js`);
 
-    // Create README.md
-    const readme = replaceTemplateVars(README_TEMPLATE, templateVars);
+    // Create README.md for folder format
+    const readme = replaceTemplateVars(README_FOLDER_TEMPLATE, templateVars);
     await Deno.writeTextFile(join(storyName, 'README.md'), readme);
     console.log(`✓ Created file: ${storyName}/README.md`);
 

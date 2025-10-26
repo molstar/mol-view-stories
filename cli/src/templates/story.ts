@@ -319,7 +319,7 @@ function onSceneChange(sceneKey) {
 // Your custom global JavaScript goes here
 `;
 
-export const README_TEMPLATE = `# {{STORY_NAME}}
+export const README_INLINE_TEMPLATE = `# {{STORY_NAME}}
 
 {{STORY_DESCRIPTION}}
 
@@ -332,6 +332,8 @@ mvs build .                          # Build to JSON
 mvs watch .                          # Preview locally
 \`\`\`
 
+All scene data is defined inline in \`story.yaml\`.
+
 ## Scenes
 
 - **{{SCENE1_NAME}}**: {{SCENE1_DESCRIPTION}}
@@ -342,6 +344,34 @@ mvs watch .                          # Preview locally
 - [MVS CLI Documentation](https://github.com/zachcp/mvs-cli)
 - [MolViewPack](https://molviewpack.org)
 `;
+
+export const README_FOLDER_TEMPLATE = `# {{STORY_NAME}}
+
+{{STORY_DESCRIPTION}}
+
+## Quick Start
+
+Edit scenes in their folders, then build and preview:
+
+\`\`\`bash
+mvs build .                          # Build to JSON
+mvs watch .                          # Preview locally
+\`\`\`
+
+Scene data is spread across separate files in the \`scenes/\` folder.
+
+## Scenes
+
+- **{{SCENE1_NAME}}**: {{SCENE1_DESCRIPTION}}
+- **{{SCENE2_NAME}}**: {{SCENE2_DESCRIPTION}}
+
+## Resources
+
+- [MVS CLI Documentation](https://github.com/zachcp/mvs-cli)
+- [MolViewPack](https://molviewpack.org)
+`;
+
+export const README_TEMPLATE = README_INLINE_TEMPLATE;
 
 // Template replacement function
 export function replaceTemplateVars(template: string, vars: Record<string, string>): string {
