@@ -15,7 +15,7 @@ USAGE:
   mvs <command> [options] [args]
 
 COMMANDS:
-  create <story-name>              Create a new story (inline by default, or --split for folders)
+  create <story-name>              Create a new story (inline by default, or --scenes-as-folders for folders)
   build <folder-path> [options]    Build StoryContainer from folder structure
   watch <folder-path> [options]    Watch folder and serve story with live reload
   watch template [options]         Create temporary template and serve it with live reload
@@ -26,7 +26,7 @@ OPTIONS:
   -o, --output <file>              Output file (build command only, defaults to stdout)
   -f, --format <format>            Output format: json, mvsx, mvstory, html (build command only)
   -p, --port <number>              Port for watch server (defaults to 8080)
-  --split                          Create folder structure with separate scene files (create command only)
+  --scenes-as-folders              Create folder structure with separate scene files (create command only)
 
 ENVIRONMENT VARIABLES:
   MVS_DIRECT_SERVE=true            Use direct serving mode (redirect to mol-view-stories)
@@ -37,8 +37,8 @@ SERVING MODES:
 
 EXAMPLES:
   mvs create my-protein-story      Creates inline story "my-protein-story" (single story.yaml)
-  mvs create my-protein-story --add-folders   Creates folder-based story with separate scene files
-  mvs build ./my-story             Output StoryContainer JSON to stdout</parameter>
+  mvs create my-protein-story --scenes-as-folders   Creates folder-based story with separate scene files
+  mvs build ./my-story             Output StoryContainer JSON to stdout
   mvs build ./my-story -o story.json   Save StoryContainer to story.json
   mvs build ./my-story -f json     Force JSON format output
   mvs build ./my-story -f mvsx -o story.mvsx   Save as MVSX format
@@ -60,12 +60,12 @@ function showVersion() {
 
 async function main() {
   const args = parseArgs(Deno.args, {
-    boolean: ['help', 'version', 'add-folders'],
+    boolean: ['help', 'version', 'scenes-as-folders'],
     string: ['output', 'port', 'format'],
     alias: {
       h: 'help',
       v: 'version',
-      a: 'add-folders',
+      s: 'scenes-as-folders',
       o: 'output',
       f: 'format',
       p: 'port',
@@ -92,12 +92,12 @@ async function main() {
       case 'create': {
         if (commandArgs.length !== 1) {
           console.error("Error: 'create' command requires exactly one argument: <story-name>");
-          console.error('Usage: mvs create <story-name> [--split]');
+          console.error('Usage: mvs create <story-name> [--scenes-as-folders]');
           Deno.exit(1);
         }
         const storyName = commandArgs[0] as string;
-        const split = args['add-folders'] as boolean | undefined;
-        await createStory(storyName, { split });
+        const scenesAsFolders = args['scenes-as-folders'] as boolean | undefined;
+        await createStory(storyName, { scenesAsFolders });
         break;
       }
 

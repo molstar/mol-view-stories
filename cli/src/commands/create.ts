@@ -14,8 +14,8 @@ import {
   STORY_TEMPLATE,
 } from '../templates/story.ts';
 
-export async function createStory(storyName: string, options: { split?: boolean } = {}): Promise<void> {
-  const isSplit = options.split ?? false;
+export async function createStory(storyName: string, options: { scenesAsFolders?: boolean } = {}): Promise<void> {
+  const isSplit = options.scenesAsFolders ?? false;
   const formatType = isSplit ? 'folder structure' : 'single inline file';
   console.log(`Creating story as ${formatType} for: ${storyName}`);
 

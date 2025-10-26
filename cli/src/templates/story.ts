@@ -5,15 +5,7 @@
 // ============================================================================
 
 export const STORY_INLINE_TEMPLATE = `title: '{{STORY_NAME}}'
-
-metadata:
-  description: "{{STORY_DESCRIPTION}}"
-  author: "{{AUTHOR}}"
-  version: "1.0.0"
-  created: "{{CREATED_DATE}}"
-  tags:
-    - "molecular-visualization"
-    - "protein"
+author_note: '{{STORY_DESCRIPTION}}'
 
 # Global story settings
 settings:
@@ -114,16 +106,8 @@ scenes:
 // FOLDER FORMAT TEMPLATES (Multiple Files with Separate Scenes)
 // ============================================================================
 
-// Folder format - story.yaml with metadata and scenes reference
-export const STORY_TEMPLATE = `metadata:
-  title: "{{STORY_NAME}}"
-  description: "{{STORY_DESCRIPTION}}"
-  author: "{{AUTHOR}}"
-  version: "1.0.0"
-  created: "{{CREATED_DATE}}"
-  tags:
-    - "molecular-visualization"
-    - "protein"
+export const STORY_TEMPLATE = `title: "{{STORY_NAME}}"
+author_note: "{{STORY_DESCRIPTION}}"
 
 # Global story settings
 settings:
@@ -132,10 +116,10 @@ settings:
   showControls: true
   backgroundColor: "#000000"
 
-# Scene order - lists scenes to be loaded
+# Scene definitions - reference folders to load from scenes/ directory
 scenes:
-  - scene1
-  - scene2
+  - folder: scene1
+  - folder: scene2
 
 # Story-level assets that can be referenced by scenes
 assets:
@@ -351,14 +335,14 @@ export const README_FOLDER_TEMPLATE = `# {{STORY_NAME}}
 
 ## Quick Start
 
-Edit scenes in their folders, then build and preview:
+Edit scene configurations in \`scenes/\` folders, then build and preview:
 
 \`\`\`bash
 mvs build .                          # Build to JSON
 mvs watch .                          # Preview locally
 \`\`\`
 
-Scene data is spread across separate files in the \`scenes/\` folder.
+The \`story.yaml\` references scenes in the \`scenes/\` folder using \`folder:\` keys.
 
 ## Scenes
 
