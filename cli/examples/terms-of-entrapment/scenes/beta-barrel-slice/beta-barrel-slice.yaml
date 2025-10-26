@@ -1,0 +1,5 @@
+header: Beta Barrel Slice
+key: barrelslice
+camera: null
+linger_duration_ms: 5000
+transition_duration_ms: 1000

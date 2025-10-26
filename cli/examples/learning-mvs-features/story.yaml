@@ -1,0 +1,147 @@
+metadata:
+  title: MVS Features Overview
+scenes:
+  - folder: molviewspec-features-overview
+    header: MolViewSpec Features Overview
+    key: start
+  - folder: basic-workflow
+    header: Basic workflow
+    key: intro
+  - folder: download
+    header: Download
+    key: download
+  - folder: parse
+    header: Parse
+    key: parse
+  - folder: structure-model
+    header: Structure (model)
+    key: structure_model
+  - folder: structure-assembly
+    header: Structure (assembly)
+    key: structure_assembly
+  - folder: structure-symmetry
+    header: Structure (symmetry)
+    key: structure_symmetry
+  - folder: structure-symmetry-mates
+    header: Structure (symmetry mates)
+    key: structure_mates
+  - folder: structure-multiple-models
+    header: Structure (multiple models)
+    key: structure_multimodel1
+  - folder: structure-multiple-models-10
+    header: Structure (multiple models)
+    key: structure_multimodel2
+  - folder: structure-multiple-models-11
+    header: Structure (multiple models)
+    key: structure_multimodel3
+  - folder: component-all
+    header: Component (all)
+    key: component_all
+  - folder: component-protein
+    header: Component (protein)
+    key: component_protein
+  - folder: component-nucleic
+    header: Component (nucleic)
+    key: component_nucleic
+  - folder: component-expression-1
+    header: Component (expression 1)
+    key: component_expr_chain
+  - folder: component-expression-2
+    header: Component (expression 2)
+    key: component_expr_chain_range
+  - folder: component-union-expression
+    header: Component (union expression)
+    key: component_union_expr
+  - folder: representation-cartoon
+    header: Representation (cartoon)
+    key: representation_cartoon
+  - folder: representation-backbone
+    header: Representation (backbone)
+    key: representation_backbone
+  - folder: representation-ballandstick
+    header: Representation (ball_and_stick)
+    key: representation_ball_and_stick
+  - folder: representation-line
+    header: Representation (line)
+    key: representation_line
+  - folder: representation-spacefill
+    header: Representation (spacefill)
+    key: representation_spacefill
+  - folder: representation-carbohydrate
+    header: Representation (carbohydrate)
+    key: representation_carbohydrate
+  - folder: representation-surface
+    header: Representation (surface)
+    key: representation_surface
+  - folder: multiple-representations
+    header: Multiple representations
+    key: representation_multi
+  - folder: color
+    header: Color
+    key: color
+  - folder: color-27
+    header: Color
+    key: color_selector
+  - folder: color-28
+    header: Color
+    key: color_multi
+  - folder: opacity
+    header: Opacity
+    key: opacity
+  - folder: labels
+    header: Labels
+    key: labels
+  - folder: tooltips
+    header: Tooltips
+    key: tooltips
+  - folder: annotations
+    header: Annotations
+    key: annotations
+  - folder: annotations-from-source
+    header: Annotations from source
+    key: annotations_from_source
+  - folder: generic-color-themes
+    header: Generic color themes
+    key: color_themes_categorical
+  - folder: generic-color-themes-35
+    header: Generic color themes
+    key: color_themes_discrete
+  - folder: generic-color-themes-36
+    header: Generic color themes
+    key: color_themes_continuous
+  - folder: transforms
+    header: Transforms
+    key: transforms
+  - folder: volumes
+    header: Volumes
+    key: volumes
+  - folder: primitives
+    header: Primitives
+    key: primitives
+  - folder: camera
+    header: Camera
+    key: camera
+  - folder: focus
+    header: Focus
+    key: focus
+  - folder: canvas
+    header: Canvas
+    key: canvas
+  - folder: stories
+    header: Stories
+    key: snapshot_A
+  - folder: markdown-links
+    header: Markdown links
+    key: snapshot_B
+  - folder: markdown-commands
+    header: Markdown commands
+    key: markdown_commands
+  - folder: animations
+    header: Animations
+    key: animations
+  - folder: custom-data-and-extensions
+    header: Custom data and extensions
+    key: custom_data
+  - folder: the-end
+    header: The end
+    key: ''

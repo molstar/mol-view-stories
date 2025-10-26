@@ -4,7 +4,7 @@ import { StoryManager } from '@mol-view-stories/lib/StoryManager';
 
 // Test loading and working with .mvstory files
 Deno.test('MVStory Files - Loading and Conversion', async (t) => {
-  const examplesDir = join(Deno.cwd(), 'examples', 'mvstory');
+  const examplesDir = join(Deno.cwd(), 'examples', 'test-mvstory');
 
   await t.step('should load exosome.mvstory file', async () => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
@@ -173,7 +173,7 @@ Deno.test('MVStory Files - Error Handling', async (t) => {
 
 // Test working with story content from mvstory files
 Deno.test('MVStory Files - Content Manipulation', async (t) => {
-  const examplesDir = join(Deno.cwd(), 'examples', 'mvstory');
+  const examplesDir = join(Deno.cwd(), 'examples', 'test-mvstory');
 
   await t.step('should allow modifying loaded mvstory content', async () => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
@@ -227,10 +227,7 @@ Deno.test('MVStory Files - Content Manipulation', async (t) => {
       assertExists(scene.header);
 
       // Scenes should have either key or description or both
-      assertEquals(
-        scene.key !== undefined || scene.description !== undefined,
-        true
-      );
+      assertEquals(scene.key !== undefined || scene.description !== undefined, true);
 
       // If scene has camera, verify its structure
       if (scene.camera) {
@@ -267,7 +264,7 @@ Deno.test('MVStory Files - Content Manipulation', async (t) => {
       manager.addAsset(newAsset);
 
       const updatedStory = manager.getStory();
-      const addedAsset = updatedStory.assets.find(a => a.name === 'test-asset.pdb');
+      const addedAsset = updatedStory.assets.find((a) => a.name === 'test-asset.pdb');
       assertExists(addedAsset);
       assertEquals(Array.from(addedAsset.content), [1, 2, 3, 4, 5]);
     }

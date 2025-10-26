@@ -1,0 +1,19 @@
+header: Electrostatic Surface
+key: electrosurf
+camera:
+  mode: perspective
+  target:
+    - 14.295273093758407
+    - 0.8935832201338045
+    - 1.082078176252373
+  position:
+    - 14.295273093758407
+    - 102.4425292292296
+    - 1.082078176252373
+  up:
+    - 0
+    - 0
+    - -1
+  fov: 0.7853981633974483
+linger_duration_ms: 5000
+transition_duration_ms: 5000

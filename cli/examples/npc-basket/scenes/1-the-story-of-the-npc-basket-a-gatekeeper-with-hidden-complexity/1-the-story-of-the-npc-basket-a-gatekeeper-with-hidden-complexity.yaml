@@ -1,0 +1,23 @@
+header: '1. The Story of the NPC Basket: A Gatekeeper with Hidden Complexity'
+key: intro
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - 47.9907792411924
+    - -9.031622356710109
+    - 2343.6283653109576
+  up:
+    - 0.11278700643140965
+    - 0.9933516451642372
+    - 0.023056457441336782
+  target:
+    - 25.912338921362313
+    - 47.67393945973219
+    - 8.560106583016166
+  radius: 1694.359683025749
+  radiusMax: 8362.002563476562
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0

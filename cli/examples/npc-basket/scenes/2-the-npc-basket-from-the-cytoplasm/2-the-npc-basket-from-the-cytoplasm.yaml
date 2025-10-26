@@ -1,0 +1,24 @@
+header: 2. The NPC Basket from the Cytoplasm
+key: cytoplasmic
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - -39.639369572152575
+    - 109.93678337138593
+    - 2931.938721478469
+  up:
+    - 0
+    - 1
+    - 0
+  target:
+    - -39.639369572152575
+    - 109.93678337138593
+    - -5.26813668841755
+  radius: 2503.473746715592
+  radiusMax: 2503.473746715592
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0
+  scale: 1

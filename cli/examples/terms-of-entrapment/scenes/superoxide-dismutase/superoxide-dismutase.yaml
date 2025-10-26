@@ -1,0 +1,19 @@
+header: Superoxide dismutase
+key: sod
+camera:
+  mode: perspective
+  target:
+    - -1.1578752235828804
+    - -3.9143592194146617
+    - -0.0026122501918247765
+  position:
+    - -1.1578752235828804
+    - -3.9143592194146617
+    - 99.31492699419019
+  up:
+    - 0
+    - 1
+    - 0
+  fov: 0.7853981633974483
+linger_duration_ms: 5000
+transition_duration_ms: 1000
