@@ -1,0 +1,27 @@
+metadata:
+  title: NPC Basket
+scenes:
+  - folder: 1-the-story-of-the-npc-basket-a-gatekeeper-with-hidden-complexity
+    header: '1. The Story of the NPC Basket: A Gatekeeper with Hidden Complexity'
+    key: intro
+  - folder: 2-the-npc-basket-from-the-cytoplasm
+    header: 2. The NPC Basket from the Cytoplasm
+    key: cytoplasmic
+  - folder: 3-side-view-anchoring-and-architecture
+    header: '3. Side View: Anchoring and Architecture'
+    key: ''
+  - folder: 4-npc-as-a-suspension-bridge
+    header: 4. NPC as a Suspension Bridge
+    key: ''
+  - folder: 5-integration-of-scaffold-and-basket
+    header: 5. Integration of Scaffold and Basket​
+    key: ''
+  - folder: 6-structural-summary
+    header: 6. Structural Summary
+    key: ''
+  - folder: 7-basket-flexibility-and-composition
+    header: 7. Basket Flexibility and Composition
+    key: ''
+  - folder: 8-conclusion
+    header: 8. Conclusion
+    key: ''

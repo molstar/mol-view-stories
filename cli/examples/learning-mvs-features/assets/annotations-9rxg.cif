@@ -1,0 +1,10 @@
+data_annotations_9rxg
+
+loop_
+_annotations.label_asym_id
+_annotations.color
+_annotations.label
+A  '#ffa500' 'Orange chain'
+B  '#005aff' 'Blue chain'
+C  '#00ffa5' 'Green chain'
+D  '#ff005a' 'Red chain'

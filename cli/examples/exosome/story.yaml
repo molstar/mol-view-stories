@@ -1,3 +1,19 @@
 metadata:
   title: Exosome CPK
   author_note: Based on the exosome tour made for the mesoscale explorer app.
+scenes:
+  - folder: intro
+    header: Intro
+    key: AA
+  - folder: explore
+    header: Explore
+    key: AB
+  - folder: idealizedmodel
+    header: IdealizedModel
+    key: A
+  - folder: surfaceproteins
+    header: SurfaceProteins
+    key: B
+  - folder: interiorproteins
+    header: InteriorProteins
+    key: C

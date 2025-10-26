@@ -1,20 +1,45 @@
 metadata:
   title: Terms of Entrapment
-
-# Define the order of folder-based scenes
-# Without this, scenes would be alphabetically sorted: scene1, scene10, scene11, ..., scene2, scene3, etc.
-scene_order:
-  - scene1
-  - scene2
-  - scene3
-  - scene4
-  - scene5
-  - scene6
-  - scene7
-  - scene8
-  - scene9
-  - scene10
-  - scene11
-  - scene12
-  - scene13
-  - scene14
+scenes:
+  - folder: start
+    header: Start
+    key: start
+  - folder: terms-of-entrapment
+    header: Terms of Entrapment
+    key: title
+  - folder: superoxide-dismutase
+    header: Superoxide dismutase
+    key: sod
+  - folder: metal-ions
+    header: Metal Ions
+    key: ions
+  - folder: symmetry-axis
+    header: Symmetry Axis
+    key: symmetry
+  - folder: sequences
+    header: Sequences
+    key: sequence
+  - folder: beta-barrel
+    header: Beta Barrel
+    key: barrel
+  - folder: beta-barrel-slice
+    header: Beta Barrel Slice
+    key: barrelslice
+  - folder: dimer
+    header: Dimer
+    key: dimer
+  - folder: buried-surface
+    header: Buried Surface
+    key: buried
+  - folder: open-buried-surface
+    header: Open Buried Surface
+    key: openburied
+  - folder: active-site
+    header: Active Site
+    key: asite
+  - folder: electrostatic-surface
+    header: Electrostatic Surface
+    key: electrosurf
+  - folder: electrostatic
+    header: Electrostatic
+    key: scene14

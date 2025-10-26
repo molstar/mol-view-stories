@@ -1,0 +1,19 @@
+header: Open Buried Surface
+key: openburied
+camera:
+  mode: perspective
+  target:
+    - -3.955254232421656
+    - 0
+    - -1.1536158177896587
+  position:
+    - -3.955254232421656
+    - 83.55224859227688
+    - -1.1536158177896587
+  up:
+    - 0
+    - 0
+    - -1
+  fov: 0.7853981633974483
+linger_duration_ms: 5000
+transition_duration_ms: 5000

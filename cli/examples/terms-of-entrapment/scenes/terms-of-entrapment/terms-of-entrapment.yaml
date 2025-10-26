@@ -1,0 +1,19 @@
+header: Terms of Entrapment
+key: title
+camera:
+  mode: perspective
+  target:
+    - -0.06039592402223906
+    - 0.44064382430343274
+    - 0
+  position:
+    - -0.06039592402223906
+    - 0.44064382430343274
+    - 16.573402084010816
+  up:
+    - 0
+    - 1
+    - 0
+  fov: 0.7853981633974483
+linger_duration_ms: 46000
+transition_duration_ms: 1000
