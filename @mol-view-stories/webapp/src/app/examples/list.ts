@@ -3,7 +3,7 @@ export const ExampleStoryList = [
   { path: 'kinase', name: 'ABL Kinase' },
   { path: 'exosome', name: 'Exosome' },
   { path: 'terms-of-entrapment', name: 'Terms of Entrapment' },
-  { path: 'motm-01', name: 'Hemoglobin' },
+  { path: 'motm-01', name: 'Myoglobin' },
   { path: 'tbp', name: 'TATA Binding Protein' },
   { path: 'npc-basket', name: 'NPC Basket' },
   { path: 'alphafind', name: 'AlphaFind' },
