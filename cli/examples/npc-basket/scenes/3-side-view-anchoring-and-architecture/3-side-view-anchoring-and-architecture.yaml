@@ -1,0 +1,23 @@
+header: '3. Side View: Anchoring and Architecture'
+key: ''
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - -33.731019383056335
+    - 3295.552548300231
+    - -532.8122119109903
+  up:
+    - 0
+    - 0.12647198736083773
+    - 0.9919701791954232
+  target:
+    - -33.731019383056335
+    - -594.958504980173
+    - -36.78856616312288
+  radius: 2477.342533129858
+  radiusMax: 2477.342533129858
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0

@@ -1,0 +1,24 @@
+header: 7. Basket Flexibility and Composition
+key: ''
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - -39.93933283904745
+    - -412.6819256482321
+    - -315.2645866632987
+  up:
+    - -0.0247047357981841
+    - 0.13874113975776076
+    - 0.9900204907818131
+  target:
+    - -1.4629016102630963
+    - 315.0882822574872
+    - -416.29392796474207
+  radius: 1939.8969044771425
+  radiusMax: 1939.8969044771425
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0
+  scale: 1

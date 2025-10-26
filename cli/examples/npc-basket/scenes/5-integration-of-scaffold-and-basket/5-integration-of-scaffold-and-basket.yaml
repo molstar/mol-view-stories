@@ -1,0 +1,24 @@
+header: 5. Integration of Scaffold and Basket​
+key: ''
+camera:
+  mode: perspective
+  fov: 0.7853981633974483
+  position:
+    - 50.145629705270736
+    - -70.6791613777225
+    - -231.1503407655639
+  up:
+    - 0.02318128770966097
+    - -0.0734084425606157
+    - 0.9970325112356908
+  target:
+    - 24.661538040120178
+    - 447.5378181962543
+    - -192.4031033339367
+  radius: 530.8831329937697
+  radiusMax: 1939.8969044771425
+  fog: 15
+  clipFar: true
+  minNear: 5
+  minFar: 0
+  scale: 1
