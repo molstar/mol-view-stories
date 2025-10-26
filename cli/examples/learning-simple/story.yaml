@@ -2,5 +2,5 @@ title: 'Simple Molecular Visualization Story'
 author_note: 'A basic example to get started with MVS'
 
 scenes:
-  - folder: scene1
-  - folder: scene2
+  - folder: scene_01
+  - folder: scene_02
