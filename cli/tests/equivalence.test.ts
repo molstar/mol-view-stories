@@ -71,7 +71,7 @@ Deno.test('Equivalence - Folder Round Trip', async (t) => {
 Deno.test('Equivalence - StoryManager Operations', async (t) => {
   await t.step('should preserve story through StoryManager operations', async () => {
     // Start with a known good .mvstory file
-    const mvstoryPath = join(Deno.cwd(), 'examples', 'mvstory', 'exosome.mvstory');
+    const mvstoryPath = join(Deno.cwd(), 'examples', 'test-mvstory', 'exosome.mvstory');
     const originalData = await Deno.readFile(mvstoryPath);
 
     // Load into StoryManager
@@ -99,7 +99,7 @@ Deno.test('Equivalence - StoryManager Operations', async (t) => {
   });
 
   await t.step('should preserve modifications through container round trips', async () => {
-    const mvstoryPath = join(Deno.cwd(), 'examples', 'mvstory', 'exosome.mvstory');
+    const mvstoryPath = join(Deno.cwd(), 'examples', 'test-mvstory', 'exosome.mvstory');
     const originalData = await Deno.readFile(mvstoryPath);
 
     // Load and modify
@@ -178,7 +178,7 @@ Deno.test('Equivalence - Format Conversions', async (t) => {
   });
 
   await t.step('should handle export format generation', async () => {
-    const mvstoryPath = join(Deno.cwd(), 'examples', 'mvstory', 'exosome.mvstory');
+    const mvstoryPath = join(Deno.cwd(), 'examples', 'test-mvstory', 'exosome.mvstory');
     const originalData = await Deno.readFile(mvstoryPath);
     const manager = await StoryManager.fromContainer(originalData);
 
@@ -209,7 +209,7 @@ Deno.test('Equivalence - Essential Data Preservation', async (t) => {
 
     for (const storyName of stories) {
       const folderPath = join(Deno.cwd(), 'examples', storyName);
-      const mvstoryPath = join(Deno.cwd(), 'examples', 'mvstory', `${storyName}.mvstory`);
+      const mvstoryPath = join(Deno.cwd(), 'examples', 'test-mvstory', `${storyName}.mvstory`);
 
       // Load from folder
       const folderStory = await parseStoryFolder(folderPath);
