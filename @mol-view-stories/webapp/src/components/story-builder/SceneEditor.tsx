@@ -417,7 +417,7 @@ function CurrentSceneView() {
 export function SceneEditors() {
   return (
     <Tabs defaultValue='scene' className='w-full h-full'>
-      <Card className='w-full h-full'>
+      <Card className='w-full h-full min-h-[1000px]'>
         <CardHeader className='border-b'>
           <div className='flex items-center gap-6'>
             <div className='flex items-center gap-2'>
