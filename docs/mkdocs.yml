@@ -30,8 +30,8 @@ nav:
   - Introduction: 'index.md'
   - Getting Started: 'getting-started.md'
   - Core Features: 'core-features.md'
-  - Tips & Shortcuts: 'cli.md'
-  - CLI: 'faq-troubleshooting.md'
+  - Tips & Shortcuts: 'faq-troubleshooting.md'
+  - CLI: 'cli.md'
   - FAQ & Troubleshooting: 'faq-troubleshooting.md'
 
 repo_url: https://github.com/molstar/mol-view-stories
