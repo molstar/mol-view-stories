@@ -3,7 +3,7 @@
 ### Base
 - **base URL**: `https://stories.molstar.org` (configurable via `BASE_URL`)
 - **content type**: JSON unless noted
-- **upload limit**: `MAX_UPLOAD_SIZE_MB` (default 50 MB)
+- **upload limit**: `MAX_UPLOAD_SIZE_MB` (default 100 MB)
 
 ### Auth
 - **header**: `Authorization: Bearer <OIDC_access_token>`

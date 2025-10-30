@@ -26,7 +26,7 @@ def validate_payload_size(max_size_mb=None):
         def decorated_function(*args, **kwargs):
             # Get max size from app config if not specified
             if max_size_mb is None:
-                max_size_mb_config = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+                max_size_mb_config = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
             else:
                 max_size_mb_config = max_size_mb
 
@@ -170,8 +170,10 @@ class SizeValidationMiddleware:
             try:
                 content_length = int(content_length)
                 if content_length > self.max_size_bytes:
+                    received_mb = content_length / (1024 * 1024)
+                    limit_mb = self.max_size_bytes / (1024 * 1024)
                     self.logger.warning(
-                        f"WSGI middleware rejected large request: {content_length} bytes"
+                        f"WSGI middleware rejected large request: {content_length} bytes ({received_mb:.1f}MB) > limit {self.max_size_bytes} bytes ({limit_mb:.0f}MB)"
                     )
                     # Return 413 response
                     response = self._create_error_response(content_length)

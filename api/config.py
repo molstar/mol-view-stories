@@ -72,7 +72,7 @@ def configure_app(app):
     app.config["MAX_STORIES_PER_USER"] = int(os.getenv("MAX_STORIES_PER_USER", "100"))
 
     # Upload size limit (configurable via environment variable)
-    max_upload_size_mb = int(os.getenv("MAX_UPLOAD_SIZE_MB", "50"))
+    max_upload_size_mb = int(os.getenv("MAX_UPLOAD_SIZE_MB", "100"))
     max_size_bytes = max_upload_size_mb * 1024 * 1024
     app.config["MAX_CONTENT_LENGTH"] = max_size_bytes
     app.config["MAX_UPLOAD_SIZE_MB"] = max_upload_size_mb  # Store for use in decorators

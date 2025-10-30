@@ -18,7 +18,7 @@ def app():
         "BASE_URL": "http://test-base-url",
         "MAX_SESSIONS_PER_USER": "10",
         "MAX_STORIES_PER_USER": "10",
-        "MAX_UPLOAD_SIZE_MB": "50",
+        "MAX_UPLOAD_SIZE_MB": "100",
         "MINIO_ENDPOINT": "test-minio:9000",
         "MINIO_ACCESS_KEY": "test-access-key",
         "MINIO_SECRET_KEY": "test-secret-key",

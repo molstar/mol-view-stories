@@ -144,7 +144,7 @@ BASE_URL=https://stories.molstar.org
 ENVIRONMENT=production
 MAX_SESSIONS_PER_USER=100
 MAX_STATES_PER_USER=100
-MAX_UPLOAD_SIZE_MB=50
+MAX_UPLOAD_SIZE_MB=100
 ```
 
 ## Storage Structure
