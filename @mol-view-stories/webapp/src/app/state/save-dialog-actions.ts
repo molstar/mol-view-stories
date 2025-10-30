@@ -271,11 +271,11 @@ async function saveStory(
 
   // Calculate size of session data
   const sessionDataSize = sessionData.byteLength;
-  
+
   // Calculate TOTAL size of both files being uploaded
   const totalSize = storyDataSize + sessionDataSize;
   const totalSizeMB = (totalSize / 1024 / 1024).toFixed(1);
-  
+
   // Validate TOTAL size of all files being sent
   if (totalSize > MAX_FILE_SIZE_MB * 1024 * 1024) {
     throw new Error(
