@@ -16,4 +16,6 @@ export const ExampleStories = {
   alphafind: 'download',
   'emdb-maps': 'download',
   'mvs-features': 'download',
+  cyp3a4: 'download',
+  subtomograms: 'download',
 };
