@@ -63,7 +63,7 @@ return _run_builder();
   }
 }
 
-export function adjustedCameraPosition(camera: CameraData) {
+export function adjustedCameraPosition(camera: CameraData): [number, number, number] {
   // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
   const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
   const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
