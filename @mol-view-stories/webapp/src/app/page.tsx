@@ -193,7 +193,7 @@ export default function Home() {
           </div>
 
           <div className='max-w-6xl mx-auto'>
-            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
+            <div className='grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8'>
               {ExampleStoryList.map((example) => (
                 <Example key={example.path} path={example.path} name={example.name} />
               ))}
@@ -233,7 +233,7 @@ function Example({ path, name }: { path: string; name: string }) {
       href={`/builder?template=${path}`}
     >
       <div
-        className='absolute text-center w-full bottom-0 px-3 py-2 rounded-b-lg'
+        className='absolute text-center w-full bottom-0 px-3 py-2 rounded-b-lg text-sm'
         style={{ background: 'rgba(255, 255, 255, 0.85)' }}
       >
         {name}

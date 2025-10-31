@@ -1364,6 +1364,8 @@ namespace _ {
             position: RequiredField<[number, number, number]>;
             /** Vector which will be aligned with the screen Y axis. */
             up: OptionalField<[number, number, number]>;
+            /** Near clipping plane distance from the position. */
+            near: OptionalField<number | null>;
         }>;
         canvas: SimpleParamsSchema<{
             /** Color of the canvas background. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
@@ -2585,6 +2587,8 @@ namespace _ {
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
         } & CustomAndRef) | undefined) => this;
+        /** Add a 'clip' node and return builder pointing back to the representation node. 'clip' node instructs to apply clipping to a visual representation. */
+        clip(params: MVSNodeParams<'clip'> & CustomAndRef): Primitives;
     }
     /** MVS builder pointing to a 'primitives_from_uri' node */
     declare class PrimitivesFromUri extends _Base<'primitives_from_uri'> implements FocusMixin {
@@ -2595,6 +2599,8 @@ namespace _ {
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
         } & CustomAndRef) | undefined) => this;
+        /** Add a 'clip' node and return builder pointing back to the representation node. 'clip' node instructs to apply clipping to a visual representation. */
+        clip(params: MVSNodeParams<'clip'> & CustomAndRef): PrimitivesFromUri;
     }
     interface FocusMixin {
         /** Add a 'focus' node and return builder pointing back to the original node. 'focus' node instructs to set the camera focus to a component (zoom in). */
