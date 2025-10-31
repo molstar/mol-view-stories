@@ -96,7 +96,7 @@ def _extract_and_validate_file(files):
         raise APIError(f"Error reading file: {str(e)}", status_code=400)
 
     # Validate file size
-    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
     max_size_bytes = max_size_mb * 1024 * 1024
     if len(file_data) > max_size_bytes:
         size_mb = len(file_data) / (1024 * 1024)
@@ -225,7 +225,7 @@ def _handle_put_session(session_id):
     # Add inline validation for PUT method since we can't use decorator here
     content_length = request.content_length
     if content_length is not None:
-        max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+        max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
         max_size_bytes = max_size_mb * 1024 * 1024
         if content_length > max_size_bytes:
             logger.warning(
@@ -370,7 +370,7 @@ def _process_optional_file_update(files):
             return None
 
         # Validate file size
-        max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+        max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
         max_size_bytes = max_size_mb * 1024 * 1024
         if len(file_data) > max_size_bytes:
             size_mb = len(file_data) / (1024 * 1024)

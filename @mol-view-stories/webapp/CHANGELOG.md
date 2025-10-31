@@ -41,6 +41,11 @@ All notable changes to this project will be documented in this file, following t
   - Add "copy camera position"
 
 ### Fixed
+- **File Size Validation**: Fixed upload limit validation for story publishing
+  - Increased maximum upload size from 50MB to 100MB for both frontend and backend
+  - Fixed validation logic to check total combined size of story + session files (previously validated individually)
+  - Updated all backend deployment configurations with `MAX_UPLOAD_SIZE_MB` environment variable
+  - Stories with combined file sizes up to 100MB now upload successfully
 - **Auth Page**: Fixed infinite loop when no code or error is present
 - **Scene editor**:
   - Fixed error toast when loading MVS data

@@ -52,8 +52,8 @@ def error_handler(f):
                         "status_code": 413,
                         "details": {
                             "type": "RequestEntityTooLarge",
-                            "description": "The uploaded file exceeds the maximum allowed size of 50MB",
-                            "max_size_mb": 50,
+                            "description": "The uploaded file exceeds the maximum allowed size of 100MB",
+                            "max_size_mb": 100,
                             "suggestion": "Please reduce the file size and try again",
                         },
                     }

@@ -83,7 +83,7 @@ def _validate_payload_size_inline(max_size_mb):
 
 def _handle_story_update(story_id, user_id):
     """Handle story update logic."""
-    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
     error_response = _validate_payload_size_inline(max_size_mb)
     if error_response:
         return error_response

@@ -137,7 +137,7 @@ def _validate_mvsx_zip_content(zip_bytes):
 
 def get_max_upload_size_mb():
     """Get the maximum upload size in MB from environment variable."""
-    return int(os.getenv("MAX_UPLOAD_SIZE_MB", "50"))
+    return int(os.getenv("MAX_UPLOAD_SIZE_MB", "100"))
 
 
 def get_max_upload_size_bytes():

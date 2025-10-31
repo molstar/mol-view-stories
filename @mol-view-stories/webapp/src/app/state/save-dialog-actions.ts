@@ -13,7 +13,7 @@ import { SessionFileExtension } from '@mol-view-stories/lib/src/actions';
 
 // File size validation utility
 // Note that file size is also checked at the API, this is a safety check to avoid expensive sending of oversized data.
-const MAX_FILE_SIZE_MB = 50; // Keep in sync with backend limit
+const MAX_FILE_SIZE_MB = 100; // Keep in sync with backend limit
 
 function validateDataSize(data: Uint8Array | string, maxSizeMB: number = MAX_FILE_SIZE_MB): void {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
@@ -161,9 +161,6 @@ async function prepareStateData(story: Story): Promise<Uint8Array | string> {
     finalData = JSON.stringify(mvsData);
   }
 
-  // Validate file size before proceeding
-  validateDataSize(finalData);
-
   return finalData;
 }
 
@@ -261,13 +258,29 @@ async function saveStory(
   const store = getDefaultStore();
   const story = store.get(StoryAtom);
 
-  // Validate data before proceeding
+  // Prepare session data first (we need both files to validate total size)
+  const sessionData = await prepareSessionData(story);
+
+  // Calculate size of story data
+  let storyDataSize: number;
   if (data instanceof Uint8Array) {
-    validateDataSize(data);
-  } else if (typeof data === 'string') {
-    validateDataSize(data);
+    storyDataSize = data.byteLength;
   } else {
-    validateDataSize(JSON.stringify(data));
+    storyDataSize = new Blob([data]).size;
+  }
+
+  // Calculate size of session data
+  const sessionDataSize = sessionData.byteLength;
+
+  // Calculate TOTAL size of both files being uploaded
+  const totalSize = storyDataSize + sessionDataSize;
+  const totalSizeMB = (totalSize / 1024 / 1024).toFixed(1);
+
+  // Validate TOTAL size of all files being sent
+  if (totalSize > MAX_FILE_SIZE_MB * 1024 * 1024) {
+    throw new Error(
+      `PUBLISH FAILED: Total data payload too large (${totalSizeMB}MB, max: ${MAX_FILE_SIZE_MB}MB). Please reduce complexity or remove large assets.`
+    );
   }
 
   // Create FormData for story + session with new field structure
@@ -291,7 +304,6 @@ async function saveStory(
   }
 
   // Add session data to 'session' field
-  const sessionData = await prepareSessionData(story);
   const sessionBlob = new Blob([sessionData as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
   const sessionFilename = formData.title.trim() + '.mvstory';
   formDataToSend.append('session', sessionBlob, sessionFilename);

@@ -98,7 +98,7 @@ def health():
 def handle_file_too_large(e):
     """Handle file size limit exceeded errors globally."""
     logger.warning(f"File size limit exceeded: {str(e)}")
-    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
     return (
         jsonify(
             {
@@ -129,7 +129,7 @@ def validate_request_size():
     if request.method not in ["POST", "PUT"]:
         return
 
-    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 50)
+    max_size_mb = current_app.config.get("MAX_UPLOAD_SIZE_MB", 100)
     max_size_bytes = max_size_mb * 1024 * 1024
 
     # Check Content-Length header
