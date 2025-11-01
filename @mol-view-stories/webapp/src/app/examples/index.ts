@@ -5,9 +5,9 @@ import { ComprehensiveStory } from './mvs_examples';
 
 export const ExampleStories = {
   empty: EmptyStory,
-  simple: SimpleStory,
-  kinase: KinaseStory,
-  'mvs-examples': ComprehensiveStory,
+  simple: 'download',
+  kinase: 'download',
+  'mvs-examples': 'download',
   'terms-of-entrapment': 'download',
   exosome: 'download',
   tbp: 'download',

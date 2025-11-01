@@ -1,0 +1,2713 @@
+{
+  "kind": "multiple",
+  "metadata": {
+    "title": "The Structural Story of TATA-Binding Protein and its Role in Transcription Initiation",
+    "timestamp": "2025-11-01T09:29:20.246Z",
+    "version": "1"
+  },
+  "snapshots": [
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1vok.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "sequence-id",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "sequence-id",
+                                      "params": {}
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_asym_id": "A",
+                                "label_seq_id": 88,
+                                "label_atom_id": "OD2"
+                              },
+                              "text": "TATA-Binding Protein",
+                              "label_size": 5,
+                              "label_color": "#4577B2"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                -3.4984311329022972,
+                16.43589890183253,
+                12.694030019459568
+              ],
+              "target": [
+                74.81,
+                66.8,
+                30.7
+              ],
+              "up": [
+                -0.55,
+                0.83,
+                0.1
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "intro",
+        "title": "TATA-Binding Protein",
+        "description": "### TATA-Binding Protein Tells RNA Polymerase Where To Get Started on a Gene\n\nSpecialized DNA sequences next to genes, called promoters, define the proper start site and direction for transcription.\nPromoters vary in sequence and location from organism to organism.\nIn eukaryotic cells, a complex promoter system that uses dozens of different proteins ensures that the proper RNA polymerase is targeted to each gene.\nThe TATA-binding protein (TBP) is the central element of this system, participating in transcription by all three RNA polymerases.\n\nThe crystal structure of TBP from *Arabidopsis thaliana* in its apo form is shown ([PDB ID 1VOK](https://doi.org/10.2210/pdb1vok/pdb)).\nThe structure reveals a highly symmetric DNA-binding fold composed of two topologically identical domains derived from the two direct repeats in the phylogenetically conserved sequence.\nThe domains are related by an approximate 2-fold axis, and consist of a five-stranded, antiparallel beta sheet and two alpha helices.\nIt is thought that an ancient gene duplication created this protein by combining two copies of the same gene. \n\nThe intramolecular symmetry generates a saddle-shaped structure dominated by a curved antiparallel beta sheet, which forms the saddle's concave face and interacts with the DNA.\nThe convex face of the saddle would interact with other proteins during transcription initiation.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "protein"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "nucleic"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "DNA"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "beg_label_seq_id": 160,
+                            "end_label_seq_id": 177
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "TBP (H. sapiens)"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1vtl.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4769460004,
+                            0.7214347188,
+                            -0.5020502557,
+                            -0.297882932,
+                            0.4047204695,
+                            0.8645617968,
+                            0.8269149119,
+                            0.5619014932,
+                            0.0218732801
+                          ],
+                          "translation": [
+                            65.6043682658,
+                            -3.7328402905,
+                            -16.8650755387
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "E"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#B9E3A0"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#B9E3A0"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#B9E3A0"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "E",
+                            "beg_label_seq_id": 75,
+                            "end_label_seq_id": 92
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "TBP (A. thaliana)"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                33.955829056778086,
+                15.998137644535184,
+                -10.435993673443065
+              ],
+              "target": [
+                77.48,
+                59.61,
+                30.36
+              ],
+              "up": [
+                -0.73,
+                0.68,
+                0.06
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "highly-conserved-1",
+        "title": "TBP: Highly Conserved in Eukaryotes [1/2]",
+        "description": "### TATA-Binding Protein Is Highly Conserved in Eukaryotes\n\nTBP has a phylogenetically conserved, 180 amino-acid carboxy-terminal domain (ranging from 38 to 93% identity among eukaryotes and archaebacteria), containing two structural repeats flanking a highly basic segment known as the basic repeat.\nThe C-terminal or core portion of the protein binds the TATA consensus sequence with high affinity, interacting with the minor groove and promoting DNA bending.\nStructural superposition of TBP bound to DNA in human ([PDB ID 1CDW](https://doi.org/10.2210/pdb1cdw/pdb)) and *A. thaliana* ([PDB ID 1VTL](https://doi.org/10.2210/pdb1vtl/pdb)) shows that their sequences are 83% identical and the RMSD between the structures is 0.43 Å.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "protein"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "nucleic"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A",
+                            "label_seq_id": 5
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "T"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A",
+                            "label_seq_id": 6
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "A"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A",
+                            "label_seq_id": 7
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "T"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A",
+                            "label_seq_id": 8
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "A"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A",
+                            "label_seq_id": 9
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "A"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A",
+                            "label_seq_id": 10
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "A"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1vtl.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4769460004,
+                            0.7214347188,
+                            -0.5020502557,
+                            -0.297882932,
+                            0.4047204695,
+                            0.8645617968,
+                            0.8269149119,
+                            0.5619014932,
+                            0.0218732801
+                          ],
+                          "translation": [
+                            65.6043682658,
+                            -3.7328402905,
+                            -16.8650755387
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "E"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#B9E3A0"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#B9E3A0"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#B9E3A0"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                52.56643561423674,
+                21.10266557359094,
+                53.18231675953653
+              ],
+              "target": [
+                80.16,
+                56.15,
+                28.96
+              ],
+              "up": [
+                -0.71,
+                0.68,
+                0.17
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "highly-conserved-2",
+        "title": "TBP: Minor Groove [2/2]",
+        "description": "### TATA-Binding Protein Is Highly Conserved in Eukaryotes\n\nEukaryotic protein-coding genes transcribed by RNA polymerase II (pol II) have a characteristic sequence of nucleotides, termed the TATA box, in front of the start site of transcription.\nThe typical sequence is something like T-A-T-A-a/t-A-a/t, where a/t refers to positions that can be either A or T.\nTBP recognizes this TATA sequence and binds to it, creating a landmark that directs pol II to the transcription start site. \nThe structures of *A. thaliana* and human core TBP-TATA element co-crystal structures demonstrate a common induced-fit mechanism of protein-DNA recognition involving subtle conformation changes in the protein and an unprecedented DNA distortion.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                33.955829056778086,
+                15.998137644535184,
+                -10.435993673443065
+              ],
+              "target": [
+                77.48,
+                59.61,
+                30.36
+              ],
+              "up": [
+                -0.73,
+                0.68,
+                0.06
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "tata-box-overview",
+        "title": "TBP: Binding to TATA Box [1/5]",
+        "description": "### TATA-Binding Protein Binds to the Minor Groove of the TATA Box\n\nWhen the first structures of TBP-DNA complexes were determined, researchers discovered that TBP is not gentle when it binds to DNA.\nInstead, it grabs the TATA sequence, bends and unwinds it to open up the minor groove, and kinks it sharply in two places (*e.g.*, [PDB ID 1VTL](https://doi.org/10.2210/pdb1vtl/pdb)) and ([PDB ID 1CDW](https://doi.org/10.2210/pdb1cdw/pdb)). \n\nInteractions with the minor groove can be divided into different classes as seen in PDB ([PDB ID 1CDW](https://doi.org/10.2210/pdb1cdw/pdb)).\nThe combination of interactions allows TATA-binding protein to recognize the proper DNA sequence.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 38,
+                                "label_atom_id": "NH2"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 7,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 38,
+                                "label_atom_id": "NH2"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 6,
+                                "label_atom_id": "O3'"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 38,
+                                "label_atom_id": "NH1"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 7,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 45,
+                                "label_atom_id": "NE"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 8,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 45,
+                                "label_atom_id": "NH2"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 8,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 136,
+                                "label_atom_id": "NH1"
+                              },
+                              "end": {
+                                "label_asym_id": "A",
+                                "label_seq_id": 8,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 50,
+                                "label_atom_id": "NH1"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 9,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 50,
+                                "label_atom_id": "NH2"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 9,
+                                "label_atom_id": "OP1"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "label_seq_id": 38
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Arg192"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "label_seq_id": 45
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Arg199"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "label_seq_id": 136
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Arg290"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "label_seq_id": 50
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Arg204"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": [
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 38
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 45
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 136
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 50
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "ball_and_stick"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "element-symbol",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "element-symbol",
+                                      "params": {}
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                41.64831266838914,
+                51.593692023811926,
+                11.363921371597097
+              ],
+              "target": [
+                77.29,
+                61.61,
+                18.73
+              ],
+              "up": [
+                -0.28,
+                0.96,
+                0.04
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "tata-box-1",
+        "title": "TBP: Arginine [2/5]",
+        "description": "### Arginine Residues\n\nA string of arginine amino acids interact with the phosphate groups of the DNA and glues the protein to the DNA: Arg192, Arg199, Arg204, and Arg290.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": [
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 39
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 56
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 130
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 147
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "ball_and_stick"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "element-symbol",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "uniform",
+                                      "params": {
+                                        "value": [
+                                          0.7372549019607844,
+                                          0.3254901960784314,
+                                          0.42745098039215684
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 39
+                              },
+                              "text": "Phe193",
+                              "label_color": "#BC536D",
+                              "label_size": 1.5
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 56
+                              },
+                              "text": "Phe210",
+                              "label_color": "#BC536D",
+                              "label_size": 1.5
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 130
+                              },
+                              "text": "Phe284",
+                              "label_color": "#BC536D",
+                              "label_size": 1.5
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 147
+                              },
+                              "text": "Phe301",
+                              "label_color": "#BC536D",
+                              "label_size": 1.5
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                60.68384335476321,
+                45.45781558122857,
+                40.868239765489506
+              ],
+              "target": [
+                85.52,
+                57.53,
+                19.15
+              ],
+              "up": [
+                -0.51,
+                0.85,
+                -0.11
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "tata-box-2",
+        "title": "TBP: Phenylalanine [3/5]",
+        "description": "### Phenylalanine-Induced Kinks\n\nAt either end of the TATA element there are two pairs of phenylalanine side chains partially inserted between adjacent base pairs, producing the two dramatic kinks (Phe193, Phe210, Phe284, and Phe301). Between the two kinks the DNA is partially unwound.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 9,
+                                "label_atom_id": "ND2"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 8,
+                                "label_atom_id": "O2"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 9,
+                                "label_atom_id": "ND2"
+                              },
+                              "end": {
+                                "label_asym_id": "B",
+                                "label_seq_id": 9,
+                                "label_atom_id": "O2"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "tube",
+                              "start": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 155,
+                                "label_atom_id": "OG1"
+                              },
+                              "end": {
+                                "label_asym_id": "A",
+                                "label_seq_id": 8,
+                                "label_atom_id": "N3"
+                              },
+                              "color": "#4289B5",
+                              "tooltip": "H-bond",
+                              "radius": 0.1,
+                              "dash_length": 0.1
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "label_seq_id": 9
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Asn163"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C",
+                            "label_seq_id": 155
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Thr309"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": [
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 99
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "ball_and_stick"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "element-symbol",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "uniform",
+                                      "params": {
+                                        "value": [
+                                          null,
+                                          0.0392156862745098,
+                                          null
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_asym_id": "C",
+                                "label_seq_id": 99
+                              },
+                              "text": "Asn253",
+                              "label_color": "#BC536D",
+                              "label_size": 1.5
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": [
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 9
+                            },
+                            {
+                              "label_asym_id": "C",
+                              "label_seq_id": 155
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "ball_and_stick"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "element-symbol",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "element-symbol",
+                                      "params": {}
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                81.49686367877851,
+                70.13480384021055,
+                46.58370019559135
+              ],
+              "target": [
+                75.68,
+                63.48,
+                32.29
+              ],
+              "up": [
+                -0.9,
+                0.39,
+                0.18
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "tata-box-3",
+        "title": "TBP: H-Bonds in Minor Groove [4/5]",
+        "description": "### Hydrogen Bonds in the Minor Groove\n\nPolar side chains make minor groove hydrogen bonds with acceptors of base pairs centred about the approximate 2-fold symmetry axis (Asn163, Asn253, and Thr309).",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/1cdw.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            -0.4665815186,
+                            0.6063873444,
+                            -0.6438913535,
+                            -0.581544075,
+                            -0.7588303199,
+                            -0.2932286385,
+                            -0.6664144171,
+                            0.2376361381,
+                            0.7066971703
+                          ],
+                          "translation": [
+                            135.0863694935,
+                            105.5007997009,
+                            153.6890178993
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "C"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#BC536D"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#c5a3af"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "A"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "surface"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "element-symbol",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "uniform",
+                                      "params": {
+                                        "value": [
+                                          0.7725490196078432,
+                                          0.6392156862745098,
+                                          0.6862745098039216
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.33
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "B"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "surface"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {},
+                                "custom": {
+                                  "molstar_color_theme_name": "element-symbol",
+                                  "molstar_color_theme_params": {
+                                    "carbonColor": {
+                                      "name": "uniform",
+                                      "params": {
+                                        "value": [
+                                          0.7725490196078432,
+                                          0.6392156862745098,
+                                          0.6862745098039216
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.33
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                33.955829056778086,
+                15.998137644535184,
+                -10.435993673443065
+              ],
+              "target": [
+                77.48,
+                59.61,
+                30.36
+              ],
+              "up": [
+                -0.73,
+                0.68,
+                0.06
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "tata-box-4",
+        "title": "TBP: Non-Polar Interactions [5/5]",
+        "description": "### Hydrophobic and van der Waals Interactions\n\nSeveral residues projecting from the concave surface of TBP make hydrophobic or van der Waals side-chain/base contacts (<4 Å between non-hydrogen atoms) with the TATA element.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/7enc.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            0.8975055044,
+                            -0.4316347566,
+                            -0.0904174009,
+                            0.247274877,
+                            0.3227849997,
+                            0.9136000105,
+                            -0.3651561375,
+                            -0.8423189899,
+                            0.3964337454
+                          ],
+                          "translation": [
+                            -189.7572972798,
+                            304.0841220076,
+                            -411.5005782853
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "CB"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#0072B2"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "TBP"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "GB"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#D55E00"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "HB"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#D55E00"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "polymer"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#009E73"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "57"
+                              },
+                              "text": "pol II",
+                              "label_size": 20,
+                              "label_color": "#0072B2"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "53"
+                              },
+                              "text": "DNA",
+                              "label_size": 20,
+                              "label_color": "#D55E00"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "21"
+                              },
+                              "text": "mediator",
+                              "label_size": 20,
+                              "label_color": "#009E73"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "42"
+                              },
+                              "text": "TBP-associated factors (TAFs)",
+                              "label_size": 20,
+                              "label_color": "#56B4E9"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": [
+                                100,
+                                150,
+                                0
+                              ],
+                              "text": "PIC",
+                              "label_size": 30,
+                              "label_color": "#4577B2"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                33.955829056778086,
+                15.998137644535184,
+                -10.435993673443065
+              ],
+              "target": [
+                77.48,
+                59.61,
+                30.36
+              ],
+              "up": [
+                -0.73,
+                0.68,
+                0.06
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "pre-init-complex",
+        "title": "TBP and Transcription Pre-Initiation Complex",
+        "description": "### TATA-Binding Protein and the Transcription Pre-Initiation Complex\n\nThe structure shown here, from [PDB ID 7ENC](https://doi.org/10.2210/pdb7enc/pdb), is that of a pol II \"pre-initiation complex\" (PIC) poised to start transcription.\nThis complex includes eukaryotic Mediator and pol II, along with a collection of general transcription factors that perform the necessary tasks of recognizing the transcription start site of genes, separating the two strands of the DNA double helix, and facilitating transcription initiation by RNA polymerase II.\n\nTBP starts the process of assembling the PIC and works with TBP-associated factors (TAFs) as part of a large multi-component transcription factor, TFIID, that belongs to the collection of general transcription factors that cradle pol II with in the PIC.\nAfter TBP binds to the promoter, it recruits additional transcription factors.\nTFIIA and TFIIB interact with surrounding regions of the DNA and, along with TFIIF, assist with positioning of RNA polymerase II at the transcription start site.\nTFIIE, TFIIH, and other TFIID subunits bring additional functionality to the complex.\nIn particular, part of TFIIH is a translocase that separates the two strands of DNA in preparation for transcription, and the CAK module of TFIIH adds phosphate groups to the long tail of RNA polymerase II, sending the signal that it is time to get started with mRNA synthesis. \n\nTBP is a critical player that gets the transcription process started and is central to the pre-initiation complex.\nLying at the very heart of this complex macromolecular machine, it is highly conserved among eukaryotes and *archaea*.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/7enc.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "transform",
+                        "params": {
+                          "rotation": [
+                            0.8975055044,
+                            -0.4316347566,
+                            -0.0904174009,
+                            0.247274877,
+                            0.3227849997,
+                            0.9136000105,
+                            -0.3651561375,
+                            -0.8423189899,
+                            0.3964337454
+                          ],
+                          "translation": [
+                            -189.7572972798,
+                            304.0841220076,
+                            -411.5005782853
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "CB"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#0072B2"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "TBP"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "GB"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#D55E00"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": {
+                            "label_asym_id": "HB"
+                          }
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#D55E00"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "polymer"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#009E73"
+                                }
+                              },
+                              {
+                                "kind": "opacity",
+                                "params": {
+                                  "opacity": 0.5
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "primitives",
+                        "params": {},
+                        "children": [
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "57"
+                              },
+                              "text": "pol II",
+                              "label_size": 20,
+                              "label_color": "#0072B2"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "53"
+                              },
+                              "text": "DNA",
+                              "label_size": 20,
+                              "label_color": "#D55E00"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "21"
+                              },
+                              "text": "mediator",
+                              "label_size": 20,
+                              "label_color": "#009E73"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": {
+                                "label_entity_id": "42"
+                              },
+                              "text": "TBP-associated factors (TAFs)",
+                              "label_size": 20,
+                              "label_color": "#56B4E9"
+                            }
+                          },
+                          {
+                            "kind": "primitive",
+                            "params": {
+                              "kind": "label",
+                              "position": [
+                                100,
+                                150,
+                                0
+                              ],
+                              "text": "PIC",
+                              "label_size": 30,
+                              "label_color": "#4577B2"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                -277.2265314401803,
+                -256.7632452009814,
+                -29.281964065201294
+              ],
+              "target": [
+                87.56,
+                -22.14,
+                54.59
+              ],
+              "up": [
+                -0.55,
+                0.83,
+                0.1
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "end",
+        "title": "The End",
+        "description": "### The End\n\nThat's all folks! We hope you enjoyed this interactive journey through the structural biology of the TATA-binding protein.\n\nThe next time you look at a macromolecular structure, remember: each atom tells a story, and each discovery shapes the future of medicine.\n\nRead more in the relevant publications on PDB IDs [1VOK](https://doi.org/10.1038/nsb0994-621), [1CDW](https://doi.org/10.1073/pnas.93.10.4862), [1VTL](https://doi.org/10.1038/365520a0), and [7ENC](https://doi.org/10.1126/science.abg0635) as well as the Molecule of the Month articles on the [TATA-binding protein](https://pdb101.rcsb.org/motm/67) and [Mediator](https://pdb101.rcsb.org/motm/289).",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 1500
+      }
+    }
+  ]
+}

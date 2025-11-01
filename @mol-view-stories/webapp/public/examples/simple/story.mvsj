@@ -1,0 +1,194 @@
+{
+  "kind": "multiple",
+  "metadata": {
+    "title": "Simple Molecular Visualization Story",
+    "timestamp": "2025-11-01T09:29:48.307Z",
+    "version": "1"
+  },
+  "snapshots": [
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "polymer"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "green"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "ligand"
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Retinoic Acid"
+                            }
+                          },
+                          {
+                            "kind": "focus",
+                            "params": {}
+                          },
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "ball_and_stick"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "#cc3399"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "key": "scene_01",
+        "title": "Awesome Thing 01",
+        "description": "# Retinoic Acid Visualization\n\nShowing a protein structure with retinoic acid ligand in green cartoon representation.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "polymer"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "blue"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "ligand"
+                        },
+                        "children": [
+                          {
+                            "kind": "label",
+                            "params": {
+                              "text": "Retinoic Acid"
+                            }
+                          },
+                          {
+                            "kind": "focus",
+                            "params": {}
+                          },
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "ball_and_stick"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "orange"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "key": "scene_02",
+        "title": "Awesome Thing 02",
+        "description": "# Alternative Visualization\n\nSame structure but with blue cartoon and orange ligand coloring.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    }
+  ]
+}

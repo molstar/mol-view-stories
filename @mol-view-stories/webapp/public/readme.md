@@ -1,0 +1,1 @@
+The examples need to stay in this folder to keep the links stable for `https://raw.githubusercontent.com` links.

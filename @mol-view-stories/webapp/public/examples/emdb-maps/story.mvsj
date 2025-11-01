@@ -1,0 +1,3122 @@
+{
+  "kind": "multiple",
+  "metadata": {
+    "title": "Composite Maps",
+    "timestamp": "2025-11-01T09:29:31.666Z",
+    "version": "1"
+  },
+  "snapshots": [
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    120,
+                    265,
+                    300
+                  ],
+                  "text": "EMD-52640 (Composite Map)",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          },
+                          {
+                            "kind": "focus",
+                            "params": {
+                              "radius": 160
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/9i5v_updated.cif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "mmcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "all"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "blue"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "title": "Composite Map",
+        "description": "# Composite Maps\n\nA composite map is a reconstructed 3D electron density map that has been assembled from multiple focused refinements or segmented regions of a cryo-EM dataset. \n\n- In single-particle cryo-EM or subtomogram averaging, researchers may refine different regions of a macromolecular complex separately (for example, focusing on flexible domains or subunits). \n- Each region may reach higher local resolution than the global map, because variability or flexibility is reduced when refinement is restricted. \n- To provide a biologically useful whole structure view, these region-specific maps can be recombined into a single volume — this recombined product is what EMDB calls a composite map.\n",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    120,
+                    265,
+                    300
+                  ],
+                  "text": "EMD-52636 (Consensus Map)",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.5
+                            }
+                          },
+                          {
+                            "kind": "focus",
+                            "params": {
+                              "radius": 160
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/pdbe/entry-files/download/9i5v_updated.cif"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "mmcif"
+                },
+                "children": [
+                  {
+                    "kind": "structure",
+                    "params": {
+                      "type": "model"
+                    },
+                    "children": [
+                      {
+                        "kind": "component",
+                        "params": {
+                          "selector": "all"
+                        },
+                        "children": [
+                          {
+                            "kind": "representation",
+                            "params": {
+                              "type": "cartoon"
+                            },
+                            "children": [
+                              {
+                                "kind": "color",
+                                "params": {
+                                  "color": "blue"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "title": "Consensus Map",
+        "description": "# Consensus Map (EMD-52636)\n\nThe consensus map refers to the three-dimensional reconstruction obtained by refining all particle images against the entire macromolecular complex without restricting the refinement to specific regions. This global approach provides a unified density that captures the overall architecture of the structure and serves as a common reference for subsequent analyses. However, because flexible or heterogeneous regions are averaged together in this process, the consensus map often exhibits variable local resolution, with rigid domains appearing more clearly defined than dynamic or conformationally diverse regions.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            }
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F1"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    60,
+                    265,
+                    180
+                  ],
+                  "text": "EMD-52637",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F2"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    170,
+                    155,
+                    320
+                  ],
+                  "text": "EMD-52638",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F3"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    300,
+                    160,
+                    280
+                  ],
+                  "text": "EMD-52639",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                213.44826549189338,
+                175.15672764789562,
+                481.99582270189103
+              ],
+              "target": [
+                213.44826549189338,
+                175.15672764789562,
+                181.42522986983536
+              ],
+              "up": [
+                0,
+                1,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "title": "Focused Refined",
+        "description": "# Focused Refined Maps\n\nFocused refined maps are three-dimensional reconstructions generated by applying spatial masks to specific regions of a consensus or primary map and performing additional refinement on only those areas. This approach reduces the influence of structural heterogeneity and flexibility outside the masked region, allowing for higher local resolution in domains or subunits that are otherwise blurred in the global map. Focused refinement is particularly useful for studying flexible loops, binding sites, or distinct functional modules within large macromolecular complexes, providing detailed structural information that complements the overall architecture captured in the consensus map.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            }
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F1"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    95,
+                    265,
+                    180
+                  ],
+                  "text": "EMD-52637",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F2"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    150,
+                    100,
+                    320
+                  ],
+                  "text": "EMD-52638",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F3"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    400,
+                    130,
+                    180
+                  ],
+                  "text": "EMD-52639",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                49.40408179831505,
+                46.753198622497735,
+                -35.24207455227875
+              ],
+              "target": [
+                213.44826549189338,
+                175.15672764789562,
+                181.42522986983536
+              ],
+              "up": [
+                0.07537669779735193,
+                0.8317594291468734,
+                -0.5499950958458072
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "F1",
+        "title": "Focused Refined",
+        "description": "# EMD-52637\n\nFocus refined 50S map of 70S P. gingivalis ribosome delta-porN strain",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            }
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F1"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    60,
+                    265,
+                    180
+                  ],
+                  "text": "EMD-52637",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F2"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    170,
+                    155,
+                    320
+                  ],
+                  "text": "EMD-52638",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F3"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    300,
+                    160,
+                    280
+                  ],
+                  "text": "EMD-52639",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                196.10647271963833,
+                117.66808614096385,
+                475.93668906377764
+              ],
+              "target": [
+                213.44826549189338,
+                175.15672764789562,
+                181.42522986983536
+              ],
+              "up": [
+                -0.002410764897217126,
+                0.9815000182969713,
+                0.19144686546312523
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "F2",
+        "title": "Focused Refined",
+        "description": "# Focused Refined Map (EMD-52638)\n\nFocus refined 30S body map of 70S P. gingivalis ribosome erm-delta-porN strain",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            }
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F1"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    250,
+                    170,
+                    85
+                  ],
+                  "text": "EMD-52637",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F2"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    230,
+                    230,
+                    330
+                  ],
+                  "text": "EMD-52638",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F3"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    330,
+                    140,
+                    170
+                  ],
+                  "text": "EMD-52639",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                500.69684551499904,
+                92.68731171796861,
+                149.3358237316709
+              ],
+              "target": [
+                213.44826549189338,
+                175.15672764789562,
+                181.42522986983536
+              ],
+              "up": [
+                0.2942712457305587,
+                0.8788542841800804,
+                0.37552573961648555
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "key": "F3",
+        "title": "Focused Refined",
+        "description": "# Focused Refined Map (EMD-52638)\n\nFocus refined 30S body map of 70S P. gingivalis ribosome erm-delta-porN strain",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            }
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 1
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F1"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    60,
+                    265,
+                    180
+                  ],
+                  "text": "EMD-52637",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F2"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    170,
+                    155,
+                    320
+                  ],
+                  "text": "EMD-52638",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black",
+              "snapshot_key": "F3"
+            },
+            "children": [
+              {
+                "kind": "primitive",
+                "params": {
+                  "kind": "label",
+                  "position": [
+                    300,
+                    160,
+                    280
+                  ],
+                  "text": "EMD-52639",
+                  "label_size": 15,
+                  "label_offset": 2
+                }
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                213.44826549189338,
+                175.15672764789562,
+                481.99582270189103
+              ],
+              "target": [
+                213.44826549189338,
+                175.15672764789562,
+                181.42522986983536
+              ],
+              "up": [
+                0,
+                1,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "title": "Focused Refined",
+        "description": "# Composite Map\n\nThe composite map is generated by merging multiple focused refined maps into a single, unified density. Each focused map contributes high-resolution information from a specific region of the complex, while the global architecture is preserved, allowing the composite map to combine both local detail and overall structural context. This approach effectively integrates the enhanced resolution achieved in individually refined domains, producing a comprehensive representation of the macromolecule that surpasses the detail available in the original consensus or primary maps.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    },
+    {
+      "root": {
+        "kind": "root",
+        "children": [
+          {
+            "kind": "primitives",
+            "params": {
+              "label_attachment": "bottom-left",
+              "label_show_tether": false,
+              "label_tether_length": 2,
+              "label_background_color": "black"
+            }
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52640/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.7
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52636/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "white"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52637/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#b97b5e"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52638/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#7ca260"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "download",
+            "params": {
+              "url": "https://www.ebi.ac.uk/emdb/volume_server/em/emd-52639/cell/?encoding=bcif&detail=6"
+            },
+            "children": [
+              {
+                "kind": "parse",
+                "params": {
+                  "format": "bcif"
+                },
+                "children": [
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "volume",
+                    "params": {},
+                    "children": [
+                      {
+                        "kind": "volume_representation",
+                        "params": {
+                          "type": "isosurface",
+                          "relative_isovalue": 3
+                        },
+                        "children": [
+                          {
+                            "kind": "color",
+                            "params": {
+                              "color": "#a55e7c"
+                            }
+                          },
+                          {
+                            "kind": "opacity",
+                            "params": {
+                              "opacity": 0.3
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "camera",
+            "params": {
+              "position": [
+                213.44826549189338,
+                175.78357787008952,
+                481.99582270189103
+              ],
+              "target": [
+                213.44826549189338,
+                175.78357787008952,
+                181.42522986983536
+              ],
+              "up": [
+                0,
+                1,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "title": "EMD-52640",
+        "description": "# Composite Map (EMD-52640)\n\nThe resulting map is used to start the deposition in EMDB. Click [here](https://www.ebi.ac.uk/emdb/documentation/deposition/composite_map) to find more information about how to deposit composite maps in EMDB.",
+        "linger_duration_ms": 5000,
+        "transition_duration_ms": 500
+      }
+    }
+  ]
+}
