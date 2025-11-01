@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
-import { BookOpen, Eye, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
+import { BookDashed, BookOpen, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { ApiStatus } from '@/components/get-api-status';
 import { APP_VERSION } from './version';
@@ -195,7 +195,7 @@ export default function Home() {
           <div className='max-w-6xl mx-auto'>
             <div className='grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8'>
               {ExampleStoryList.map((example) => (
-                <Example key={example.path} path={example.path} name={example.name} />
+                <Example key={example.path} example={example} />
               ))}
             </div>
           </div>
@@ -220,7 +220,15 @@ export default function Home() {
   );
 }
 
-function Example({ path, name }: { path: string; name: string }) {
+function getViewerLink(example: (typeof ExampleStoryList)[number]) {
+  const prefix = `https://raw.githubusercontent.com/molstar/mol-view-stories/refs/heads/main/%40mol-view-stories/webapp/public/examples`;
+  const storyUrl = encodeURIComponent(`${prefix}/${example.path}/story.${example.format}`);
+  const sessionUrl = encodeURIComponent(`${prefix}/${example.path}/story.mvstory`);
+  return `https://molstar.org/stories-viewer/v1?story-url=${storyUrl}&data-format=${example.format}&story-session-url=${sessionUrl}`;
+}
+
+function Example({ example }: { example: (typeof ExampleStoryList)[number] }) {
+  const { path, name } = example;
   return (
     <Link
       key={path}
@@ -230,7 +238,9 @@ function Example({ path, name }: { path: string; name: string }) {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
-      href={`/builder?template=${path}`}
+      href={getViewerLink(example)}
+      target='_blank'
+      rel='noopener noreferrer'
     >
       <div
         className='absolute text-center w-full bottom-0 px-3 py-2 rounded-b-lg text-sm'
@@ -239,12 +249,15 @@ function Example({ path, name }: { path: string; name: string }) {
         {name}
       </div>
 
-      <Link
-        href={`/builder?template=${path}&preview=1`}
-        className='absolute flex top-2 right-2 text-gray-600 text-xs items-center bg-white rounded-full p-1 shadow invisible group-hover:visible hover:bg-gray-100 transition-colors px-2'
-      >
-        <Eye className='w-4 h-4 me-1' /> Preview
-      </Link>
+      <div className='absolute top-2 left-2 right-2'>
+        <Link
+          href={`/builder?template=${path}`}
+          onClick={(e) => e.stopPropagation()}
+          className='flex text-gray-600 text-xs items-center justify-center bg-white border rounded-lg p-1 shadow invisible group-hover:visible hover:bg-gray-100 transition-colors px-2 w-full'
+        >
+          <BookDashed className='w-4 h-4 me-1' /> Use as Template
+        </Link>
+      </div>
     </Link>
   );
 }
