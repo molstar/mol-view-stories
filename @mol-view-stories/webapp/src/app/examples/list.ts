@@ -2,7 +2,7 @@
 export const ExampleStoryList = [
   { path: 'kinase', name: 'ABL Kinase', format: 'mvsj' },
   { path: 'exosome', name: 'Exosome', format: 'mvsx' },
-  { path: 'terms-of-entrapment', name: 'Terms of Entrapment', format: 'mvsj' },
+  { path: 'terms-of-entrapment', name: 'Terms of Entrapment', format: 'mvsx' },
   { path: 'motm-01', name: 'Myoglobin', format: 'mvsx' },
   { path: 'tbp', name: 'TATA Binding Protein', format: 'mvsj' },
   { path: 'npc-basket', name: 'NPC Basket', format: 'mvsx' },
