@@ -65,7 +65,13 @@ import { adjustedCameraPosition } from '@mol-view-stories/lib/src/actions';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
-    <div className={cn('text-xs font-mono', className, !value ? 'text-muted-foreground' : '')}>
+    <div
+      className={cn(
+        'overflow-hidden whitespace-nowrap text-xs font-mono',
+        className,
+        !value ? 'text-muted-foreground' : ''
+      )}
+    >
       {value ? `[${value[0]?.toFixed(1)}, ${value[1]?.toFixed(1)}, ${value[2]?.toFixed(1)}]` : '-'}
     </div>
   );
@@ -80,12 +86,13 @@ function cameraDirection(camera: CameraData | Camera.Snapshot | null | undefined
 
 function CameraState() {
   const cameraSnapshot = useAtomValue(CameraPositionAtom);
+  const adjustedPosition = cameraSnapshot ? adjustedCameraPosition(cameraSnapshot as CameraData) : undefined;
 
   return (
     <div className='flex items-start justify-between gap-4 w-full mt-2'>
       <div className='flex-1'>
         <Label className='text-xs font-medium text-muted-foreground'>Camera Position</Label>
-        <Vector value={cameraSnapshot?.position} />
+        <Vector value={adjustedPosition} />
       </div>
       <div className='flex-1'>
         <Label className='text-xs font-medium text-muted-foreground'>Target</Label>
