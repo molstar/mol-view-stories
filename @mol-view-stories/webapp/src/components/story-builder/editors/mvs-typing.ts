@@ -488,6 +488,20 @@ namespace _ {
     /**
      * @since 1.0.0
      */
+    declare class BooleanType extends Type<boolean> {
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'BooleanType'
+      constructor()
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface BooleanC extends BooleanType {}
+    /**
+     * @since 1.0.0
+     */
     declare class RefinementType<C extends Any, A = any, O = A, I = unknown> extends Type<A, O, I> {
       readonly type: C
       readonly predicate: Predicate<A>
@@ -528,6 +542,37 @@ namespace _ {
     /**
      * @since 1.0.0
      */
+    declare class InterfaceType<P, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly props: P
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'InterfaceType'
+      constructor(
+        name: string,
+        is: InterfaceType<P, A, O, I>['is'],
+        validate: InterfaceType<P, A, O, I>['validate'],
+        encode: InterfaceType<P, A, O, I>['encode'],
+        props: P
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface TypeC<P extends Props>
+      extends InterfaceType<
+        P,
+        {
+          [K in keyof P]: TypeOf<P[K]>
+        },
+        {
+          [K in keyof P]: OutputOf<P[K]>
+        },
+        unknown
+      > {}
+    /**
+     * @since 1.0.0
+     */
     declare class PartialType<P, A = any, O = A, I = unknown> extends Type<A, O, I> {
       readonly props: P
       /**
@@ -559,6 +604,40 @@ namespace _ {
     /**
      * @since 1.0.0
      */
+    declare class DictionaryType<D extends Any, C extends Any, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly domain: D
+      readonly codomain: C
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'DictionaryType'
+      constructor(
+        name: string,
+        is: DictionaryType<D, C, A, O, I>['is'],
+        validate: DictionaryType<D, C, A, O, I>['validate'],
+        encode: DictionaryType<D, C, A, O, I>['encode'],
+        domain: D,
+        codomain: C
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface RecordC<D extends Mixed, C extends Mixed>
+      extends DictionaryType<
+        D,
+        C,
+        {
+          [K in TypeOf<D>]: TypeOf<C>
+        },
+        {
+          [K in OutputOf<D>]: OutputOf<C>
+        },
+        unknown
+      > {}
+    /**
+     * @since 1.0.0
+     */
     declare class UnionType<CS extends Array<Any>, A = any, O = A, I = unknown> extends Type<A, O, I> {
       readonly types: CS
       /**
@@ -578,6 +657,65 @@ namespace _ {
      */
     interface UnionC<CS extends [Mixed, Mixed, ...Array<Mixed>]>
       extends UnionType<CS, TypeOf<CS[number]>, OutputOf<CS[number]>, unknown> {}
+    /**
+     * @since 1.0.0
+     */
+    declare class IntersectionType<CS extends Array<Any>, A = any, O = A, I = unknown> extends Type<A, O, I> {
+      readonly types: CS
+      /**
+       * @since 1.0.0
+       */
+      readonly _tag: 'IntersectionType'
+      constructor(
+        name: string,
+        is: IntersectionType<CS, A, O, I>['is'],
+        validate: IntersectionType<CS, A, O, I>['validate'],
+        encode: IntersectionType<CS, A, O, I>['encode'],
+        types: CS
+      )
+    }
+    /**
+     * @since 1.5.3
+     */
+    interface IntersectionC<CS extends [Mixed, Mixed, ...Array<Mixed>]>
+      extends IntersectionType<
+        CS,
+        CS extends {
+          length: 2
+        }
+          ? TypeOf<CS[0]> & TypeOf<CS[1]>
+          : CS extends {
+              length: 3
+            }
+          ? TypeOf<CS[0]> & TypeOf<CS[1]> & TypeOf<CS[2]>
+          : CS extends {
+              length: 4
+            }
+          ? TypeOf<CS[0]> & TypeOf<CS[1]> & TypeOf<CS[2]> & TypeOf<CS[3]>
+          : CS extends {
+              length: 5
+            }
+          ? TypeOf<CS[0]> & TypeOf<CS[1]> & TypeOf<CS[2]> & TypeOf<CS[3]> & TypeOf<CS[4]>
+          : unknown,
+        CS extends {
+          length: 2
+        }
+          ? OutputOf<CS[0]> & OutputOf<CS[1]>
+          : CS extends {
+              length: 3
+            }
+          ? OutputOf<CS[0]> & OutputOf<CS[1]> & OutputOf<CS[2]>
+          : CS extends {
+              length: 4
+            }
+          ? OutputOf<CS[0]> & OutputOf<CS[1]> & OutputOf<CS[2]> & OutputOf<CS[3]>
+          : CS extends {
+              length: 5
+            }
+          ? OutputOf<CS[0]> & OutputOf<CS[1]> & OutputOf<CS[2]> & OutputOf<CS[3]> & OutputOf<CS[4]>
+          : unknown,
+        unknown
+      > {}
     /**
      * @since 1.0.0
      */
@@ -800,111 +938,309 @@ namespace _ {
     /** Type of tree which conforms to tree schema \`TTreeSchema\` */
     type TreeFor<TTreeSchema extends TreeSchema> = Tree<NodeFor<TTreeSchema>, RootFor<TTreeSchema> & NodeFor<TTreeSchema>>;
     
+    /**
+     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author Adam Midlik <midlik@gmail.com>
+     * @author David Sehnal <david.sehnal@gmail.com>
+     */
+    
+    /** \`format\` parameter values for \`parse\` node in MVS tree */
+    type ParseFormatT = 'mmcif' | 'bcif' | 'pdb' | 'pdbqt' | 'gro' | 'xyz' | 'mol' | 'sdf' | 'mol2' | 'lammpstrj' | 'xtc' | 'nctraj' | 'dcd' | 'trr' | 'psf' | 'prmtop' | 'top' | 'map' | 'dx' | 'dxbin';
+    declare const ParseFormatT: Type<ParseFormatT, ParseFormatT, unknown>;
+    /** \`kind\` parameter values for \`structure\` node in MVS tree */
+    type StructureTypeT = 'model' | 'assembly' | 'symmetry' | 'symmetry_mates';
+    declare const StructureTypeT: Type<StructureTypeT, StructureTypeT, unknown>;
+    /** \`selector\` parameter values for \`component\` node in MVS tree */
+    type ComponentSelectorT = 'all' | 'polymer' | 'protein' | 'nucleic' | 'branched' | 'ligand' | 'ion' | 'water' | 'coarse';
+    declare const ComponentSelectorT: Type<ComponentSelectorT, ComponentSelectorT, unknown>;
+    /** \`selector\` parameter values for \`component\` node in MVS tree */
+    declare const _ComponentExpressionT: PartialC<{
+        label_entity_id: StringC;
+        label_asym_id: StringC;
+        auth_asym_id: StringC;
+        label_seq_id: RefinementC<NumberC, number>;
+        auth_seq_id: RefinementC<NumberC, number>;
+        pdbx_PDB_ins_code: StringC;
+        beg_label_seq_id: RefinementC<NumberC, number>;
+        end_label_seq_id: RefinementC<NumberC, number>;
+        beg_auth_seq_id: RefinementC<NumberC, number>;
+        end_auth_seq_id: RefinementC<NumberC, number>;
+        label_comp_id: StringC;
+        auth_comp_id: StringC;
+        /** 0-based residue index in the source file */
+        residue_index: RefinementC<NumberC, number>;
+        label_atom_id: StringC;
+        auth_atom_id: StringC;
+        type_symbol: StringC;
+        atom_id: RefinementC<NumberC, number>;
+        atom_index: RefinementC<NumberC, number>;
+        /** Instance identifier to distinguish instances of the same chain created by applying different symmetry operators,
+         * like 'ASM-X0-1' for assemblies or '1_555' for crystals */
+        instance_id: StringC;
+    }>;
+    /** \`selector\` parameter values for \`component\` node in MVS tree */
+    interface ComponentExpressionT extends ValueFor<typeof _ComponentExpressionT> {
+    }
+    declare const ComponentExpressionT: Type<ComponentExpressionT>;
+    /** \`schema\` parameter values for \`*_from_uri\` and \`*_from_source\` nodes in MVS tree */
+    type SchemaT = 'whole_structure' | 'entity' | 'chain' | 'auth_chain' | 'residue' | 'auth_residue' | 'residue_range' | 'auth_residue_range' | 'atom' | 'auth_atom' | 'all_atomic';
+    declare const SchemaT: Type<SchemaT, SchemaT, unknown>;
+    /** \`format\` parameter values for \`*_from_uri\` nodes in MVS tree */
+    type SchemaFormatT = 'cif' | 'bcif' | 'json';
+    declare const SchemaFormatT: Type<SchemaFormatT, SchemaFormatT, unknown>;
+    /** Parameter values for vector params, e.g. \`position\` */
+    type Vector3 = [number, number, number];
+    declare const Vector3: Type<Vector3>;
+    type LabelAttachments = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'top-left' | 'top-center' | 'top-right';
+    declare const LabelAttachments: Type<LabelAttachments, LabelAttachments, unknown>;
+    /** Primitives-related types */
+    declare const _PrimitiveComponentExpressionT: PartialC<{
+        structure_ref: StringC;
+        expression_schema: Type<SchemaT, SchemaT, unknown>;
+        expressions: ArrayC<Type<ComponentExpressionT, ComponentExpressionT, unknown>>;
+    }>;
+    /** Primitives-related types */
+    interface PrimitiveComponentExpressionT extends ValueFor<typeof _PrimitiveComponentExpressionT> {
+    }
+    declare const PrimitiveComponentExpressionT: Type<PrimitiveComponentExpressionT>;
+    declare const PrimitivePositionT: UnionC<[Type<Vector3, Vector3, unknown>, Type<ComponentExpressionT, ComponentExpressionT, unknown>, Type<PrimitiveComponentExpressionT, PrimitiveComponentExpressionT, unknown>]>;
+    type PrimitivePositionT = ValueFor<typeof PrimitivePositionT>;
+    /** Hexadecimal color string, e.g. '#FF1100' (the type matches more than just valid HexColor strings) */
+    type HexColorT = \`#\${string}\`;
+    declare const HexColorT: Type<\`#\${string}\`, \`#\${string}\`, unknown>;
+    /** Named color string (e.g. 'red') for \`color\` parameter values for \`color\` node in MVS tree */
+    declare const ColorNameT: Type<ColorNameT, ColorNameT, unknown>;
+    type ColorNameT = 'aliceblue' | 'antiquewhite' | 'aqua' | 'aquamarine' | 'azure' | 'beige' | 'bisque' | 'black' | 'blanchedalmond' | 'blue' | 'blueviolet' | 'brown' | 'burlywood' | 'cadetblue' | 'chartreuse' | 'chocolate' | 'coral' | 'cornflower' | 'cornflowerblue' | 'cornsilk' | 'crimson' | 'cyan' | 'darkblue' | 'darkcyan' | 'darkgoldenrod' | 'darkgray' | 'darkgreen' | 'darkgrey' | 'darkkhaki' | 'darkmagenta' | 'darkolivegreen' | 'darkorange' | 'darkorchid' | 'darkred' | 'darksalmon' | 'darkseagreen' | 'darkslateblue' | 'darkslategray' | 'darkslategrey' | 'darkturquoise' | 'darkviolet' | 'deeppink' | 'deepskyblue' | 'dimgray' | 'dimgrey' | 'dodgerblue' | 'firebrick' | 'floralwhite' | 'forestgreen' | 'fuchsia' | 'gainsboro' | 'ghostwhite' | 'gold' | 'goldenrod' | 'gray' | 'green' | 'greenyellow' | 'grey' | 'honeydew' | 'hotpink' | 'indianred' | 'indigo' | 'ivory' | 'khaki' | 'laserlemon' | 'lavender' | 'lavenderblush' | 'lawngreen' | 'lemonchiffon' | 'lightblue' | 'lightcoral' | 'lightcyan' | 'lightgoldenrod' | 'lightgoldenrodyellow' | 'lightgray' | 'lightgreen' | 'lightgrey' | 'lightpink' | 'lightsalmon' | 'lightseagreen' | 'lightskyblue' | 'lightslategray' | 'lightslategrey' | 'lightsteelblue' | 'lightyellow' | 'lime' | 'limegreen' | 'linen' | 'magenta' | 'maroon' | 'maroon2' | 'maroon3' | 'mediumaquamarine' | 'mediumblue' | 'mediumorchid' | 'mediumpurple' | 'mediumseagreen' | 'mediumslateblue' | 'mediumspringgreen' | 'mediumturquoise' | 'mediumvioletred' | 'midnightblue' | 'mintcream' | 'mistyrose' | 'moccasin' | 'navajowhite' | 'navy' | 'oldlace' | 'olive' | 'olivedrab' | 'orange' | 'orangered' | 'orchid' | 'palegoldenrod' | 'palegreen' | 'paleturquoise' | 'palevioletred' | 'papayawhip' | 'peachpuff' | 'peru' | 'pink' | 'plum' | 'powderblue' | 'purple' | 'purple2' | 'purple3' | 'rebeccapurple' | 'red' | 'rosybrown' | 'royalblue' | 'saddlebrown' | 'salmon' | 'sandybrown' | 'seagreen' | 'seashell' | 'sienna' | 'silver' | 'skyblue' | 'slateblue' | 'slategray' | 'slategrey' | 'snow' | 'springgreen' | 'steelblue' | 'tan' | 'teal' | 'thistle' | 'tomato' | 'turquoise' | 'violet' | 'wheat' | 'white' | 'whitesmoke' | 'yellow' | 'yellowgreen';
+    /** \`color\` parameter values for \`color\` node in MVS tree */
+    type ColorT = ColorNameT | HexColorT;
+    declare const ColorT: Type<ColorT>;
+    type ColorListNameT = 'Reds' | 'Oranges' | 'Greens' | 'Blues' | 'Purples' | 'Greys' | 'OrRd' | 'BuGn' | 'PuBuGn' | 'GnBu' | 'PuBu' | 'BuPu' | 'RdPu' | 'PuRd' | 'YlOrRd' | 'YlOrBr' | 'YlGn' | 'YlGnBu' | 'Magma' | 'Inferno' | 'Plasma' | 'Viridis' | 'Cividis' | 'Turbo' | 'Warm' | 'Cool' | 'CubehelixDefault' | 'Rainbow' | 'Sinebow' | 'RdBu' | 'RdGy' | 'PiYG' | 'BrBG' | 'PRGn' | 'PuOr' | 'RdYlGn' | 'RdYlBu' | 'Spectral' | 'Category10' | 'Observable10' | 'Tableau10' | 'Set1' | 'Set2' | 'Set3' | 'Pastel1' | 'Pastel2' | 'Dark2' | 'Paired' | 'Accent' | 'Chainbow';
+    declare const ColorListNameT: Type<ColorListNameT, ColorListNameT, unknown>;
+    type ColorDictNameT = 'ElementSymbol' | 'ResidueName' | 'ResidueProperties' | 'SecondaryStructure';
+    declare const ColorDictNameT: Type<ColorDictNameT, ColorDictNameT, unknown>;
+    declare const _CategoricalPalette: IntersectionC<[TypeC<{
+        kind: Type<"categorical", "categorical", unknown>;
+    }>, PartialC<{
+        colors: UnionC<[Type<ColorListNameT, ColorListNameT, unknown>, Type<ColorDictNameT, ColorDictNameT, unknown>, ArrayC<Type<ColorT, ColorT, unknown>>, RecordC<StringC, Type<ColorT, ColorT, unknown>>]>;
+        /** Repeat color list once all colors are depleted (only applies if \`colors\` is a list or a color list name). */
+        repeat_color_list: BooleanC;
+        /** Sort actual annotation values before assigning colors from a list (none = take values in order of their first occurrence). */
+        sort: Type<"none" | "numeric" | "lexical", "none" | "numeric" | "lexical", unknown>;
+        /** Sort direction. */
+        sort_direction: Type<"ascending" | "descending", "ascending" | "descending", unknown>;
+        /** Treat annotation values as case-insensitive strings. */
+        case_insensitive: BooleanC;
+        /** Color to use when a) \`colors\` is a dictionary (or a color dictionary name) and given key is not present, or b) \`colors\` is a list (or a color list name) and there are more actual annotation values than listed colors and \`repeat_color_list\` is not true. */
+        missing_color: Type<ColorT | null, ColorT | null, unknown>;
+    }>]>;
+    interface CategoricalPalette extends ValueFor<typeof _CategoricalPalette> {
+    }
+    declare const CategoricalPalette: Type<CategoricalPalette>;
+    declare const _DiscretePalette: IntersectionC<[TypeC<{
+        kind: Type<"discrete", "discrete", unknown>;
+    }>, PartialC<{
+        /** Define colors for the discrete color palette and optionally corresponding checkpoints.
+         * Checkpoints refer to the values normalized to interval [0, 1] if \`mode\` is \`"normalized"\` (default), or to the values directly if \`mode\` is \`"absolute"\`.
+         * If checkpoints are not provided, they will created automatically (uniformly distributed over interval [0, 1]).
+         * If 1 checkpoint is provided for each color, then the color applies to values from this checkpoint (inclusive) until the next listed checkpoint (exclusive); the last color applies until Infinity.
+         * If 2 checkpoints are provided for each color, then the color applies to values from the first until the second checkpoint (inclusive); null means +/-Infinity; if ranges overlap, the later listed takes precedence.
+         */
+        colors: UnionC<[Type<ColorListNameT, ColorListNameT, unknown>, ArrayC<Type<ColorT, ColorT, unknown>>, ArrayC<TupleC<[Type<ColorT, ColorT, unknown>, NumberC]>>, ArrayC<TupleC<[Type<ColorT | null, ColorT | null, unknown>, Type<number | null, number | null, unknown>, Type<number | null, number | null, unknown>]>>]>;
+        /** Reverse order of \`colors\` list. Only has effect when \`colors\` is a color list name or a color list without explicit checkpoints. */
+        reverse: BooleanC;
+        /** Defines whether the annotation values should be normalized before assigning color based on checkpoints in \`colors\` (\`x_normalized = (x - x_min) / (x_max - x_min)\`, where \`[x_min, x_max]\` are either \`value_domain\` if provided, or the lowest and the highest value encountered in the annotation). Default is \`"normalized"\`. */
+        mode: Type<"absolute" | "normalized", "absolute" | "normalized", unknown>;
+        /** Defines \`x_min\` and \`x_max\` for normalization of annotation values. Either can be \`null\`, meaning that minimum/maximum of the actual values will be used. Only used when \`mode\` is \`"normalized"\`. */
+        value_domain: TupleC<[Type<number | null, number | null, unknown>, Type<number | null, number | null, unknown>]>;
+    }>]>;
+    interface DiscretePalette extends ValueFor<typeof _DiscretePalette> {
+    }
+    declare const DiscretePalette: Type<DiscretePalette>;
+    declare const _ContinuousPalette: IntersectionC<[TypeC<{
+        kind: Type<"continuous", "continuous", unknown>;
+    }>, PartialC<{
+        /** Define colors for the continuous color palette and optionally corresponding checkpoints (i.e. annotation values that are mapped to each color).
+         * Checkpoints refer to the values normalized to interval [0, 1] if \`mode\` is \`"normalized"\` (default), or to the values directly if \`mode\` is \`"absolute"\`.
+         * If checkpoints are not provided, they will created automatically (uniformly distributed over interval [0, 1]). */
+        colors: UnionC<[Type<ColorListNameT, ColorListNameT, unknown>, ArrayC<Type<ColorT, ColorT, unknown>>, ArrayC<TupleC<[Type<ColorT, ColorT, unknown>, NumberC]>>]>;
+        /** Reverse order of \`colors\` list. Only has effect when \`colors\` is a color list name or a color list without explicit checkpoints. */
+        reverse: BooleanC;
+        /** Defines whether the annotation values should be normalized before assigning color based on checkpoints in \`colors\` (\`x_normalized = (x - x_min) / (x_max - x_min)\`, where \`[x_min, x_max]\` are either \`value_domain\` if provided, or the lowest and the highest value encountered in the annotation). Default is \`"normalized"\`. */
+        mode: Type<"absolute" | "normalized", "absolute" | "normalized", unknown>;
+        /** Defines \`x_min\` and \`x_max\` for normalization of annotation values. Either can be \`null\`, meaning that minimum/maximum of the actual values will be used. Only used when \`mode\` is \`"normalized"\`. */
+        value_domain: TupleC<[Type<number | null, number | null, unknown>, Type<number | null, number | null, unknown>]>;
+        /** Color to use for values below the lowest checkpoint. 'auto' means color of the lowest checkpoint. */
+        underflow_color: Type<"auto" | ColorT | null, "auto" | ColorT | null, unknown>;
+        /** Color to use for values above the highest checkpoint. 'auto' means color of the highest checkpoint. */
+        overflow_color: Type<"auto" | ColorT | null, "auto" | ColorT | null, unknown>;
+    }>]>;
+    interface ContinuousPalette extends ValueFor<typeof _ContinuousPalette> {
+    }
+    declare const ContinuousPalette: Type<ContinuousPalette>;
+    
+    type Easing = 'linear' | 'bounce-in' | 'bounce-out' | 'bounce-in-out' | 'circle-in' | 'circle-out' | 'circle-in-out' | 'cubic-in' | 'cubic-out' | 'cubic-in-out' | 'exp-in' | 'exp-out' | 'exp-in-out' | 'quad-in' | 'quad-out' | 'quad-in-out' | 'sin-in' | 'sin-out' | 'sin-in-out';
+    declare const Easing: Type<Easing, Easing, unknown>;
     declare const MVSAnimationSchema: TreeSchema<{
         animation: SimpleParamsSchema<{
+            /** Frame time in milliseconds. */
             frame_time_ms: OptionalField<number>;
+            /** Total duration of the animation. If not specified, computed as maximum of all transitions. */
             duration_ms: OptionalField<number | null>;
+            /** Determines whether the animation should autoplay when a snapshot is loaded */
             autoplay: OptionalField<boolean>;
+            /** Determines whether the animation should loop when it reaches the end. */
             loop: OptionalField<boolean>;
+            /** Determines whether the camera state should be included in the animation. */
             include_camera: OptionalField<boolean>;
+            /** Determines whether the canvas state should be included in the animation. */
             include_canvas: OptionalField<boolean>;
         }>;
         interpolate: UnionParamsSchema<"kind", {
             scalar: SimpleParamsSchema<{
+                /** Magnitude of the noise to apply to the interpolated value. */
                 noise_magnitude: OptionalField<number>;
+                /** Start value. If a list of values is provided, each element will be interpolated separately. If unset, parent state value is used. */
                 start: OptionalField<number | number[] | null>;
+                /** End value. If a list of values is provided, each element will be interpolated separately. If unset, only noise is applied. */
                 end: OptionalField<number | number[] | null>;
+                /** Whether to round the values to the closest integer. Useful for example for trajectory animation. */
                 discrete: OptionalField<boolean>;
-                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Easing function to use for the transition. */
+                easing: OptionalField<Easing>;
+                /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 alternate_direction: OptionalField<boolean>;
+                /** Reference to the node. */
                 target_ref: RequiredField<string>;
+                /** Value accessor. */
                 property: RequiredField<string | (string | number)[]>;
+                /** Start time of the transition in milliseconds. */
                 start_ms: OptionalField<number>;
+                /** Duration of the transition in milliseconds. */
                 duration_ms: RequiredField<number>;
             }>;
             vec3: SimpleParamsSchema<{
+                /** Magnitude of the noise to apply to the interpolated value. */
                 noise_magnitude: OptionalField<number>;
+                /** Start value. If unset, parent state value is used. Must be array of length 3N (x1, y1, z1, x2, y2, z2, ...). */
                 start: OptionalField<number[] | null>;
+                /** End value. Must be array of length 3N (x1, y1, z1, x2, y2, z2, ...). If unset, only noise is applied. */
                 end: OptionalField<number[] | null>;
+                /** Whether to use spherical interpolation. */
                 spherical: OptionalField<boolean>;
-                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Easing function to use for the transition. */
+                easing: OptionalField<Easing>;
+                /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 alternate_direction: OptionalField<boolean>;
+                /** Reference to the node. */
                 target_ref: RequiredField<string>;
+                /** Value accessor. */
                 property: RequiredField<string | (string | number)[]>;
+                /** Start time of the transition in milliseconds. */
                 start_ms: OptionalField<number>;
+                /** Duration of the transition in milliseconds. */
                 duration_ms: RequiredField<number>;
             }>;
             rotation_matrix: SimpleParamsSchema<{
+                /** Magnitude of the noise to apply to the interpolated value. */
                 noise_magnitude: OptionalField<number>;
+                /** Start value. If unset, parent state value is used. */
                 start: OptionalField<number[] | null>;
+                /** End value. If unset, only noise is applied. */
                 end: OptionalField<number[] | null>;
-                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Easing function to use for the transition. */
+                easing: OptionalField<Easing>;
+                /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 alternate_direction: OptionalField<boolean>;
+                /** Reference to the node. */
                 target_ref: RequiredField<string>;
+                /** Value accessor. */
                 property: RequiredField<string | (string | number)[]>;
+                /** Start time of the transition in milliseconds. */
                 start_ms: OptionalField<number>;
+                /** Duration of the transition in milliseconds. */
                 duration_ms: RequiredField<number>;
             }>;
             transform_matrix: SimpleParamsSchema<{
-                pivot: OptionalField<[number, number, number] | null>;
+                /** Pivot point for rotation and scale. */
+                pivot: OptionalField<Vector3 | null>;
+                /** Start rotation value. If unset, parent state value is used. */
                 rotation_start: OptionalField<number[] | null>;
+                /** End rotation value. If unset, only noise is applied */
                 rotation_end: OptionalField<number[] | null>;
+                /** Magnitude of the noise to apply to the rotation. */
                 rotation_noise_magnitude: OptionalField<number>;
-                rotation_easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Easing function to use for the rotation. */
+                rotation_easing: OptionalField<Easing>;
+                /** Determines how many times the rotation interpolation loops. Current T = frequency * t mod 1. */
                 rotation_frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 rotation_alternate_direction: OptionalField<boolean>;
-                translation_start: OptionalField<[number, number, number] | null>;
-                translation_end: OptionalField<[number, number, number] | null>;
+                /** Start translation value. If unset, parent state value is used. */
+                translation_start: OptionalField<Vector3 | null>;
+                /** End translation value. If unset, only noise is applied. */
+                translation_end: OptionalField<Vector3 | null>;
+                /** Magnitude of the noise to apply to the translation. */
                 translation_noise_magnitude: OptionalField<number>;
-                translation_easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Easing function to use for the translation. */
+                translation_easing: OptionalField<Easing>;
+                /** Determines how many times the translation interpolation loops. Current T = frequency * t mod 1. */
                 translation_frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 translation_alternate_direction: OptionalField<boolean>;
-                scale_start: OptionalField<[number, number, number] | null>;
-                scale_end: OptionalField<[number, number, number] | null>;
+                /** Start scale value. If unset, parent state value is used. */
+                scale_start: OptionalField<Vector3 | null>;
+                /** End scale value. If unset, only noise is applied. */
+                scale_end: OptionalField<Vector3 | null>;
+                /** Magnitude of the noise to apply to the scale. */
                 scale_noise_magnitude: OptionalField<number>;
-                scale_easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Easing function to use for the scale. */
+                scale_easing: OptionalField<Easing>;
+                /** Determines how many times the scale interpolation loops. Current T = frequency * t mod 1. */
                 scale_frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 scale_alternate_direction: OptionalField<boolean>;
+                /** Reference to the node. */
                 target_ref: RequiredField<string>;
+                /** Value accessor. */
                 property: RequiredField<string | (string | number)[]>;
+                /** Start time of the transition in milliseconds. */
                 start_ms: OptionalField<number>;
+                /** Duration of the transition in milliseconds. */
                 duration_ms: RequiredField<number>;
             }>;
             color: SimpleParamsSchema<{
-                start: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | {
-                    [x: string]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
-                    [x: number]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
+                /** Start value. If unset, parent state value is used. */
+                start: OptionalField<ColorT | {
+                    [x: string]: ColorT;
+                    [x: number]: ColorT;
                 } | null>;
-                end: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | {
-                    [x: string]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
-                    [x: number]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
+                /** End value. */
+                end: OptionalField<ColorT | {
+                    [x: string]: ColorT;
+                    [x: number]: ColorT;
                 } | null>;
-                palette: OptionalField<({
-                    kind: "discrete";
-                } & {
-                    colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null, number | null, number | null][] | undefined;
-                    reverse?: boolean | undefined;
-                    mode?: "absolute" | "normalized" | undefined;
-                    value_domain?: [number | null, number | null] | undefined;
-                }) | ({
-                    kind: "continuous";
-                } & {
-                    colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | undefined;
-                    reverse?: boolean | undefined;
-                    mode?: "absolute" | "normalized" | undefined;
-                    value_domain?: [number | null, number | null] | undefined;
-                    underflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-                    overflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-                }) | null>;
-                easing: OptionalField<"linear" | "bounce-in" | "bounce-out" | "bounce-in-out" | "circle-in" | "circle-out" | "circle-in-out" | "cubic-in" | "cubic-out" | "cubic-in-out" | "exp-in" | "exp-out" | "exp-in-out" | "quad-in" | "quad-out" | "quad-in-out" | "sin-in" | "sin-out" | "sin-in-out">;
+                /** Palette to sample colors from. Overrides start and end values. */
+                palette: OptionalField<DiscretePalette | ContinuousPalette | null>;
+                /** Easing function to use for the transition. */
+                easing: OptionalField<Easing>;
+                /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
+                /** Whether to alternate the direction of the interpolation for frequency > 1. */
                 alternate_direction: OptionalField<boolean>;
+                /** Reference to the node. */
                 target_ref: RequiredField<string>;
+                /** Value accessor. */
                 property: RequiredField<string | (string | number)[]>;
+                /** Start time of the transition in milliseconds. */
                 start_ms: OptionalField<number>;
+                /** Duration of the transition in milliseconds. */
                 duration_ms: RequiredField<number>;
             }>;
         }>;
@@ -923,12 +1259,12 @@ namespace _ {
         }>;
         parse: SimpleParamsSchema<{
             /** Format of the input data resource. */
-            format: RequiredField<"map" | "dx" | "pdb" | "xyz" | "gro" | "mol" | "mol2" | "lammpstrj" | "sdf" | "bcif" | "xtc" | "mmcif" | "pdbqt" | "dxbin">;
+            format: RequiredField<ParseFormatT>;
         }>;
         coordinates: SimpleParamsSchema<{}>;
         structure: SimpleParamsSchema<{
             /** Type of structure to be created (\`"model"\` for original model coordinates, \`"assembly"\` for assembly structure, \`"symmetry"\` for a set of crystal unit cells based on Miller indices, \`"symmetry_mates"\` for a set of asymmetric units within a radius from the original model). */
-            type: RequiredField<"assembly" | "symmetry" | "model" | "symmetry_mates">;
+            type: RequiredField<StructureTypeT>;
             /** Header of the CIF block to read coordinates from (only applies when the input data are from CIF or BinaryCIF). If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read coordinates from (only applies when the input data are from CIF or BinaryCIF and \`block_header\` is \`null\`). */
@@ -950,9 +1286,9 @@ namespace _ {
             /** Rotation matrix (3x3 matrix flattened in column major format (j*3+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. The default value is the identity matrix (corresponds to no rotation). */
             rotation: OptionalField<number[]>;
             /** Translation vector, applied to the structure coordinates after rotation. The default value is the zero vector (corresponds to no translation). */
-            translation: OptionalField<[number, number, number]>;
+            translation: OptionalField<Vector3>;
             /** Point to rotate the object around. Can be either a 3D vector or dynamically computed object centroid. */
-            rotation_center: OptionalField<[number, number, number] | "centroid" | null>;
+            rotation_center: OptionalField<"centroid" | Vector3 | null>;
             /** Transform matrix (4x4 matrix flattened in column major format (j*4+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. Takes precedence over \`rotation\` and \`translation\`. */
             matrix: OptionalField<number[] | null>;
         }>;
@@ -960,55 +1296,15 @@ namespace _ {
             /** Rotation matrix (3x3 matrix flattened in column major format (j*3+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. The default value is the identity matrix (corresponds to no rotation). */
             rotation: OptionalField<number[]>;
             /** Translation vector, applied to the structure coordinates after rotation. The default value is the zero vector (corresponds to no translation). */
-            translation: OptionalField<[number, number, number]>;
+            translation: OptionalField<Vector3>;
             /** Point to rotate the object around. Can be either a 3D vector or dynamically computed object centroid. */
-            rotation_center: OptionalField<[number, number, number] | "centroid" | null>;
+            rotation_center: OptionalField<"centroid" | Vector3 | null>;
             /** Transform matrix (4x4 matrix flattened in column major format (j*4+i indexing), this is equivalent to Fortran-order in numpy). This matrix will multiply the structure coordinates from the left. Takes precedence over \`rotation\` and \`translation\`. */
             matrix: OptionalField<number[] | null>;
         }>;
         component: SimpleParamsSchema<{
             /** Defines what part of the parent structure should be included in this component. */
-            selector: RequiredField<"all" | "polymer" | "water" | "branched" | "ligand" | "ion" | "nucleic" | "protein" | "coarse" | {
-                label_entity_id?: string | undefined;
-                label_asym_id?: string | undefined;
-                auth_asym_id?: string | undefined;
-                label_seq_id?: number | undefined;
-                auth_seq_id?: number | undefined;
-                pdbx_PDB_ins_code?: string | undefined;
-                beg_label_seq_id?: number | undefined;
-                end_label_seq_id?: number | undefined;
-                beg_auth_seq_id?: number | undefined;
-                end_auth_seq_id?: number | undefined;
-                label_comp_id?: string | undefined;
-                auth_comp_id?: string | undefined;
-                residue_index?: number | undefined;
-                label_atom_id?: string | undefined;
-                auth_atom_id?: string | undefined;
-                type_symbol?: string | undefined;
-                atom_id?: number | undefined;
-                atom_index?: number | undefined;
-                instance_id?: string | undefined;
-            } | {
-                label_entity_id?: string | undefined;
-                label_asym_id?: string | undefined;
-                auth_asym_id?: string | undefined;
-                label_seq_id?: number | undefined;
-                auth_seq_id?: number | undefined;
-                pdbx_PDB_ins_code?: string | undefined;
-                beg_label_seq_id?: number | undefined;
-                end_label_seq_id?: number | undefined;
-                beg_auth_seq_id?: number | undefined;
-                end_auth_seq_id?: number | undefined;
-                label_comp_id?: string | undefined;
-                auth_comp_id?: string | undefined;
-                residue_index?: number | undefined;
-                label_atom_id?: string | undefined;
-                auth_atom_id?: string | undefined;
-                type_symbol?: string | undefined;
-                atom_id?: number | undefined;
-                atom_index?: number | undefined;
-                instance_id?: string | undefined;
-            }[]>;
+            selector: RequiredField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
         }>;
         component_from_uri: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the component identifier. */
@@ -1018,9 +1314,9 @@ namespace _ {
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
-            format: RequiredField<"json" | "cif" | "bcif">;
+            format: RequiredField<SchemaFormatT>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\`). If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\` and \`block_header\` is \`null\`). */
@@ -1038,7 +1334,7 @@ namespace _ {
             /** List of component identifiers (i.e. values in the field given by \`field_name\`) which should be included in this component. If \`null\`, component identifiers are ignored (all annotation rows are included), and \`field_name\` field can be dropped from the annotation. */
             field_values: OptionalField<string[] | null>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`block_header\` is \`null\`). */
@@ -1080,6 +1376,7 @@ namespace _ {
             }>;
         }>;
         volume: SimpleParamsSchema<{
+            /** Channel identifier (only applies when the input data contain multiple channels). */
             channel_id: OptionalField<string | null>;
         }>;
         volume_representation: UnionParamsSchema<"type", {
@@ -1099,88 +1396,21 @@ namespace _ {
         }>;
         color: SimpleParamsSchema<{
             /** Color to apply to the representation. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
-            color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`>;
+            color: OptionalField<ColorT>;
             /** Defines to what part of the representation this color should be applied. */
-            selector: OptionalField<"all" | "polymer" | "water" | "branched" | "ligand" | "ion" | "nucleic" | "protein" | "coarse" | {
-                label_entity_id?: string | undefined;
-                label_asym_id?: string | undefined;
-                auth_asym_id?: string | undefined;
-                label_seq_id?: number | undefined;
-                auth_seq_id?: number | undefined;
-                pdbx_PDB_ins_code?: string | undefined;
-                beg_label_seq_id?: number | undefined;
-                end_label_seq_id?: number | undefined;
-                beg_auth_seq_id?: number | undefined;
-                end_auth_seq_id?: number | undefined;
-                label_comp_id?: string | undefined;
-                auth_comp_id?: string | undefined;
-                residue_index?: number | undefined;
-                label_atom_id?: string | undefined;
-                auth_atom_id?: string | undefined;
-                type_symbol?: string | undefined;
-                atom_id?: number | undefined;
-                atom_index?: number | undefined;
-                instance_id?: string | undefined;
-            } | {
-                label_entity_id?: string | undefined;
-                label_asym_id?: string | undefined;
-                auth_asym_id?: string | undefined;
-                label_seq_id?: number | undefined;
-                auth_seq_id?: number | undefined;
-                pdbx_PDB_ins_code?: string | undefined;
-                beg_label_seq_id?: number | undefined;
-                end_label_seq_id?: number | undefined;
-                beg_auth_seq_id?: number | undefined;
-                end_auth_seq_id?: number | undefined;
-                label_comp_id?: string | undefined;
-                auth_comp_id?: string | undefined;
-                residue_index?: number | undefined;
-                label_atom_id?: string | undefined;
-                auth_atom_id?: string | undefined;
-                type_symbol?: string | undefined;
-                atom_id?: number | undefined;
-                atom_index?: number | undefined;
-                instance_id?: string | undefined;
-            }[]>;
+            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
         }>;
         color_from_uri: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the color. */
             field_name: OptionalField<string>;
             /** Customize mapping of annotation values to colors. */
-            palette: OptionalField<({
-                kind: "categorical";
-            } & {
-                colors?: "ElementSymbol" | "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | "ResidueName" | "ResidueProperties" | "SecondaryStructure" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | {
-                    [x: string]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
-                } | undefined;
-                repeat_color_list?: boolean | undefined;
-                sort?: "none" | "numeric" | "lexical" | undefined;
-                sort_direction?: "ascending" | "descending" | undefined;
-                case_insensitive?: boolean | undefined;
-                missing_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-            }) | ({
-                kind: "discrete";
-            } & {
-                colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null, number | null, number | null][] | undefined;
-                reverse?: boolean | undefined;
-                mode?: "absolute" | "normalized" | undefined;
-                value_domain?: [number | null, number | null] | undefined;
-            }) | ({
-                kind: "continuous";
-            } & {
-                colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | undefined;
-                reverse?: boolean | undefined;
-                mode?: "absolute" | "normalized" | undefined;
-                value_domain?: [number | null, number | null] | undefined;
-                underflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-                overflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-            }) | null>;
+            palette: OptionalField<CategoricalPalette | DiscretePalette | ContinuousPalette | null>;
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
-            format: RequiredField<"json" | "cif" | "bcif">;
+            format: RequiredField<SchemaFormatT>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\`). If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\` and \`block_header\` is \`null\`). */
@@ -1196,36 +1426,9 @@ namespace _ {
             /** Name of the column in CIF or field name (key) in JSON that contains the color. */
             field_name: OptionalField<string>;
             /** Customize mapping of annotation values to colors. */
-            palette: OptionalField<({
-                kind: "categorical";
-            } & {
-                colors?: "ElementSymbol" | "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | "ResidueName" | "ResidueProperties" | "SecondaryStructure" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | {
-                    [x: string]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
-                } | undefined;
-                repeat_color_list?: boolean | undefined;
-                sort?: "none" | "numeric" | "lexical" | undefined;
-                sort_direction?: "ascending" | "descending" | undefined;
-                case_insensitive?: boolean | undefined;
-                missing_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-            }) | ({
-                kind: "discrete";
-            } & {
-                colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null, number | null, number | null][] | undefined;
-                reverse?: boolean | undefined;
-                mode?: "absolute" | "normalized" | undefined;
-                value_domain?: [number | null, number | null] | undefined;
-            }) | ({
-                kind: "continuous";
-            } & {
-                colors?: "Reds" | "Oranges" | "Greens" | "Blues" | "Purples" | "Greys" | "Spectral" | "Magma" | "Inferno" | "Plasma" | "Viridis" | "Cividis" | "Accent" | "Paired" | "Turbo" | "Warm" | "Cool" | "CubehelixDefault" | "Rainbow" | "Sinebow" | "Category10" | "Observable10" | "Tableau10" | "OrRd" | "BuGn" | "PuBuGn" | "GnBu" | "PuBu" | "BuPu" | "RdPu" | "PuRd" | "YlOrRd" | "YlOrBr" | "YlGn" | "YlGnBu" | "RdBu" | "RdGy" | "PiYG" | "BrBG" | "PRGn" | "PuOr" | "RdYlGn" | "RdYlBu" | "Set1" | "Set2" | "Set3" | "Pastel1" | "Pastel2" | "Dark2" | "Chainbow" | ("aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`)[] | ["aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`, number][] | undefined;
-                reverse?: boolean | undefined;
-                mode?: "absolute" | "normalized" | undefined;
-                value_domain?: [number | null, number | null] | undefined;
-                underflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-                overflow_color?: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "auto" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null | undefined;
-            }) | null>;
+            palette: OptionalField<CategoricalPalette | DiscretePalette | ContinuousPalette | null>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`block_header\` is \`null\`). */
@@ -1239,22 +1442,22 @@ namespace _ {
         }>;
         clip: UnionParamsSchema<"type", {
             plane: SimpleParamsSchema<{
-                normal: RequiredField<[number, number, number]>;
-                point: RequiredField<[number, number, number]>;
+                normal: RequiredField<Vector3>;
+                point: RequiredField<Vector3>;
                 check_transform: OptionalField<number[] | null>;
                 invert: OptionalField<boolean>;
                 variant: OptionalField<"object" | "pixel">;
             }>;
             sphere: SimpleParamsSchema<{
-                center: RequiredField<[number, number, number]>;
+                center: RequiredField<Vector3>;
                 radius: OptionalField<number>;
                 check_transform: OptionalField<number[] | null>;
                 invert: OptionalField<boolean>;
                 variant: OptionalField<"object" | "pixel">;
             }>;
             box: SimpleParamsSchema<{
-                center: RequiredField<[number, number, number]>;
-                size: OptionalField<[number, number, number]>;
+                center: RequiredField<Vector3>;
+                size: OptionalField<Vector3>;
                 rotation: OptionalField<number[]>;
                 check_transform: OptionalField<number[] | null>;
                 invert: OptionalField<boolean>;
@@ -1275,9 +1478,9 @@ namespace _ {
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
-            format: RequiredField<"json" | "cif" | "bcif">;
+            format: RequiredField<SchemaFormatT>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\`). If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\` and \`block_header\` is \`null\`). */
@@ -1293,7 +1496,7 @@ namespace _ {
             /** Name of the column in CIF or field name (key) in JSON that contains the label text. */
             field_name: OptionalField<string>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`block_header\` is \`null\`). */
@@ -1315,9 +1518,9 @@ namespace _ {
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
-            format: RequiredField<"json" | "cif" | "bcif">;
+            format: RequiredField<SchemaFormatT>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\`). If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`format\` is \`"cif"\` or \`"bcif"\` and \`block_header\` is \`null\`). */
@@ -1333,7 +1536,7 @@ namespace _ {
             /** Name of the column in CIF or field name (key) in JSON that contains the tooltip text. */
             field_name: OptionalField<string>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
-            schema: RequiredField<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic">;
+            schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
             block_header: OptionalField<string | null>;
             /** 0-based index of the CIF block to read annotation from (only applies when \`block_header\` is \`null\`). */
@@ -1347,9 +1550,9 @@ namespace _ {
         }>;
         focus: SimpleParamsSchema<{
             /** Vector describing the direction of the view (camera position -> focused target). */
-            direction: OptionalField<[number, number, number]>;
+            direction: OptionalField<Vector3>;
             /** Vector which will be aligned with the screen Y axis. */
-            up: OptionalField<[number, number, number]>;
+            up: OptionalField<Vector3>;
             /** Radius of the focused sphere (overrides \`radius_factor\` and \`radius_extra\`. */
             radius: OptionalField<number | null>;
             /** Radius of the focused sphere relative to the radius of parent component (default: 1). Focused radius = component_radius * radius_factor + radius_extent. */
@@ -1359,23 +1562,23 @@ namespace _ {
         }>;
         camera: SimpleParamsSchema<{
             /** Coordinates of the point in space at which the camera is pointing. */
-            target: RequiredField<[number, number, number]>;
+            target: RequiredField<Vector3>;
             /** Coordinates of the camera. */
-            position: RequiredField<[number, number, number]>;
+            position: RequiredField<Vector3>;
             /** Vector which will be aligned with the screen Y axis. */
-            up: OptionalField<[number, number, number]>;
+            up: OptionalField<Vector3>;
             /** Near clipping plane distance from the position. */
             near: OptionalField<number | null>;
         }>;
         canvas: SimpleParamsSchema<{
             /** Color of the canvas background. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
-            background_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`>;
+            background_color: OptionalField<ColorT>;
         }>;
         primitives: SimpleParamsSchema<{
             /** Default color for primitives in this group. */
-            color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`>;
+            color: OptionalField<ColorT>;
             /** Default label color for primitives in this group. */
-            label_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`>;
+            label_color: OptionalField<ColorT>;
             /** Default tooltip for primitives in this group. */
             tooltip: OptionalField<string | null>;
             /** Opacity of primitive geometry in this group. */
@@ -1387,9 +1590,9 @@ namespace _ {
             /** Length of the tether line between the label and the target. Defaults to 1 (Angstrom). */
             label_tether_length: OptionalField<number>;
             /** How to attach the label to the target. Defaults to "middle-center". */
-            label_attachment: OptionalField<"middle-center" | "bottom-left" | "bottom-center" | "bottom-right" | "middle-left" | "middle-right" | "top-left" | "top-center" | "top-right">;
+            label_attachment: OptionalField<LabelAttachments>;
             /** Background color of the label. Defaults to none/transparent. */
-            label_background_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+            label_background_color: OptionalField<ColorT | null>;
             /** Load snapshot with the provided key when interacting with this primitives group. */
             snapshot_key: OptionalField<string | null>;
             /** Instances of this primitive group defined as 4x4 column major (j * 4 + i indexing) transformation matrices. */
@@ -1409,24 +1612,24 @@ namespace _ {
                 indices: RequiredField<number[]>;
                 triangle_groups: OptionalField<number[] | null>;
                 group_colors: OptionalField<{
-                    [x: number]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
+                    [x: number]: ColorT;
                 }>;
                 group_tooltips: OptionalField<{
                     [x: number]: string;
                 }>;
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                color: OptionalField<ColorT | null>;
                 tooltip: OptionalField<string | null>;
                 show_triangles: OptionalField<boolean>;
                 show_wireframe: OptionalField<boolean>;
                 wireframe_width: OptionalField<number>;
-                wireframe_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                wireframe_color: OptionalField<ColorT | null>;
             }>;
             lines: SimpleParamsSchema<{
                 vertices: RequiredField<number[]>;
                 indices: RequiredField<number[]>;
                 line_groups: OptionalField<number[] | null>;
                 group_colors: OptionalField<{
-                    [x: number]: "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\`;
+                    [x: number]: ColorT;
                 }>;
                 group_tooltips: OptionalField<{
                     [x: number]: string;
@@ -1434,198 +1637,22 @@ namespace _ {
                 group_widths: OptionalField<{
                     [x: number]: number;
                 }>;
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                color: OptionalField<ColorT | null>;
                 tooltip: OptionalField<string | null>;
                 width: OptionalField<number>;
             }>;
             tube: SimpleParamsSchema<{
                 tooltip: OptionalField<string | null>;
-                start: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                end: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
+                start: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                end: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 radius: OptionalField<number>;
                 dash_length: OptionalField<number | null>;
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                color: OptionalField<ColorT | null>;
             }>;
             arrow: SimpleParamsSchema<{
-                start: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                end: OptionalField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                } | null>;
-                direction: OptionalField<[number, number, number] | null>;
+                start: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                end: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                direction: OptionalField<Vector3 | null>;
                 length: OptionalField<number | null>;
                 show_start_cap: OptionalField<boolean>;
                 start_cap_length: OptionalField<number | null>;
@@ -1636,7 +1663,7 @@ namespace _ {
                 show_tube: OptionalField<boolean>;
                 tube_radius: OptionalField<number>;
                 tube_dash_length: OptionalField<number | null>;
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                color: OptionalField<ColorT | null>;
                 tooltip: OptionalField<string | null>;
             }>;
             distance_measurement: SimpleParamsSchema<{
@@ -1644,441 +1671,45 @@ namespace _ {
                 label_size: OptionalField<number | null>;
                 label_auto_size_scale: OptionalField<number>;
                 label_auto_size_min: OptionalField<number>;
-                label_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
-                start: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                end: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
+                label_color: OptionalField<ColorT | null>;
+                start: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                end: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 radius: OptionalField<number>;
                 dash_length: OptionalField<number | null>;
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                color: OptionalField<ColorT | null>;
             }>;
             angle_measurement: SimpleParamsSchema<{
-                a: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                b: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                c: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
+                a: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                b: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                c: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 label_template: OptionalField<string>;
                 label_size: OptionalField<number | null>;
                 label_auto_size_scale: OptionalField<number>;
                 label_auto_size_min: OptionalField<number>;
-                label_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                label_color: OptionalField<ColorT | null>;
                 show_vector: OptionalField<boolean>;
-                vector_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                vector_color: OptionalField<ColorT | null>;
                 vector_radius: OptionalField<number>;
                 show_section: OptionalField<boolean>;
-                section_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                section_color: OptionalField<ColorT | null>;
                 section_radius: OptionalField<number | null>;
                 section_radius_scale: OptionalField<number>;
             }>;
             label: SimpleParamsSchema<{
-                position: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
+                position: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 text: RequiredField<string>;
                 label_size: OptionalField<number>;
-                label_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                label_color: OptionalField<ColorT | null>;
                 label_offset: OptionalField<number>;
             }>;
             ellipse: SimpleParamsSchema<{
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                color: OptionalField<ColorT | null>;
                 as_circle: OptionalField<boolean>;
-                center: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                major_axis: OptionalField<[number, number, number] | null>;
-                minor_axis: OptionalField<[number, number, number] | null>;
-                major_axis_endpoint: OptionalField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                } | null>;
-                minor_axis_endpoint: OptionalField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                } | null>;
+                center: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                major_axis: OptionalField<Vector3 | null>;
+                minor_axis: OptionalField<Vector3 | null>;
+                major_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                minor_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
                 radius_major: OptionalField<number | null>;
                 radius_minor: OptionalField<number | null>;
                 theta_start: OptionalField<number>;
@@ -2086,200 +1717,24 @@ namespace _ {
                 tooltip: OptionalField<string | null>;
             }>;
             ellipsoid: SimpleParamsSchema<{
-                color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
-                center: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                major_axis: OptionalField<[number, number, number] | null>;
-                minor_axis: OptionalField<[number, number, number] | null>;
-                major_axis_endpoint: OptionalField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                } | null>;
-                minor_axis_endpoint: OptionalField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                } | null>;
-                radius: OptionalField<number | [number, number, number] | null>;
-                radius_extent: OptionalField<number | [number, number, number] | null>;
+                color: OptionalField<ColorT | null>;
+                center: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                major_axis: OptionalField<Vector3 | null>;
+                minor_axis: OptionalField<Vector3 | null>;
+                major_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                minor_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                radius: OptionalField<number | Vector3 | null>;
+                radius_extent: OptionalField<number | Vector3 | null>;
                 tooltip: OptionalField<string | null>;
             }>;
             box: SimpleParamsSchema<{
-                center: RequiredField<[number, number, number] | {
-                    label_entity_id?: string | undefined;
-                    label_asym_id?: string | undefined;
-                    auth_asym_id?: string | undefined;
-                    label_seq_id?: number | undefined;
-                    auth_seq_id?: number | undefined;
-                    pdbx_PDB_ins_code?: string | undefined;
-                    beg_label_seq_id?: number | undefined;
-                    end_label_seq_id?: number | undefined;
-                    beg_auth_seq_id?: number | undefined;
-                    end_auth_seq_id?: number | undefined;
-                    label_comp_id?: string | undefined;
-                    auth_comp_id?: string | undefined;
-                    residue_index?: number | undefined;
-                    label_atom_id?: string | undefined;
-                    auth_atom_id?: string | undefined;
-                    type_symbol?: string | undefined;
-                    atom_id?: number | undefined;
-                    atom_index?: number | undefined;
-                    instance_id?: string | undefined;
-                } | {
-                    structure_ref?: string | undefined;
-                    expression_schema?: "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic" | undefined;
-                    expressions?: {
-                        label_entity_id?: string | undefined;
-                        label_asym_id?: string | undefined;
-                        auth_asym_id?: string | undefined;
-                        label_seq_id?: number | undefined;
-                        auth_seq_id?: number | undefined;
-                        pdbx_PDB_ins_code?: string | undefined;
-                        beg_label_seq_id?: number | undefined;
-                        end_label_seq_id?: number | undefined;
-                        beg_auth_seq_id?: number | undefined;
-                        end_auth_seq_id?: number | undefined;
-                        label_comp_id?: string | undefined;
-                        auth_comp_id?: string | undefined;
-                        residue_index?: number | undefined;
-                        label_atom_id?: string | undefined;
-                        auth_atom_id?: string | undefined;
-                        type_symbol?: string | undefined;
-                        atom_id?: number | undefined;
-                        atom_index?: number | undefined;
-                        instance_id?: string | undefined;
-                    }[] | undefined;
-                }>;
-                extent: OptionalField<[number, number, number] | null>;
+                center: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                extent: OptionalField<Vector3 | null>;
                 show_faces: OptionalField<boolean>;
-                face_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                face_color: OptionalField<ColorT | null>;
                 show_edges: OptionalField<boolean>;
                 edge_radius: OptionalField<number>;
-                edge_color: OptionalField<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3" | \`#\${string}\` | null>;
+                edge_color: OptionalField<ColorT | null>;
                 tooltip: OptionalField<string | null>;
             }>;
         }>;
@@ -2292,76 +1747,6 @@ namespace _ {
     type MVSTree = TreeFor<typeof MVSTreeSchema>;
     /** Any subtree in a \`MVSTree\` (e.g. its root doesn't need to be 'root') */
     type MVSSubtree<TKind extends MVSKind = MVSKind> = SubtreeOfKind<MVSTree, TKind>;
-    
-    /**
-     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
-     *
-     * @author Adam Midlik <midlik@gmail.com>
-     * @author David Sehnal <david.sehnal@gmail.com>
-     */
-    
-    declare const PrimitivePositionT: UnionC<[TupleC<[NumberC, NumberC, NumberC]>, PartialC<{
-        label_entity_id: StringC;
-        label_asym_id: StringC;
-        auth_asym_id: StringC;
-        label_seq_id: RefinementC<NumberC, number>;
-        auth_seq_id: RefinementC<NumberC, number>;
-        pdbx_PDB_ins_code: StringC;
-        beg_label_seq_id: RefinementC<NumberC, number>;
-        end_label_seq_id: RefinementC<NumberC, number>;
-        beg_auth_seq_id: RefinementC<NumberC, number>;
-        end_auth_seq_id: RefinementC<NumberC, number>;
-        label_comp_id: StringC;
-        auth_comp_id: StringC;
-        /** 0-based residue index in the source file */
-        residue_index: RefinementC<NumberC, number>;
-        label_atom_id: StringC;
-        auth_atom_id: StringC;
-        type_symbol: StringC;
-        atom_id: RefinementC<NumberC, number>;
-        atom_index: RefinementC<NumberC, number>;
-        /** Instance identifier to distinguish instances of the same chain created by applying different symmetry operators,
-         * like 'ASM-X0-1' for assemblies or '1_555' for crystals */
-        instance_id: StringC;
-    }>, PartialC<{
-        structure_ref: StringC;
-        expression_schema: Type<"atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic", "atom" | "residue" | "entity" | "chain" | "whole_structure" | "auth_chain" | "auth_residue" | "residue_range" | "auth_residue_range" | "auth_atom" | "all_atomic", unknown>;
-        expressions: ArrayC<PartialC<{
-            label_entity_id: StringC;
-            label_asym_id: StringC;
-            auth_asym_id: StringC;
-            label_seq_id: RefinementC<NumberC, number>;
-            auth_seq_id: RefinementC<NumberC, number>;
-            pdbx_PDB_ins_code: StringC;
-            beg_label_seq_id: RefinementC<NumberC, number>;
-            end_label_seq_id: RefinementC<NumberC, number>;
-            beg_auth_seq_id: RefinementC<NumberC, number>;
-            end_auth_seq_id: RefinementC<NumberC, number>;
-            label_comp_id: StringC;
-            auth_comp_id: StringC;
-            /** 0-based residue index in the source file */
-            residue_index: RefinementC<NumberC, number>;
-            label_atom_id: StringC;
-            auth_atom_id: StringC;
-            type_symbol: StringC;
-            atom_id: RefinementC<NumberC, number>;
-            atom_index: RefinementC<NumberC, number>;
-            /** Instance identifier to distinguish instances of the same chain created by applying different symmetry operators,
-             * like 'ASM-X0-1' for assemblies or '1_555' for crystals */
-            instance_id: StringC;
-        }>>;
-    }>]>;
-    type PrimitivePositionT = ValueFor<typeof PrimitivePositionT>;
-    /** \`color\` parameter values for \`color\` node in MVS tree */
-    declare const ColorT: UnionC<[Type<"aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3", "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "rebeccapurple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen" | "cornflower" | "laserlemon" | "lightgoldenrod" | "maroon2" | "maroon3" | "purple2" | "purple3", unknown>, Type<\`#\${string}\`, \`#\${string}\`, unknown>]>;
-    type ColorT = ValueFor<typeof ColorT>;
-    
-    /**
-     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
-     *
-     * @author Adam Midlik <midlik@gmail.com>
-     * @author David Sehnal <david.sehnal@gmail.com>
-     */
     
     /** Base class for MVS builder pointing to anything */
     declare class _Base<TKind extends MVSKind> {
@@ -2386,8 +1771,8 @@ namespace _ {
         /** Add a 'download' node and return builder pointing to it. 'download' node instructs to retrieve a data resource. */
         download(params: MVSNodeParams<'download'> & CustomAndRef): Download;
         focus: (params?: ({} & {
-            direction?: [number, number, number] | undefined;
-            up?: [number, number, number] | undefined;
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
             radius?: number | null | undefined;
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
@@ -2453,14 +1838,14 @@ namespace _ {
         tooltipFromSource(params: MVSNodeParams<'tooltip_from_source' & CustomAndRef>): Structure;
         transform: (params?: ({} & {
             rotation?: number[] | undefined;
-            translation?: [number, number, number] | undefined;
-            rotation_center?: [number, number, number] | "centroid" | null | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         instance: (params?: ({} & {
             rotation?: number[] | undefined;
-            translation?: [number, number, number] | undefined;
-            rotation_center?: [number, number, number] | "centroid" | null | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         primitives: (params?: MVSNodeParams<"primitives"> & CustomAndRef) => Primitives;
@@ -2475,22 +1860,22 @@ namespace _ {
         /** Add a 'tooltip' node and return builder pointing back to the component node. 'tooltip' node instructs to add a text which is not a part of the visualization but should be presented to the users when they interact with the component (typically, the tooltip will be shown somewhere on the screen when the user hovers over a visual representation of the component). */
         tooltip(params: MVSNodeParams<'tooltip'> & CustomAndRef): Component;
         focus: (params?: ({} & {
-            direction?: [number, number, number] | undefined;
-            up?: [number, number, number] | undefined;
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
             radius?: number | null | undefined;
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
         } & CustomAndRef) | undefined) => this;
         transform: (params?: ({} & {
             rotation?: number[] | undefined;
-            translation?: [number, number, number] | undefined;
-            rotation_center?: [number, number, number] | "centroid" | null | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         instance: (params?: ({} & {
             rotation?: number[] | undefined;
-            translation?: [number, number, number] | undefined;
-            rotation_center?: [number, number, number] | "centroid" | null | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
     }
@@ -2512,22 +1897,22 @@ namespace _ {
         /** Add a 'representation' node and return builder pointing to it. 'representation' node instructs to create a visual representation of a component. */
         representation(params?: MVSNodeParams<'volume_representation'> & CustomAndRef): VolumeRepresentation;
         focus: (params?: ({} & {
-            direction?: [number, number, number] | undefined;
-            up?: [number, number, number] | undefined;
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
             radius?: number | null | undefined;
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
         } & CustomAndRef) | undefined) => this;
         transform: (params?: ({} & {
             rotation?: number[] | undefined;
-            translation?: [number, number, number] | undefined;
-            rotation_center?: [number, number, number] | "centroid" | null | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
         instance: (params?: ({} & {
             rotation?: number[] | undefined;
-            translation?: [number, number, number] | undefined;
-            rotation_center?: [number, number, number] | "centroid" | null | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
             matrix?: number[] | null | undefined;
         } & CustomAndRef) | undefined) => this;
     }
@@ -2538,8 +1923,8 @@ namespace _ {
         /** Add an 'opacity' node and return builder pointing back to the representation node. 'opacity' node instructs to customize opacity/transparency of a visual representation. */
         opacity(params: MVSNodeParams<'opacity'> & CustomAndRef): VolumeRepresentation;
         focus: (params?: ({} & {
-            direction?: [number, number, number] | undefined;
-            up?: [number, number, number] | undefined;
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
             radius?: number | null | undefined;
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
@@ -2581,8 +1966,8 @@ namespace _ {
         /** Defines a box. */
         box(params: MVSPrimitiveSubparams<'box'> & CustomAndRef): Primitives;
         focus: (params?: ({} & {
-            direction?: [number, number, number] | undefined;
-            up?: [number, number, number] | undefined;
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
             radius?: number | null | undefined;
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
@@ -2593,8 +1978,8 @@ namespace _ {
     /** MVS builder pointing to a 'primitives_from_uri' node */
     declare class PrimitivesFromUri extends _Base<'primitives_from_uri'> implements FocusMixin {
         focus: (params?: ({} & {
-            direction?: [number, number, number] | undefined;
-            up?: [number, number, number] | undefined;
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
             radius?: number | null | undefined;
             radius_factor?: number | undefined;
             radius_extent?: number | undefined;
