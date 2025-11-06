@@ -37,6 +37,7 @@ import {
   RotateCw,
   LucideMessageCircleQuestion,
   Copy,
+  BadgeInfo,
 } from 'lucide-react';
 import { MolViewSpec } from 'molstar/lib/extensions/mvs/behavior';
 import { loadMVSData } from 'molstar/lib/extensions/mvs/components/formats';
@@ -62,6 +63,7 @@ import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 import Link from 'next/link';
 import { ImmediateInput } from '../controls';
 import { adjustedCameraPosition } from '@mol-view-stories/lib/src/actions';
+import { LLMContext } from './editors/llm-context';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
@@ -258,6 +260,19 @@ function CodeUIControls() {
       <Button variant='ghost' size='sm' onClick={() => setUpdate(Date.now())}>
         <RotateCw className='size-4 mr-1' />
         Update Scene
+      </Button>
+      <div className='m-auto' />
+      <Button
+        variant='ghost'
+        size='sm'
+        title='Copy LLM context to clipboard. Paste this at the start of your chat.'
+        onClick={() => {
+          copyToClipboard(LLMContext, 'LLM Context');
+        }}
+        className='text-gray-500'
+      >
+        <BadgeInfo className='size-4 mr-1' />
+        LLM Context
       </Button>
     </div>
   );
