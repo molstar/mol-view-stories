@@ -47,6 +47,7 @@ When generating code using these types, follow these guidelines:
 - If the user requests adding molecular interactions, you can use the .primitives() function and add either tubes or measurements as needed.
   - When using measurements, the template string need to contain two curly braces for variable interpolation, e.g. \`Distance: {{distance}} Å\`.
 - Do not include any import statements, all code should assume the necessary types and builder object are already in scope.
+- When you use an URL, verify that it is accessible.
 - Unless explicitly requested by the user, do not log any output to the console or return any values from the code snippets.
 - Unless explicitly requested by the user, do not materialize the final snapshot state (.getState or .getSnapshot functions), this is done automatically by the MolViewStories system.
 
