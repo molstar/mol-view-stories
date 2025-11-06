@@ -9,6 +9,7 @@ export const ExampleStories = {
   exosome: 'download',
   tbp: 'download',
   'motm-01': 'download',
+  'motm-300': 'download',
   'npc-basket': 'download',
   alphafind: 'download',
   'emdb-maps': 'download',
