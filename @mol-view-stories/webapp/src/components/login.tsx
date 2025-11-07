@@ -8,7 +8,8 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
-import { LogOutIcon, LogInIcon, ChevronDownIcon, Library } from 'lucide-react';
+import { LogOutIcon, LogInIcon, ChevronDownIcon, Library, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { cn } from '@/lib/utils';
@@ -148,11 +149,25 @@ export function LoginButton() {
 
   return (
     <>
-      <Button variant='ghost' size='sm' onClick={login} disabled={isRedirecting} className={cn('cursor-pointer')}>
-        <LogInIcon />
-        {isRedirecting && 'Authenticating...'}
-        {!isRedirecting && 'Log in'}
-      </Button>
+      <div className='flex items-center gap-0'>
+        <Button variant='ghost' size='sm' onClick={login} disabled={isRedirecting} className={cn('cursor-pointer')}>
+          <LogInIcon />
+          {isRedirecting && 'Authenticating...'}
+          {!isRedirecting && 'Log in'}
+        </Button>
+        <Link
+          href='https://molstar.org/mol-view-stories/docs/first-time-login'
+          target='_blank'
+          rel='noopener noreferrer'
+          aria-label='Open first-time login guide in a new tab'
+          title='Open first-time login guide in a new tab'
+          className={cn(
+            'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 cursor-pointer -ml-2'
+          )}
+        >
+          <HelpCircle className='size-4' />
+        </Link>
+      </div>
 
       <PopupBlockedDialog
         isOpen={showPopupBlockedDialog}
