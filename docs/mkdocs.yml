@@ -29,6 +29,7 @@ extra_javascript:
 nav:
   - Introduction: 'index.md'
   - Getting Started: 'getting-started.md'
+  - First Time Login: 'first-time-login.md'
   - Core Features: 'core-features.md'
   - Tips & Shortcuts: 'faq-troubleshooting.md'
   - CLI: 'cli.md'
