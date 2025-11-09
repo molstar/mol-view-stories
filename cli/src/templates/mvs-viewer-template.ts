@@ -12,7 +12,7 @@ export interface ViewerTemplateOptions {
  */
 export function generateMVSJViewerHtml(options?: ViewerTemplateOptions): string {
   const title = options?.title ?? 'MVS Story';
-  const version = options?.molstarVersion ?? '5.0.0-dev.13';
+  const version = options?.molstarVersion ?? '5.3.0';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -149,7 +149,7 @@ export function generateMVSJViewerHtml(options?: ViewerTemplateOptions): string 
  */
 export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string {
   const title = options?.title ?? 'MVS Story';
-  const version = options?.molstarVersion ?? '5.0.0-dev.13';
+  const version = options?.molstarVersion ?? '5.3.0';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -290,7 +290,7 @@ export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string 
  */
 export function generateInlineStoriesHtml(data: any | Uint8Array, options?: ViewerTemplateOptions): string {
   const title = options?.title ?? 'MVS Story';
-  const version = options?.molstarVersion ?? '5.0.0-dev.13';
+  const version = options?.molstarVersion ?? '5.3.0';
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   let state: string;
