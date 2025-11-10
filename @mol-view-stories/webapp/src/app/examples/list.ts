@@ -9,7 +9,7 @@ export const ExampleStoryList = [
   { path: 'npc-basket', name: 'NPC Basket', format: 'mvsx' },
   { path: 'alphafind', name: 'AlphaFind', format: 'mvsj' },
   { path: 'cyp3a4', name: 'CYP3A4', format: 'mvsx' },
-  { path: 'emdb-maps', name: 'EMDB Composite Maps', format: 'mvsj' },
+  { path: 'emdb-maps', name: 'EMDB Composite Maps', format: 'mvsx' },
   { path: 'subtomograms', name: 'Subtomogram Averages', format: 'mvsx' },
   { path: 'mvs-features', name: 'MolViewSpec Features', format: 'mvsx' },
   { path: 'mvs-examples', name: 'MolViewSpec Basics', format: 'mvsj' },
