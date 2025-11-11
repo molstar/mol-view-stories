@@ -230,7 +230,7 @@ function getViewerLink(example: (typeof ExampleStoryList)[number]) {
 function Example({ example }: { example: (typeof ExampleStoryList)[number] }) {
   const { path, name } = example;
   return (
-    <Link
+    <div
       key={path}
       className='border border-gray-300 rounded-lg font-semibold text-foreground hover:shadow-lg transition-shadow transition-colors relative justify-center flex h-45 group'
       style={{
@@ -238,9 +238,6 @@ function Example({ example }: { example: (typeof ExampleStoryList)[number] }) {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
-      href={getViewerLink(example)}
-      target='_blank'
-      rel='noopener noreferrer'
     >
       <div
         className='absolute text-center w-full bottom-0 px-3 py-2 rounded-b-lg text-sm'
@@ -248,6 +245,8 @@ function Example({ example }: { example: (typeof ExampleStoryList)[number] }) {
       >
         {name}
       </div>
+
+      <Link className='absolute inset-0' href={getViewerLink(example)} target='_blank' rel='noopener noreferrer' />
 
       <div className='absolute top-2 left-2 right-2'>
         <Link
@@ -258,6 +257,6 @@ function Example({ example }: { example: (typeof ExampleStoryList)[number] }) {
           <BookDashed className='w-4 h-4 me-1' /> Use as Template
         </Link>
       </div>
-    </Link>
+    </div>
   );
 }
