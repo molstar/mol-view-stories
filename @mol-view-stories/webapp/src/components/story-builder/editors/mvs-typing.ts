@@ -2360,6 +2360,7 @@ namespace _ {
         function zero(): Vec3;
         function clone(a: Vec3): Vec3;
         function isFinite(a: Vec3): boolean;
+        function isInteger(a: Vec3): boolean;
         function hasNaN(a: Vec3): boolean;
         function setNaN(out: Vec3): Vec3;
         function fromObj(v: {
