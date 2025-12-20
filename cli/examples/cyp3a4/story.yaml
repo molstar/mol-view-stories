@@ -1,0 +1,20 @@
+title: CYP3A4
+scenes:
+  - folder: 1-the-universal-drug-metabolizer
+    header: 1. The Universal Drug Metabolizer
+    key: A
+  - folder: 2-architecture-of-a-molecular-machine
+    header: 2. Architecture of a Molecular Machine
+    key: B
+  - folder: 3-substrate-access-tunnels-pathways-to-the-catalytic-core
+    header: '3. Substrate Access Tunnels: Pathways to the Catalytic Core'
+    key: C
+  - folder: 4-ketoconazole-s-journey-navigating-the-tunnel
+    header: '4. Ketoconazole''s Journey: Navigating the Tunnel'
+    key: D
+  - folder: 5-ketoconazole-locks-into-the-heme
+    header: 5. Ketoconazole Locks into the Heme
+    key: ''
+  - folder: 6-conclusion
+    header: 6. Conclusion
+    key: ''

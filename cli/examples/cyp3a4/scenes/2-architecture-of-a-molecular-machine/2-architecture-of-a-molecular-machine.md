@@ -1,0 +1,7 @@
+## 2. Architecture of a Molecular Machine
+
+All P450 enzymes share a common ancestral fold centered around a buried heme cofactor that forms the catalytic core, shielded beneath flexible protein layers. 
+
+The catalytic core of CYP3A4 consists of the heme group, which is held by the cysteine residue Cys420 through its thiol group, and the catalytic threonine residue Thr287. The hydroxyl group of Thr287 plays a crucial role in proton transfer during the catalytic cycle, enabling efficient oxygen activation and substrate oxidation. This core—heme, Cys420 anchoring the heme, and the catalytic Thr287—is essential for the enzyme's metabolic function.
+
+ A distinctive and uniquely hydrophobic feature of CYP3A4 is the Phe-cluster—a group of seven phenylalanine residues forming a 'roof' over the heme catalytic center. These aromatic side chains stack together, creating a tightly packed hydrophobic core that molds the active site cavity. The Phe-cluster significantly influences the size and the shape of the active site, which, despite being smaller than expected, exhibits remarkable plasticity to accommodate a broad range of substrates. Positioned just above the heme, this cluster plays a critical role in controlling substrate access and contributes to CYP3A4’s exceptional substrate promiscuity and functional versatility.

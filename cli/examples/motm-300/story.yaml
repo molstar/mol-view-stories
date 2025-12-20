@@ -1,0 +1,15 @@
+title: Flagellar Motor
+author_note: 'Molecule of the Month: Flagellar Motor'
+scenes:
+  - folder: start
+    header: Explore
+    key: start
+  - folder: motor
+    header: Flagellar Motor
+    key: motor
+  - folder: switch
+    header: Switching Direction
+    key: switch
+  - folder: explore
+    header: Explore
+    key: explore

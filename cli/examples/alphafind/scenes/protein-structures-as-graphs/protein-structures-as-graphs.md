@@ -1,0 +1,3 @@
+# Protein structures as graphs
+
+For fast similarity comparisons, we have to represent structures in a compact way. The most common way to do that is to use a neural network, specifically, a [graph neural network (GNN)](https://en.wikipedia.org/wiki/Graph_neural_network). The GNN shown here, from [Greener et al. (2025)](https://doi.org/10.1093/bioadv/vbaf042), represents each amino acid as a node and connects them with an edge if their Cα atoms are within 10 angstroms of each other. It is also equivariant, meaning, it treats rotated or translated protein structures the same way.
