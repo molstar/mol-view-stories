@@ -1,0 +1,7 @@
+# Structural alignment
+
+Protein superposition aligns two protein structures in 3D space by minimizing the distance between corresponding atoms, usually Cα atoms. Both proteins are first centered at their geometric centers to remove translation, then an optimal rotation is computed using the [Kabsch algorithm](https://en.wikipedia.org/wiki/Kabsch_algorithm) to minimize RMSD. A translation vector is then applied to complete the alignment, producing the best-fit superposition.
+
+The maize Cytochrome P450 ([A0A1D6JW22](https://alphafold.ebi.ac.uk/entry/AF-A0A1D6JW22-F1)) is shown here aligned to a wheat Cytochrome P450 ([A0A3B6B8F7](https://alphafold.ebi.ac.uk/entry/AF-A0A3B6B8F7-F1)), with a close fit after the alignment, as shown by a very high [TM-Score](https://en.wikipedia.org/wiki/Template_modeling_score) = 0.97 and RMSD = 1.14 Å. This is despite having only 58% sequence identity across the aligned positions.
+
+This high structural similarity despite moderate sequence identity occurs because protein structure is more conserved than sequence. The Cytochrome P450 fold is stabilized by its catalytic architecture and heme-binding pocket, which impose strict geometric constraints on the surrounding residues. Evolution allows amino acid substitutions that preserve these structural features, maintaining the same 3D fold even as the primary sequence diverges. As a result, proteins with different sequences can still superimpose closely when they perform the same biochemical function.

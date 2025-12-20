@@ -1,0 +1,4 @@
+## 1. The Universal Drug Metabolizer
+
+Cytochrome P450 3A4, or CYP3A4, is the most important human cytochrome P450 enzyme and is responsible for metabolizing roughly half of all marketed drugs, including antibiotics, hormonal steroids, and immunosuppressants. Its broad substrate specificity and high expression levels in the liver and intestine make CYP3A4 a central player in drug metabolism, influencing drug efficacy and the potential for drug-drug interactions. This story explores the structural features of CYP3A4 using the crystal structure 2V0M (chain A), which includes ketoconazole, a potent antifungal drug and known inhibitor of CYP3A4. The structure highlights the enzyme’s active site and the intricate network of substrate access channels that regulate both metabolite processing and inhibition.
+

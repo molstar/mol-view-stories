@@ -1,0 +1,5 @@
+# Similarity search in the AlphaFold Database
+
+Fast pre-filtering using embedding-based similarity in the vector space is how similarity search engines such as [Alpha**Find**](https://alphafind.fi.muni.cz/) work. Instead of comparing full atomic structures of all 200+ million proteins in the AlphaFold database, these systems first compare the embeddings. As such, they can rapidly identify candidates that are likely to share structural or functional similarity. Only the most promising matches then undergo slower, detailed 3D alignment of the actual coordinates. This two-step process allows large-scale protein databases to be searched efficiently without losing biological relevance.
+
+View complete similarity results for the Cytochrome P450 at [alphafind.fi.muni.cz/search?q=A0A1D6JW22](https://alphafind.fi.muni.cz/search?q=A0A1D6JW22&limit=1000).

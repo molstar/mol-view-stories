@@ -1,0 +1,18 @@
+header: '3. Substrate Access Tunnels: Pathways to the Catalytic Core'
+key: C
+camera:
+  mode: perspective
+  target:
+    - 15.017699321506342
+    - 6.7063025621669725
+    - 64.26841609103985
+  position:
+    - -20.252237726485234
+    - 76.24031851506743
+    - 146.1778962666493
+  up:
+    - -0.9500845063093639
+    - -0.1954167875838871
+    - -0.24321124563079538
+  fov: 0.7853981633974483
+transition_duration_ms: 3000

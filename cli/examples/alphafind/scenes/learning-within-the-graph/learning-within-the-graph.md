@@ -1,0 +1,3 @@
+# Learning within the graph
+
+The graph then learns how each residue's environment affects the protein's structure and behavior. Each node exchanges information with its neighboring residues "talking" to nearby residues about what surrounds them. Through these exchanges, the network learns patterns such as "hydrophobic residues tend to cluster" or "certain distances signal a helix." With every layer, the model refines these learned relationships, so each node's representation comes to reflect both its own properties and its structural context.

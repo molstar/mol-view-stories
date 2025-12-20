@@ -1,0 +1,26 @@
+title: AlphaFind
+scenes:
+  - folder: fast-similarity-of-protein-structures
+    header: Fast similarity of protein structures
+    key: scene_basic
+  - folder: structural-alignment
+    header: Structural alignment
+    key: scene_components
+  - folder: protein-structures-as-graphs
+    header: Protein structures as graphs
+    key: ''
+  - folder: learning-within-the-graph
+    header: Learning within the graph
+    key: ''
+  - folder: from-a-graph-to-a-vector
+    header: From a graph to a vector
+    key: ''
+  - folder: the-vector-space
+    header: The vector space
+    key: ''
+  - folder: similarity-in-the-vector-space
+    header: Similarity in the vector space
+    key: ''
+  - folder: similarity-search-in-the-alphafold-database
+    header: Similarity search in the AlphaFold Database
+    key: ''
