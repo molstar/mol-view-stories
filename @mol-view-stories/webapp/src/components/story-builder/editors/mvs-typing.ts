@@ -2700,18 +2700,6 @@ namespace _ {
         const id: ReadonlyMat4;
     }
     
-    /// <reference lib="esnext.asynciterable" />
-    
-    /**
-     * Note: This will add Symbol.observable globally for all TypeScript users,
-     * however, we are no longer polyfilling Symbol.observable
-     */
-    declare global {
-        interface SymbolConstructor {
-            readonly observable: symbol;
-        }
-    }
-    
     type Builder = ReturnType<typeof MVSData.createBuilder>;
     
     export { Euler, Mat3, Mat4, Quat, Vec3 };

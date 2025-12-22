@@ -62,27 +62,24 @@ export function useUnsavedChanges(options: UnsavedChangesOptions = {}) {
 }
 
 export function useUnsavedChangesWarning(hasUnsavedChanges: boolean) {
-  const dummyStatePushed = useRef(false);
   const ignorePopState = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     // Push dummy history state once when unsaved changes appear
-    if (hasUnsavedChanges && !dummyStatePushed.current) {
+    if (hasUnsavedChanges && !window.history.state?.isDummy) {
       try {
-        window.history.pushState(null, '', window.location.href);
-        dummyStatePushed.current = true;
+        window.history.pushState({ isDummy: true }, '', window.location.href);
       } catch (error) {
         console.warn('Failed to push history state:', error);
       }
     }
 
     // Remove dummy state when no unsaved changes (go back once)
-    if (!hasUnsavedChanges && dummyStatePushed.current) {
+    if (!hasUnsavedChanges && window.history.state?.isDummy) {
       try {
         window.history.back();
-        dummyStatePushed.current = false;
       } catch (error) {
         console.warn('Failed to go back in history:', error);
       }
@@ -103,7 +100,7 @@ export function useUnsavedChangesWarning(hasUnsavedChanges: boolean) {
         if (!confirmLeave) {
           ignorePopState.current = true;
           try {
-            window.history.pushState(null, '', window.location.href);
+            window.history.pushState({ isDummy: true }, '', window.location.href);
           } catch (error) {
             console.warn('Failed to push history state:', error);
           }
