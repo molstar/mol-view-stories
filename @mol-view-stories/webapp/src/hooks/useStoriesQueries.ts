@@ -30,7 +30,7 @@ export function useSessions(isAuthenticated: boolean) {
     queryKey: QUERY_KEYS.sessions,
     queryFn: () => fetchMyStoriesData('session', isAuthenticated),
     enabled: isAuthenticated, // Only run query when user is authenticated
-    refetchOnMount: "always",
+    refetchOnMount: 'always',
     staleTime: 60 * 1000, // Consider data fresh for 1 minute
   });
 }
@@ -43,7 +43,7 @@ export function useStories(isAuthenticated: boolean) {
     queryKey: QUERY_KEYS.stories,
     queryFn: () => fetchMyStoriesData('story', isAuthenticated),
     enabled: isAuthenticated, // Only run query when user is authenticated
-    refetchOnMount: "always",
+    refetchOnMount: 'always',
     staleTime: 2 * 60 * 1000, // Consider data fresh for 2 minutes (stories change less often)
   });
 }
