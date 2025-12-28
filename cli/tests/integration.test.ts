@@ -44,12 +44,12 @@ Deno.test('Integration - Full Story Pipeline', async (t) => {
         assertEquals(parsedJson.metadata.title, storyName);
 
         // Test container export
-        const containerExport = await manager.toContainer();
+        const containerExport = await manager.toMVStory();
         assertExists(containerExport);
         assertEquals(containerExport instanceof Uint8Array, true);
 
         // Step 5: Test round-trip through container format
-        const reimportedManager = await StoryManager.fromContainer(containerExport);
+        const reimportedManager = await StoryManager.fromMVStory(containerExport);
         const reimportedStory = reimportedManager.getStory();
         assertEquals(reimportedStory.metadata.title, storyName);
         assertEquals(reimportedStory.scenes.length, 2);
@@ -182,8 +182,8 @@ Deno.test('Integration - Story Modification and Persistence', async (t) => {
       assertEquals(exportedStory.assets[0].name, 'test.pdb');
 
       // Export to container and reimport
-      const container = await manager.toContainer();
-      const reimportedManager = await StoryManager.fromContainer(container);
+      const container = await manager.toMVStory();
+      const reimportedManager = await StoryManager.fromMVStory(container);
       const reimportedStory = reimportedManager.getStory();
 
       // Verify all modifications persisted through container format
@@ -321,7 +321,7 @@ Deno.test('Integration - Performance with Larger Stories', async (t) => {
 
       // Test container export
       const startContainer = Date.now();
-      const containerExport = await manager.toContainer();
+      const containerExport = await manager.toMVStory();
       const containerTime = Date.now() - startContainer;
 
       assertExists(containerExport);
@@ -329,7 +329,7 @@ Deno.test('Integration - Performance with Larger Stories', async (t) => {
       assertEquals(containerTime < 500, true);
 
       // Verify the story integrity
-      const reimported = await StoryManager.fromContainer(containerExport);
+      const reimported = await StoryManager.fromMVStory(containerExport);
       assertEquals(reimported.getStory().scenes.length, 50);
       assertEquals(reimported.getStory().assets.length, 10);
     });

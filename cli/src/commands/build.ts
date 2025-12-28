@@ -43,7 +43,7 @@ export async function buildStory(folderPath: string, outputFile?: string, format
         break;
 
       case 'mvstory':
-        output = await manager.toContainer();
+        output = await manager.toMVStory();
         actualFormat = 'MVStory';
         break;
 

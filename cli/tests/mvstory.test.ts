@@ -15,7 +15,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     assertEquals(fileContent.length > 0, true);
 
     // Load into StoryManager
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
     assertExists(manager);
 
     const story = manager.getStory();
@@ -27,7 +27,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     assertEquals(story.scenes.length > 0, true);
 
     // Verify we can export it back
-    const reExported = await manager.toContainer();
+    const reExported = await manager.toMVStory();
     assertInstanceOf(reExported, Uint8Array);
     assertEquals(reExported.length > 0, true);
   });
@@ -41,7 +41,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     assertEquals(fileContent.length > 0, true);
 
     // Load into StoryManager
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
     assertExists(manager);
 
     const story = manager.getStory();
@@ -57,7 +57,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
     const fileContent = await Deno.readFile(mvstoryPath);
 
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
 
     // Convert to JSON
     const json = manager.toJSON();
@@ -81,7 +81,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
     const fileContent = await Deno.readFile(mvstoryPath);
 
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
 
     // Convert to HTML
     const html = await manager.toHTML();
@@ -98,7 +98,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
     const fileContent = await Deno.readFile(mvstoryPath);
 
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
 
     // Convert to MVS format
     const mvsData = await manager.toMVS();
@@ -113,7 +113,7 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     const originalContent = await Deno.readFile(mvstoryPath);
 
     // Load original
-    const manager1 = await StoryManager.fromContainer(originalContent);
+    const manager1 = await StoryManager.fromMVStory(originalContent);
     const story1 = manager1.getStory();
 
     // Convert to JSON and back
@@ -121,10 +121,10 @@ Deno.test('MVStory Files - Loading and Conversion', async (t) => {
     const manager2 = StoryManager.fromJSON(json);
 
     // Convert back to container
-    const newContainer = await manager2.toContainer();
+    const newContainer = await manager2.toMVStory();
 
     // Load the new container
-    const manager3 = await StoryManager.fromContainer(newContainer);
+    const manager3 = await StoryManager.fromMVStory(newContainer);
     const story3 = manager3.getStory();
 
     // Verify the stories match
@@ -147,7 +147,7 @@ Deno.test('MVStory Files - Error Handling', async (t) => {
 
     let errorOccurred = false;
     try {
-      await StoryManager.fromContainer(invalidData);
+      await StoryManager.fromMVStory(invalidData);
     } catch (error) {
       errorOccurred = true;
       assertExists(error);
@@ -161,7 +161,7 @@ Deno.test('MVStory Files - Error Handling', async (t) => {
 
     let errorOccurred = false;
     try {
-      await StoryManager.fromContainer(emptyData);
+      await StoryManager.fromMVStory(emptyData);
     } catch (error) {
       errorOccurred = true;
       assertExists(error);
@@ -179,7 +179,7 @@ Deno.test('MVStory Files - Content Manipulation', async (t) => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
     const fileContent = await Deno.readFile(mvstoryPath);
 
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
     const originalStory = manager.getStory();
     const originalTitle = originalStory.metadata.title;
     const originalSceneCount = originalStory.scenes.length;
@@ -203,11 +203,11 @@ Deno.test('MVStory Files - Content Manipulation', async (t) => {
     assertEquals(lastScene.header, 'New Added Scene');
 
     // Export modified story
-    const modifiedContainer = await manager.toContainer();
+    const modifiedContainer = await manager.toMVStory();
     assertInstanceOf(modifiedContainer, Uint8Array);
 
     // Verify modified story can be reloaded
-    const reloadedManager = await StoryManager.fromContainer(modifiedContainer);
+    const reloadedManager = await StoryManager.fromMVStory(modifiedContainer);
     const reloadedStory = reloadedManager.getStory();
 
     assertEquals(reloadedStory.metadata.title, 'Modified Title');
@@ -218,7 +218,7 @@ Deno.test('MVStory Files - Content Manipulation', async (t) => {
     const mvstoryPath = join(examplesDir, 'terms-of-entrapment.mvstory');
     const fileContent = await Deno.readFile(mvstoryPath);
 
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
     const story = manager.getStory();
 
     // Check each scene
@@ -243,7 +243,7 @@ Deno.test('MVStory Files - Content Manipulation', async (t) => {
     const mvstoryPath = join(examplesDir, 'exosome.mvstory');
     const fileContent = await Deno.readFile(mvstoryPath);
 
-    const manager = await StoryManager.fromContainer(fileContent);
+    const manager = await StoryManager.fromMVStory(fileContent);
     const story = manager.getStory();
 
     // Check assets if they exist

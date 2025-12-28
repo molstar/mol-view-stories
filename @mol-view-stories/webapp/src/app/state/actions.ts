@@ -147,7 +147,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
 
 export const exportState = async (story: Story) => {
   const manager = new StoryManager(story);
-  const container = await manager.toContainer();
+  const container = await manager.toMVStory();
   const blob = new Blob([container as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
   const filename = `${normalizeStoryFilename(story.metadata.title)}${StoryFileExtension}`;
   download(blob, filename);
@@ -162,7 +162,7 @@ export const importState = async (
   const bytes = new Uint8Array(await blob.arrayBuffer());
   let story: Story;
   try {
-    const manager = await StoryManager.fromContainer(bytes);
+    const manager = await StoryManager.fromMVStory(bytes);
     story = manager.getStory();
   } catch (error) {
     if (options?.throwOnError) throw error;

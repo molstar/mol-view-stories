@@ -130,16 +130,33 @@ export class StoryManager {
   // --- Export Operations ---
 
   /**
-   * Export as plain JSON string
+   * Export story as human-readable JSON string.
+   * @returns JSON string representation of the Story object
    */
   toJSON(): string {
     return JSON.stringify(this.story, null, 2);
   }
 
   /**
-   * Export as compressed container (.mvstory format)
+   * Export story as compressed MVStory container (.mvstory file).
+   *
+   * This is the canonical storage format for stories, using:
+   * - MessagePack encoding for efficient binary serialization
+   * - Deflate compression for reduced file size
+   *
+   * The .mvstory format is:
+   * - Editable: Can be loaded back into the Story Builder for editing
+   * - Compact: Compressed for efficient storage and transmission
+   * - Complete: Contains all JavaScript code, scenes, and assets
+   *
+   * Use this for:
+   * - Saving stories in the webapp or CLI
+   * - API storage (session files)
+   * - Sharing editable stories with collaborators
+   *
+   * @returns Promise resolving to compressed MVStory container bytes
    */
-  async toContainer(): Promise<Uint8Array> {
+  async toMVStory(): Promise<Uint8Array> {
     const container: StoryContainer = {
       version: 1,
       story: this.story,
@@ -154,14 +171,46 @@ export class StoryManager {
   }
 
   /**
-   * Export as MVS data for Mol* viewer
+   * Export story as MVS data for Mol* viewer (.mvsj or .mvsx files).
+   *
+   * MVS (Molecular Visualization State) is Molstar's native format containing:
+   * - Executed state with plugin commands
+   * - Camera positions and representations
+   * - No JavaScript code (already executed)
+   *
+   * Output formats:
+   * - .mvsj: JSON format (if no assets)
+   * - .mvsx: ZIP format (if story contains assets)
+   *
+   * Use this for:
+   * - Viewing in the Mol* viewer (molstar.org)
+   * - Read-only visualization (no editing capability)
+   * - Sharing final rendered molecular states
+   *
+   * @param scenes - Optional subset of scenes to export (exports all if not provided)
+   * @returns Promise resolving to MVSData object or Uint8Array (ZIP)
    */
   async toMVS(scenes?: SceneData[]): Promise<MVSData | Uint8Array> {
     return utils.getMVSData(this.story, scenes);
   }
 
   /**
-   * Export as standalone HTML
+   * Export story as standalone HTML file with embedded Mol* viewer.
+   *
+   * Creates a single self-contained HTML file that includes:
+   * - Embedded Mol* viewer libraries (loaded from CDN)
+   * - Story MVS data inline
+   * - No external dependencies needed
+   *
+   * Use this for:
+   * - Quick sharing via email or file transfer
+   * - Viewing without hosting infrastructure
+   * - Embedding in documentation or reports
+   *
+   * @param options - Configuration options
+   * @param options.title - HTML page title (defaults to story title)
+   * @param options.molstarVersion - Specific Molstar version to use (defaults to latest)
+   * @returns Promise resolving to HTML string
    */
   async toHTML(options?: { title?: string; molstarVersion?: string }): Promise<string> {
     const data = await this.toMVS();
@@ -172,7 +221,26 @@ export class StoryManager {
   }
 
   /**
-   * Export as self-hosted zip
+   * Export story as self-hosted deployment package (.zip file).
+   *
+   * Creates a complete package containing:
+   * - index.html with viewer
+   * - story.mvsj or story.mvsx (MVS format for viewing)
+   * - session.mvstory (source file for editing)
+   * - All assets and dependencies
+   *
+   * The difference from .mvstory:
+   * - .mvstory: Single compressed file for editing (like .psd)
+   * - .zip: Complete deployment package with viewer (like exported website)
+   *
+   * Use this for:
+   * - Self-hosting on a web server
+   * - Offline viewing with full assets
+   * - Distributing both viewer and editable source
+   *
+   * @param options - Configuration options
+   * @param options.molstarVersion - Specific Molstar version to bundle
+   * @returns Promise resolving to ZIP file bytes
    */
   async toSelfHostedZip(options?: { molstarVersion?: string }): Promise<Uint8Array> {
     return utils.createSelfHostedZip(this.story, options);
@@ -181,7 +249,14 @@ export class StoryManager {
   // --- Import Operations ---
 
   /**
-   * Import from JSON string
+   * Import story from JSON string.
+   *
+   * Deserializes a Story object from human-readable JSON format.
+   * This is the inverse of toJSON().
+   *
+   * @param json - JSON string representation of a Story object
+   * @returns New StoryManager instance with the loaded story
+   * @throws Error if JSON is invalid or doesn't match Story schema
    */
   static fromJSON(json: string): StoryManager {
     const story = JSON.parse(json) as Story;
@@ -189,9 +264,21 @@ export class StoryManager {
   }
 
   /**
-   * Import from compressed container
+   * Import story from compressed MVStory container (.mvstory file).
+   *
+   * Deserializes and decompresses a .mvstory file back into an editable Story object.
+   * This is the inverse of toMVStory().
+   *
+   * The process:
+   * 1. Inflate (decompress) the deflated data
+   * 2. Decode MessagePack to StoryContainer
+   * 3. Extract and validate Story object
+   *
+   * @param bytes - Compressed MVStory container bytes
+   * @returns Promise resolving to new StoryManager instance with the loaded story
+   * @throws Error if container is corrupted or version is unsupported
    */
-  static async fromContainer(bytes: Uint8Array): Promise<StoryManager> {
+  static async fromMVStory(bytes: Uint8Array): Promise<StoryManager> {
     const inflated = await Task.create('Inflate Story Data', async (ctx) => {
       return await inflate(ctx, new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength));
     }).run();

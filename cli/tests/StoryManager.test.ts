@@ -353,7 +353,7 @@ Deno.test('StoryManager - Export Operations', async (t) => {
   await t.step('should export to container format', async () => {
     const manager = new StoryManager(createTestStory());
 
-    const container = await manager.toContainer();
+    const container = await manager.toMVStory();
     assertInstanceOf(container, Uint8Array);
 
     // Container should be compressed, so it should have some length
@@ -404,9 +404,9 @@ Deno.test('StoryManager - Import Operations', async (t) => {
 
   await t.step('should import from container', async () => {
     const originalManager = new StoryManager(createTestStory());
-    const container = await originalManager.toContainer();
+    const container = await originalManager.toMVStory();
 
-    const importedManager = await StoryManager.fromContainer(container);
+    const importedManager = await StoryManager.fromMVStory(container);
     const importedStory = importedManager.getStory();
 
     assertEquals(importedStory.metadata.title, 'Test Story');
