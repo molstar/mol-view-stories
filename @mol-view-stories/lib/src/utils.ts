@@ -28,6 +28,13 @@ const BuilderLib = {
 
 export const BuilderLibNamespaces: string[] = Object.keys(BuilderLib);
 
+export function adjustedCameraPosition(camera: CameraData): [number, number, number] {
+  // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
+  const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
+  const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
+  return Vec3.scaleAndAdd(Vec3(), camera.target as Vec3, delta, 1 / f) as unknown as [number, number, number];
+}
+
 const createStateProvider = (code: string) => {
   return new Function('builder', 'index', '__lib__', code);
 };
@@ -63,13 +70,6 @@ return _run_builder();
     console.error('Error creating state provider:', error);
     throw error;
   }
-}
-
-export function adjustedCameraPosition(camera: CameraData): [number, number, number] {
-  // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
-  const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
-  const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
-  return Vec3.scaleAndAdd(Vec3(), camera.target as Vec3, delta, 1 / f) as unknown as [number, number, number];
 }
 
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
