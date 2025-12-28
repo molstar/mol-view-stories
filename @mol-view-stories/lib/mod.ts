@@ -31,7 +31,7 @@ export { StoryManager } from './src/story-manager.ts';
 export type { Story, StoryContainer, StoryMetadata, SceneData, SceneAsset, CameraData } from './src/types.ts';
 
 // Export constants and utilities
-export { SessionFileExtension, BuilderLibNamespaces, adjustedCameraPosition } from './src/actions.ts';
+export { SessionFileExtension, BuilderLibNamespaces, adjustedCameraPosition } from './src/utils.ts';
 
 // Export HTML template generator
 export { generateStoriesHtml } from './src/html-template.ts';

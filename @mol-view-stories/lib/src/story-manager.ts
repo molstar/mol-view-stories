@@ -6,7 +6,7 @@ import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode.js';
 import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode.js';
 import { deflate, inflate } from 'molstar/lib/mol-util/zip/zip.js';
 import { generateStoriesHtml } from './html-template.ts';
-import * as actions from './actions.ts';
+import * as utils from './utils.ts';
 
 /**
  * StoryManager - Complete story management and export/import system
@@ -157,7 +157,7 @@ export class StoryManager {
    * Export as MVS data for Mol* viewer
    */
   async toMVS(scenes?: SceneData[]): Promise<MVSData | Uint8Array> {
-    return actions.getMVSData(this.story, scenes);
+    return utils.getMVSData(this.story, scenes);
   }
 
   /**
@@ -175,7 +175,7 @@ export class StoryManager {
    * Export as self-hosted zip
    */
   async toSelfHostedZip(options?: { molstarVersion?: string }): Promise<Uint8Array> {
-    return actions.createSelfHostedZip(this.story, options);
+    return utils.createSelfHostedZip(this.story, options);
   }
 
   // --- Import Operations ---
