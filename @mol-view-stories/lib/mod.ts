@@ -35,3 +35,6 @@ export { StoryFileExtension, BuilderLibNamespaces, adjustedCameraPosition } from
 
 // Export HTML template generator
 export { generateStoriesHtml } from './src/html-template.ts';
+
+// Export MVSData for programmatic scene creation
+export { MVSData } from 'molstar/lib/extensions/mvs/mvs-data.js';
