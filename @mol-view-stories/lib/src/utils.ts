@@ -13,6 +13,8 @@ import { generateStoriesHtml } from './html-template.ts';
 import { MolScriptBuilder } from 'molstar/lib/mol-script/language/builder.js';
 import { formatMolScript } from 'molstar/lib/mol-script/language/expression-formatter.js';
 
+export const StoryFileExtension = '.mvstory';
+
 const BuilderLib = {
   Vec3,
   Mat3,
@@ -120,8 +122,6 @@ export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   }
   return decoded.story;
 }
-
-export const StoryFileExtension = '.mvstory';
 
 export async function createCompressedStoryContainer(story: Story): Promise<Uint8Array> {
   const container: StoryContainer = {
