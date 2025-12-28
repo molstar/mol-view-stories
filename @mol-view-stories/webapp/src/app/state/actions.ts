@@ -1,15 +1,8 @@
 // noinspection DuplicatedCode
 
 import { tryFindIfStoryIsShared } from '@/lib/data-utils';
-import {
-  createCompressedStoryContainer,
-  createSelfHostedZip,
-  getMVSData as getMVSDataLib,
-  readStoryContainer,
-  SessionFileExtension,
-} from '@mol-view-stories/lib/src/actions';
-import { generateStoriesHtml } from '@mol-view-stories/lib/src/html-template';
-import { SceneAsset, SceneData, Story, StoryMetadata } from '@mol-view-stories/lib/src/types';
+import { StoryManager, generateStoriesHtml, StoryFileExtension } from '@mol-view-stories/lib';
+import type { SceneAsset, SceneData, Story, StoryMetadata } from '@mol-view-stories/lib';
 import { getDefaultStore } from 'jotai';
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { download } from 'molstar/lib/mol-util/download';
@@ -48,7 +41,8 @@ export function setSessionIdUrl(sessionId: string | undefined) {
 
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
   try {
-    return await getMVSDataLib(story, scenes);
+    const manager = new StoryManager(story);
+    return await manager.toMVS(scenes);
   } catch (error) {
     console.error('Error fetching MVS data:', error);
     toast.error(`Failed to build state: ${error}`, { duration: 5000, id: 'state-build-error', closeButton: true });
@@ -108,14 +102,16 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
   // TODO:
   // - download as HTML with embedded state
   try {
-    const data = await getMVSData(story);
+    const manager = new StoryManager(story);
     let blob: Blob;
     let filename: string;
+
     if (how === 'self-hosted') {
-      const zip = await createSelfHostedZip(story);
+      const zip = await manager.toSelfHostedZip();
       blob = new Blob([zip as Uint8Array<ArrayBuffer>], { type: 'application/zip' });
       filename = `${normalizeStoryFilename(story.metadata.title)}-self_hosted.zip`;
     } else if (how === 'html') {
+      const data = await manager.toMVS();
       const htmlContent = generateStoriesHtml(
         {
           kind: 'embed',
@@ -132,6 +128,7 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
       blob = new Blob([htmlContent], { type: 'text/html' });
       filename = `${normalizeStoryFilename(story.metadata.title)}.html`;
     } else if (how === 'state') {
+      const data = await manager.toMVS();
       blob =
         data instanceof Uint8Array
           ? new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' })
@@ -149,9 +146,10 @@ export async function downloadStory(story: Story, how: 'state' | 'html' | 'self-
 }
 
 export const exportState = async (story: Story) => {
-  const container = await createCompressedStoryContainer(story);
+  const manager = new StoryManager(story);
+  const container = await manager.toMVStory();
   const blob = new Blob([container as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
-  const filename = `${normalizeStoryFilename(story.metadata.title)}${SessionFileExtension}`;
+  const filename = `${normalizeStoryFilename(story.metadata.title)}${StoryFileExtension}`;
   download(blob, filename);
 };
 
@@ -164,7 +162,8 @@ export const importState = async (
   const bytes = new Uint8Array(await blob.arrayBuffer());
   let story: Story;
   try {
-    story = await readStoryContainer(bytes);
+    const manager = await StoryManager.fromMVStory(bytes);
+    story = manager.getStory();
   } catch (error) {
     if (options?.throwOnError) throw error;
     console.error('Error reading story container:', error);

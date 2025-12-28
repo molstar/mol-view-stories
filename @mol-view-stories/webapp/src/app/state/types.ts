@@ -1,4 +1,4 @@
-import { SceneData } from '@mol-view-stories/lib/src/types';
+import type { SceneData } from '@mol-view-stories/lib';
 
 // Unified Async Status Types - replaces granular loading/error patterns
 export type AsyncStatus<T = void, E = string> =

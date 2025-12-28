@@ -21,12 +21,12 @@ Deno.test('Equivalence - Folder Round Trip', async (t) => {
     const manager1 = new StoryManager(originalStory);
 
     // Step 2: Convert to MVStory container
-    const mvstoryData = await manager1.toContainer();
+    const mvstoryData = await manager1.toMVStory();
     assertInstanceOf(mvstoryData, Uint8Array);
     assertEquals(mvstoryData.length > 1000, true); // Should be substantial
 
     // Step 3: Load MVStory back into StoryManager
-    const manager2 = await StoryManager.fromContainer(mvstoryData);
+    const manager2 = await StoryManager.fromMVStory(mvstoryData);
     const roundTripStory = manager2.getStory();
 
     // Step 4: Verify core story structure is preserved
@@ -56,8 +56,8 @@ Deno.test('Equivalence - Folder Round Trip', async (t) => {
     const originalStory = await parseStoryFolder(folderPath);
     const manager1 = new StoryManager(originalStory);
 
-    const mvstoryData = await manager1.toContainer();
-    const manager2 = await StoryManager.fromContainer(mvstoryData);
+    const mvstoryData = await manager1.toMVStory();
+    const manager2 = await StoryManager.fromMVStory(mvstoryData);
     const roundTripStory = manager2.getStory();
 
     // Verify core structure
@@ -75,7 +75,7 @@ Deno.test('Equivalence - StoryManager Operations', async (t) => {
     const originalData = await Deno.readFile(mvstoryPath);
 
     // Load into StoryManager
-    const manager1 = await StoryManager.fromContainer(originalData);
+    const manager1 = await StoryManager.fromMVStory(originalData);
     const story1 = manager1.getStory();
 
     // Clone the manager
@@ -88,8 +88,8 @@ Deno.test('Equivalence - StoryManager Operations', async (t) => {
     assertEquals(story1.assets.length, story2.assets.length);
 
     // Convert cloned manager back to container
-    const clonedData = await manager2.toContainer();
-    const manager3 = await StoryManager.fromContainer(clonedData);
+    const clonedData = await manager2.toMVStory();
+    const manager3 = await StoryManager.fromMVStory(clonedData);
     const story3 = manager3.getStory();
 
     // Verify structure is still preserved
@@ -103,7 +103,7 @@ Deno.test('Equivalence - StoryManager Operations', async (t) => {
     const originalData = await Deno.readFile(mvstoryPath);
 
     // Load and modify
-    const manager = await StoryManager.fromContainer(originalData);
+    const manager = await StoryManager.fromMVStory(originalData);
     const originalSceneCount = manager.getStory().scenes.length;
 
     manager.updateMetadata({ title: 'Modified Test Story' });
@@ -114,8 +114,8 @@ Deno.test('Equivalence - StoryManager Operations', async (t) => {
     });
 
     // Convert to container and back
-    const modifiedData = await manager.toContainer();
-    const reloadedManager = await StoryManager.fromContainer(modifiedData);
+    const modifiedData = await manager.toMVStory();
+    const reloadedManager = await StoryManager.fromMVStory(modifiedData);
     const reloadedStory = reloadedManager.getStory();
 
     // Verify modifications persisted
@@ -165,8 +165,8 @@ Deno.test('Equivalence - Format Conversions', async (t) => {
     // Multiple container round trips should be stable
     let currentManager = manager1;
     for (let i = 0; i < 3; i++) {
-      const containerData = await currentManager.toContainer();
-      currentManager = await StoryManager.fromContainer(containerData);
+      const containerData = await currentManager.toMVStory();
+      currentManager = await StoryManager.fromMVStory(containerData);
 
       const story = currentManager.getStory();
       assertEquals(story.metadata.title, 'Container Test');
@@ -180,7 +180,7 @@ Deno.test('Equivalence - Format Conversions', async (t) => {
   await t.step('should handle export format generation', async () => {
     const mvstoryPath = join(Deno.cwd(), 'examples', 'test-mvstory', 'exosome.mvstory');
     const originalData = await Deno.readFile(mvstoryPath);
-    const manager = await StoryManager.fromContainer(originalData);
+    const manager = await StoryManager.fromMVStory(originalData);
 
     // Test JSON export works
     const jsonExport = manager.toJSON();
@@ -217,7 +217,7 @@ Deno.test('Equivalence - Essential Data Preservation', async (t) => {
 
       // Load from mvstory
       const mvstoryData = await Deno.readFile(mvstoryPath);
-      const mvstoryManager = await StoryManager.fromContainer(mvstoryData);
+      const mvstoryManager = await StoryManager.fromMVStory(mvstoryData);
       const mvstoryStory = mvstoryManager.getStory();
 
       // Essential elements should match
@@ -251,8 +251,8 @@ Deno.test('Equivalence - Essential Data Preservation', async (t) => {
 
     // Round trip through container
     const manager1 = new StoryManager(originalStory);
-    const containerData = await manager1.toContainer();
-    const manager2 = await StoryManager.fromContainer(containerData);
+    const containerData = await manager1.toMVStory();
+    const manager2 = await StoryManager.fromMVStory(containerData);
     const roundTripStory = manager2.getStory();
 
     // Find the same asset
@@ -294,8 +294,8 @@ Deno.test('Equivalence - Edge Cases', async (t) => {
     };
 
     const manager1 = new StoryManager(minimalStory);
-    const containerData = await manager1.toContainer();
-    const manager2 = await StoryManager.fromContainer(containerData);
+    const containerData = await manager1.toMVStory();
+    const manager2 = await StoryManager.fromMVStory(containerData);
     const roundTripStory = manager2.getStory();
 
     assertEquals(minimalStory.metadata.title, roundTripStory.metadata.title);
@@ -323,8 +323,8 @@ Deno.test('Equivalence - Edge Cases', async (t) => {
     }
 
     const manager1 = new StoryManager(manySceneStory);
-    const containerData = await manager1.toContainer();
-    const manager2 = await StoryManager.fromContainer(containerData);
+    const containerData = await manager1.toMVStory();
+    const manager2 = await StoryManager.fromMVStory(containerData);
     const roundTripStory = manager2.getStory();
 
     assertEquals(manySceneStory.scenes.length, roundTripStory.scenes.length);
@@ -361,8 +361,8 @@ Deno.test('Equivalence - Edge Cases', async (t) => {
     };
 
     const manager1 = new StoryManager(binaryStory);
-    const containerData = await manager1.toContainer();
-    const manager2 = await StoryManager.fromContainer(containerData);
+    const containerData = await manager1.toMVStory();
+    const manager2 = await StoryManager.fromMVStory(containerData);
     const roundTripStory = manager2.getStory();
 
     assertEquals(binaryStory.assets.length, roundTripStory.assets.length);

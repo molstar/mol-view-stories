@@ -8,7 +8,7 @@ import { Header } from '@/components/common';
 import { StoriesToolBar } from '@/components/story-builder/Toolbar';
 import { getMVSData, setIsDirty } from '@/app/state/actions';
 import { loadSession, loadSessionFromUrl, resolvePublishedSessionUrl } from '@/lib/my-stories-api';
-import { generateStoriesHtml } from '@mol-view-stories/lib/src/html-template';
+import { generateStoriesHtml } from '@mol-view-stories/lib';
 import { StoryActionButtons } from './Actions';
 import { useUnsavedChanges, useUnsavedChangesWarning } from '@/hooks/useUnsavedChanges';
 

@@ -62,7 +62,7 @@ import { UpdateSceneAtom } from '@/app/state/atoms';
 import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 import Link from 'next/link';
 import { ImmediateInput } from '../controls';
-import { adjustedCameraPosition } from '@mol-view-stories/lib/src/actions';
+import { adjustedCameraPosition } from '@mol-view-stories/lib';
 import { LLMContext } from './editors/llm-context';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {

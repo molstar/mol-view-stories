@@ -4,12 +4,12 @@ import { Task } from 'molstar/lib/mol-task';
 import { deflate } from 'molstar/lib/mol-util/zip/zip';
 import { toast } from 'sonner';
 import { StoryAtom, SaveDialogAtom, PublishedStoryModalAtom, SessionMetadataAtom } from './atoms';
-import type { Story, StoryContainer } from '@mol-view-stories/lib/src/types';
+import type { Story, StoryContainer } from '@mol-view-stories/lib';
 import { type SessionMetadata } from './types';
 import { authenticatedFetch } from '@/lib/auth/token-manager';
 import { API_CONFIG } from '@/lib/config';
 import { getMVSData, setIsDirty, setSessionIdUrl } from './actions';
-import { SessionFileExtension } from '@mol-view-stories/lib/src/actions';
+import { StoryFileExtension } from '@mol-view-stories/lib';
 
 // File size validation utility
 // Note that file size is also checked at the API, this is a safety check to avoid expensive sending of oversized data.
@@ -199,7 +199,7 @@ async function saveSession(
 
   // Only include filename for new sessions (POST), not updates (PUT)
   if (!sessionId) {
-    const filename = formData.title.trim() + SessionFileExtension;
+    const filename = formData.title.trim() + StoryFileExtension;
     formDataToSend.append('filename', filename);
   }
 

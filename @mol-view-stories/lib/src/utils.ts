@@ -13,6 +13,8 @@ import { generateStoriesHtml } from './html-template.ts';
 import { MolScriptBuilder } from 'molstar/lib/mol-script/language/builder.js';
 import { formatMolScript } from 'molstar/lib/mol-script/language/expression-formatter.js';
 
+export const StoryFileExtension = '.mvstory';
+
 const BuilderLib = {
   Vec3,
   Mat3,
@@ -25,6 +27,13 @@ const BuilderLib = {
 };
 
 export const BuilderLibNamespaces: string[] = Object.keys(BuilderLib);
+
+export function adjustedCameraPosition(camera: CameraData): [number, number, number] {
+  // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
+  const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
+  const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
+  return Vec3.scaleAndAdd(Vec3(), camera.target as Vec3, delta, 1 / f) as unknown as [number, number, number];
+}
 
 const createStateProvider = (code: string) => {
   return new Function('builder', 'index', '__lib__', code);
@@ -61,13 +70,6 @@ return _run_builder();
     console.error('Error creating state provider:', error);
     throw error;
   }
-}
-
-export function adjustedCameraPosition(camera: CameraData): [number, number, number] {
-  // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
-  const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
-  const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
-  return Vec3.scaleAndAdd(Vec3(), camera.target as Vec3, delta, 1 / f) as unknown as [number, number, number];
 }
 
 export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
@@ -120,8 +122,6 @@ export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   }
   return decoded.story;
 }
-
-export const SessionFileExtension = '.mvstory';
 
 export async function createCompressedStoryContainer(story: Story): Promise<Uint8Array> {
   const container: StoryContainer = {
@@ -181,7 +181,7 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   const dataPath = `story/data.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
-  const sessionPath = `story/session${SessionFileExtension}`;
+  const sessionPath = `story/session${StoryFileExtension}`;
 
   const html = generateStoriesHtml(
     { kind: 'self-hosted', dataPath, sessionPath, format },

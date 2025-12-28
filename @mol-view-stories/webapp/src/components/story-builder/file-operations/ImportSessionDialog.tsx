@@ -3,7 +3,7 @@
 import { OpenSessionAtom } from '@/app/appstate';
 import { importState } from '@/app/state/actions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SessionFileExtension } from '@mol-view-stories/lib/src/actions';
+import { StoryFileExtension } from '@mol-view-stories/lib';
 import { useAtom } from 'jotai';
 import { Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -44,7 +44,7 @@ export function ImportSessionDialog() {
     multiple: false,
     disabled: status?.kind === 'loading',
     accept: {
-      'application/octet-stream': [SessionFileExtension],
+      'application/octet-stream': [StoryFileExtension],
     },
   });
 
@@ -68,7 +68,7 @@ export function ImportSessionDialog() {
               ) : (
                 <div className='space-y-2'>
                   <p className='text-gray-600'>Drag & drop session file here, or click to select files</p>
-                  <p className='text-sm text-gray-400'>{SessionFileExtension}</p>
+                  <p className='text-sm text-gray-400'>{StoryFileExtension}</p>
                 </div>
               )}
             </div>
