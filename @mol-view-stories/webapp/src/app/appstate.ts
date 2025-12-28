@@ -14,14 +14,7 @@
 // ```
 //
 
-export type {
-  Story,
-  CameraData,
-  StoryContainer,
-  StoryMetadata,
-  SceneAsset,
-  SceneData,
-} from '@mol-view-stories/lib/src/types';
+export type { Story, CameraData, StoryContainer, StoryMetadata, SceneAsset, SceneData } from '@mol-view-stories/lib';
 
 // Re-export types
 export type { SceneUpdate, CreateSceneData, CurrentView } from './state/types';

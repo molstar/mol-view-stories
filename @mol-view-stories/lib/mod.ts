@@ -28,17 +28,10 @@
 export { StoryManager } from './src/story-manager.ts';
 
 // Export all types
-export type {
-  Story,
-  StoryContainer,
-  StoryMetadata,
-  SceneData,
-  SceneAsset,
-  CameraData,
-} from './src/types.ts';
+export type { Story, StoryContainer, StoryMetadata, SceneData, SceneAsset, CameraData } from './src/types.ts';
 
-// Export actions utilities
-export * as actions from './src/actions.ts';
+// Export constants and utilities
+export { SessionFileExtension, BuilderLibNamespaces, adjustedCameraPosition } from './src/actions.ts';
 
 // Export HTML template generator
 export { generateStoriesHtml } from './src/html-template.ts';

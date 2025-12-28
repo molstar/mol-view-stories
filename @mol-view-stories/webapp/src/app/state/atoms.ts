@@ -1,5 +1,5 @@
 import { ExampleStories } from '@/app/examples';
-import { Story } from '@mol-view-stories/lib/src/types';
+import type { Story } from '@mol-view-stories/lib';
 import { atom } from 'jotai';
 import { type Camera } from 'molstar/lib/mol-canvas3d/camera';
 import {

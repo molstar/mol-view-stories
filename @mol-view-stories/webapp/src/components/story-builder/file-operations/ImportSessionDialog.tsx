@@ -3,7 +3,7 @@
 import { OpenSessionAtom } from '@/app/appstate';
 import { importState } from '@/app/state/actions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SessionFileExtension } from '@mol-view-stories/lib/src/actions';
+import { SessionFileExtension } from '@mol-view-stories/lib';
 import { useAtom } from 'jotai';
 import { Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
