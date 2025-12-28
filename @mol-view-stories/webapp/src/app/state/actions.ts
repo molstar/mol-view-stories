@@ -1,7 +1,7 @@
 // noinspection DuplicatedCode
 
 import { tryFindIfStoryIsShared } from '@/lib/data-utils';
-import { StoryManager, generateStoriesHtml, SessionFileExtension } from '@mol-view-stories/lib';
+import { StoryManager, generateStoriesHtml, StoryFileExtension } from '@mol-view-stories/lib';
 import type { SceneAsset, SceneData, Story, StoryMetadata } from '@mol-view-stories/lib';
 import { getDefaultStore } from 'jotai';
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
@@ -149,7 +149,7 @@ export const exportState = async (story: Story) => {
   const manager = new StoryManager(story);
   const container = await manager.toContainer();
   const blob = new Blob([container as Uint8Array<ArrayBuffer>], { type: 'application/octet-stream' });
-  const filename = `${normalizeStoryFilename(story.metadata.title)}${SessionFileExtension}`;
+  const filename = `${normalizeStoryFilename(story.metadata.title)}${StoryFileExtension}`;
   download(blob, filename);
 };
 

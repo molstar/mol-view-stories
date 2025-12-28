@@ -121,7 +121,7 @@ export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   return decoded.story;
 }
 
-export const SessionFileExtension = '.mvstory';
+export const StoryFileExtension = '.mvstory';
 
 export async function createCompressedStoryContainer(story: Story): Promise<Uint8Array> {
   const container: StoryContainer = {
@@ -181,7 +181,7 @@ export async function createSelfHostedZip(story: Story, options?: { molstarVersi
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   const dataPath = `story/data.${data instanceof Uint8Array ? 'mvsx' : 'mvsj'}`;
-  const sessionPath = `story/session${SessionFileExtension}`;
+  const sessionPath = `story/session${StoryFileExtension}`;
 
   const html = generateStoriesHtml(
     { kind: 'self-hosted', dataPath, sessionPath, format },
