@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, copyToClipboard, SingleTaskQueue } from '@/lib/utils';
-import { atom, getDefaultStore, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai/index';
+import { atom, getDefaultStore, useAtom, useAtomValue, useStore } from 'jotai/index';
 import {
   Axis3D,
   BoltIcon,
@@ -34,7 +34,6 @@ import {
   FolderIcon,
   PinIcon,
   XIcon,
-  RotateCw,
   LucideMessageCircleQuestion,
   Copy,
   BadgeInfo,
@@ -411,7 +410,7 @@ function CurrentSceneView() {
 
   useEffect(() => {
     return () => model.plugin.managers.markdownExtensions.audio.stop();
-  }, []);
+  }, [model.plugin.managers.markdownExtensions.audio]);
 
   return (
     <>
