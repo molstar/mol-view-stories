@@ -1,6 +1,6 @@
 {
   "name": "@molstar/mol-view-stories",
-  "version": "1.0.0",
+  "version": "1.0.1-dev.1",
   "description": "A TypeScript library for working with Molstar molecular viewer stories",
   "license": "MIT",
   "exports": {
