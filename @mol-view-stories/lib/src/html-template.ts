@@ -1,10 +1,15 @@
-import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
+import type { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
 
 export function generateStoriesHtml(
   data:
     | { kind: 'embed'; data: MVSData | Uint8Array }
-    | { kind: 'self-hosted'; dataPath: string; sessionPath?: string; format: string },
+    | {
+        kind: 'self-hosted';
+        dataPath: string;
+        sessionPath?: string;
+        format: string;
+      },
   options?: {
     title?: string;
     molstarVersion?: string;
@@ -33,8 +38,7 @@ export function generateStoriesHtml(
 
     let state;
     if (data.data instanceof Uint8Array) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      state = `"base64,${(data.data as any).toBase64()}"`;
+      state = `"base64,${(data.data as unknown as { toBase64(): string }).toBase64()}"`;
     } else {
       state = JSON.stringify(data.data);
     }
@@ -46,7 +50,7 @@ export function generateStoriesHtml(
     `;
   } else {
     if (data.sessionPath) {
-      extraLinks = ExtraLinks.replaceAll('{{session-link}}', data.sessionPath.replace('"', '\\\"'));
+      extraLinks = ExtraLinks.replaceAll('{{session-link}}', data.sessionPath.replace('"', '\\"'));
     }
     loader = `
         mvsStories.loadFromURL('${data.dataPath.replace("'", "\\'")}', { format: '${data.format}' });
@@ -95,7 +99,7 @@ const Template = `<!DOCTYPE html>
             border-left: none;
             background: #F6F5F3;
             z-index: -2;
-            display: flex; 
+            display: flex;
             flex-direction: column;
             gap: 16px;
         }
@@ -133,8 +137,8 @@ const Template = `<!DOCTYPE html>
                 left: 0;
                 top: 60%;
                 right: 0;
-                bottom: 0;  
-                border-top: none;  
+                bottom: 0;
+                border-top: none;
             }
 
             .msp-viewport-controls-buttons {
@@ -155,8 +159,8 @@ const Template = `<!DOCTYPE html>
 
     <div id="links">
         {{extra-links}}
-        <a href="#" id="mvs-data" title="MolViewSpec State for this story. Can be opened in the Mol* app.">Download MVS</a> <span class="sep">•</span> 
-        <a href="https://molstar.org/mol-view-stories/" id="mvs-data" target="_blank" rel="noopener noreferrer">Created with MolViewStories</a> <span class="sep">•</span> 
+        <a href="#" id="mvs-data" title="MolViewSpec State for this story. Can be opened in the Mol* app.">Download MVS</a> <span class="sep">•</span>
+        <a href="https://molstar.org/mol-view-stories/" id="mvs-data" target="_blank" rel="noopener noreferrer">Created with MolViewStories</a> <span class="sep">•</span>
         <a href="https://molstar.org" id="mvs-data" target="_blank" rel="noopener noreferrer">Mol*</a>
     </div>
 
@@ -172,5 +176,5 @@ const Template = `<!DOCTYPE html>
 </html>`;
 
 const ExtraLinks = `
-        <a href="{{session-link}}" title="Download a session file which can be opened in the MolViewStories Builder">Download Story Session</a>&nbsp;<span class="sep">•</span> 
+        <a href="{{session-link}}" title="Download a session file which can be opened in the MolViewStories Builder">Download Story Session</a>&nbsp;<span class="sep">•</span>
 `;

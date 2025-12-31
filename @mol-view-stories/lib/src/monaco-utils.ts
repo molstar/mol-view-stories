@@ -13,14 +13,14 @@ export interface MonacoInstance {
     typescript: {
       javascriptDefaults: {
         setEagerModelSync(value: boolean): void;
-        getExtraLibs(): Record<string, any>;
+        getExtraLibs(): Record<string, unknown>;
         addExtraLib(content: string, filePath: string): void;
-        setCompilerOptions(options: any): void;
+        setCompilerOptions(options: Record<string, unknown>): void;
       };
-      ScriptTarget: any;
-      ModuleResolutionKind: any;
-      ModuleKind: any;
-      JsxEmit: any;
+      ScriptTarget: Record<string, unknown>;
+      ModuleResolutionKind: Record<string, unknown>;
+      ModuleKind: Record<string, unknown>;
+      JsxEmit: Record<string, unknown>;
     };
   };
 }
@@ -63,11 +63,7 @@ export interface MonacoEditorModel {
  * setupMonacoCodeCompletion(monaco, MVSTypes, storyJavaScript);
  * ```
  */
-export function setupMonacoCodeCompletion(
-  monaco: MonacoInstance,
-  mvsTypes?: string,
-  commonCode?: string
-): void {
+export function setupMonacoCodeCompletion(monaco: MonacoInstance, mvsTypes?: string, commonCode?: string): void {
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 
   const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();

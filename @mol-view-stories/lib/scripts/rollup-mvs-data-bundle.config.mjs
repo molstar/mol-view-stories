@@ -1,4 +1,4 @@
-import dts from 'npm:rollup-plugin-dts@6';
+import dts from 'rollup-plugin-dts';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {

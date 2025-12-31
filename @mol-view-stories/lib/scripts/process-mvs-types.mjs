@@ -27,7 +27,7 @@ const final = [
   ' * setupMonacoCodeCompletion(monaco, MVSTypes);',
   ' * ```',
   ' */',
-  'export const MVSTypes = `',
+  'export const MVSTypes: string = `',
   'namespace _ {',
   ...lines.map((line) => `    ${line}`),
   '}',

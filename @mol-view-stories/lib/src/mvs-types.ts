@@ -15,7 +15,7 @@
  * setupMonacoCodeCompletion(monaco, MVSTypes);
  * ```
  */
-export const MVSTypes = `
+export const MVSTypes: string = `
 namespace _ {
     /**
      * @since 2.11.0

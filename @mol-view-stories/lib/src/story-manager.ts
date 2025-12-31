@@ -1,6 +1,6 @@
-import { Story, SceneData, SceneAsset, StoryContainer } from './types.ts';
+import type { SceneAsset, SceneData, Story, StoryContainer } from './types.ts';
 import { UUID } from 'molstar/lib/mol-util/uuid.js';
-import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data.js';
+import type { MVSData } from 'molstar/lib/extensions/mvs/mvs-data.js';
 import { Task } from 'molstar/lib/mol-task/index.js';
 import { encodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/encode.js';
 import { decodeMsgPack } from 'molstar/lib/mol-io/common/msgpack/decode.js';
@@ -190,7 +190,7 @@ export class StoryManager {
    * @param scenes - Optional subset of scenes to export (exports all if not provided)
    * @returns Promise resolving to MVSData object or Uint8Array (ZIP)
    */
-  async toMVS(scenes?: SceneData[]): Promise<MVSData | Uint8Array> {
+  toMVS(scenes?: SceneData[]): MVSData | Uint8Array {
     return utils.getMVSData(this.story, scenes);
   }
 
@@ -242,7 +242,7 @@ export class StoryManager {
    * @param options.molstarVersion - Specific Molstar version to bundle
    * @returns Promise resolving to ZIP file bytes
    */
-  async toSelfHostedZip(options?: { molstarVersion?: string }): Promise<Uint8Array> {
+  toSelfHostedZip(options?: { molstarVersion?: string }): Uint8Array {
     return utils.createSelfHostedZip(this.story, options);
   }
 
