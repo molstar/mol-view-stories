@@ -190,8 +190,8 @@ export class StoryManager {
    * @param scenes - Optional subset of scenes to export (exports all if not provided)
    * @returns Promise resolving to MVSData object or Uint8Array (ZIP)
    */
-  toMVS(scenes?: SceneData[]): MVSData | Uint8Array {
-    return utils.getMVSData(this.story, scenes);
+  async toMVS(scenes?: SceneData[]): Promise<MVSData | Uint8Array> {
+    return await utils.getMVSData(this.story, scenes);
   }
 
   /**
@@ -242,8 +242,8 @@ export class StoryManager {
    * @param options.molstarVersion - Specific Molstar version to bundle
    * @returns Promise resolving to ZIP file bytes
    */
-  toSelfHostedZip(options?: { molstarVersion?: string }): Uint8Array {
-    return utils.createSelfHostedZip(this.story, options);
+  async toSelfHostedZip(options?: { molstarVersion?: string }): Promise<Uint8Array> {
+    return await utils.createSelfHostedZip(this.story, options);
   }
 
   // --- Import Operations ---
