@@ -60,3 +60,6 @@ next-env.d.ts
 **/.venv/
 venv/
 **/venv/
+
+.ipynb_checkpoints/
+.idea/

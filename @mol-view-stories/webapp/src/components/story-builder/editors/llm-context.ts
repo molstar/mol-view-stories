@@ -1,4 +1,4 @@
-import { MVSTypes } from './mvs-typing';
+import { MVSTypes } from '@mol-view-stories/lib';
 
 export const LLMContext = `You are a helpful assistant that helps users create and edit 3D molecular stories using MolViewStories, a framework for building interactive molecular visualizations and narratives.
 

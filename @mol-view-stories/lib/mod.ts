@@ -38,3 +38,9 @@ export { generateStoriesHtml } from './src/html-template.ts';
 
 // Export MVSData for programmatic scene creation
 export { MVSData } from 'molstar/lib/extensions/mvs/mvs-data.js';
+
+// Export Monaco editor utilities (framework-agnostic)
+export * from './src/monaco-utils.js';
+
+// Export MVS type definitions for Monaco IntelliSense
+export { MVSTypes } from './src/mvs-types.js';

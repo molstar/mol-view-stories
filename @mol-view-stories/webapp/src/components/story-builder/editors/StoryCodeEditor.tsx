@@ -1,23 +1,24 @@
 'use client';
 
-import { StoryAtom } from '@/app/appstate';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { useAtom } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
-import { setupMonacoCodeCompletion } from './common';
+import { useEffect, useRef } from 'react';
+import { setupMonacoCodeCompletion, defaultCodeEditorOptions } from './common';
 
-export function StoryCodeEditor() {
-  const [story, setStory] = useAtom(StoryAtom);
-  const [currentCode, setCurrentCode] = useState<string | undefined>('');
+export interface StoryCodeEditorProps {
+  /** Current JavaScript code value (controlled) */
+  value: string;
+  /** Callback when code changes (on every keystroke) */
+  onChange?: (value: string) => void;
+  /** Callback when code is saved (on blur or keyboard shortcut) */
+  onSave?: (value: string) => void;
+  /** Additional CSS class name */
+  className?: string;
+}
 
+export function StoryCodeEditor({ value, onChange, onSave, className }: StoryCodeEditorProps) {
   const parentRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
-
-  // Sync with active scene when it changes
-  useEffect(() => {
-    setCurrentCode(story.javascript || '');
-  }, [story.javascript]);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -36,46 +37,34 @@ export function StoryCodeEditor() {
     setupMonacoCodeCompletion(monaco);
     editor.layout();
 
-    // Add Alt+S keyboard shortcut for saving markdown
-    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
-      setStory((prev) => ({ ...prev, javascript: editor.getValue() }));
-    });
-    // TODO: does this need to be disposed?
-    editor.onDidBlurEditorWidget(() => {
-      setStory((prev) => ({ ...prev, javascript: editor.getValue() }));
-    });
+    // Add keyboard shortcuts for saving
+    if (onSave) {
+      editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyS, () => {
+        onSave(editor.getValue());
+      });
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+        onSave(editor.getValue());
+      });
+    }
+
+    // Save on blur
+    if (onSave) {
+      editor.onDidBlurEditorWidget(() => {
+        onSave(editor.getValue());
+      });
+    }
   };
 
   return (
-    <div className='absolute inset-0' ref={parentRef}>
+    <div className={className || 'absolute inset-0'} ref={parentRef}>
       <Editor
         height='100%'
         width='100%'
         language='javascript'
-        value={currentCode}
-        onChange={setCurrentCode}
+        value={value}
+        onChange={(v) => onChange?.(v || '')}
         onMount={handleEditorDidMount}
-        options={{
-          theme: 'vs',
-          fontSize: 14,
-          fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
-          lineNumbers: 'on',
-          wordWrap: 'on',
-          minimap: { enabled: false },
-          scrollBeyondLastLine: false,
-          automaticLayout: false,
-          tabSize: 2,
-          insertSpaces: true,
-          formatOnPaste: true,
-          suggestOnTriggerCharacters: true,
-          acceptSuggestionOnEnter: 'on',
-          snippetSuggestions: 'inline',
-          quickSuggestions: {
-            other: true,
-            comments: false,
-            strings: false,
-          },
-        }}
+        options={defaultCodeEditorOptions}
       />
     </div>
   );

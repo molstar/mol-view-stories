@@ -11,7 +11,9 @@
     "dev": "deno test --watch",
     "check": "deno check mod.ts src/*.ts",
     "test": "deno test",
-    "publish": "deno publish"
+    "publish": "deno publish",
+    "mvs-types": "deno run --allow-read --allow-write --allow-env --allow-ffi npm:rollup@4 -c scripts/rollup-mvs-data-bundle.config.mjs && deno run --allow-read --allow-write scripts/process-mvs-types.mjs",
+    "build": "deno task mvs-types && deno task check"
   },
   "publish": {
     "exclude": [
@@ -21,6 +23,7 @@
       "tests/",
       "examples/",
       "node_modules/",
+      "scripts/",
       "package.json",
       "tsconfig.json"
     ]

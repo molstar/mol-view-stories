@@ -23,7 +23,7 @@ namespace _ {
      * @since 2.11.0
      */
     type URI$8 = typeof URI$8
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$8]: Predicate$1<A>
       }
@@ -49,7 +49,7 @@ namespace _ {
      * @since 2.10.0
      */
     type URI$7 = typeof URI$7
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind2<E, A> {
         readonly [URI$7]: Separated<E, A>
       }
@@ -72,7 +72,7 @@ namespace _ {
      * @since 2.5.0
      */
     type URI$6 = typeof URI$6
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$6]: ReadonlyNonEmptyArray<A>
       }
@@ -108,7 +108,7 @@ namespace _ {
      * @since 2.0.0
      */
     type URI$5 = typeof URI$5
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$5]: Option<A>
       }
@@ -138,7 +138,7 @@ namespace _ {
      * @since 2.5.0
      */
     type URI$4 = typeof URI$4
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$4]: ReadonlyRecord<string, A>
       }
@@ -164,7 +164,7 @@ namespace _ {
      * @since 2.11.0
      */
     type URI$3 = typeof URI$3
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$3]: Endomorphism<A>
       }
@@ -199,7 +199,7 @@ namespace _ {
      * @since 2.0.0
      */
     type URI$2 = typeof URI$2
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$2]: Eq<A>
       }
@@ -244,7 +244,7 @@ namespace _ {
      * @since 2.0.0
      */
     type URI$1 = typeof URI$1
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind<A> {
         readonly [URI$1]: Ord<A>
       }
@@ -296,7 +296,7 @@ namespace _ {
      * @since 2.0.0
      */
     type URI = typeof URI
-    declare module './HKT' {
+    declare module "./mvs" {
       interface URItoKind2<E, A> {
         readonly [URI]: Either<E, A>
       }

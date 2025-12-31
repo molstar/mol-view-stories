@@ -28,7 +28,14 @@ importers:
         specifier: ^5
         version: 5.9.2
 
-  '@mol-view-stories/lib': {}
+  '@mol-view-stories/lib':
+    devDependencies:
+      rollup:
+        specifier: ^4.46.1
+        version: 4.48.0
+      rollup-plugin-dts:
+        specifier: ^6.2.1
+        version: 6.2.3(rollup@4.48.0)(typescript@5.9.2)
 
   '@mol-view-stories/webapp':
     dependencies:

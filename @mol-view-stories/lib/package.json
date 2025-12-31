@@ -3,12 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "build": "tsc --noEmit",
-    "prettier": "prettier --write ./src",
-    "prettier:check": "prettier --check ./src",
-    "tsc:check": "tsc --noEmit"
-  },
   "files": [
     "./src"
   ]

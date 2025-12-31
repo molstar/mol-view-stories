@@ -3,55 +3,73 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { useAtomValue } from 'jotai';
-import { ActiveSceneAtom, modifyCurrentScene } from '@/app/appstate';
-import { clearMonacoEditHistory } from './common';
+import { clearMonacoEditHistory, defaultMarkdownEditorOptions } from './common';
 
-export function SceneMarkdownEditor() {
-  const activeScene = useAtomValue(ActiveSceneAtom);
-  const [currentMarkdown, setCurrentMarkdown] = useState('');
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
+export interface SceneMarkdownEditorProps {
+  /** Current markdown content value (controlled) */
+  value: string;
+  /** Callback when markdown changes (on every keystroke) */
+  onChange?: (value: string) => void;
+  /** Callback when markdown is saved (on blur or keyboard shortcut) */
+  onSave?: (value: string) => void;
+  /** Height of the editor */
+  height?: string;
+  /** Additional CSS class name */
+  className?: string;
+}
 
-  // Sync with active scene when it changes
+export function SceneMarkdownEditor({
+  value,
+  onChange,
+  onSave,
+  height = '500px',
+  className,
+}: SceneMarkdownEditorProps) {
+  const [currentMarkdown, setCurrentMarkdown] = useState(value);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+
+  // Sync value changes from parent
   useEffect(() => {
-    setCurrentMarkdown(activeScene?.description || '');
+    setCurrentMarkdown(value);
     clearMonacoEditHistory(editorRef.current);
-  }, [activeScene?.description]);
+  }, [value]);
 
   const handleMarkdownChange: OnChange = (newMarkdown) => {
-    setCurrentMarkdown(newMarkdown || '');
+    const newValue = newMarkdown || '';
+    setCurrentMarkdown(newValue);
+    onChange?.(newValue);
   };
 
-  const handleEditorDidMount: OnMount = (editor, monaco) => {
+  const handleSave = () => {
+    if (onSave && editorRef.current) {
+      onSave(editorRef.current.getValue());
+    }
+  };
+
+  const handleEditorDidMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
 
-    // Add Alt+S keyboard shortcut for saving markdown
+    // Add keyboard shortcuts for saving
     for (const cmd of [
-      monaco.KeyMod.Alt | monaco.KeyCode.KeyS,
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
-      monaco.KeyMod.Alt | monaco.KeyCode.Enter,
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+      monacoInstance.KeyMod.Alt | monacoInstance.KeyCode.KeyS,
+      monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.KeyS,
+      monacoInstance.KeyMod.Alt | monacoInstance.KeyCode.Enter,
+      monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter,
     ]) {
-      editor.addCommand(cmd, () => {
-        modifyCurrentScene({ description: editor.getValue() });
-      });
+      editor.addCommand(cmd, handleSave);
     }
   };
 
   return (
-    <Editor
-      height='500px'
-      defaultLanguage='markdown'
-      value={currentMarkdown}
-      onChange={handleMarkdownChange}
-      onMount={handleEditorDidMount}
-      theme='vs'
-      options={{
-        minimap: { enabled: false },
-        fontSize: 14,
-        wordWrap: 'on',
-        automaticLayout: true,
-      }}
-    />
+    <div className={className}>
+      <Editor
+        height={height}
+        defaultLanguage='markdown'
+        value={currentMarkdown}
+        onChange={handleMarkdownChange}
+        onMount={handleEditorDidMount}
+        options={defaultMarkdownEditorOptions}
+      />
+    </div>
   );
 }
