@@ -21,6 +21,7 @@
       "*.spec.ts",
       "test/",
       "tests/",
+      "tmp/",
       "examples/",
       "node_modules/",
       "scripts/",

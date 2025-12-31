@@ -3,7 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { clearMonacoEditHistory, setupMonacoCodeCompletion, defaultCodeEditorOptions } from './common';
+import {
+  clearMonacoEditHistory,
+  setupMonacoCodeCompletion,
+  defaultCodeEditorOptions,
+  MVSTypes,
+} from '@mol-view-stories/lib';
 
 export interface SceneCodeEditorProps {
   /** Current JavaScript code value (controlled) */
@@ -49,12 +54,7 @@ export function SceneCodeEditor({ value, commonCode, onChange, onSave, className
 
   const handleEditorDidMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
-    setupMonacoCodeCompletion(monacoInstance);
-
-    // Add common code for IntelliSense
-    if (commonCode) {
-      monacoInstance.languages.typescript.javascriptDefaults.addExtraLib(commonCode, 'js:common-code.js');
-    }
+    setupMonacoCodeCompletion(monacoInstance, MVSTypes, commonCode);
 
     editor.layout();
 

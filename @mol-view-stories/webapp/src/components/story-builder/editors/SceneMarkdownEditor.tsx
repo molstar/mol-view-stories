@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { clearMonacoEditHistory, defaultMarkdownEditorOptions } from './common';
+import { clearMonacoEditHistory, defaultMarkdownEditorOptions } from '@mol-view-stories/lib';
 
 export interface SceneMarkdownEditorProps {
   /** Current markdown content value (controlled) */

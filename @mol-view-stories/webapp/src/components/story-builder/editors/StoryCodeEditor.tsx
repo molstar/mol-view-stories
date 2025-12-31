@@ -3,7 +3,7 @@
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { useEffect, useRef } from 'react';
-import { setupMonacoCodeCompletion, defaultCodeEditorOptions } from './common';
+import { setupMonacoCodeCompletion, defaultCodeEditorOptions, MVSTypes } from '@mol-view-stories/lib';
 
 export interface StoryCodeEditorProps {
   /** Current JavaScript code value (controlled) */
@@ -34,7 +34,7 @@ export function StoryCodeEditor({ value, onChange, onSave, className }: StoryCod
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
-    setupMonacoCodeCompletion(monaco);
+    setupMonacoCodeCompletion(monaco, MVSTypes);
     editor.layout();
 
     // Add keyboard shortcuts for saving
