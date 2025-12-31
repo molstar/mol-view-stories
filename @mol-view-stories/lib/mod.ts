@@ -40,7 +40,7 @@ export { generateStoriesHtml } from './src/html-template.ts';
 export { MVSData } from 'molstar/lib/extensions/mvs/mvs-data.js';
 
 // Export Monaco editor utilities (framework-agnostic)
-export * from './src/monaco-utils.js';
+export * from './src/monaco-utils.ts';
 
 // Export MVS type definitions for Monaco IntelliSense
-export { MVSTypes } from './src/mvs-types.js';
+export { MVSTypes } from './src/mvs-types.ts';
