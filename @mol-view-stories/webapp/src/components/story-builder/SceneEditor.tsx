@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, copyToClipboard, SingleTaskQueue } from '@/lib/utils';
-import { atom, getDefaultStore, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai/index';
+import { atom, getDefaultStore, useAtom, useAtomValue, useStore } from 'jotai/index';
 import {
   Axis3D,
   BoltIcon,
@@ -34,7 +34,6 @@ import {
   FolderIcon,
   PinIcon,
   XIcon,
-  RotateCw,
   LucideMessageCircleQuestion,
   Copy,
   BadgeInfo,
@@ -58,7 +57,7 @@ import { OptionsEditor } from './editors/SceneOptions';
 import { PressToCodeComplete, PressToSave } from '../common';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { toast } from 'sonner';
-import { UpdateSceneAtom } from '@/app/state/atoms';
+
 import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 import Link from 'next/link';
 import { ImmediateInput } from '../controls';
@@ -251,16 +250,10 @@ function CameraActions() {
 }
 
 function CodeUIControls() {
-  const setUpdate = useSetAtom(UpdateSceneAtom);
-
   return (
     <div className='flex items-center gap-2'>
       <CameraActions />
       <AssetList />
-      <Button variant='ghost' size='sm' onClick={() => setUpdate(Date.now())}>
-        <RotateCw className='size-4 mr-1' />
-        Update Scene
-      </Button>
       <div className='m-auto' />
       <Button
         variant='ghost'
@@ -417,7 +410,7 @@ function CurrentSceneView() {
 
   useEffect(() => {
     return () => model.plugin.managers.markdownExtensions.audio.stop();
-  }, []);
+  }, [model.plugin.managers.markdownExtensions.audio]);
 
   return (
     <>
@@ -478,44 +471,12 @@ export function SceneEditors() {
                 </Button>
                 <EncodeCommand />
               </div>
-              <div className='flex gap-6'>
-                <div className='flex-1'>
-                  <SceneMarkdownEditor />
-                </div>
-                <div className='flex-1'>
-                  <MarkdownRenderer />
-                </div>
-              </div>
+              <SceneMarkdownEditorSection />
               <PressToSave />
             </div>
           </TabsContent>
           <TabsContent value='scene' className='mt-0 h-full'>
-            <div className='flex flex-col h-full gap-2'>
-              <div className='flex gap-6 items-center'>
-                <div className='flex-1'>
-                  <CodeUIControls />
-                </div>
-                <div className='flex-1'>
-                  <CameraState />
-                </div>
-              </div>
-              <div className='flex gap-6 h-full'>
-                <div className='flex-1 flex flex-col gap-2 shrink-0'>
-                  <div className='border rounded flex-1 relative'>
-                    <SceneCodeEditor />
-                  </div>
-                  <div className='flex gap-2'>
-                    <PressToSave />
-                    <PressToCodeComplete />
-                  </div>
-                </div>
-                <div className='flex-1 shrink-0'>
-                  <div className='w-full' style={{ aspectRatio: '1.33/1' }}>
-                    <CurrentSceneView />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <SceneCodeEditorSection />
           </TabsContent>
         </CardContent>
       </Card>
@@ -579,4 +540,60 @@ function getMarkdownMolStarContext() {
   });
   _markdownPlugin = plugin;
   return plugin;
+}
+
+function SceneMarkdownEditorSection() {
+  const scene = useAtomValue(ActiveSceneAtom);
+
+  return (
+    <div className='flex gap-6'>
+      <div className='flex-1'>
+        <SceneMarkdownEditor
+          value={scene?.description || ''}
+          onSave={(description) => modifyCurrentScene({ description })}
+        />
+      </div>
+      <div className='flex-1'>
+        <MarkdownRenderer />
+      </div>
+    </div>
+  );
+}
+
+function SceneCodeEditorSection() {
+  const scene = useAtomValue(ActiveSceneAtom);
+  const story = useAtomValue(StoryAtom);
+
+  return (
+    <div className='flex flex-col h-full gap-2'>
+      <div className='flex gap-6 items-center'>
+        <div className='flex-1'>
+          <CodeUIControls />
+        </div>
+        <div className='flex-1'>
+          <CameraState />
+        </div>
+      </div>
+      <div className='flex gap-6 h-full'>
+        <div className='flex-1 flex flex-col gap-2 shrink-0'>
+          <div className='border rounded flex-1 relative'>
+            <SceneCodeEditor
+              value={scene?.javascript || ''}
+              commonCode={story.javascript || ''}
+              onSave={(code) => modifyCurrentScene({ javascript: code })}
+            />
+          </div>
+          <div className='flex gap-2'>
+            <PressToSave />
+            <PressToCodeComplete />
+          </div>
+        </div>
+        <div className='flex-1 shrink-0'>
+          <div className='w-full' style={{ aspectRatio: '1.33/1' }}>
+            <CurrentSceneView />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

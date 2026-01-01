@@ -1,20 +1,38 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getDefaultStore, useAtomValue, useStore } from 'jotai';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { ActiveSceneAtom, modifyCurrentScene, StoryAtom } from '@/app/appstate';
-import { clearMonacoEditHistory, setupMonacoCodeCompletion } from './common';
-import { UpdateSceneAtom } from '@/app/state/atoms';
+import {
+  clearMonacoEditHistory,
+  setupMonacoCodeCompletion,
+  defaultCodeEditorOptions,
+  MVSTypes,
+} from '@mol-view-stories/lib';
 
-export function SceneCodeEditor() {
-  const store = useStore();
-  const activeScene = useAtomValue(ActiveSceneAtom);
-  const [currentCode, setCurrentCode] = useState('');
+export interface SceneCodeEditorProps {
+  /** Current JavaScript code value (controlled) */
+  value: string;
+  /** Common/story-level JavaScript for IntelliSense */
+  commonCode?: string;
+  /** Callback when code changes (on every keystroke) */
+  onChange?: (value: string) => void;
+  /** Callback when code is saved (on blur or keyboard shortcut) */
+  onSave?: (value: string) => void;
+  /** Additional CSS class name */
+  className?: string;
+}
 
+export function SceneCodeEditor({ value, commonCode, onChange, onSave, className }: SceneCodeEditorProps) {
+  const [currentCode, setCurrentCode] = useState(value);
   const parentRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+
+  // Sync value changes from parent
+  useEffect(() => {
+    setCurrentCode(value);
+    clearMonacoEditHistory(editorRef.current);
+  }, [value]);
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -23,61 +41,42 @@ export function SceneCodeEditor() {
     if (parentRef.current) {
       observer.observe(parentRef.current);
     }
-
-    const sub = store.sub(UpdateSceneAtom, () => {
-      const ts = store.get(UpdateSceneAtom);
-      if (!editorRef.current?.getValue() || !ts) return;
-      modifyCurrentScene({ javascript: editorRef.current?.getValue() || '' });
-    });
-
     return () => {
       observer.disconnect();
-      sub();
     };
-  }, [store]);
+  }, []);
 
-  const handleSave = (value: string) => {
-    if (!activeScene) return;
-
-    modifyCurrentScene({
-      javascript: value,
-    });
+  const handleSave = () => {
+    if (onSave && editorRef.current) {
+      onSave(editorRef.current.getValue());
+    }
   };
 
-  // Sync with active scene when it changes
-  useEffect(() => {
-    if (activeScene) {
-      setCurrentCode(activeScene.javascript || '');
-    }
-    clearMonacoEditHistory(editorRef.current);
-  }, [activeScene]);
-
-  const handleEditorDidMount: OnMount = (editor, monaco) => {
+  const handleEditorDidMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
+    setupMonacoCodeCompletion(monacoInstance, MVSTypes, commonCode);
 
-    for (const command of [
-      monaco.KeyMod.Alt | monaco.KeyCode.KeyS,
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
-      monaco.KeyMod.Alt | monaco.KeyCode.Enter,
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-    ]) {
-      editor.addCommand(command, () => {
-        handleSave(editor.getValue());
-      });
-    }
-
-    setupMonacoCodeCompletion(monaco);
-    const commonCode = getDefaultStore().get(StoryAtom)?.javascript || '';
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(commonCode, 'js:common-code.js');
     editor.layout();
+
+    // Add keyboard shortcuts for saving
+    for (const command of [
+      monacoInstance.KeyMod.Alt | monacoInstance.KeyCode.KeyS,
+      monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.KeyS,
+      monacoInstance.KeyMod.Alt | monacoInstance.KeyCode.Enter,
+      monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter,
+    ]) {
+      editor.addCommand(command, handleSave);
+    }
   };
 
   const handleEditorChange = (value: string | undefined) => {
-    setCurrentCode(value || '');
+    const newValue = value || '';
+    setCurrentCode(newValue);
+    onChange?.(newValue);
   };
 
   return (
-    <div className='absolute inset-0' ref={parentRef}>
+    <div className={className || 'absolute inset-0'} ref={parentRef}>
       <Editor
         height='100%'
         width='100%'
@@ -85,27 +84,7 @@ export function SceneCodeEditor() {
         value={currentCode}
         onChange={handleEditorChange}
         onMount={handleEditorDidMount}
-        options={{
-          theme: 'vs',
-          fontSize: 14,
-          fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
-          lineNumbers: 'on',
-          wordWrap: 'on',
-          minimap: { enabled: false },
-          scrollBeyondLastLine: false,
-          automaticLayout: false,
-          tabSize: 2,
-          insertSpaces: true,
-          formatOnPaste: true,
-          suggestOnTriggerCharacters: true,
-          acceptSuggestionOnEnter: 'on',
-          snippetSuggestions: 'inline',
-          quickSuggestions: {
-            other: true,
-            comments: false,
-            strings: false,
-          },
-        }}
+        options={defaultCodeEditorOptions}
       />
     </div>
   );

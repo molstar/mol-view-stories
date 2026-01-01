@@ -44,16 +44,7 @@ export function StoryOptions() {
             </div>
           </TabsContent>
           <TabsContent value='story-wide-code' className='mt-0 h-full'>
-            <div className='space-y-2 flex flex-col h-full'>
-              <Label>Common Code</Label>
-              <div className='flex-1 relative border rounded'>
-                <StoryCodeEditor />
-              </div>
-              <div className='flex gap-2'>
-                <PressToSave />
-                <PressToCodeComplete />
-              </div>
-            </div>
+            <StoryCodeEditorTab />
           </TabsContent>
           <TabsContent value='asset-upload' className='mt-0 h-full'>
             <div className='space-y-4'>
@@ -65,6 +56,26 @@ export function StoryOptions() {
         </CardContent>
       </Card>
     </Tabs>
+  );
+}
+
+function StoryCodeEditorTab() {
+  const [story, setStory] = useAtom(StoryAtom);
+
+  return (
+    <div className='space-y-2 flex flex-col h-full'>
+      <Label>Common Code</Label>
+      <div className='flex-1 relative border rounded'>
+        <StoryCodeEditor
+          value={story.javascript || ''}
+          onSave={(code) => setStory((prev) => ({ ...prev, javascript: code }))}
+        />
+      </div>
+      <div className='flex gap-2'>
+        <PressToSave />
+        <PressToCodeComplete />
+      </div>
+    </div>
   );
 }
 

@@ -21,12 +21,6 @@ export async function watchStory(
     throw new Error('Port must be between 1 and 65535');
   }
 
-  console.error(`Starting watch server for: ${folderPath}`);
-  console.error(`Server will be available at: http://localhost:${port}`);
-  console.error(
-    `Serving mode: ${useDirectServing ? 'Direct (redirect to mol-view-stories)' : 'Local (embedded viewer)'}`
-  );
-
   // Validate folder exists
   if (!(await exists(folderPath))) {
     throw new Error(`Folder '${folderPath}' does not exist`);
@@ -36,6 +30,12 @@ export async function watchStory(
   if (!stat.isDirectory) {
     throw new Error(`'${folderPath}' is not a directory`);
   }
+
+  console.error(`Starting watch server for: ${folderPath}`);
+  console.error(`Server will be available at: http://localhost:${port}`);
+  console.error(
+    `Serving mode: ${useDirectServing ? 'Direct (redirect to mol-view-stories)' : 'Local (embedded viewer)'}`
+  );
 
   // Create temp directory for serving files
   const tempDir = await Deno.makeTempDir({ prefix: 'mvs-watch-' });

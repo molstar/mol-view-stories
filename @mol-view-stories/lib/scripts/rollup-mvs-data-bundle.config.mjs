@@ -8,10 +8,12 @@ export default {
     file: './tmp/mvs.d.ts',
     format: 'es',
   },
-  plugins: [dts({ 
-    respectExternal: true,
-    compilerOptions: {
-      preserveSymlinks: false,
-    }
-  })],
+  plugins: [
+    dts({
+      respectExternal: true,
+      compilerOptions: {
+        preserveSymlinks: false,
+      },
+    }),
+  ],
 };

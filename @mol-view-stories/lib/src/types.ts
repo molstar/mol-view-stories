@@ -1,4 +1,4 @@
-import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
+import type { Vec3 } from "molstar/lib/mol-math/linear-algebra";
 
 export type StoryContainer = {
   version: 1;
@@ -24,7 +24,7 @@ export type SceneAsset = {
 };
 
 export type CameraData = {
-  mode: 'perspective' | 'orthographic';
+  mode: "perspective" | "orthographic";
   target: [number, number, number] | Vec3;
   position: [number, number, number] | Vec3;
   up: [number, number, number] | Vec3;
