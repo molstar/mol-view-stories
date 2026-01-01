@@ -5,30 +5,30 @@ export function generateStoriesHtml(
   data:
     | { kind: 'embed'; data: MVSData | Uint8Array }
     | {
-        kind: 'self-hosted';
-        dataPath: string;
-        sessionPath?: string;
-        format: string;
-      },
+      kind: 'self-hosted';
+      dataPath: string;
+      sessionPath?: string;
+      format: string;
+    },
   options?: {
     title?: string;
     molstarVersion?: string;
     jsPath?: string;
     cssPath?: string;
-  }
+  },
 ): string {
-  const js =
-    options?.jsPath ??
-    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.js`.replace(
-      '{{version}}',
-      options?.molstarVersion ?? PLUGIN_VERSION
-    );
-  const css =
-    options?.cssPath ??
-    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.css`.replace(
-      '{{version}}',
-      options?.molstarVersion ?? PLUGIN_VERSION
-    );
+  const js = options?.jsPath ??
+    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.js`
+      .replace(
+        '{{version}}',
+        options?.molstarVersion ?? PLUGIN_VERSION,
+      );
+  const css = options?.cssPath ??
+    `https://cdn.jsdelivr.net/npm/molstar@{{version}}/build/mvs-stories/mvs-stories.css`
+      .replace(
+        '{{version}}',
+        options?.molstarVersion ?? PLUGIN_VERSION,
+      );
 
   let loader: string;
   let extraLinks: string = '';
@@ -38,7 +38,9 @@ export function generateStoriesHtml(
 
     let state;
     if (data.data instanceof Uint8Array) {
-      state = `"base64,${(data.data as unknown as { toBase64(): string }).toBase64()}"`;
+      state = `"base64,${
+        (data.data as unknown as { toBase64(): string }).toBase64()
+      }"`;
     } else {
       state = JSON.stringify(data.data);
     }
@@ -50,10 +52,15 @@ export function generateStoriesHtml(
     `;
   } else {
     if (data.sessionPath) {
-      extraLinks = ExtraLinks.replaceAll('{{session-link}}', data.sessionPath.replace('"', '\\"'));
+      extraLinks = ExtraLinks.replaceAll(
+        '{{session-link}}',
+        data.sessionPath.replace('"', '\\"'),
+      );
     }
     loader = `
-        mvsStories.loadFromURL('${data.dataPath.replace("'", "\\'")}', { format: '${data.format}' });
+        mvsStories.loadFromURL('${
+      data.dataPath.replace("'", "\\'")
+    }', { format: '${data.format}' });
     `;
   }
 

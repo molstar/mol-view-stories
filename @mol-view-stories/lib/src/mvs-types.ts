@@ -3,14 +3,14 @@
 
 /**
  * TypeScript type definitions for the Mol* Viewer (MVS) API.
- * 
+ *
  * This string contains complete type definitions that can be used with Monaco Editor
  * to provide IntelliSense/autocomplete for MVS scene JavaScript code.
- * 
+ *
  * @example
  * ```typescript
  * import { setupMonacoCodeCompletion, MVSTypes } from "@mol-view-stories/lib";
- * 
+ *
  * // Configure Monaco Editor for MVS code completion
  * setupMonacoCodeCompletion(monaco, MVSTypes);
  * ```

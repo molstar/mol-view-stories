@@ -63,19 +63,30 @@ export interface MonacoEditorModel {
  * setupMonacoCodeCompletion(monaco, MVSTypes, storyJavaScript);
  * ```
  */
-export function setupMonacoCodeCompletion(monaco: MonacoInstance, mvsTypes?: string, commonCode?: string): void {
+export function setupMonacoCodeCompletion(
+  monaco: MonacoInstance,
+  mvsTypes?: string,
+  commonCode?: string,
+): void {
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 
-  const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();
+  const extraLibs = monaco.languages.typescript.javascriptDefaults
+    .getExtraLibs();
 
   // Add MVS types if provided and not already added
   if (mvsTypes && !('ts:mvs.d.ts' in extraLibs)) {
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(mvsTypes, 'ts:mvs.d.ts');
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      mvsTypes,
+      'ts:mvs.d.ts',
+    );
   }
 
   // Add common code if provided
   if (commonCode) {
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(commonCode, 'js:common-code.js');
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      commonCode,
+      'js:common-code.js',
+    );
   }
 
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
@@ -113,7 +124,9 @@ export function setupMonacoCodeCompletion(monaco: MonacoInstance, mvsTypes?: str
  * }, [activeSceneId]);
  * ```
  */
-export async function clearMonacoEditHistory(editor?: MonacoEditor | null): Promise<void> {
+export async function clearMonacoEditHistory(
+  editor?: MonacoEditor | null,
+): Promise<void> {
   if (!editor) return;
 
   // Wait for next tick to ensure editor is fully updated

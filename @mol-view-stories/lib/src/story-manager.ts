@@ -94,7 +94,9 @@ export class StoryManager {
   }
 
   reorderScene(id: string, newIndex: number): boolean {
-    const currentIndex = this.story.scenes.findIndex((s: SceneData) => s.id === id);
+    const currentIndex = this.story.scenes.findIndex((s: SceneData) =>
+      s.id === id
+    );
     if (currentIndex === -1) return false;
     if (newIndex < 0 || newIndex >= this.story.scenes.length) return false;
 
@@ -111,12 +113,16 @@ export class StoryManager {
 
   addAsset(asset: SceneAsset): void {
     // Replace if exists
-    this.story.assets = this.story.assets.filter((a: SceneAsset) => a.name !== asset.name);
+    this.story.assets = this.story.assets.filter((a: SceneAsset) =>
+      a.name !== asset.name
+    );
     this.story.assets.push(asset);
   }
 
   removeAsset(name: string): boolean {
-    const index = this.story.assets.findIndex((a: SceneAsset) => a.name === name);
+    const index = this.story.assets.findIndex((a: SceneAsset) =>
+      a.name === name
+    );
     if (index === -1) return false;
 
     this.story.assets.splice(index, 1);
@@ -212,11 +218,13 @@ export class StoryManager {
    * @param options.molstarVersion - Specific Molstar version to use (defaults to latest)
    * @returns Promise resolving to HTML string
    */
-  async toHTML(options?: { title?: string; molstarVersion?: string }): Promise<string> {
+  async toHTML(
+    options?: { title?: string; molstarVersion?: string },
+  ): Promise<string> {
     const data = await this.toMVS();
     return generateStoriesHtml(
       { kind: 'embed', data },
-      { title: options?.title || this.story.metadata.title, ...options }
+      { title: options?.title || this.story.metadata.title, ...options },
     );
   }
 
@@ -242,7 +250,9 @@ export class StoryManager {
    * @param options.molstarVersion - Specific Molstar version to bundle
    * @returns Promise resolving to ZIP file bytes
    */
-  async toSelfHostedZip(options?: { molstarVersion?: string }): Promise<Uint8Array> {
+  async toSelfHostedZip(
+    options?: { molstarVersion?: string },
+  ): Promise<Uint8Array> {
     return await utils.createSelfHostedZip(this.story, options);
   }
 
@@ -280,11 +290,22 @@ export class StoryManager {
    */
   static async fromMVStory(bytes: Uint8Array): Promise<StoryManager> {
     const inflated = await Task.create('Inflate Story Data', async (ctx) => {
-      return await inflate(ctx, new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength));
+      return await inflate(
+        ctx,
+        new Uint8Array(
+          bytes.buffer as ArrayBuffer,
+          bytes.byteOffset,
+          bytes.byteLength,
+        ),
+      );
     }).run();
 
     const decoded = decodeMsgPack(
-      new Uint8Array(inflated.buffer as ArrayBuffer, inflated.byteOffset, inflated.byteLength)
+      new Uint8Array(
+        inflated.buffer as ArrayBuffer,
+        inflated.byteOffset,
+        inflated.byteLength,
+      ),
     ) as StoryContainer;
     if (decoded.version !== 1) {
       throw new Error(`Unsupported story version: ${decoded.version}`);

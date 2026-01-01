@@ -21,7 +21,7 @@ Configures Monaco for MVS JavaScript code completion with TypeScript
 IntelliSense.
 
 ```typescript
-import { MVSTypes, setupMonacoCodeCompletion } from "@mol-view-stories/lib";
+import { MVSTypes, setupMonacoCodeCompletion } from '@mol-view-stories/lib';
 
 // In your Monaco onMount callback
 setupMonacoCodeCompletion(monaco, MVSTypes, commonCode);
@@ -32,7 +32,7 @@ setupMonacoCodeCompletion(monaco, MVSTypes, commonCode);
 Clears Monaco editor's undo/redo history (useful when switching scenes).
 
 ```typescript
-import { clearMonacoEditHistory } from "@mol-view-stories/lib";
+import { clearMonacoEditHistory } from '@mol-view-stories/lib';
 
 // When switching scenes
 useEffect(() => {
@@ -46,12 +46,12 @@ Auto-generated TypeScript definitions for the MVS API, suitable for Monaco
 IntelliSense.
 
 ```typescript
-import { MVSTypes } from "@mol-view-stories/lib";
+import { MVSTypes } from '@mol-view-stories/lib';
 
 // Add to Monaco as extra library
 monaco.languages.typescript.javascriptDefaults.addExtraLib(
   MVSTypes,
-  "ts:mvs.d.ts",
+  'ts:mvs.d.ts',
 );
 ```
 
@@ -63,7 +63,7 @@ Pre-configured options for code and markdown editors:
 import {
   defaultCodeEditorOptions,
   defaultMarkdownEditorOptions,
-} from "@mol-view-stories/lib";
+} from '@mol-view-stories/lib';
 
 // Use in Monaco Editor
 <Editor options={defaultCodeEditorOptions} />;
