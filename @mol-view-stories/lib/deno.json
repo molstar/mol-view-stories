@@ -7,6 +7,9 @@
     ".": "./mod.ts"
   },
   "nodeModulesDir": "auto",
+  "fmt": {
+    "singleQuote": true
+  },
   "lint": {
     "exclude": ["tmp/", "node_modules/"]
   },
