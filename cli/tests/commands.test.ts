@@ -87,36 +87,17 @@ Deno.test('Watch Command', async (t) => {
 
       // Start the watch server with a random high port to avoid conflicts
       const port = 50000 + Math.floor(Math.random() * 10000);
-      const watchPromise = watchStory(storyPath, { port });
 
-      // Create an AbortController to cancel the server
-      const controller = new AbortController();
+      // Start the watch server and immediately clean it up
+      const result = await watchStory(storyPath, { port });
+      assertExists(result);
+      assertExists(result.cleanup);
 
-      // Set up a timeout to clean up the server
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 100);
+      // Clean up immediately to verify server started successfully
+      await result.cleanup();
 
-      try {
-        // Use Promise.race to either get the cleanup function or timeout
-        const result = await Promise.race([
-          watchPromise,
-          new Promise((resolve) => {
-            controller.signal.addEventListener('abort', () => {
-              resolve({ cleanup: () => {} });
-            });
-          }),
-        ]);
-
-        assertExists(result);
-
-        // Clean up the server if cleanup function exists
-        if ('cleanup' in result && typeof result.cleanup === 'function') {
-          await result.cleanup();
-        }
-      } finally {
-        clearTimeout(timeoutId);
-      }
+      // Wait a bit to ensure port is released on Windows
+      await new Promise((resolve) => setTimeout(resolve, 500));
     });
 
     await t.step('should validate port number', async () => {
@@ -129,29 +110,17 @@ Deno.test('Watch Command', async (t) => {
 
       // Test with valid custom port
       const validPort = 40000 + Math.floor(Math.random() * 10000);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 100);
 
-      try {
-        const watchPromise = watchStory(storyPath, { port: validPort });
+      // Start the watch server and immediately clean it up
+      const result = await watchStory(storyPath, { port: validPort });
+      assertExists(result);
+      assertExists(result.cleanup);
 
-        const result = await Promise.race([
-          watchPromise,
-          new Promise((resolve) => {
-            controller.signal.addEventListener('abort', () => {
-              resolve({ cleanup: () => {} });
-            });
-          }),
-        ]);
+      // Clean up immediately to verify server started successfully
+      await result.cleanup();
 
-        assertExists(result);
-
-        if ('cleanup' in result && typeof result.cleanup === 'function') {
-          await result.cleanup();
-        }
-      } finally {
-        clearTimeout(timeoutId);
-      }
+      // Wait a bit to ensure port is released on Windows
+      await new Promise((resolve) => setTimeout(resolve, 500));
     });
   } finally {
     Deno.chdir(originalCwd);
@@ -164,62 +133,32 @@ Deno.test('Serve Template Command', async (t) => {
   await t.step('should serve template with default settings', async () => {
     // Start the template server with a random high port
     const port = 55000 + Math.floor(Math.random() * 5000);
-    const servePromise = serveTemplate({ port });
 
-    // Create an AbortController to cancel the server
-    const controller = new AbortController();
+    // Start the server and immediately clean it up
+    const result = await serveTemplate({ port });
+    assertExists(result);
+    assertExists(result.cleanup);
 
-    // Set up a timeout to clean up the server
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, 100);
+    // Clean up immediately to verify server started successfully
+    await result.cleanup();
 
-    try {
-      const result = await Promise.race([
-        servePromise,
-        new Promise((resolve) => {
-          controller.signal.addEventListener('abort', () => {
-            resolve({ cleanup: () => {} });
-          });
-        }),
-      ]);
-
-      assertExists(result);
-
-      // Clean up the server if cleanup function exists
-      if ('cleanup' in result && typeof result.cleanup === 'function') {
-        await result.cleanup();
-      }
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    // Wait a bit to ensure port is released on Windows
+    await new Promise((resolve) => setTimeout(resolve, 500));
   });
 
   await t.step('should serve template with custom port', async () => {
     const customPort = 58000 + Math.floor(Math.random() * 2000);
-    const servePromise = serveTemplate({ port: customPort });
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 100);
+    // Start the server and immediately clean it up
+    const result = await serveTemplate({ port: customPort });
+    assertExists(result);
+    assertExists(result.cleanup);
 
-    try {
-      const result = await Promise.race([
-        servePromise,
-        new Promise((resolve) => {
-          controller.signal.addEventListener('abort', () => {
-            resolve({ cleanup: () => {} });
-          });
-        }),
-      ]);
+    // Clean up immediately to verify server started successfully
+    await result.cleanup();
 
-      assertExists(result);
-
-      if ('cleanup' in result && typeof result.cleanup === 'function') {
-        await result.cleanup();
-      }
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    // Wait a bit to ensure port is released on Windows
+    await new Promise((resolve) => setTimeout(resolve, 500));
   });
 });
 
