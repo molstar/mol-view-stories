@@ -447,22 +447,8 @@ export async function watchStory(
   return {
     async cleanup() {
       console.error('\n🛑 Stopping watch server...');
-      abortController.abort();
 
-      // Close the file watcher
-      try {
-        watcher.close();
-      } catch (error) {
-        // Ignore close errors
-      }
-
-      try {
-        await server.finished;
-      } catch (error) {
-        // Server cleanup errors can be ignored
-      }
-
-      // Close all WebSocket connections
+      // Close all WebSocket connections first
       wsClients.forEach((client) => {
         try {
           client.close();
@@ -471,6 +457,29 @@ export async function watchStory(
         }
       });
       wsClients.clear();
+
+      // Close the file watcher
+      try {
+        watcher.close();
+      } catch (error) {
+        // Ignore close errors
+      }
+
+      // Abort the controller to signal server shutdown
+      abortController.abort();
+
+      // Explicitly shutdown the server and wait for it to finish
+      try {
+        await server.shutdown();
+      } catch (error) {
+        // Server shutdown errors can be ignored
+      }
+
+      try {
+        await server.finished;
+      } catch (error) {
+        // Server finished errors can be ignored
+      }
 
       // Clean up temp directory
       try {
