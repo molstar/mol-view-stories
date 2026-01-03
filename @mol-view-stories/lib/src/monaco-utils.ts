@@ -16,12 +16,32 @@ export interface MonacoInstance {
         getExtraLibs(): Record<string, unknown>;
         addExtraLib(content: string, filePath: string): void;
         setCompilerOptions(options: Record<string, unknown>): void;
+        setDiagnosticsOptions(options: {
+          noSemanticValidation?: boolean;
+          noSyntaxValidation?: boolean;
+          noSuggestionDiagnostics?: boolean;
+          diagnosticCodesToIgnore?: number[];
+        }): void;
       };
       ScriptTarget: Record<string, unknown>;
       ModuleResolutionKind: Record<string, unknown>;
       ModuleKind: Record<string, unknown>;
       JsxEmit: Record<string, unknown>;
     };
+  };
+  editor?: {
+    IMarkerSeverity: {
+      Error: number;
+      Warning: number;
+      Info: number;
+      Hint: number;
+    };
+  };
+  MarkerSeverity?: {
+    Error: number;
+    Warning: number;
+    Info: number;
+    Hint: number;
   };
 }
 
@@ -63,30 +83,27 @@ export interface MonacoEditorModel {
  * setupMonacoCodeCompletion(monaco, MVSTypes, storyJavaScript);
  * ```
  */
-export function setupMonacoCodeCompletion(
-  monaco: MonacoInstance,
-  mvsTypes?: string,
-  commonCode?: string,
-): void {
+export function setupMonacoCodeCompletion(monaco: MonacoInstance, mvsTypes?: string, commonCode?: string): void {
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 
-  const extraLibs = monaco.languages.typescript.javascriptDefaults
-    .getExtraLibs();
+  // Configure diagnostics for error highlighting
+  monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+    noSemanticValidation: false, // Enable semantic errors (type checking)
+    noSyntaxValidation: false, // Enable syntax errors
+    noSuggestionDiagnostics: false, // Enable suggestion diagnostics
+    diagnosticCodesToIgnore: [],
+  });
+
+  const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();
 
   // Add MVS types if provided and not already added
   if (mvsTypes && !('ts:mvs.d.ts' in extraLibs)) {
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      mvsTypes,
-      'ts:mvs.d.ts',
-    );
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(mvsTypes, 'ts:mvs.d.ts');
   }
 
   // Add common code if provided
   if (commonCode) {
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      commonCode,
-      'js:common-code.js',
-    );
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(commonCode, 'js:common-code.js');
   }
 
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
@@ -100,6 +117,12 @@ export function setupMonacoCodeCompletion(
     noErrorTruncation: true,
     jsx: monaco.languages.typescript.JsxEmit.None,
     allowJs: true,
+    checkJs: true, // Enable type checking in JavaScript files
+    strict: false, // Keep false for JS flexibility
+    noImplicitAny: false, // Don't require explicit types everywhere
+    strictNullChecks: false, // Allow null/undefined flexibility in JS
+    noUnusedLocals: false, // Don't warn about unused variables
+    noUnusedParameters: false, // Don't warn about unused parameters
     skipLibCheck: true,
     typeRoots: [],
     lib: ['es2020'],
@@ -124,9 +147,7 @@ export function setupMonacoCodeCompletion(
  * }, [activeSceneId]);
  * ```
  */
-export async function clearMonacoEditHistory(
-  editor?: MonacoEditor | null,
-): Promise<void> {
+export async function clearMonacoEditHistory(editor?: MonacoEditor | null): Promise<void> {
   if (!editor) return;
 
   // Wait for next tick to ensure editor is fully updated
@@ -151,6 +172,7 @@ export async function clearMonacoEditHistory(
  * - Word wrap enabled
  * - Format on paste
  * - Code completion and suggestions
+ * - Error/warning highlighting with glyph margin
  */
 export const defaultCodeEditorOptions = {
   theme: 'vs',
@@ -172,6 +194,11 @@ export const defaultCodeEditorOptions = {
     comments: false,
     strings: false,
   },
+  glyphMargin: true, // Show icons in left margin for errors
+  folding: true, // Allow code folding
+  renderValidationDecorations: 'on' as const, // Show error decorations
+  showUnused: true, // Highlight unused code (if enabled in compiler options)
+  fixedOverflowWidgets: true, // Keep hover widgets in view
 };
 
 /**
