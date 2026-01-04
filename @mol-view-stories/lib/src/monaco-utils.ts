@@ -29,20 +29,11 @@ export interface MonacoInstance {
       JsxEmit: Record<string, unknown>;
     };
   };
-  editor?: {
-    IMarkerSeverity: {
-      Error: number;
-      Warning: number;
-      Info: number;
-      Hint: number;
-    };
-  };
-  MarkerSeverity?: {
-    Error: number;
-    Warning: number;
-    Info: number;
-    Hint: number;
-  };
+  // Monaco editor namespace - properties are optional for compatibility
+  editor?: unknown;
+  MarkerSeverity?: unknown;
+  KeyMod?: unknown;
+  KeyCode?: unknown;
 }
 
 /**
