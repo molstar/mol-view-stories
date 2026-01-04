@@ -1,0 +1,170 @@
+# Volumetric Data
+
+::: {.callout-tip}
+## What are Volumes?
+Volumetric data includes electron density maps, cryo-EM maps, and other 3D grid-based data. Use volumes to show experimental data or visualize molecular surfaces at different density levels.
+:::
+
+MolViewSpec supports loading and visualizing volumetric data alongside molecular structures, which is essential for structural biology workflows.
+
+## Common Volume Types
+
+### Electron Density Maps
+X-ray crystallography electron density maps (2Fo-Fc, Fo-Fc difference maps)
+
+**Use cases**: Validate structure fitting, show experimental evidence, highlight ligand binding
+
+### Cryo-EM Maps
+Electron microscopy density maps
+
+**Use cases**: Show large assemblies, validate model building, display experimental data
+
+### Other 3D Data
+Custom grid-based data (electrostatic potentials, molecular orbitals, etc.)
+
+## Supported Formats
+
+MolViewSpec can load volumetric data in these formats:
+- **CCP4/MAP** - Standard crystallography format
+- **DX/OpenDX** - Text-based grid format
+- **DSN6** - Binary density format
+
+## Basic Volume Loading
+
+```javascript
+// Load electron density map
+builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs_map.ccp4' })
+    .parse({ format: 'map' })
+    .volume({
+        type: 'isosurface',
+        isovalue: 1.5,
+        color: 'blue',
+        opacity: 0.5
+    });
+```
+
+## Volume Parameters
+
+### Isosurface Type
+- `type`: `"isosurface"` - Surface at specific density level
+
+### Styling
+- `isovalue`: Density threshold (typically 0.5-3.0 for electron density)
+- `color`: Surface color
+- `opacity`: Transparency (0.0-1.0)
+
+## Example: Structure with Density
+
+```javascript
+// Load structure
+const structure = builder
+    .download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+    .parse({ format: 'mmcif' })
+    .modelStructure();
+
+// Show protein
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' });
+
+// Show ligand
+structure
+    .component({ selector: 'ligand' })
+    .representation({ type: 'ball_and_stick' });
+
+// Load density map
+builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1ABC_map.ccp4' })
+    .parse({ format: 'map' })
+    .volume({
+        type: 'isosurface',
+        isovalue: 1.0,
+        color: 'blue',
+        opacity: 0.3
+    });
+```
+
+## Multiple Contour Levels
+
+Show different density levels with different colors:
+
+```javascript
+// 2Fo-Fc map (high confidence)
+builder
+    .download({ url: 'https://example.org/2fofc.ccp4' })
+    .parse({ format: 'map' })
+    .volume({
+        type: 'isosurface',
+        isovalue: 1.5,
+        color: 'blue',
+        opacity: 0.4
+    });
+
+// Fo-Fc difference map (positive density)
+builder
+    .download({ url: 'https://example.org/fofc.ccp4' })
+    .parse({ format: 'map' })
+    .volume({
+        type: 'isosurface',
+        isovalue: 3.0,
+        color: 'green',
+        opacity: 0.5
+    });
+```
+
+## Common Isovalue Ranges
+
+### Electron Density (X-ray)
+- **2Fo-Fc maps**: 1.0 - 1.5 σ (blue, shows overall structure)
+- **Fo-Fc positive**: 2.5 - 3.0 σ (green, missing density)
+- **Fo-Fc negative**: -2.5 to -3.0 σ (red, extra density)
+
+### Cryo-EM Maps
+- **Main map**: 0.5 - 2.0 (varies by map quality)
+- **High confidence**: 3.0+ (well-resolved regions)
+
+## PDBe Integration
+
+PDBe provides electron density maps for X-ray structures:
+
+```javascript
+// Pattern: https://www.ebi.ac.uk/pdbe/entry-files/{PDBID}_map.ccp4
+builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs_map.ccp4' })
+    .parse({ format: 'map' })
+    .volume({
+        type: 'isosurface',
+        isovalue: 1.0,
+        color: 'blue',
+        opacity: 0.3
+    });
+```
+
+## Styling Tips
+
+### For Publication Figures
+- Use **lower opacity** (0.2-0.4) for clarity
+- Use **muted colors** (light blue, light grey)
+- Consider **single contour level** to reduce visual clutter
+
+### For Analysis
+- Use **higher opacity** (0.5-0.7) for better visibility
+- Use **contrasting colors** for different maps
+- Show **multiple contours** to assess density quality
+
+## Performance Considerations
+
+::: {.callout-warning}
+## Large Volume Files
+Volumetric data files can be very large (100+ MB). Consider:
+- Using **binary formats** (CCP4, DSN6) instead of text (DX)
+- **Cropping maps** to regions of interest before loading
+- **Adjusting isovalue** to reduce surface complexity
+:::
+
+## See Also
+
+- [Official Volumes Documentation](https://molstar.org/mol-view-spec/docs/volumes/) - Complete volume reference
+- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [PDBe Density Maps](https://www.ebi.ac.uk/pdbe/) - Download electron density maps

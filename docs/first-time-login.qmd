@@ -4,54 +4,77 @@ To use the save and publish features, you need to login. **Logging in is a one-t
 
 ## 1. Click the login button
 
+- This will open a popup window.
+- You now have multiple options of logging in.
+
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+<div style="width: 49%;">
 ![](./img/login-button.png)
-
-This will open a popup window:
-
+</div>
+<div style="width: 49%;">
 ![](./img/login-popup.png)
+</div>
+</div>
 
-You now have multiple options of logging in.
+
 
 ### 2.1. **Recommended:** Login with your institutional credentials
 
-For example, if you are a member of the European Molecular Biology Laboratory you can login with your EMBL credentials:
+- For example, if you are a member of the European Molecular Biology Laboratory you can login with your EMBL credentials:
+- This redirects you to the login page you already use to access other services of your institution.
+- Finally, you need to give consent to release your personal infromation (name, surname, email) to mol-view-stories
+- 🟢 **Done!** Once you have logged in, you will be redirected to the main page of the application.
 
+
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+<div style="width: 32%;">
 ![](./img/login-institutional.png)
-
-This redirects you to the login page you already use to access other services of your institution.
-
+</div>
+<div style="width: 32%;">
 ![](./img/login-embl.png)
-
-Finally, you need to give consent to release your personal infromation (name, surname, email) to mol-view-stories
-
+</div>
+<div style="width: 32%;">
 ![](./img/login-consent-personal.png)
+</div>
+</div>
 
-🟢 **Done!**
-
-Once you have logged in, you will be redirected to the main page of the application.
 
 ### 2.2. Login with your Google/GitHub/Apple credentials
 
 If you don't have institutional credentials, you can login with your Google/GitHub/Apple credentials. Below we document how to login first time with GitHub:
 
 #### 2.2.1. Authorize the login provider
+- Authorize the login provider
+- Confirm your intention of registering a new account
+- Create a new account
+
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+<div style="width: 32%;">
 ![](./img/login-github-authorize.png)
-
-#### 2.2.2. Confirm your intention of registering a new account
+</div>
+<div style="width: 32%;">
 ![](./img/login-register.png)
-
-#### 2.2.3. Create a new account
+</div>
+<div style="width: 32%;">
 ![](./img/login-registration.png)
+</div>
+</div>
 
-#### 2.2.4. Consent to the Use Policy
+- Consent to the Use Policy
+- Confirm your membership by clicking a link sent to your email
+- Give consent to release your personal information (name, surname, email) to mol-view-stories
+
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+<div style="width: 32%;">
 ![](./img/login-consent.png)
-
-#### 2.2.5. Confirm your membership by clicking a link sent to your email
+</div>
+<div style="width: 32%;">
 ![](./img/login-email.png)
-
-#### 2.2.6. Give consent to release your personal information (name, surname, email) to mol-view-stories
-
+</div>
+<div style="width: 32%;">
 ![](./img/login-consent-personal.png)
+</div>
+</div>
 
 ### 2.3. Login with LifeScience Hostel
 

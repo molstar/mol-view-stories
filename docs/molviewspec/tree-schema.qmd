@@ -1,0 +1,316 @@
+# Tree Schema
+
+::: {.callout-note}
+## Complete Reference
+This page provides an overview of MolViewSpec node types. For the complete, authoritative schema specification, see the [Official MolViewSpec Tree Schema](https://molstar.org/mol-view-spec/docs/tree-schema/).
+:::
+
+## What is the Tree Schema?
+
+The MolViewSpec tree schema defines all available node types, their parameters, and parent-child relationships. When you use the builder API in MolViewStories, you're constructing a tree of these nodes.
+
+## Node Hierarchy Overview
+
+```
+root
+└── download (load data from URL)
+    └── parse (parse file format)
+        ├── structure (create 3D structure)
+        │   └── component (select part of structure)
+        │       └── representation (visual style)
+        │           ├── color (apply color)
+        │           ├── color_from_uri (color from file)
+        │           ├── color_from_source (color from mmCIF)
+        │           ├── label (add text label)
+        │           ├── label_from_uri (labels from file)
+        │           └── tooltip (add hover text)
+        └── coordinates (get coordinates for primitives)
+```
+
+## Core Node Types
+
+### Data Loading Nodes
+
+#### `download`
+Loads data from a URL.
+
+**Parameters**:
+- `url` (required): Data resource URL
+- `id` (optional): Identifier for the download
+
+**Example**:
+```javascript
+builder.download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+```
+
+#### `parse`
+Parses downloaded data.
+
+**Parameters**:
+- `format` (required): File format
+  - Structure formats: `"mmcif"`, `"bcif"`, `"pdb"`, `"pdbqt"`, `"gro"`, `"xyz"`, `"mol"`, `"sdf"`, `"mol2"`
+  - Trajectory formats: `"lammpstrj"`, `"xtc"`, `"nctraj"`, `"dcd"`, `"trr"`
+  - Topology formats: `"psf"`, `"prmtop"`, `"top"`
+  - Volume formats: `"map"`, `"dx"`, `"dxbin"`
+
+**Example**:
+```javascript
+.parse({ format: 'mmcif' })
+```
+
+### Structure Nodes
+
+#### `structure`
+Creates a molecular structure representation.
+
+**Parameters**:
+- `type`: Structure type
+  - `"model"` - Original coordinates
+  - `"assembly"` - Biological assembly
+  - `"symmetry"` - Crystal symmetry
+  - `"symmetry_mates"` - Nearby asymmetric units
+- `model_index`: Which model to use (0-based)
+- `assembly_id`: Assembly identifier (for assemblies)
+- `block_header`/`block_index`: CIF block selection
+- `radius`: Radius for symmetry mates (Angstroms)
+- `ijk_min`/`ijk_max`: Miller indices for crystal symmetry
+
+**Example**:
+```javascript
+.modelStructure()  // Shorthand for type: "model"
+.assemblyStructure({ assembly_id: '1' })
+.symmetryStructure({ ijk_min: [-1, -1, -1], ijk_max: [1, 1, 1] })
+```
+
+#### `component`
+Selects a subset of the structure.
+
+**Parameters**:
+- `selector`: [Selection expression](selectors.qmd)
+  - Static: `"protein"`, `"ligand"`, `"water"`, etc.
+  - Component expression: `{ label_asym_id: 'A', label_seq_id: 100 }`
+  - Union: Array of component expressions
+
+**Example**:
+```javascript
+.component({ selector: 'protein' })
+.component({ selector: { label_asym_id: 'A' } })
+.component({ selector: [{ label_seq_id: 10 }, { label_seq_id: 20 }] })
+```
+
+#### `component_from_uri` / `component_from_source`
+Creates components from [annotation files](annotations.qmd).
+
+**Parameters**:
+- `uri`: File URL (for `_from_uri`)
+- `format`: `"json"`, `"cif"`, `"bcif"`
+- `schema`: Annotation schema
+- `block_header`/`category_name`/`field_name`: For CIF/BCIF
+
+### Representation Nodes
+
+#### `representation`
+Defines how to visualize a component.
+
+**Parameters**:
+- `type` (required): Visual style
+  - `"cartoon"` - Secondary structure
+  - `"ball_and_stick"` - Atomic detail
+  - `"surface"` - Molecular surface
+  - `"spacefill"` - Van der Waals spheres
+  - `"backbone"` - CA trace
+  - `"gaussian_surface"` - Smooth surface
+  - `"point"` - Point cloud
+  - `"putty"` - Thickness-varied cartoon
+  - `"label"` - Text labels
+
+**Example**:
+```javascript
+.representation({ type: 'cartoon' })
+.representation({ type: 'ball_and_stick' })
+.representation({ type: 'surface' })
+```
+
+### Coloring Nodes
+
+#### `color`
+Applies color to representation.
+
+**Parameters**:
+- `color`: Color value
+  - Named: `"red"`, `"blue"`, `"green"`
+  - Hex: `"#ff0000"`
+  - RGB: `"rgb(255, 0, 0)"`
+  - Scheme: `"element-symbol"`, `"chain-id"`, `"secondary-structure"`, `"b-factor"`
+- `selector` (optional): Apply to specific atoms
+
+**Example**:
+```javascript
+.color({ color: 'red' })
+.color({ color: '#3498db' })
+.color({ color: 'chain-id' })
+.color({ selector: { label_asym_id: 'A' }, color: 'blue' })
+```
+
+#### `color_from_uri` / `color_from_source`
+Applies colors from [annotation files](annotations.qmd).
+
+**Parameters**:
+- `uri`: File URL (for `_from_uri`)
+- `format`: `"json"`, `"cif"`, `"bcif"`
+- `schema`: Annotation schema
+- `block_header`/`category_name`/`field_name`: For CIF/BCIF
+
+### Label and Tooltip Nodes
+
+#### `label`
+Adds text label to component.
+
+**Parameters**:
+- `text`: Label text
+
+**Example**:
+```javascript
+.label({ text: 'Active Site' })
+```
+
+#### `label_from_uri` / `label_from_source`
+Adds labels from [annotation files](annotations.qmd).
+
+#### `tooltip`
+Adds hover tooltip to component.
+
+**Parameters**:
+- `text`: Tooltip text
+
+**Example**:
+```javascript
+.tooltip({ text: 'Catalytic residue' })
+```
+
+#### `tooltip_from_uri` / `tooltip_from_source`
+Adds tooltips from [annotation files](annotations.qmd).
+
+### Camera Node
+
+#### `camera`
+Controls camera position and orientation.
+
+**Parameters**:
+- `target`: Look-at point `[x, y, z]`
+- `position`: Camera position `[x, y, z]`
+- `up`: Up direction `[x, y, z]`
+
+**Example**:
+```javascript
+builder.camera({
+    target: [0, 0, 0],
+    position: [50, 50, 50],
+    up: [0, 1, 0]
+})
+```
+
+See [Camera Settings](camera.qmd) for details.
+
+### Canvas Node
+
+#### `canvas`
+Sets canvas background color.
+
+**Parameters**:
+- `background_color`: Color value
+
+**Example**:
+```javascript
+builder.canvas({ background_color: '#f0f0f0' })
+```
+
+### Transform Nodes
+
+#### `transform`
+Applies geometric transformation.
+
+**Parameters**:
+- `rotation`: 3×3 rotation matrix
+- `translation`: Translation vector `[x, y, z]`
+
+**Example**:
+```javascript
+.transform({
+    rotation: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+    translation: [10, 0, 0]
+})
+```
+
+## Parameter Types
+
+- **String**: Text value, e.g., `"mmcif"`, `"cartoon"`
+- **Number**: Numeric value, e.g., `42`, `3.14`
+- **Integer**: Whole number, e.g., `0`, `1`, `100`
+- **Boolean**: `true` or `false`
+- **Array**: List of values, e.g., `[1, 2, 3]`
+- **Object**: Key-value pairs, e.g., `{ label_asym_id: 'A' }`
+- **Optional**: Marked with `?`, can be omitted
+
+## Common Patterns
+
+### Basic Protein Visualization
+
+```javascript
+const structure = builder
+    .download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+    .parse({ format: 'mmcif' })
+    .modelStructure();
+
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ color: 'secondary-structure' });
+```
+
+### Protein with Ligand
+
+```javascript
+// Protein as cartoon
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ color: 'chain-id' });
+
+// Ligand as ball-and-stick
+structure
+    .component({ selector: 'ligand' })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: 'element-symbol' });
+```
+
+### Chain-Specific Coloring
+
+```javascript
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ selector: { label_asym_id: 'A' }, color: 'red' })
+    .color({ selector: { label_asym_id: 'B' }, color: 'blue' })
+    .color({ selector: { label_asym_id: 'C' }, color: 'green' });
+```
+
+### Assembly Structure
+
+```javascript
+const assembly = builder
+    .download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+    .parse({ format: 'mmcif' })
+    .assemblyStructure({ assembly_id: '1' });
+
+assembly
+    .component({ selector: 'polymer' })
+    .representation({ type: 'cartoon' });
+```
+
+## See Also
+
+- [Selectors](selectors.qmd) - Selection syntax reference
+- [Annotations](annotations.qmd) - External annotation files
+- [Camera Settings](camera.qmd) - Camera control
+- [Official Tree Schema](https://molstar.org/mol-view-spec/docs/tree-schema/) - Complete specification

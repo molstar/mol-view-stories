@@ -1,0 +1,213 @@
+# MolViewSpec API Reference
+
+::: {.callout-note}
+## Work in Progress
+This page is a placeholder. Complete API documentation will be added.
+:::
+
+## Overview
+
+This page will provide comprehensive documentation for the MolViewSpec builder API used in MolViewStories.
+
+## Planned Content
+
+### Builder Basics
+
+**Core Concepts**
+- The `builder` object
+- Method chaining
+- Node creation
+- State tree structure
+
+**Basic Pattern**
+```javascript
+const structure = builder
+  .download({ url: 'structure-url' })
+  .parse({ format: 'mmcif' })
+  .modelStructure({});
+```
+
+### Loading Structures
+
+**download()**
+- Parameters: `url`, `id`
+- Supported protocols
+- Error handling
+- Examples for PDB, AlphaFold, custom URLs
+
+**parse()**
+- Supported formats: `mmcif`, `bcif`, `pdb`, `mol`, `sdf`, etc.
+- Format-specific options
+- Binary vs text formats
+
+**modelStructure()**
+- Model selection
+- Assembly options
+- Symmetry handling
+
+### Component Selection
+
+**component()**
+- `selector` parameter options
+- Built-in selectors: `protein`, `nucleic`, `ligand`, `water`
+- Custom selectors with residue/chain/atom selection
+- Selection expressions
+- Multiple components
+
+**Selection Syntax**
+```javascript
+// By chain
+{ label_asym_id: 'A' }
+
+// By residue number
+{ label_seq_id: 100 }
+
+// By residue range
+{ label_seq_id: [100, 150] }
+
+// By residue name
+{ label_comp_id: 'ALA' }
+
+// Combining selectors
+{ label_asym_id: 'A', label_seq_id: [1, 50] }
+```
+
+### Representations
+
+**representation()**
+- `type` parameter options:
+  - `cartoon` - Secondary structure
+  - `ball_and_stick` - Atomic detail
+  - `surface` - Molecular surface
+  - `spacefill` - van der Waals spheres
+  - `backbone` - CA trace
+  - `gaussian_surface` - Smooth surface
+  - `point` - Point cloud
+  - `putty` - Thickness-varied cartoon
+  - `label` - Text labels
+
+**Representation Options**
+- Size parameters
+- Quality settings
+- Transparency
+- Type-specific options
+
+### Coloring
+
+**color()**
+- Named colors: `red`, `blue`, `green`, etc.
+- Hex colors: `#ff0000`
+- RGB colors: `rgb(255, 0, 0)`
+- Color schemes:
+  - `element-symbol` - By element type
+  - `chain-id` - By chain
+  - `residue-name` - By residue type
+  - `secondary-structure` - By structure type
+  - `b-factor` - By temperature factor
+
+**Color Examples**
+```javascript
+// Simple color
+.color({ color: 'red' })
+
+// Hex color
+.color({ color: '#3366cc' })
+
+// Color scheme
+.color({ color: 'chain-id' })
+```
+
+### Camera & Focus
+
+**focus()**
+- Automatic focus on component
+- Manual camera positioning
+- Camera parameters:
+  - `position` - Camera location
+  - `target` - Look-at point
+  - `up` - Up direction
+  - `radius` - Distance from target
+
+**camera()**
+- Global camera control
+- Snapshot and restore
+- Animation support
+
+### Labels & Annotations
+
+**label()**
+- Text content
+- Position and offset
+- Font size and style
+- Background and color
+
+**tooltip()**
+- Hover text
+- Rich text support
+- Custom formatting
+
+### Advanced Features
+
+**transform()**
+- Rotation matrices
+- Translation vectors
+- Structural superposition
+- Coordinate transformations
+
+**Volume Data**
+- Electron density maps
+- Cryo-EM maps
+- Isosurface rendering
+- Multiple contour levels
+
+**Primitives**
+- Arrows
+- Spheres
+- Ellipses
+- Lines
+- Custom geometry
+
+### Method Reference
+
+**Complete Method List**
+
+| Method | Purpose | Parameters |
+|--------|---------|------------|
+| `download()` | Load structure from URL | `url`, `id` |
+| `parse()` | Parse structure format | `format` |
+| `modelStructure()` | Create model | `model_index`, `assembly_id` |
+| `component()` | Select component | `selector` |
+| `representation()` | Add visual style | `type`, `size`, `quality` |
+| `color()` | Apply color | `color`, `selector` |
+| `focus()` | Focus camera | `position`, `target`, `up` |
+| `label()` | Add label | `text`, `offset` |
+| `tooltip()` | Add tooltip | `text` |
+| `transform()` | Transform coords | `rotation`, `translation` |
+
+### Common Patterns
+
+**Basic Protein**
+```javascript
+// Will be expanded with many examples
+```
+
+**Protein with Ligand**
+```javascript
+// Example code here
+```
+
+**Multiple Chains**
+```javascript
+// Example code here
+```
+
+**Surface Representation**
+```javascript
+// Example code here
+```
+
+## See Also
+
+- [MolViewSpec Primer](molviewspec-primer.qmd) - Introduction and basic concepts
+- [Advanced Features](reference-advanced.qmd) - Complex scenarios
+- [Official MolViewSpec Docs](https://molstar.org/mol-view-spec) - Upstream documentation

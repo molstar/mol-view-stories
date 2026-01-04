@@ -1,0 +1,316 @@
+# Annotations
+
+::: {.callout-tip}
+## Why Use Annotations?
+Annotations let you store complex coloring, labeling, or selection data in external files (JSON, CIF, or BCIF). This is especially useful when you have many selections or want to reuse color schemes across multiple visualizations.
+:::
+
+Annotations provide an alternative to inline [selectors](selectors.qmd) by defining colors, labels, tooltips, and components in external files. This approach is ideal for:
+
+- **Complex coloring schemes** with many residues
+- **Reusable annotations** across multiple stories
+- **Large-scale data** from external analysis tools
+- **Structured annotations** from databases
+
+## Annotation File Formats
+
+### JSON Format (Array of Objects)
+
+The simplest annotation format is a JSON array where each object represents one **annotation row**:
+
+```json
+[
+    { "label_asym_id": "A", "color": "#00ff00" },
+    { "label_asym_id": "B", "color": "blue" },
+    { "label_asym_id": "B", "beg_label_seq_id": 100, "end_label_seq_id": 200, "color": "skyblue" },
+    { "label_asym_id": "B", "beg_label_seq_id": 150, "end_label_seq_id": 160, "color": "lightblue" }
+]
+```
+
+This annotation colors:
+- Chain A: green (`#00ff00`)
+- Chain B (residues 1-99): blue
+- Chain B (residues 100-149): skyblue
+- Chain B (residues 150-160): lightblue (overrides skyblue)
+- Chain B (residues 161-200): skyblue
+- Chain B (residues 201+): blue
+
+::: {.callout-note}
+## Override Behavior
+Later annotation rows override earlier ones. This allows you to set a base color and then override specific regions.
+
+**Tip**: Add a row with no selector fields at the beginning to set a default color:
+```json
+{ "color": "yellow" }  // Colors everything not matched by later rows
+```
+:::
+
+### JSON Format (Object of Arrays)
+
+For files with many rows, you can reduce file size by converting from array-of-objects to object-of-arrays:
+
+```json
+{
+    "label_asym_id": ["A", "B", "B", "B"],
+    "beg_label_seq_id": [null, null, 100, 150],
+    "end_label_seq_id": [null, null, 200, 160],
+    "color": ["#00ff00", "blue", "skyblue", "lightblue"]
+}
+```
+
+This is equivalent to the previous example but more compact.
+
+### CIF Format
+
+Annotations can use CIF (Crystallographic Information File), a table-based format common in structural biology:
+
+```cif
+data_annotation
+loop_
+_coloring.label_asym_id
+_coloring.beg_label_seq_id
+_coloring.end_label_seq_id
+_coloring.color
+A   .   . '#00ff00'
+B   .   . 'blue'
+B 100 200 'skyblue'
+B 150 160 'lightblue'
+```
+
+**Advantages of CIF**:
+- Can include **multiple tables** in one file (using blocks and categories)
+- Native format for many structural biology tools
+- Supports structured metadata
+
+When referencing CIF annotations, specify:
+- `block_header` (or `block_index`) - Which data block
+- `category_name` - Which table (e.g., `"coloring"`)
+- `field_name` - Which column contains the dependent variable
+
+### BCIF Format
+
+BCIF (Binary CIF) has the same structure as CIF but uses efficient binary encoding. Use this for large annotation files to reduce file size and load times.
+
+## Using Annotations in MolViewSpec
+
+### From URI: `*_from_uri` Nodes
+
+Reference external annotation files using these nodes:
+- `color_from_uri` - Apply colors
+- `label_from_uri` - Add labels
+- `tooltip_from_uri` - Add tooltips
+- `component_from_uri` - Create components
+
+**Example**: Instead of multiple inline color nodes:
+
+```javascript
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ selector: { label_asym_id: 'A' }, color: '#00ff00' })
+    .color({ selector: { label_asym_id: 'B' }, color: 'blue' })
+    .color({
+        selector: { label_asym_id: 'B', beg_label_seq_id: 100, end_label_seq_id: 200 },
+        color: 'skyblue'
+    });
+```
+
+Use a single annotation file:
+
+```javascript
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color_from_uri({
+        uri: 'https://example.org/annotations.json',
+        format: 'json',
+        schema: 'residue_range'
+    });
+```
+
+### From Source: `*_from_source` Nodes
+
+Annotations can be embedded in the same mmCIF file as the structure. Use these nodes:
+- `color_from_source`
+- `label_from_source`
+- `tooltip_from_source`
+- `component_from_source`
+
+```javascript
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color_from_source({
+        schema: 'residue_range',
+        block_header: 'annotation',
+        category_name: 'coloring',
+        field_name: 'color'
+    });
+```
+
+### Relative URIs
+
+The `uri` parameter can use relative paths:
+
+```javascript
+// If MVS file is at: https://example.org/story/scene1.mvsj
+// Then ./data.json resolves to: https://example.org/story/data.json
+.color_from_uri({ uri: './data.json', format: 'json', schema: 'residue_range' })
+```
+
+**Special Case: MVSX Archives**
+
+MVSX files are ZIP archives containing `index.mvsj` and other files. Relative URIs resolve to files within the archive:
+
+```javascript
+// In an MVSX archive, this references annotations.json inside the archive
+.color_from_uri({ uri: './annotations.json', format: 'json', schema: 'residue_range' })
+```
+
+::: {.callout-warning}
+## URI Limitations
+Relative URIs don't work when:
+- MVS tree is constructed in-memory (no source URL)
+- File is loaded via drag-and-drop from local disk
+- Browser security restrictions prevent access
+
+In these cases, use absolute URLs or embed annotations in MVSX archives.
+:::
+
+## Annotation Schemas
+
+The `schema` parameter defines which fields are used for selection. Each schema supports different granularity levels:
+
+| Schema | Granularity | Supported Fields |
+|--------|-------------|------------------|
+| `whole_structure` | Entire structure | `instance_id` |
+| `entity` | By entity | `label_entity_id`, `instance_id` |
+| `chain` | By chain | `label_entity_id`, `label_asym_id`, `instance_id` |
+| `residue` | Single residue | `label_entity_id`, `label_asym_id`, `label_seq_id`, `instance_id` |
+| `residue_range` | Residue range | `label_entity_id`, `label_asym_id`, `beg_label_seq_id`, `end_label_seq_id`, `instance_id` |
+| `atom` | Single atom | All label fields + `label_atom_id`, `type_symbol`, `atom_id`, `atom_index` |
+| `auth_chain` | By chain (auth) | `auth_asym_id`, `instance_id` |
+| `auth_residue` | Single residue (auth) | `auth_asym_id`, `auth_seq_id`, `pdbx_PDB_ins_code`, `instance_id` |
+| `auth_residue_range` | Residue range (auth) | `auth_asym_id`, `beg_auth_seq_id`, `end_auth_seq_id`, `instance_id` |
+| `auth_atom` | Single atom (auth) | Auth residue fields + `auth_atom_id`, `type_symbol`, `atom_id`, `atom_index` |
+| `all_atomic` | All fields | All above fields (use when schema is flexible) |
+
+### Complete Schema Field Support
+
+| Field | whole_structure | entity | chain | residue | residue_range | atom | auth_chain | auth_residue | auth_residue_range | auth_atom | all_atomic |
+|-------|:---------------:|:------:|:-----:|:-------:|:-------------:|:----:|:----------:|:------------:|:------------------:|:---------:|:----------:|
+| label_entity_id | | X | X | X | X | X | | | | | X |
+| label_asym_id | | | X | X | X | X | | | | | X |
+| label_seq_id | | | | X | | X | | | | | X |
+| beg_label_seq_id | | | | | X | | | | | | X |
+| end_label_seq_id | | | | | X | | | | | | X |
+| label_atom_id | | | | | | X | | | | | X |
+| auth_asym_id | | | | | | | X | X | X | X | X |
+| auth_seq_id | | | | | | | | X | | X | X |
+| pdbx_PDB_ins_code | | | | | | | | X | | X | X |
+| beg_auth_seq_id | | | | | | | | | X | | X |
+| end_auth_seq_id | | | | | | | | | X | | X |
+| auth_atom_id | | | | | | | | | | X | X |
+| type_symbol | | | | | | X | | | | X | X |
+| atom_id | | | | | | X | | | | X | X |
+| atom_index | | | | | | X | | | | X | X |
+| instance_id | | X | X | X | X | X | X | X | X | X | X |
+
+::: {.callout-tip}
+## Choosing a Schema
+- Use specific schemas (`residue_range`, `chain`, etc.) when your annotation format is fixed
+- Use `all_atomic` when you want flexibility to include any field present in the data
+:::
+
+## The `group_id` Field
+
+The `group_id` field groups annotation rows together, which is primarily useful for **labels**.
+
+### Without `group_id` (7 separate labels)
+
+```cif
+data_annotation
+loop_
+_labels.label_asym_id
+_labels.label_seq_id
+_labels.color
+_labels.label
+A 100 pink 'Substrate binding site'
+A 150 pink 'Substrate binding site'
+A 170 pink 'Substrate binding site'
+A 200 blue 'Inhibitor binding site'
+A 220 blue 'Inhibitor binding site'
+A 300 lime 'Glycosylation site'
+A 330 lime 'Glycosylation site'
+```
+
+Each residue gets its own label, resulting in 7 labels in the visualization.
+
+### With `group_id` (4 labels)
+
+```cif
+data_annotation
+loop_
+_labels.group_id
+_labels.label_asym_id
+_labels.label_seq_id
+_labels.color
+_labels.label
+1 A 100 pink 'Substrate binding site'
+1 A 150 pink 'Substrate binding site'
+1 A 170 pink 'Substrate binding site'
+2 A 200 blue 'Inhibitor binding site'
+2 A 220 blue 'Inhibitor binding site'
+. A 300 lime 'Glycosylation site'
+. A 330 lime 'Glycosylation site'
+```
+
+This creates:
+- 1 label for "Substrate binding site" (bound to residues 100, 150, 170)
+- 1 label for "Inhibitor binding site" (bound to residues 200, 220)
+- 2 separate labels for "Glycosylation site" (`.` means no grouping)
+
+::: {.callout-note}
+## `group_id` Rules
+- Rows with the same `group_id` are grouped into one label
+- Empty `group_id` (`.` in CIF, omitted or `null` in JSON) means no grouping
+- **Only affects labels** - has no effect on colors, tooltips, or components
+:::
+
+## Example: Protein Domain Coloring
+
+Here's a complete example coloring protein domains:
+
+**domains.json**:
+```json
+{
+    "label_asym_id": ["A", "A", "A", "A"],
+    "beg_label_seq_id": [1, 50, 120, 200],
+    "end_label_seq_id": [49, 119, 199, 280],
+    "color": ["#e74c3c", "#3498db", "#2ecc71", "#f39c12"],
+    "label": ["N-terminal domain", "DNA binding domain", "Linker", "C-terminal domain"]
+}
+```
+
+**In your scene**:
+```javascript
+const structure = builder
+    .download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+    .parse({ format: 'mmcif' })
+    .modelStructure();
+
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color_from_uri({
+        uri: './domains.json',
+        format: 'json',
+        schema: 'residue_range'
+    });
+```
+
+## See Also
+
+- [Selectors](selectors.qmd) - Inline selection syntax
+- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Official MolViewSpec Annotations Docs](https://molstar.org/mol-view-spec/docs/annotations/)

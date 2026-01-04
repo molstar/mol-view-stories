@@ -1,0 +1,294 @@
+# Examples
+
+::: {.callout-tip}
+## Interactive Examples
+All examples on this page are fully interactive! You can edit the code and see changes in real-time. Use the controls to toggle auto-update and view execution logs.
+:::
+
+This page provides practical, hands-on examples of using the MolViewSpec API in MolViewStories. Each example builds on concepts from the previous one.
+
+## Basic Example
+
+Here's a simple example that loads and displays a protein structure. We use the [Mol* viewer](https://molstar.org) and [MolViewStories](http://molstar.org/mol-view-stories) JavaScript libraries to dynamically build a [MolViewSpec](https://molstar.org/mol-view-spec/) state tree which is rendered on a Mol* canvas.
+
+```{.molviewspec title="Basic Protein Structure (1CBS)"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'blue' });
+  // Try changing color to: '#ccffaa'
+```
+
+**What's happening here?**
+1. **Download**: Fetch structure from PDBe
+2. **Parse**: Read the binary CIF format
+3. **Model**: Create a 3D structure
+4. **Component**: Select polymer chains (protein/nucleic acid)
+5. **Representation**: Show as cartoon (secondary structure)
+6. **Color**: Apply blue color
+
+## Selections and Multiple Components
+
+This example shows how to create multiple representations for different parts of a structure. We select the `polymer`, `water`, and `ligand` separately, each with its own style.
+
+```{.molviewspec title="Protein with Ligand"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'green' });
+
+structure
+  .component({ selector: 'water' })
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: 'lightblue' });
+
+const ligand = structure
+  .component({ selector: 'ligand' });
+
+ligand.focus();
+ligand
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: '#cc3399' });
+```
+
+**Key concepts**:
+- **Multiple components**: Each `component()` creates a separate selection
+- **Branching**: Store nodes in variables (like `ligand`) to add multiple children
+- **Focus**: The `focus()` method centers the camera on the ligand
+
+## Using Interactive Controls
+
+When `controls="true"` is set, you get an interactive control panel:
+- **Toggle auto-update** on/off to control when the viewer re-renders
+- **Show execution log** to see execution details and errors
+- **Edit the code** and see changes in real-time
+
+```{.molviewspec controls="true" title="Interactive Controls Demo"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'purple' });
+```
+
+**Try it**: Edit the color, change `cartoon` to `ball_and_stick`, or try `selector: 'protein'`
+
+## Separating Story and Scene Code
+
+You can split your code using `---` as a separator:
+- **Story code** (above `---`): Hidden setup code, runs but doesn't appear in editor
+- **Scene code** (below `---`): Visible, editable code in the viewer
+
+This is useful for:
+- Hiding boilerplate setup
+- Reusing structure definitions
+- Focusing attention on the interesting parts
+
+```{.molviewspec title="Using Story and Scene Code"}
+// This is story code - it runs but won't show in the editor
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+---
+
+// This is scene code - it appears in the editor and is editable
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'purple' });
+```
+
+## Writing Reusable Functions
+
+Create functions to improve code reusability and reduce duplication:
+
+```{.molviewspec title="Using Functions"}
+// Declare a function to load a structure
+function loadStructure(pdbId) {
+  return builder
+    .download({ url: `https://www.ebi.ac.uk/pdbe/entry-files/${pdbId}.bcif` })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+}
+
+// Use the function
+const structure = loadStructure('1cbs');
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'orange' });
+```
+
+**Benefits**:
+- Encapsulate common patterns
+- Make code more readable
+- Easy to reuse across scenes
+
+## Chain-Specific Coloring
+
+Use [selectors](selectors.qmd) to apply different colors to specific chains:
+
+```{.molviewspec title="Multi-Chain Coloring"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ selector: { label_asym_id: 'A' }, color: 'red' })
+  .color({ selector: { label_asym_id: 'B' }, color: 'blue' });
+
+structure
+  .component({ selector: 'ligand' })
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: 'element-symbol' });
+```
+
+## Highlighting Residue Ranges
+
+Select and highlight specific residue ranges:
+
+```{.molviewspec title="Highlighting Active Site"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+// Show full protein as transparent cartoon
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'lightgray' });
+
+// Highlight active site residues
+structure
+  .component({
+    selector: {
+      label_asym_id: 'A',
+      beg_label_seq_id: 90,
+      end_label_seq_id: 110
+    }
+  })
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: '#ff6600' });
+```
+
+## Multiple Structures
+
+Load and display multiple structures simultaneously:
+
+```{.molviewspec title="Comparing Structures"}
+// Load first structure
+const struct1 = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure({ ref: 'structure1' });
+
+struct1
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'cyan' });
+
+// Load second structure (just chain A)
+const struct2 = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure({ ref: 'structure2' });
+
+struct2
+  .component({ selector: { label_asym_id: 'A' } })
+  .representation({ type: 'surface' })
+  .color({ color: 'yellow' })
+  .transform({
+    translation: [20, 0, 0]  // Move 20 Å along X axis
+  });
+```
+
+## Color Schemes
+
+MolViewSpec supports various built-in color schemes:
+
+```{.molviewspec title="Color Schemes" controls="true"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'secondary-structure' });
+  // Try: 'chain-id', 'element-symbol', 'residue-name', 'b-factor'
+
+structure
+  .component({ selector: 'ligand' })
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: 'element-symbol' });
+```
+
+## Representation Types
+
+Explore different representation styles:
+
+```{.molviewspec title="Representation Types" controls="true"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' });
+  // Try: 'ball_and_stick', 'surface', 'spacefill', 'backbone', 'gaussian_surface'
+```
+
+## Code Block Attributes
+
+You can customize code blocks with these attributes:
+
+```markdown
+```{.molviewspec title="My Title" controls="true"}
+// Your code here
+```
+```
+
+**Available attributes**:
+- `title`: Display title in header (optional)
+- `controls`: Show interactive controls (`"true"` or `"false"`, default: `"false"`)
+  - When enabled, adds auto-update toggle and execution log
+
+## MolViewSpec Builder API Reference
+
+For complete API documentation, see:
+
+- [Selectors](selectors.qmd) - Component selection syntax
+- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Annotations](annotations.qmd) - External color/label files
+- [Camera Settings](camera.qmd) - Camera positioning
+- [Official MolViewSpec Docs](https://molstar.org/mol-view-spec/)
+
+## Next Steps
+
+- Explore [Selectors](selectors.qmd) to learn advanced selection patterns
+- Check out [Annotations](annotations.qmd) for large-scale coloring schemes
+- Read [Camera Settings](camera.qmd) to control viewpoints
+- Visit the [Official MolViewSpec Documentation](https://molstar.org/mol-view-spec/) for the complete specification

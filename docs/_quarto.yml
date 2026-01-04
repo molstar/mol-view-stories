@@ -19,20 +19,55 @@ website:
     contents:
       - text: 'Introduction'
         href: index.qmd
-      - text: 'Getting Started'
-        href: getting-started.qmd
-      - text: 'First Time Login'
-        href: first-time-login.qmd
-      - text: 'Core Features'
-        href: core-features.qmd
-      - text: 'Tips & Shortcuts'
-        href: tips-shortcuts.qmd
-      - text: 'CLI'
-        href: cli.qmd
-      - text: 'FAQ & Troubleshooting'
-        href: faq-troubleshooting.qmd
-      - text: 'Mol View Spec'
-        href: molviewspec-primer.qmd
+
+      - section: 'MolViewStories'
+        contents:
+          - text: 'Overview & Quick Start'
+            href: getting-started.qmd
+          - text: 'First Time Login'
+            href: first-time-login.qmd
+          - text: 'Interface Guide'
+            href: webapp-interface.qmd
+          - text: 'Building Stories'
+            href: core-features.qmd
+          - text: 'Cloud Storage & Sharing'
+            href: webapp-cloud-storage.qmd
+          - text: 'Tips & Workflows'
+            href: tips-shortcuts.qmd
+          - text: 'CLI Tool'
+            href: cli.qmd
+
+      - section: 'MolViewSpec API'
+        contents:
+          - text: 'Overview'
+            href: molviewspec/index.qmd
+          - text: 'Examples'
+            href: molviewspec/examples.qmd
+          - text: 'Selectors'
+            href: molviewspec/selectors.qmd
+          - text: 'Annotations'
+            href: molviewspec/annotations.qmd
+          - text: 'Tree Schema'
+            href: molviewspec/tree-schema.qmd
+          - text: 'Camera Settings'
+            href: molviewspec/camera.qmd
+          - text: 'Primitives'
+            href: molviewspec/primitives.qmd
+          - text: 'Volumetric Data'
+            href: molviewspec/volumes.qmd
+          - text: 'Animations'
+            href: molviewspec/animations.qmd
+
+      - section: 'Reference'
+        contents:
+          - text: 'API Reference'
+            href: reference-api.qmd
+          - text: 'Advanced Features'
+            href: reference-advanced.qmd
+          - text: 'Glossary'
+            href: reference-glossary.qmd
+          - text: 'FAQ & Troubleshooting'
+            href: faq-troubleshooting.qmd
 
 format:
   html:

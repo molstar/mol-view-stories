@@ -1,0 +1,132 @@
+# Cloud Storage & Sharing
+
+::: {.callout-note}
+## Work in Progress
+This page is a placeholder. Content will be added about sessions, publishing, and cloud storage.
+:::
+
+## Overview
+
+This page will cover how to save, publish, and share your molecular visualization stories using MolViewStories cloud storage.
+
+## Planned Content
+
+### Sessions vs Published Stories
+
+**Sessions (Private)**
+- What are sessions?
+- Saving work in progress
+- Accessing your saved sessions
+- Session quotas and limits
+
+**Published Stories (Public)**
+- What is publishing?
+- Publishing workflow
+- Public vs private visibility
+- Managing published content
+
+### Saving Your Work
+
+**Save Operations**
+- Quick save vs save as new
+- Auto-save functionality (if applicable)
+- Session metadata and notes
+- Version history (if applicable)
+
+**Storage Limits**
+- Sessions per user (100)
+- File size limits (50MB per session)
+- Total storage quotas
+- Managing storage usage
+
+### Publishing Stories
+
+**Publishing Workflow**
+1. Complete your story
+2. Add metadata (title, description, tags)
+3. Review and preview
+4. Publish to get shareable link
+5. Update or unpublish as needed
+
+**Publishing Options**
+- Public visibility
+- Searchable vs unlisted
+- Editing published stories
+- Unpublishing content
+
+### Sharing Options
+
+**Share Published Stories**
+- Direct URL links
+- Embedding in websites
+- Social media sharing
+- QR codes (if supported)
+
+**Share Session Files**
+- Download session file (.mvstory)
+- Share via email or file sharing
+- Import session files
+- Collaborative workflows
+
+### Export Options
+
+**File Formats**
+- **JSON** - Human-readable format
+- **MVStory** - Compressed session format
+- **MVSX** - Mol* viewer format
+- **HTML** - Standalone web page
+
+**Export Use Cases**
+- Offline presentations (HTML)
+- Backup and archival (MVStory)
+- Integration with other tools (MVSX, JSON)
+- Self-hosting options
+
+### Managing Your Content
+
+**My Stories Dashboard**
+- Viewing all sessions
+- Viewing published stories
+- Searching and filtering
+- Organizing content
+- Bulk operations
+
+**Quota Management**
+- Checking current usage
+- Deleting old sessions
+- Cleaning up assets
+- Best practices for storage
+
+### Embedding Stories
+
+**Embed Options**
+- iframe embedding
+- URL parameters
+- Customization options
+- Responsive design considerations
+
+**Example Code**
+```html
+<!-- Embedding example will go here -->
+<iframe src="https://molstar.org/mol-view-stories/story/YOUR_ID"></iframe>
+```
+
+### Privacy & Security
+
+**Data Privacy**
+- Who can see your sessions?
+- Who can see published stories?
+- Data retention policies
+- Deleting your data
+
+**Access Control**
+- Authentication requirements
+- Session permissions
+- Published story visibility
+- Institutional access (if applicable)
+
+## Next Steps
+
+- [First Time Login](first-time-login.qmd) - Setting up your account
+- [Building Stories](core-features.qmd) - Creating content
+- [FAQ](faq-troubleshooting.qmd) - Common questions about sharing

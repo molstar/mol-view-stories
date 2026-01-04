@@ -1,0 +1,151 @@
+# MolViewSpec API
+
+::: {.callout-note}
+## About MolViewSpec
+MolViewSpec is the declarative format used to define molecular visualizations in MolViewStories. It provides a simple, text-based way to describe structures, representations, colors, labels, and more.
+:::
+
+## What is MolViewSpec?
+
+MolViewSpec (MVS) is a JSON-based format for describing molecular visualizations. In MolViewStories, you write JavaScript code that uses the **builder API** to construct MVS trees. These trees define:
+
+- What structures to load
+- How to display them (cartoon, surface, etc.)
+- What colors to apply
+- Where to position the camera
+- What labels and annotations to show
+
+## Quick Example
+
+```{.molviewspec}
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+---
+
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ color: 'chain-id' });
+
+structure
+    .component({ selector: 'ligand' })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: 'element-symbol' });
+```
+
+## MolViewSpec Sections
+
+This section provides comprehensive documentation for different aspects of the MolViewSpec API:
+
+### [Tree Schema](tree-schema.qmd)
+Complete reference of all MolViewSpec node types, their parameters, and relationships. This is the authoritative specification of what you can do with MVS.
+
+### [Selectors](selectors.qmd)
+Learn how to select specific parts of a structure (chains, residues, atoms) using static selectors, component expressions, and union expressions.
+
+### [Annotations](annotations.qmd)
+External annotation files for applying colors, labels, and tooltips to structures. Supports JSON, CIF, and BCIF formats.
+
+### [Camera Settings](camera.qmd)
+Control camera position, orientation, and field of view to create specific viewpoints.
+
+### [Primitives](primitives.qmd)
+Add custom geometric shapes (arrows, spheres, lines) to your visualizations for highlighting or annotations.
+
+### [Volumetric Data](volumes.qmd)
+Display electron density maps, cryo-EM maps, and other volumetric data with isosurfaces.
+
+### [Animations](animations.qmd)
+Create smooth transitions and animations between different states of your visualization.
+
+## Builder API Pattern
+
+The builder API follows a **fluent, chainable** pattern:
+
+```javascript
+// Each method returns a builder object
+const structure = builder
+    .download({ url: '...' })  // Returns download node
+    .parse({ format: 'bcif' }) // Returns parse node
+    .modelStructure();         // Returns structure node
+
+// You can continue building from any node
+structure
+    .component({ selector: 'protein' })    // Returns component node
+    .representation({ type: 'cartoon' })   // Returns representation node
+    .color({ color: 'blue' });             // Returns color node
+```
+
+## Common Patterns
+
+### Loading a PDB Entry
+
+```javascript
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+```
+
+### Loading an AlphaFold Prediction
+
+```javascript
+const structure = builder
+    .download({ url: 'https://alphafold.ebi.ac.uk/files/AF-P00520-F1-model_v4.cif' })
+    .parse({ format: 'mmcif' })
+    .modelStructure();
+```
+
+### Selecting and Styling Components
+
+```javascript
+// Protein as cartoon
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ color: 'secondary-structure' });
+
+// Ligands as ball-and-stick
+structure
+    .component({ selector: 'ligand' })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: 'element-symbol' });
+
+// Water as spheres
+structure
+    .component({ selector: 'water' })
+    .representation({ type: 'spacefill' })
+    .color({ color: 'red' });
+```
+
+### Highlighting Specific Residues
+
+```javascript
+// Highlight active site residues
+structure
+    .component({
+        selector: {
+            label_asym_id: 'A',
+            label_seq_id: [50, 60]
+        }
+    })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: '#ff6600' });
+```
+
+## Learning Path
+
+1. **Start with [Selectors](selectors.qmd)** - Understanding how to select parts of structures is fundamental
+2. **Review [Tree Schema](tree-schema.qmd)** - Learn what nodes are available and their parameters
+3. **Explore [Annotations](annotations.qmd)** - For advanced coloring and labeling from external data
+4. **Add [Primitives](primitives.qmd)** - For custom annotations and highlights
+5. **Fine-tune with [Camera Settings](camera.qmd)** - Perfect your viewpoints
+
+## Additional Resources
+
+- [MolViewSpec Primer](../molviewspec-primer.qmd) - Introduction and basic concepts
+- [Official MolViewSpec Documentation](https://molstar.org/mol-view-spec)
+- [Mol* Viewer Documentation](https://molstar.org/viewer-docs/)

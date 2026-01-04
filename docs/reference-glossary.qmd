@@ -1,0 +1,234 @@
+# Glossary
+
+::: {.callout-note}
+## Work in Progress
+This page is a placeholder. Term definitions will be added.
+:::
+
+## Overview
+
+This page will provide clear definitions of key terms and concepts used in MolViewStories.
+
+## Planned Content
+
+### Core Concepts
+
+**Story**
+- Definition: A complete narrative sequence of molecular visualizations
+- Contains: Multiple scenes, metadata, global settings
+- Format: Stored as JSON, MVStory, or other formats
+- Usage: The top-level container for your molecular narrative
+
+**Scene**
+- Definition: A single view or step in your story
+- Contains: MolViewSpec code, description, camera position, settings
+- Purpose: Individual "slides" in your molecular presentation
+- Navigation: Users progress through scenes sequentially
+
+**Session**
+- Definition: A private, saved version of your work
+- Storage: Saved to your personal cloud storage
+- Visibility: Only accessible to you
+- Purpose: Work in progress, drafts, personal archives
+
+**Published Story / State**
+- Definition: A publicly shared version of your story
+- Storage: Saved to public cloud storage
+- Visibility: Accessible via shareable link
+- Purpose: Final, polished content for sharing
+
+**Asset**
+- Definition: Local file uploaded to your story
+- Types: PDB, CIF, MOL, SDF, or other molecular structure files
+- Storage: Included within your session/story
+- Usage: Referenced in scenes without external URLs
+
+### File Formats
+
+**MVStory (.mvstory)**
+- Definition: Compressed binary session format
+- Contents: Complete story with all scenes and assets
+- Purpose: Efficient storage and transmission
+- Usage: Save/load sessions, CLI builds
+
+**MVSJ (.mvsj)**
+- Definition: JSON state format for published stories
+- Contents: Story data in human-readable format
+- Purpose: Lightweight published stories
+- Usage: Public story sharing
+
+**MVSX (.mvsx)**
+- Definition: Mol* viewer format (ZIP archive)
+- Contents: MolViewSpec state for Mol* viewer
+- Purpose: Compatibility with Mol* viewer
+- Usage: Opening stories in standard Mol* viewer
+
+**JSON**
+- Definition: Human-readable story format
+- Contents: Uncompressed story structure
+- Purpose: Debugging, editing, integration
+- Usage: Development, API integration
+
+**HTML**
+- Definition: Standalone web page
+- Contents: Self-contained viewer with embedded story
+- Purpose: Offline viewing, presentations
+- Usage: Email attachments, conference presentations
+
+### MolViewSpec Terms
+
+**MolViewSpec (MVS)**
+- Definition: Specification for declarative molecular visualization
+- Purpose: Standardized format for molecular scenes
+- Implementation: Used by Mol* and MolViewStories
+- Documentation: https://molstar.org/mol-view-spec
+
+**Builder**
+- Definition: JavaScript API for creating MolViewSpec states
+- Usage: `builder.download().parse().modelStructure()`
+- Purpose: Programmatic scene creation
+- Pattern: Method chaining / fluent interface
+
+**Component**
+- Definition: Selected portion of a molecular structure
+- Examples: Chain A, residues 1-50, ligands, water
+- Creation: `structure.component({ selector: ... })`
+- Purpose: Isolating parts for specific representations
+
+**Representation**
+- Definition: Visual style for displaying molecules
+- Types: Cartoon, ball-and-stick, surface, spacefill
+- Creation: `.representation({ type: 'cartoon' })`
+- Purpose: Controlling how molecules appear
+
+**Selector**
+- Definition: Query for selecting molecular components
+- Syntax: `{ label_asym_id: 'A', label_seq_id: 100 }`
+- Built-in: `protein`, `nucleic`, `ligand`, `water`
+- Purpose: Specifying which atoms/residues to select
+
+**Node / State Tree**
+- Definition: Hierarchical structure of MVS state
+- Structure: Download → Parse → Structure → Component → Representation
+- Purpose: Organizing visualization instructions
+- Usage: Implicit in builder method chaining
+
+### Molecular Biology Terms
+
+**PDB (Protein Data Bank)**
+- Definition: Repository of 3D molecular structures
+- URL: https://www.rcsb.org or https://www.ebi.ac.uk/pdbe
+- Format: PDB and mmCIF file formats
+- Usage: Primary source for structures
+
+**PDB ID**
+- Definition: 4-character identifier for PDB entries
+- Examples: 1CBS, 4HHB, 1TQN
+- Usage: Loading structures from PDB
+
+**Chain / Asymmetric ID**
+- Definition: Identifier for polymer chains in structure
+- Examples: A, B, C, AA, AB
+- Usage: Selecting specific chains
+
+**Residue**
+- Definition: Individual amino acid or nucleotide
+- Numbering: Sequential position in chain
+- Selection: By number (label_seq_id) or name (label_comp_id)
+
+**Ligand**
+- Definition: Small molecule bound to protein
+- Examples: ATP, drugs, cofactors
+- Selection: `selector: 'ligand'`
+
+**Assembly / Biological Assembly**
+- Definition: Biologically relevant form of structure
+- Context: May include multiple copies via symmetry
+- Usage: `modelStructure({ assembly_id: '1' })`
+
+### Technical Terms
+
+**Camera**
+- Definition: Virtual viewpoint for 3D scene
+- Parameters: Position, target, up vector, FOV
+- Purpose: Controlling what users see
+- Snapshot: Saved camera state for scene
+
+**Focus**
+- Definition: Automatically center camera on component
+- Usage: `.focus()`
+- Purpose: Directing viewer attention
+
+**Transformation**
+- Definition: Coordinate system change (rotation/translation)
+- Usage: Structural superposition
+- Format: Rotation matrix + translation vector
+
+**Isosurface**
+- Definition: 3D surface at constant density value
+- Usage: Electron density visualization
+- Parameter: Isovalue or sigma level
+
+**Viewport**
+- Definition: 3D viewing area in the interface
+- Purpose: Where molecular structures are rendered
+- Interaction: Mouse rotation, zoom, pan
+
+### Cloud & API Terms
+
+**OIDC (OpenID Connect)**
+- Definition: Authentication protocol
+- Purpose: Secure login with institutional credentials
+- Usage: First-time login, accessing saved work
+
+**Quota**
+- Definition: Storage limits per user
+- Limits: 100 sessions, 100 published stories
+- Size: 50MB per session
+- Purpose: Fair resource allocation
+
+**MinIO**
+- Definition: S3-compatible storage backend
+- Purpose: Storing sessions and published stories
+- User Visibility: Transparent to end users
+
+### CLI Terms
+
+**Folder-Based Story**
+- Definition: Story defined by file/folder structure
+- Structure: story.yaml + scenes/ directory
+- Purpose: Local development workflow
+- Tool: CLI watch command
+
+**Inline Story**
+- Definition: Story with scenes defined in story.yaml
+- Purpose: Simpler format for basic stories
+- Usage: Quick prototypes
+
+**Watch Mode**
+- Definition: Development server with live reload
+- Command: `mvs watch <folder>`
+- Purpose: Rapid iteration on stories
+
+### UI Terms
+
+**Story Panel**
+- Definition: Left sidebar in webapp
+- Contents: Story metadata, scene list, assets
+- Purpose: Story structure navigation
+
+**Code Editor**
+- Definition: Center panel for writing MolViewSpec
+- Features: Syntax highlighting, auto-completion
+- Shortcut: Ctrl/Cmd+S to update scene
+
+**Preview**
+- Definition: Full-screen story viewer mode
+- Purpose: Test story flow and transitions
+- Access: Preview button in top menu
+
+## Related Resources
+
+- [MolViewSpec Primer](molviewspec-primer.qmd) - Learn the core technology
+- [FAQ & Troubleshooting](faq-troubleshooting.qmd) - Common questions
+- [Getting Started](getting-started.qmd) - Beginner tutorial

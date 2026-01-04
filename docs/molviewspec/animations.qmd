@@ -1,0 +1,254 @@
+# Animations
+
+::: {.callout-tip}
+## What are Animations?
+Animations create smooth transitions between different states of your visualization, such as camera movements, color changes, or showing/hiding components over time.
+:::
+
+MolViewSpec supports animations to create dynamic, time-based visualizations that can show molecular processes, guide viewer attention, or create cinematic presentations.
+
+## Animation Use Cases
+
+### Scientific Storytelling
+- **Molecular mechanisms**: Show conformational changes or binding events
+- **Guided tours**: Direct attention to different regions sequentially
+- **Process visualization**: Illustrate multi-step biochemical processes
+
+### Presentations
+- **Camera transitions**: Smoothly move between viewpoints
+- **Progressive disclosure**: Reveal structure elements one at a time
+- **Emphasis**: Fade in/out or change colors to highlight features
+
+## Animation Types
+
+### Camera Animations
+Smoothly transition between camera positions
+
+```javascript
+// Animate between two camera positions
+builder
+    .animate({
+        type: 'camera',
+        duration: 2000,  // 2 seconds
+        from: {
+            target: [0, 0, 0],
+            position: [50, 0, 0]
+        },
+        to: {
+            target: [0, 0, 0],
+            position: [0, 50, 50]
+        }
+    });
+```
+
+### Component Animations
+Show/hide or transform components over time
+
+```javascript
+// Fade in a component
+builder
+    .animate({
+        type: 'component',
+        duration: 1500,
+        property: 'opacity',
+        from: 0.0,
+        to: 1.0
+    });
+```
+
+### Color Animations
+Smoothly change colors
+
+```javascript
+// Transition between colors
+builder
+    .animate({
+        type: 'color',
+        duration: 1000,
+        from: 'blue',
+        to: 'red'
+    });
+```
+
+## Timeline Control
+
+### Sequential Animations
+Chain animations to play one after another
+
+```javascript
+// First animation: zoom to protein
+builder.animate({ /* ... */ delay: 0 });
+
+// Second animation: highlight active site
+builder.animate({ /* ... */ delay: 2000 });  // Start after 2s
+
+// Third animation: show ligand
+builder.animate({ /* ... */ delay: 4000 });  // Start after 4s
+```
+
+### Parallel Animations
+Run multiple animations simultaneously
+
+```javascript
+// All start at the same time
+builder.animate({ type: 'camera', /* ... */ delay: 0 });
+builder.animate({ type: 'color', /* ... */ delay: 0 });
+builder.animate({ type: 'opacity', /* ... */ delay: 0 });
+```
+
+## Easing Functions
+
+Control the acceleration of animations:
+
+- **linear**: Constant speed
+- **ease-in**: Start slow, end fast
+- **ease-out**: Start fast, end slow
+- **ease-in-out**: Start and end slow, fast in middle
+
+```javascript
+builder.animate({
+    type: 'camera',
+    duration: 2000,
+    easing: 'ease-in-out',
+    // ...
+});
+```
+
+## Common Animation Patterns
+
+### Guided Tour
+
+```javascript
+// Scene 1: Overview
+builder.camera({ target: [0, 0, 0], position: [100, 100, 100] });
+
+// After 3s: Zoom to binding site
+builder.animate({
+    type: 'camera',
+    delay: 3000,
+    duration: 2000,
+    to: {
+        target: [10, 20, 15],
+        position: [20, 30, 35]
+    }
+});
+
+// After 6s: Highlight ligand
+builder.animate({
+    type: 'color',
+    delay: 6000,
+    duration: 1000,
+    selector: { selector: 'ligand' },
+    to: 'yellow'
+});
+```
+
+### Progressive Reveal
+
+```javascript
+// Start with everything invisible
+structure.component({ selector: 'all' }).representation({ type: 'cartoon', opacity: 0 });
+
+// Reveal protein over 2s
+builder.animate({
+    type: 'opacity',
+    delay: 0,
+    duration: 2000,
+    selector: { selector: 'protein' },
+    to: 1.0
+});
+
+// Reveal ligand over 1s
+builder.animate({
+    type: 'opacity',
+    delay: 2500,
+    duration: 1000,
+    selector: { selector: 'ligand' },
+    to: 1.0
+});
+```
+
+### Rotate Around Structure
+
+```javascript
+// Animate camera in a circle
+for (let i = 0; i < 360; i += 30) {
+    const angle = (i * Math.PI) / 180;
+    const x = 50 * Math.cos(angle);
+    const z = 50 * Math.sin(angle);
+
+    builder.animate({
+        type: 'camera',
+        delay: i * 100,  // 100ms per frame
+        duration: 3000,
+        to: {
+            target: [0, 0, 0],
+            position: [x, 0, z]
+        }
+    });
+}
+```
+
+## Animation in MolViewStories
+
+::: {.callout-note}
+## Story Scenes as Animation Frames
+In MolViewStories, each scene can represent a "frame" in your narrative. Transitions between scenes can include animations to create smooth storytelling.
+:::
+
+While MolViewSpec has native animation support, MolViewStories provides a higher-level approach:
+- **Scene transitions**: Automatically animated
+- **Scene-specific cameras**: Each scene can have different viewpoints
+- **Progressive scenes**: Build complexity across multiple scenes
+
+## Performance Tips
+
+::: {.callout-warning}
+## Animation Performance
+- **Short durations**: Keep animations under 3-5 seconds for best UX
+- **Limit simultaneous animations**: Too many at once can cause lag
+- **Avoid complex representations**: Simple representations animate smoother
+:::
+
+## Accessibility Considerations
+
+::: {.callout-important}
+## Motion Sensitivity
+Some users may be sensitive to motion. Consider:
+- Providing a way to disable animations
+- Using slower transitions by default
+- Avoiding rapid rotations or flashing
+:::
+
+## Advanced: Custom Animation Scripts
+
+For complex animations, use JavaScript to programmatically generate animation sequences:
+
+```javascript
+function createOrbitAnimation(radius, duration, steps) {
+    for (let i = 0; i < steps; i++) {
+        const angle = (i / steps) * 2 * Math.PI;
+        builder.animate({
+            type: 'camera',
+            delay: (i / steps) * duration,
+            duration: duration / steps,
+            to: {
+                target: [0, 0, 0],
+                position: [
+                    radius * Math.cos(angle),
+                    0,
+                    radius * Math.sin(angle)
+                ]
+            }
+        });
+    }
+}
+
+createOrbitAnimation(50, 5000, 60);  // 5s orbit, 60 frames
+```
+
+## See Also
+
+- [Camera Settings](camera.qmd) - Camera positioning for animation endpoints
+- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Official Animations Documentation](https://molstar.org/mol-view-spec/docs/animations/) - Complete animation reference

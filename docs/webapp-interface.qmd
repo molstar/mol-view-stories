@@ -1,0 +1,52 @@
+# Web Application Interface
+
+::: {.callout-note}
+## Work in Progress
+This page is a placeholder. Content will be added to explain the webapp UI.
+:::
+
+## Overview
+
+This page will provide a detailed walkthrough of the MolViewStories web application interface.
+
+## Planned Content
+
+### Main Interface Areas
+- **Story Panel** (left side) - Managing story metadata and scenes
+- **Code Editor** (center) - Writing MolViewSpec code
+- **3D Viewer** (right side) - Interactive molecular visualization
+- **Top Menu Bar** - Story operations, settings, and user actions
+
+### Story Panel
+- Story metadata editor
+- Scene list and navigation
+- Scene options and settings
+- Assets management
+
+### Code Editor Features
+- Syntax highlighting
+- Auto-completion
+- Code execution (Ctrl/Cmd+S)
+- Error highlighting
+
+### 3D Viewer Controls
+- Mouse navigation
+- Camera controls
+- Scene preview
+- Focus and zoom tools
+
+### Top Menu Bar
+- Story operations (New, Save, Export, Publish)
+- User menu (Login, My Stories, Logout)
+- Settings and preferences
+- Help and documentation links
+
+## Screenshots
+
+*Screenshots of the interface will be added here*
+
+## Next Steps
+
+Once you're familiar with the interface, learn about:
+- [Building Stories](core-features.qmd) - Creating your first story
+- [Tips & Workflows](tips-shortcuts.qmd) - Efficient workflows

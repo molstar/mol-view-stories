@@ -1,0 +1,98 @@
+# Primitives
+
+::: {.callout-tip}
+## What are Primitives?
+Primitives are custom geometric shapes (arrows, spheres, lines, labels) you can add to your visualizations to highlight features, show measurements, or add annotations.
+:::
+
+Primitives allow you to add custom geometry to your molecular visualizations, independent of the structure itself.
+
+## Overview
+
+Primitives are useful for:
+- **Annotations**: Arrows pointing to important features
+- **Measurements**: Lines showing distances
+- **Highlights**: Spheres or ellipses emphasizing regions
+- **Labels**: Text annotations floating in 3D space
+
+::: {.callout-note}
+## Coming Soon
+Detailed primitive documentation with examples will be added. For now, refer to the [Official MolViewSpec Primitives Documentation](https://molstar.org/mol-view-spec/docs/primitives/).
+:::
+
+## Available Primitive Types
+
+### Arrows
+Draw directional arrows in 3D space.
+
+**Use cases**: Point to binding sites, show molecular motion, indicate directionality
+
+### Spheres
+Add spheres at specific coordinates.
+
+**Use cases**: Mark specific locations, show binding sites, highlight atoms
+
+### Ellipses
+Create ellipsoid shapes.
+
+**Use cases**: Show approximate binding pocket shapes, uncertainty regions
+
+### Lines
+Draw line segments between two points.
+
+**Use cases**: Distance measurements, connectivity, coordinate axes
+
+### Labels
+Position text labels in 3D space.
+
+**Use cases**: Floating annotations, distance labels, feature names
+
+## Basic Usage Pattern
+
+```javascript
+// Primitives are typically defined relative to structure coordinates
+builder
+    .download({ url: '...' })
+    .parse({ format: 'mmcif' })
+    .coordinates()  // Get coordinate system
+    .primitive({
+        type: 'arrow',
+        // ... primitive-specific parameters
+    });
+```
+
+## Example: Arrow to Active Site
+
+```javascript
+const coords = builder
+    .download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+    .parse({ format: 'mmcif' })
+    .coordinates();
+
+coords.primitive({
+    type: 'arrow',
+    start: [10, 20, 15],
+    end: [15, 25, 20],
+    color: 'red',
+    radius: 0.5
+});
+```
+
+## Integration with Selectors
+
+Primitives can be positioned relative to selected atoms using [selectors](selectors.qmd):
+
+```javascript
+coords.primitive({
+    type: 'sphere',
+    center_ref: { selector: { label_asym_id: 'A', label_seq_id: 100 } },
+    radius: 5,
+    color: 'yellow'
+});
+```
+
+## See Also
+
+- [Official Primitives Documentation](https://molstar.org/mol-view-spec/docs/primitives/) - Complete primitive reference
+- [Selectors](selectors.qmd) - For positioning primitives relative to atoms
+- [Tree Schema](tree-schema.qmd) - Complete node reference

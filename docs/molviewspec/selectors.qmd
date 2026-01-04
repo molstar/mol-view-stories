@@ -1,0 +1,255 @@
+# Selectors
+
+::: {.callout-tip}
+## Key Concept
+Selectors are how you choose which atoms, residues, or chains to display in your visualization. They're used in `component()` and `color()` nodes.
+:::
+
+Selectors in MolViewSpec allow you to define substructures (components) and apply colors, labels, or tooltips to specific parts of a molecule. There are three types of selectors:
+
+1. **Static selectors** - Simple string keywords
+2. **Component expressions** - Objects specifying structural properties
+3. **Union component expressions** - Arrays combining multiple selections
+
+## Static Selectors
+
+Static selectors are simple strings that select atoms based on entity type:
+
+| Selector | Description |
+|----------|-------------|
+| `"all"` | All atoms in the structure |
+| `"polymer"` | All polymer chains (protein + nucleic acid) |
+| `"protein"` | Protein chains only |
+| `"nucleic"` | Nucleic acid chains only |
+| `"branched"` | Branched entities (carbohydrates) |
+| `"ligand"` | Small molecule ligands |
+| `"ion"` | Ion atoms |
+| `"water"` | Water molecules |
+
+### Example
+
+```{.molviewspec}
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+---
+
+// Try changing 'polymer' to 'ligand', 'water', or 'protein'
+structure
+    .component({ selector: 'polymer' })
+    .representation({ type: 'ball_and_stick' });
+```
+
+::: {.callout-tip}
+## Try It!
+In the example above, try changing `'polymer'` to `'ligand'`, `'water'`, or `'protein'` to see different parts of the structure.
+:::
+
+## Component Expressions
+
+Component expressions are objects that select atoms based on specific structural properties. All fields are optional, and specifying multiple fields requires atoms to match **all** criteria (AND logic).
+
+### Available Fields
+
+```typescript
+{
+    label_entity_id?: string,    // Entity identifier
+    label_asym_id?: string,      // Chain ID (label numbering)
+    auth_asym_id?: string,       // Chain ID (author numbering)
+    label_seq_id?: number,       // Residue number (label numbering)
+    auth_seq_id?: number,        // Residue number (author numbering)
+    pdbx_PDB_ins_code?: string,  // PDB insertion code
+    beg_label_seq_id?: number,   // Start residue (label, inclusive)
+    end_label_seq_id?: number,   // End residue (label, inclusive)
+    beg_auth_seq_id?: number,    // Start residue (author, inclusive)
+    end_auth_seq_id?: number,    // End residue (author, inclusive)
+    label_atom_id?: string,      // Atom name (e.g., 'CA', 'N', 'O')
+    auth_atom_id?: string,       // Atom name (author numbering)
+    type_symbol?: string,        // Element symbol (e.g., 'C', 'N', 'O')
+    atom_id?: number,            // Unique atom identifier
+    atom_index?: number,         // 0-based atom index
+    instance_id?: string         // Instance ID (for symmetry/assemblies)
+}
+```
+
+::: {.callout-note}
+## Label vs Auth Numbering
+- **label_*** uses standardized mmCIF numbering (starts at 1, no gaps)
+- **auth_*** uses the original author's numbering (may have gaps, insertions)
+
+Most PDB files use author numbering that matches the publication. Use `auth_*` fields to match literature references.
+:::
+
+### Common Selection Patterns
+
+```javascript
+// Select entire chain A
+{ label_asym_id: 'A' }
+
+// Select residues 100-200 in chain B
+{ label_asym_id: 'B', beg_label_seq_id: 100, end_label_seq_id: 200 }
+
+// Select C-alpha atoms in residue 100
+{ auth_seq_id: 100, type_symbol: 'C', auth_atom_id: 'CA' }
+
+// Select residue 42 in chain A
+{ label_asym_id: 'A', label_seq_id: 42 }
+
+// Select all zinc atoms
+{ type_symbol: 'ZN' }
+
+// Select residues 1-50 in chain A
+{ label_asym_id: 'A', end_label_seq_id: 50 }
+
+// Select residues from 100 onwards in chain B
+{ label_asym_id: 'B', beg_label_seq_id: 100 }
+```
+
+### Example: Selecting Specific Atoms
+
+```{.molviewspec}
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+---
+
+// Show protein as cartoon
+structure
+    .component({ selector: 'polymer' })
+    .representation({ type: 'cartoon' });
+
+// Highlight C-alpha atom at residue 100
+structure
+    .component({
+        selector: {
+            auth_seq_id: 100,
+            type_symbol: 'C',
+            auth_atom_id: 'CA'
+        }
+    })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: 'blue' });
+```
+
+## Union Component Expressions
+
+Union component expressions are **arrays** of component expressions. They select atoms that match **any** of the expressions (OR logic).
+
+### Examples
+
+```javascript
+// Select chains A, B, and C
+selector: [
+    { label_asym_id: 'A' },
+    { label_asym_id: 'B' },
+    { label_asym_id: 'C' }
+]
+
+// Select residues 1-100 in chain A OR all magnesium atoms
+selector: [
+    { label_asym_id: 'A', end_label_seq_id: 100 },
+    { type_symbol: 'MG' }
+]
+
+// Select two separate regions in chain A
+selector: [
+    { label_asym_id: 'A', beg_label_seq_id: 10, end_label_seq_id: 20 },
+    { label_asym_id: 'A', beg_label_seq_id: 40, end_label_seq_id: 50 }
+]
+```
+
+### Example: Multiple Regions
+
+```{.molviewspec}
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+---
+
+// Show protein as cartoon
+structure
+    .component({ selector: 'polymer' })
+    .representation({ type: 'cartoon' });
+
+// Highlight two separate regions in chain A
+structure
+    .component({
+        selector: [
+            { label_asym_id: 'A', beg_label_seq_id: 10, end_label_seq_id: 20 },
+            { label_asym_id: 'A', beg_label_seq_id: 40, end_label_seq_id: 50 }
+        ]
+    })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: 'blue' });
+```
+
+## Instance IDs
+
+The `instance_id` field distinguishes different instances of the same chain created by symmetry operators (crystals) or assembly operations.
+
+### Crystals
+
+Crystal symmetry instances use IDs in the form `n_klm` following [mmCIF conventions](https://mmcif.wwpdb.org/dictionaries/mmcif_pdbx_v50.dic/Items/_struct_conn.ptnr1_symmetry.html):
+
+- Standard: `1_555`, `2_454` (indices 0-9)
+- Extended: `1_(11)15`, `1_1(11)5`, `1_(-1)1(-1)` (indices outside 0-9 use parentheses)
+
+### Assemblies
+
+Assembly instances use IDs based on [wwPDB naming conventions](https://www.wwpdb.org/news/news?year=2022#62559153c8eabd0c4864f208):
+
+- Single operator: `ASM-1`, `ASM-2`, `ASM-3`
+- Multiple operators: `ASM-X0-1`, `ASM-1-61` (dash-separated, rightmost applied first)
+
+Example:
+```javascript
+// Select specific assembly instance
+{ label_asym_id: 'A', instance_id: 'ASM-1' }
+```
+
+## Using Refs for Multi-Structure Selections
+
+When working with multiple structures, you can set a `ref` (anchor) on nodes and reference it in selectors:
+
+```javascript
+// Set a ref on the structure
+const structure = builder
+    .download({ url: '...' })
+    .parse({ format: 'mmcif' })
+    .modelStructure({ ref: 'protein1' });
+
+// Reference it in primitives or other contexts
+builder
+    .primitive({
+        structure_ref: 'protein1',
+        selector: { auth_seq_id: 508 }
+    });
+```
+
+## Advanced: Color-Specific Selectors
+
+The `color()` node also accepts selectors to apply different colors to different parts of a representation:
+
+```javascript
+structure
+    .component({ selector: 'protein' })
+    .representation({ type: 'cartoon' })
+    .color({ selector: { label_asym_id: 'A' }, color: 'red' })
+    .color({ selector: { label_asym_id: 'B' }, color: 'blue' });
+```
+
+## Alternative: Annotations
+
+For complex coloring or selection schemes, consider using [Annotations](annotations.qmd) instead. Annotations allow you to define selections in external files (JSON, CIF, or BCIF format) and reference them in your MVS tree.
+
+## See Also
+
+- [Annotations](annotations.qmd) - External selection files
+- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Component Node Reference](tree-schema.qmd#component) - Detailed component parameters

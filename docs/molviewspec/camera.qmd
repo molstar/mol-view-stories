@@ -1,0 +1,220 @@
+# Camera Settings
+
+::: {.callout-tip}
+## Camera Control in MolViewStories
+Camera positioning is automatically managed in most cases. Use explicit camera settings when you need precise viewpoints or for creating cinematic story transitions.
+:::
+
+Camera position and orientation in MolViewSpec can be controlled using two approaches:
+
+1. **`camera` node** - Explicit position, target, and orientation
+2. **`focus` node** - Automatic framing of selected components
+
+## Camera Node
+
+The `camera` node directly sets camera position and orientation. It's a child of the root node.
+
+### Parameters
+
+- **`target`**: Look-at point `[x, y, z]` (where the camera looks)
+- **`position`**: Camera position `[x, y, z]` (where the camera is)
+- **`up`** (optional): Up direction `[x, y, z]` (default: `[0, 1, 0]`)
+
+### Example
+
+```javascript
+builder.camera({
+    target: [0, 0, 0],
+    position: [50, 50, 50],
+    up: [0, 1, 0]
+});
+```
+
+```{.molviewspec}
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+builder.camera({
+    target: [20, 10, 15],
+    position: [50, 40, 80],
+    up: [0, 1, 0]
+});
+
+---
+
+structure
+    .component({ selector: 'polymer' })
+    .representation({ type: 'cartoon' });
+```
+
+### Understanding Camera Parameters
+
+![Camera parameters](https://molstar.org/mol-view-spec/docs/files/camera.png)
+
+- **Target**: The point the camera is looking at (center of view)
+- **Position**: Where the camera is located in 3D space
+- **Up**: Which direction should point "up" in the final view
+
+### Up Vector Adjustment
+
+The `up` vector doesn't need to be perpendicular to the camera-target line. MolViewSpec automatically adjusts it:
+
+$$
+\mathbf{u}_{\text{adj}} = \text{normalize}\left(((\mathbf{t}-\mathbf{p}) \times \mathbf{u}) \times (\mathbf{t}-\mathbf{p})\right)
+$$
+
+This means you can specify an approximate up direction, and it will be corrected automatically.
+
+## Focus Node
+
+The `focus` node automatically frames a component, setting the camera to show the entire component nicely.
+
+### Parameters
+
+- **`direction`** (optional): Camera-to-target direction (default: `[0, 0, -1]`)
+- **`up`** (optional): Up direction (default: `[0, 1, 0]`)
+
+### Example
+
+```javascript
+structure
+    .component({ selector: 'ligand' })
+    .representation({ type: 'ball_and_stick' })
+    .focus();
+```
+
+```{.molviewspec}
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+---
+
+structure
+    .component({ selector: 'ligand' })
+    .representation({ type: 'ball_and_stick' })
+    .color({ color: 'element-symbol' })
+    .focus();
+```
+
+### Custom Focus Direction
+
+```javascript
+structure
+    .component({ selector: { label_asym_id: 'A' } })
+    .representation({ type: 'cartoon' })
+    .focus({
+        direction: [1, 1, -1],  // View from upper-right
+        up: [0, 1, 0]
+    });
+```
+
+## Canvas Node
+
+The `canvas` node sets global view properties like background color.
+
+### Parameters
+
+- **`background_color`**: Color value (named color or hex)
+
+### Example
+
+```javascript
+builder.canvas({ background_color: '#f0f0f0' });
+```
+
+```{.molviewspec}
+builder.canvas({ background_color: '#2c3e50' });
+
+const structure = builder
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+    .parse({ format: 'bcif' })
+    .modelStructure();
+
+---
+
+structure
+    .component({ selector: 'polymer' })
+    .representation({ type: 'cartoon' })
+    .color({ color: 'chain-id' });
+```
+
+## Common Patterns
+
+### Top-Down View
+
+```javascript
+builder.camera({
+    target: [0, 0, 0],
+    position: [0, 100, 0],  // Directly above
+    up: [0, 0, -1]          // Z-axis points up
+});
+```
+
+### Side View
+
+```javascript
+builder.camera({
+    target: [0, 0, 0],
+    position: [100, 0, 0],  // From the side
+    up: [0, 1, 0]           // Y-axis points up
+});
+```
+
+### Focus on Active Site
+
+```javascript
+structure
+    .component({
+        selector: {
+            label_asym_id: 'A',
+            beg_label_seq_id: 100,
+            end_label_seq_id: 120
+        }
+    })
+    .representation({ type: 'ball_and_stick' })
+    .focus();
+```
+
+### Angled Overview
+
+```javascript
+builder.camera({
+    target: [0, 0, 0],
+    position: [50, 50, 50],  // 45° angle
+    up: [0, 1, 0]
+});
+```
+
+## Camera in Stories
+
+In MolViewStories, camera positions are often captured automatically:
+
+1. **Automatic Camera**: Default view when scene loads
+2. **Manual Positioning**: Use the viewer controls to position camera
+3. **Capture Snapshot**: Save current camera position
+4. **Use in Code**: Reference saved camera in your scene JavaScript
+
+::: {.callout-note}
+## Camera Snapshots in MolViewStories
+When you position the camera using the viewer controls, you can capture that position as a snapshot. This snapshot can then be applied in your scene code without needing to manually specify coordinates.
+:::
+
+## Advanced: Field of View Adjustment
+
+MolViewSpec uses a "reference camera" concept to ensure views look consistent across different field-of-view (FOV) settings. This means:
+
+- Camera positions work the same way regardless of viewer FOV
+- A sphere at distance `2R` from a camera will fit nicely in view
+- Reference FOV is 60° (perspective) or ~53° (orthographic)
+
+You generally don't need to worry about this - it's handled automatically!
+
+## See Also
+
+- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Official Camera Documentation](https://molstar.org/mol-view-spec/docs/camera-settings/) - Technical details
+- [Animations](animations.qmd) - Smooth camera transitions
