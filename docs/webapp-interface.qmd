@@ -1,52 +1,72 @@
 # Web Application Interface
 
-::: {.callout-note}
-## Work in Progress
-This page is a placeholder. Content will be added to explain the webapp UI.
-:::
+The Mol-View-Stories web application aims to provide a straighforward way to write stories.  A `Story` is a set of scenes that share some common global settings and the story panels are where you can modify these settings.
+Within the `Scene` panels you can specify per-scene settings and in the Top Panel you can download your stories or , if you are logged in you can save them to the cloud.
 
-## Overview
 
-This page will provide a detailed walkthrough of the MolViewStories web application interface.
+## Story Panels
 
-## Planned Content
+A `Story` is a set of scenes that share some common global settings and the story panels are where you can modify these settings.
 
-### Main Interface Areas
-- **Story Panel** (left side) - Managing story metadata and scenes
-- **Code Editor** (center) - Writing MolViewSpec code
-- **3D Viewer** (right side) - Interactive molecular visualization
-- **Top Menu Bar** - Story operations, settings, and user actions
-
-### Story Panel
+Stories consist of `Story`
+The story panel is where global information about a story goes.  Str
 - Story metadata editor
 - Scene list and navigation
 - Scene options and settings
 - Assets management
 
-### Code Editor Features
+### Story Assets
+
+![](img/story_assets.png)
+
+### Story Code
+
+![](img/story_code.png)
+
+### Story Metadata
+
+![](img/story_metadata.png)
+
+### Story Preview
+
+At any time you can press `Story Preview` and get a live view of your story.
+
+
+![](img/story_preview.png)
+
+
+## Scene Panels
+
+
+### Scene Code Panel
+
+The code in this panel will be combined with the `Story` code and executed to render the scene. A live preview is available to the right. The editor has:
+
 - Syntax highlighting
 - Auto-completion
 - Code execution (Ctrl/Cmd+S)
 - Error highlighting
 
-### 3D Viewer Controls
-- Mouse navigation
-- Camera controls
-- Scene preview
-- Focus and zoom tools
+![](img/scene_code.png)
 
-### Top Menu Bar
-- Story operations (New, Save, Export, Publish)
-- User menu (Login, My Stories, Logout)
-- Settings and preferences
-- Help and documentation links
+### Scene Options Panel
 
-## Screenshots
+The scene options panel allows you to write your markdown content for the scene. You can add text, images, and other elements to enhance the scene's appearance and functionality.
+You can also specify scene-level metadata:
 
-*Screenshots of the interface will be added here*
+- Header
+- key ( internal scene name that can be referenced ).
+- linger/transition  duration
 
-## Next Steps
 
-Once you're familiar with the interface, learn about:
-- [Building Stories](core-features.qmd) - Creating your first story
-- [Tips & Workflows](tips-shortcuts.qmd) - Efficient workflows
+
+![](img/scene_options.png)
+
+
+## Top Menu Bar
+
+- Stories can be downloaded in several formats.
+- Story/Session files are `.mvstory` files that are a full representation of a story including code and assets.
+- Story files can be embedded with HTML or as a completed standalone zip file with assets.
+
+![](img/top_panel.png)

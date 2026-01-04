@@ -1,0 +1,10 @@
+# The MVS Spec
+
+## Resources
+
+The MVS (MolViewSpec) specification is maintained across several repositories and resources:
+
+- **Canonical Specification**: The [OpenAPI.json](https://github.com/molstar/molstar/blob/master/docs/mvs/OpenAPI.json) file in the Mol* repository serves as the canonical specification
+- **GitHub Repository**: [molstar/molstar](https://github.com/molstar/molstar) - Main Mol* repository containing the MVS implementation
+- **Documentation**: [Mol* MVS Documentation](https://molstar.org/mol-view-spec/) - Comprehensive documentation and examples
+- **Library**: Reference implementations and libraries are available in the Mol* ecosystem

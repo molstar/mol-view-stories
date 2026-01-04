@@ -43,8 +43,6 @@ website:
             href: molviewspec/selectors.qmd
           - text: 'Annotations'
             href: molviewspec/annotations.qmd
-          - text: 'Tree Schema'
-            href: molviewspec/tree-schema.qmd
           - text: 'Camera Settings'
             href: molviewspec/camera.qmd
           - text: 'Primitives'
@@ -68,6 +66,8 @@ website:
             href: faq-troubleshooting.qmd
           - text: 'First Time Login'
             href: first-time-login.qmd
+          - text: 'MVS Spec'
+            href: molviewspec/mvs-spec.qmd
 format:
   html:
     theme: cosmo
