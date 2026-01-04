@@ -22,7 +22,7 @@ website:
 
       - section: 'MolViewStories'
         contents:
-          - text: 'Overview & Quick Start'
+          - text: 'Quick Start'
             href: getting-started.qmd
           - text: 'First Time Login'
             href: first-time-login.qmd

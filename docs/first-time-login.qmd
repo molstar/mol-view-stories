@@ -78,21 +78,24 @@ If you don't have institutional credentials, you can login with your Google/GitH
 
 ### 2.3. Login with LifeScience Hostel
 
-Alternatively, you can register an account with LifeScience Hostel.
+Alternatively, you can register an account with LifeScience Hostel:
 
+- Choose "Sign up" and follow the instructions to create an account
+- Confirm your membership by clicking a link sent to your email
+- Give consent to release your personal information (name, surname, email) to mol-view-stories
+- 🟢 **Done!**
+
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+<div style="width: 32%;">
 ![](./img/login-hostel.png)
-
-Next, choose "Sign up" and follow the instructions to create an account.
-
-Next, confirm your membership by clicking a link sent to your email
+</div>
+<div style="width: 32%;">
 ![](./img/login-email.png)
-
-And finally, give consent to release your personal information (name, surname, email) to mol-view-stories
-
+</div>
+<div style="width: 32%;">
 ![](./img/login-consent-personal.png)
-
-
-🟢 **Done!**
+</div>
+</div>
 
 ## 3. Successful login
 
