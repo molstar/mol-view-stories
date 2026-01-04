@@ -1,8 +1,8 @@
 # Welcome to MolViewStories
 
-MolViewStories is a powerful web application that lets you create beautiful, interactive molecular visualizations. Whether you're a researcher, educator, or student, MolViewStories helps you tell compelling scientific stories using 3D molecular structures.
+![](img/mol-view-stories-banner.png)
 
-## What is MolViewStories?
+MolViewStories is a powerful web application that lets you create beautiful, interactive molecular visualizations. Whether you're a researcher, educator, or student, MolViewStories helps you tell compelling scientific stories using 3D molecular structures.
 
 MolViewStories combines the advanced 3D rendering capabilities of [Mol*](https://molstar.org/) with a story-building interface for the [MolViewSpec](https://molstar.org/mol-view-spec) standard. It allows you to:
 

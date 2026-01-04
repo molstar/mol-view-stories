@@ -1,0 +1,170 @@
+## MolViewSpec
+
+
+### Basic Example
+
+Here's a simple example that loads and displays a protein structure. We are using the [molstar](https://molstar.org) and [mol-view-stories](http://molstar.org/mol-view-stories) Javascript libraries
+dynamically build up [mol-view-spec](https://molstar.org/mol-view-spec/) state tree which is rendered on a molstar canvas. Try it out!
+
+```{.molviewspec title="Basic Protein Structure (1CBS)"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'blue' });
+  // try color: '#ccffaa'
+```
+
+
+### Selections and Multiple Components
+
+This example adds a few additional features.  We use the `builder` to make muleiple different represetnations and selections. One for the `polymer`, one for the `water`, and one for the `ligand`.
+We also use `focus` to center the canvas on the ligand. Because we are building a state tree, anytime we with to branch we
+need to explicitly branch in our code - e.g. on ligand we use both `focus` and `representation`.
+
+
+```{.molviewspec title="Protein with Ligand"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'green' });
+
+structure
+  .component({ selector: 'water' })
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: 'lightblue' });
+
+const ligand = structure
+  .component({ selector: 'ligand' });
+
+ligand.focus()
+ligand
+  .representation({ type: 'ball_and_stick' })
+  .color({ color: '#cc3399' });
+
+```
+
+
+### Adding  Controls
+
+When `controls="true"` is set, you can:
+- Toggle auto-update on/off to control when the viewer re-renders
+- Click "Show execution log" to see execution details and any errors
+- Edit the code and see changes in real-time (when auto-update is on)
+
+
+````markdown
+```{.molviewspec controls="true"}
+// this block will be rendered with controls
+```
+````
+
+```{.molviewspec controls="true" title="Interactive Controls Demo"}
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'purple' });
+```
+
+
+###  Hiding Code
+
+You can split your code into two parts using `---` as a separator:
+- **Hidden code** (above `---`): Runs but doesn't appear in the editor - useful for setup, imports, or shared variables
+- **Scene code** (below `---`): Appears in the editor and is editable
+
+
+```{.molviewspec title="Using Story and Scene Code"}
+// This is hidden code - it runs but won't show in the editor
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+
+---
+
+// This is scene code - it appears in the editor and is editable
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'purple' });
+```
+
+
+###  Writing Functions
+
+You can write functions to save space and improve reusabilty.
+
+```{.molviewspec}
+// we are declaring a function
+function molecule(){
+  return  builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure();
+}
+
+// and now we are using it
+const structure = molecule();
+
+structure
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'orange' });
+```
+
+## Supported Attributes
+
+You can customize molviewspec code blocks using the following attributes:
+
+### Container Attributes
+- **title**: Optional title displayed in the header. If empty, no header is shown.
+- **controls**: Enable interactive controls - "true" or "false" (default: "false"). When enabled, shows a bottom control panel with auto-update toggle and execution log toggle. This automatically enables `showBottomControlPanel="true"`, `showAutoUpdateToggle="true"`, and `showLog="true"`.
+
+
+
+## MolViewSpec Builder API
+
+The builder API provides a fluent interface for creating molecular visualizations. Key methods include:
+
+- `download()`: Download a structure from a URL
+- `parse()`: Parse the downloaded file (formats: bcif, cif, pdb, etc.)
+- `modelStructure()`: Create a model structure node
+- `component()`: Select parts of the structure (polymer, ligand, water, etc.)
+- `representation()`: Add a visual representation (cartoon, ball_and_stick, surface, spacefill, etc.)
+- `color()`: Apply colors (named colors like 'red', 'blue', or hex codes like '#cc3399')
+- `label()`: Add text labels
+- `focus()`: Focus the camera on a component
+
+For more information about MolViewSpec:
+
+- [MolViewSpec Documentation](https://molstar.org/mol-view-spec-docs/)
+- [Integration Examples](https://molstar.org/mol-view-spec-docs/mvs-molstar-extension/integration/)
+- [MolStar Website](https://molstar.org/)
+
+
+## Technical Notes
+
+This quarto extension wraps  [MolStar-Components](https://zachcp.github.io/molstar-components/) which
+in turn uses the code from the [Mol-View-Stories](https://molstar.org/mol-view-stories/) project.
+
+- Each block creates an independent interactive viewer
+- The extension automatically manages all JavaScript and CSS dependencies
+- The viewer is fully interactive and allows rotation, zooming, and selection
+- Use `{.molviewspec}` with a dot prefix for the code block class
+- The MolStar library is bundled with the extension for offline use
+- Write JavaScript code using the `builder` variable to construct your view
