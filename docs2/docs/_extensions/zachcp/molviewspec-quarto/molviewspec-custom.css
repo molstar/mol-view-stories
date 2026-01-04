@@ -1,0 +1,220 @@
+/* ========================================
+   MolViewSpec Quarto Extension - Custom Styles
+   ======================================== */
+
+/* Container Spacing */
+.molviewspec-container {
+    margin-bottom: 4rem;
+}
+
+/* Viewer Wrapper - Ensure flex content expands properly */
+.molviewspec-viewer {
+    display: block;
+    width: 100%;
+}
+
+/* When container has no fixed height (responsive mode with bottom controls),
+   ensure content flows naturally */
+.molviewspec-container:not([style*="height:"]) {
+    height: auto !important;
+    min-height: 0 !important;
+    position: relative !important;
+}
+
+/* ========================================
+   Fix Accordion Expansion Issue
+   ======================================== */
+
+/* The root flex container inside .molviewspec-viewer should not have fixed height
+   when accordion/logs are present. Use min-height instead to allow expansion. */
+.molviewspec-viewer > div {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* Remove any fixed height - let content determine height */
+    height: auto !important;
+    min-height: 400px;
+}
+
+/* The editor/viewer flex row container should also be flexible */
+.molviewspec-viewer > div > div:nth-child(1) {
+    position: relative;
+    display: block;
+    /* Remove fixed height to allow accordion expansion */
+    height: auto !important;
+}
+
+/* Ensure flex containers inside allow content to expand */
+.molviewspec-viewer > div > div:nth-child(1) > div:first-child {
+    /* This is the flex row with editor and viewer */
+    height: auto !important;
+    min-height: 400px;
+}
+
+/* Each flex child (editor panel, viewer panel) should maintain their height */
+.molviewspec-viewer > div > div:nth-child(1) > div:first-child > div {
+    /* Individual editor/viewer panels keep their height */
+    height: 400px;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Bottom Control Panel & Toggle Controls
+   ======================================== */
+
+/* Show and style the toggle controls to match accordion UI */
+.molviewspec-viewer > div > div:nth-child(1) > div:nth-child(2) {
+    display: flex !important;
+    align-items: center;
+    gap: 15px;
+    padding: 8px 12px !important;
+    margin-top: 10px;
+    margin-bottom: 0;
+    background-color: #f6f8fa !important;
+    border: 1px solid #e1e4e8 !important;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Style the checkboxes and labels */
+.molviewspec-viewer > div > div:nth-child(1) > div:nth-child(2) label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    user-select: none;
+    margin: 0;
+    font-weight: 400;
+}
+
+.molviewspec-viewer
+    > div
+    > div:nth-child(1)
+    > div:nth-child(2)
+    input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.molviewspec-viewer > div > div:nth-child(1) > div:nth-child(2):hover {
+    background-color: #e1e4e8 !important;
+}
+
+.molviewspec-viewer > div > div:nth-child(1) > div:nth-child(2) label:hover {
+    color: #0366d6;
+}
+
+/* Dark mode support for toggle controls */
+@media (prefers-color-scheme: dark) {
+    .molviewspec-viewer > div > div:nth-child(1) > div:nth-child(2) {
+        background-color: #161b22 !important;
+        border-color: #30363d !important;
+    }
+
+    .molviewspec-viewer > div > div:nth-child(1) > div:nth-child(2):hover {
+        background-color: #21262d !important;
+    }
+
+    .molviewspec-viewer
+        > div
+        > div:nth-child(1)
+        > div:nth-child(2)
+        label:hover {
+        color: #58a6ff;
+    }
+}
+
+/* ========================================
+   Accordion / Log Details Styling
+   ======================================== */
+
+/* Log details accordion */
+.molviewspec-viewer > div > div:nth-child(1) > details {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: transparent !important;
+    border: 1px solid #e1e4e8 !important;
+    border-radius: 4px;
+    padding: 0;
+}
+
+/* Accordion summary styling */
+.molviewspec-viewer > div > div:nth-child(1) > details > summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    font-weight: 500;
+    user-select: none;
+    background-color: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.molviewspec-viewer > div > div:nth-child(1) > details > summary:hover {
+    background-color: #e1e4e8;
+}
+
+/* Accordion content - should expand naturally */
+.molviewspec-viewer > div > div:nth-child(1) > details > div {
+    display: block !important;
+    padding: 10px 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Log entries */
+.molviewspec-viewer > div > div:nth-child(1) > details > div > div {
+    padding: 2px 0;
+}
+
+/* ========================================
+   MolStar Viewer - Hide Built-in Controls
+   ======================================== */
+
+/* Hide MolStar control panels */
+.msp-plugin-content .msp-control-panel,
+.msp-plugin-content .msp-controls-group {
+    display: none !important;
+}
+
+.msp-plugin-content .msp-btn,
+.msp-plugin-content .msp-control-row {
+    display: none !important;
+}
+
+.msp-plugin-content .msp-left-panel {
+    display: none !important;
+}
+
+/* Expand viewport to full width */
+.msp-plugin-content .msp-viewport {
+    width: 100% !important;
+    left: 0 !important;
+}
+
+.msp-viewport-top-left-controls {
+    display: none !important;
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .molviewspec-viewer > div > div:nth-child(1) > details {
+        border-color: #30363d !important;
+    }
+
+    .molviewspec-viewer > div > div:nth-child(1) > details > summary {
+        background-color: #161b22;
+        border-bottom-color: #30363d;
+    }
+
+    .molviewspec-viewer > div > div:nth-child(1) > details > summary:hover {
+        background-color: #21262d;
+    }
+}

@@ -1,0 +1,56 @@
+/* Custom styles for MolViewStories Documentation */
+
+/* Improve code block styling */
+pre.sourceCode {
+  border-radius: 4px;
+  border: 1px solid #e1e4e8;
+}
+
+/* Sidebar styling */
+.sidebar-navigation {
+  font-size: 0.95rem;
+}
+
+/* Main content area spacing */
+#quarto-content {
+  padding-top: 1rem;
+}
+
+/* Improve image display */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 1rem 0;
+}
+
+/* Callout blocks */
+.callout {
+  margin: 1rem 0;
+}
+
+/* Link styling */
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Table styling */
+table {
+  margin: 1rem 0;
+}
+
+/* Headings spacing */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  border-bottom: 2px solid #e1e4e8;
+  padding-bottom: 0.3rem;
+}

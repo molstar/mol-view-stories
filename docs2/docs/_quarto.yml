@@ -1,0 +1,48 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - '*.qmd'
+  preview:
+    port: 4200
+    browser: false
+
+website:
+  title: 'MolViewStories Documentation'
+  repo-url: https://github.com/molstar/mol-view-stories
+  repo-actions: [edit, issue]
+  site-url: https://molstar.org/mol-view-stories/
+
+  sidebar:
+    style: 'docked'
+    search: true
+    contents:
+      - text: 'Introduction'
+        href: index.qmd
+      - text: 'Getting Started'
+        href: getting-started.qmd
+      - text: 'First Time Login'
+        href: first-time-login.qmd
+      - text: 'Core Features'
+        href: core-features.qmd
+      - text: 'Tips & Shortcuts'
+        href: tips-shortcuts.qmd
+      - text: 'CLI'
+        href: cli.qmd
+      - text: 'FAQ & Troubleshooting'
+        href: faq-troubleshooting.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+
+filters:
+  - zachcp/molviewspec-quarto
+
+execute:
+  freeze: auto
