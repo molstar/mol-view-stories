@@ -9,15 +9,11 @@ Quarto-based documentation for MolViewStories with MolViewSpec extension support
 brew install quarto
 
 # Install MolViewSpec extension (one-time)
-cd docs/docs
+cd docs
 quarto add zachcp/molviewspec-quarto
 
 # Preview with live reload
-quarto preview docs/docs
-
-# Or from docs directory
-cd docs/docs
-quarto preview
+quarto preview docs
 ```
 
 Open http://localhost:4200 in your browser.
@@ -26,13 +22,12 @@ Open http://localhost:4200 in your browser.
 
 ```
 docs/
-├── README.md             # This file
-└── docs/                 # Documentation source
-    ├── _quarto.yml       # Quarto configuration
-    ├── _extensions/      # MolViewSpec extension
-    ├── *.qmd             # Documentation pages
-    ├── img/              # Images
-    └── _site/            # Built site (gitignored)
+├── _quarto.yml       # Quarto configuration
+├── _extensions/      # MolViewSpec extension
+├── *.qmd             # Documentation pages
+├── img/              # Images
+├── _site/            # Built site (gitignored)
+└── README.md         # This file
 ```
 
 ## Commands
@@ -41,19 +36,19 @@ From project root:
 
 ```bash
 # Preview
-quarto preview docs/docs
+quarto preview docs
 
 # Build
-quarto render docs/docs
+quarto render docs
 
 # Publish
-quarto publish gh-pages docs/docs
+quarto publish gh-pages docs
 ```
 
-Or from `docs/docs`:
+Or from `docs/` directory:
 
 ```bash
-cd docs/docs
+cd docs
 quarto preview
 quarto render
 quarto publish gh-pages
@@ -61,7 +56,7 @@ quarto publish gh-pages
 
 ## Configuration
 
-- **File**: `docs/_quarto.yml`
+- **File**: `_quarto.yml`
 - **Navigation**: Left-hand docked sidebar
 - **Theme**: Cosmo
 - **Features**: Search, TOC, code copying, MolViewSpec rendering

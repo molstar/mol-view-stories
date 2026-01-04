@@ -87,24 +87,19 @@ jobs:
           NEXT_PUBLIC_RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
         run: pnpm run --filter=@mol-view-stories/webapp build
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
         with:
-          python-version: '3.10'
-
-      - name: Install mkdocs
-        run: |
-          pip install mkdocs-material
+          version: 1.4.515
 
       - name: Build docs
         run: |
-          cd docs
-          mkdocs build
+          quarto render docs
 
       - name: Copy docs
         run: |
           mkdir -p "@mol-view-stories/webapp/out/docs"
-          cp -r ./docs/site/* "@mol-view-stories/webapp/out/docs/"
+          cp -r ./docs/_site/* "@mol-view-stories/webapp/out/docs/"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
