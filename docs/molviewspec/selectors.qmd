@@ -26,9 +26,9 @@ Static selectors are simple strings that select atoms based on entity type:
 | `"ion"` | Ion atoms |
 | `"water"` | Water molecules |
 
-### Example
 
 ```{.molviewspec}
+
 const structure = builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
     .parse({ format: 'bcif' })
@@ -36,7 +36,8 @@ const structure = builder
 
 ---
 
-// Try changing 'polymer' to 'ligand', 'water', or 'protein'
+// Try changing 'polymer' to:
+// 'ligand', 'water', or 'protein'
 structure
     .component({ selector: 'polymer' })
     .representation({ type: 'ball_and_stick' });
@@ -107,20 +108,21 @@ Most PDB files use author numbering that matches the publication. Use `auth_*` f
 { label_asym_id: 'B', beg_label_seq_id: 100 }
 ```
 
-### Example: Selecting Specific Atoms
-
 ```{.molviewspec}
 const structure = builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
     .parse({ format: 'bcif' })
     .modelStructure();
 
----
-
 // Show protein as cartoon
 structure
     .component({ selector: 'polymer' })
     .representation({ type: 'cartoon' });
+
+---
+
+// try changing the auth_seq_id
+// try changing the color
 
 // Highlight C-alpha atom at residue 100
 structure
@@ -162,7 +164,6 @@ selector: [
 ]
 ```
 
-### Example: Multiple Regions
 
 ```{.molviewspec}
 const structure = builder
@@ -170,12 +171,12 @@ const structure = builder
     .parse({ format: 'bcif' })
     .modelStructure();
 
----
-
 // Show protein as cartoon
 structure
     .component({ selector: 'polymer' })
     .representation({ type: 'cartoon' });
+
+---
 
 // Highlight two separate regions in chain A
 structure
@@ -188,68 +189,3 @@ structure
     .representation({ type: 'ball_and_stick' })
     .color({ color: 'blue' });
 ```
-
-## Instance IDs
-
-The `instance_id` field distinguishes different instances of the same chain created by symmetry operators (crystals) or assembly operations.
-
-### Crystals
-
-Crystal symmetry instances use IDs in the form `n_klm` following [mmCIF conventions](https://mmcif.wwpdb.org/dictionaries/mmcif_pdbx_v50.dic/Items/_struct_conn.ptnr1_symmetry.html):
-
-- Standard: `1_555`, `2_454` (indices 0-9)
-- Extended: `1_(11)15`, `1_1(11)5`, `1_(-1)1(-1)` (indices outside 0-9 use parentheses)
-
-### Assemblies
-
-Assembly instances use IDs based on [wwPDB naming conventions](https://www.wwpdb.org/news/news?year=2022#62559153c8eabd0c4864f208):
-
-- Single operator: `ASM-1`, `ASM-2`, `ASM-3`
-- Multiple operators: `ASM-X0-1`, `ASM-1-61` (dash-separated, rightmost applied first)
-
-Example:
-```javascript
-// Select specific assembly instance
-{ label_asym_id: 'A', instance_id: 'ASM-1' }
-```
-
-## Using Refs for Multi-Structure Selections
-
-When working with multiple structures, you can set a `ref` (anchor) on nodes and reference it in selectors:
-
-```javascript
-// Set a ref on the structure
-const structure = builder
-    .download({ url: '...' })
-    .parse({ format: 'mmcif' })
-    .modelStructure({ ref: 'protein1' });
-
-// Reference it in primitives or other contexts
-builder
-    .primitive({
-        structure_ref: 'protein1',
-        selector: { auth_seq_id: 508 }
-    });
-```
-
-## Advanced: Color-Specific Selectors
-
-The `color()` node also accepts selectors to apply different colors to different parts of a representation:
-
-```javascript
-structure
-    .component({ selector: 'protein' })
-    .representation({ type: 'cartoon' })
-    .color({ selector: { label_asym_id: 'A' }, color: 'red' })
-    .color({ selector: { label_asym_id: 'B' }, color: 'blue' });
-```
-
-## Alternative: Annotations
-
-For complex coloring or selection schemes, consider using [Annotations](annotations.qmd) instead. Annotations allow you to define selections in external files (JSON, CIF, or BCIF format) and reference them in your MVS tree.
-
-## See Also
-
-- [Annotations](annotations.qmd) - External selection files
-- [Tree Schema](tree-schema.qmd) - Complete node reference
-- [Component Node Reference](tree-schema.qmd#component) - Detailed component parameters

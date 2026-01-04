@@ -39,8 +39,6 @@ website:
         contents:
           - text: 'Overview'
             href: molviewspec/index.qmd
-          - text: 'Examples'
-            href: molviewspec/examples.qmd
           - text: 'Selectors'
             href: molviewspec/selectors.qmd
           - text: 'Annotations'
@@ -55,6 +53,8 @@ website:
             href: molviewspec/volumes.qmd
           - text: 'Animations'
             href: molviewspec/animations.qmd
+          - text: 'Examples'
+            href: molviewspec/examples.qmd
 
       - section: 'Reference'
         contents:

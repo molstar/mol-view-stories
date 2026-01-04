@@ -11,21 +11,77 @@ The MolViewSpec tree schema defines all available node types, their parameters, 
 
 ## Node Hierarchy Overview
 
-```
+This diagram shows the complete MolViewSpec node tree structure and all possible parent-child relationships:
+
+```sh
 root
-└── download (load data from URL)
-    └── parse (parse file format)
-        ├── structure (create 3D structure)
-        │   └── component (select part of structure)
-        │       └── representation (visual style)
-        │           ├── color (apply color)
-        │           ├── color_from_uri (color from file)
-        │           ├── color_from_source (color from mmCIF)
-        │           ├── label (add text label)
-        │           ├── label_from_uri (labels from file)
-        │           └── tooltip (add hover text)
-        └── coordinates (get coordinates for primitives)
+├── camera (global camera position)
+├── canvas (background color)
+├── download (load data from URL)
+│   └── parse (parse file format)
+│       ├── structure (create 3D structure)
+│       │   ├── component (select part of structure)
+│       │   │   ├── representation (visual style)
+│       │   │   │   ├── color (inline color)
+│       │   │   │   ├── color_from_uri (color from external file)
+│       │   │   │   ├── color_from_source (color from mmCIF)
+│       │   │   │   ├── label (inline label)
+│       │   │   │   ├── label_from_uri (labels from external file)
+│       │   │   │   ├── label_from_source (labels from mmCIF)
+│       │   │   │   ├── tooltip (inline tooltip)
+│       │   │   │   ├── tooltip_from_uri (tooltips from external file)
+│       │   │   │   ├── tooltip_from_source (tooltips from mmCIF)
+│       │   │   │   └── opacity (transparency control)
+│       │   │   ├── focus (auto-frame component)
+│       │   │   └── transform (rotate/translate)
+│       │   ├── component_from_uri (components from external file)
+│       │   │   └── representation (same children as component)
+│       │   └── component_from_source (components from mmCIF)
+│       │       └── representation (same children as component)
+│       └── volume (volumetric data)
+│           └── volume_representation (isosurface)
+│               ├── color
+│               └── opacity
+└── primitives (custom geometry group)
+    ├── primitive (individual shape)
+    │   ├── arrow
+    │   ├── box
+    │   ├── ellipse
+    │   ├── ellipsoid
+    │   ├── sphere
+    │   ├── tube
+    │   ├── distance_measurement
+    │   ├── angle_measurement
+    │   ├── label
+    │   ├── lines (custom line geometry)
+    │   └── mesh (custom triangle mesh)
+    └── primitives_from_uri (load primitives from file)
 ```
+
+### Representation Types
+
+When using `representation()`, these types are available:
+- `ball_and_stick` - Atomic detail
+- `cartoon` - Secondary structure
+- `surface` - Molecular surface
+- `spacefill` - Van der Waals spheres
+- `carbohydrate` - Carbohydrate symbols
+- `isosurface` - Volumetric isosurface (for volumes only)
+
+### Primitive Types
+
+When using `primitive()`, these kinds are available:
+- `arrow` - Directional arrow
+- `box` - Box shape
+- `ellipse` - 2D ellipse
+- `ellipsoid` - 3D ellipsoid/sphere
+- `sphere` - Sphere (shorthand for ellipsoid)
+- `tube` - Cylinder/tube
+- `distance_measurement` - Distance with label
+- `angle_measurement` - Angle with arc and label
+- `label` - Floating 3D text label
+- `lines` - Custom line geometry
+- `mesh` - Custom triangle mesh
 
 ## Core Node Types
 

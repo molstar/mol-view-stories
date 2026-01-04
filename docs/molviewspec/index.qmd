@@ -1,39 +1,67 @@
 # MolViewSpec API
 
+
 ::: {.callout-note}
 ## About MolViewSpec
-MolViewSpec is the declarative format used to define molecular visualizations in MolViewStories. It provides a simple, text-based way to describe structures, representations, colors, labels, and more.
+MolViewSpec is the declarative format used to define molecular visualizations in MolViewStories. It provides a simple, text-based way to describe structures, representations, colors, labels, and more. Below is the entire nodegraph
 :::
 
-## What is MolViewSpec?
+```sh
+root
+├── camera (global camera position)
+├── canvas (background color)
+├── download (load data from URL)
+│   └── parse (parse file format)
+│       ├── structure (create 3D structure)
+│       │   ├── component (select part of structure)
+│       │   │   ├── representation (visual style)
+│       │   │   │   ├── color (inline color)
+│       │   │   │   ├── color_from_uri (color from external file)
+│       │   │   │   ├── color_from_source (color from mmCIF)
+│       │   │   │   ├── label (inline label)
+│       │   │   │   ├── label_from_uri (labels from external file)
+│       │   │   │   ├── label_from_source (labels from mmCIF)
+│       │   │   │   ├── tooltip (inline tooltip)
+│       │   │   │   ├── tooltip_from_uri (tooltips from external file)
+│       │   │   │   ├── tooltip_from_source (tooltips from mmCIF)
+│       │   │   │   └── opacity (transparency control)
+│       │   │   ├── focus (auto-frame component)
+│       │   │   └── transform (rotate/translate)
+│       │   ├── component_from_uri (components from external file)
+│       │   │   └── representation (same children as component)
+│       │   └── component_from_source (components from mmCIF)
+│       │       └── representation (same children as component)
+│       └── volume (volumetric data)
+│           └── volume_representation (isosurface)
+│               ├── color
+│               └── opacity
+└── primitives (custom geometry group)
+    ├── primitive (individual shape)
+    │   ├── {arrow | box | ellipse | ellipsoid | others ... }
+    └── primitives_from_uri (load primitives from file)
+```
 
-MolViewSpec (MVS) is a JSON-based format for describing molecular visualizations. In MolViewStories, you write JavaScript code that uses the **builder API** to construct MVS trees. These trees define:
-
-- What structures to load
-- How to display them (cartoon, surface, etc.)
-- What colors to apply
-- Where to position the camera
-- What labels and annotations to show
+::: {.callout-note}
+## About the MolViewSpec API
+MolViewSpec API provides uses the builder pattern to create molviewspec JSON.
+:::
 
 ## Quick Example
 
 ```{.molviewspec}
+// 1.the builder creates the root node above.
+// 2. mol-view-stories uses builder.get_state()
+//    to return the full JSON tree.
+// 3. the MVSJ is passed to the molstar canvas
 const structure = builder
-    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
-    .parse({ format: 'bcif' })
-    .modelStructure();
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
+  .parse({ format: 'bcif' })
+  .modelStructure()
+  .component({ selector: 'polymer' })
+  .representation({ type: 'cartoon' })
+  .color({ color: 'blue' });
 
----
-
-structure
-    .component({ selector: 'protein' })
-    .representation({ type: 'cartoon' })
-    .color({ color: 'chain-id' });
-
-structure
-    .component({ selector: 'ligand' })
-    .representation({ type: 'ball_and_stick' })
-    .color({ color: 'element-symbol' });
+// get_state() occurs behind the scenes
 ```
 
 ## MolViewSpec Sections
