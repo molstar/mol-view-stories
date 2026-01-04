@@ -31,6 +31,8 @@ website:
         href: cli.qmd
       - text: 'FAQ & Troubleshooting'
         href: faq-troubleshooting.qmd
+      - text: 'Mol View Spec'
+        href: molviewspec-primer.qmd
 
 format:
   html:

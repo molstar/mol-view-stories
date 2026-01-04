@@ -53,6 +53,18 @@ const structure = builder
   .color({ color: 'blue' });
 ```
 
+```{.molviewspec}
+// Load a protein structure from the
+// Protein Data Bank
+const structure = builder
+  .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/download/1cbs_updated.cif' })
+  .parse({ format: 'mmcif' })
+  .modelStructure({})
+  .component({})
+  .representation({})
+  .color({ color: 'blue' });
+```
+
 3. **Press Ctrl/CMD + S** to see a blue molecule pop up in the 3D view
 
 You should now see a blue protein structure (PDB ID: 1CBS) in the 3D viewer!
@@ -92,6 +104,7 @@ structure.component({ selector: 'ligand' })
   .representation({ type: 'ball_and_stick' })
   .color({ color: 'red' })
 ```
+
 
 4. **Position the camera** by interacting with the 3D to make ligand visible in a way you want
 
