@@ -24,8 +24,6 @@ website:
         contents:
           - text: 'Quick Start'
             href: getting-started.qmd
-          - text: 'First Time Login'
-            href: first-time-login.qmd
           - text: 'Interface Guide'
             href: webapp-interface.qmd
           - text: 'Building Stories'
@@ -66,9 +64,10 @@ website:
             href: reference-advanced.qmd
           - text: 'Glossary'
             href: reference-glossary.qmd
-          - text: 'FAQ & Troubleshooting'
+          - text: 'FAQ'
             href: faq-troubleshooting.qmd
-
+          - text: 'First Time Login'
+            href: first-time-login.qmd
 format:
   html:
     theme: cosmo

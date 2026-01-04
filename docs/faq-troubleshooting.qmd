@@ -4,6 +4,27 @@ Find answers to common questions and solutions to typical issues when using MolV
 
 ## Frequently Asked Questions
 
+### Who Should Use MolViewStories?
+
+**Researchers & Scientists**
+Perfect for creating publication-quality figures, presenting research findings, or explaining complex molecular mechanisms to peers.
+
+**Educators & Teachers**
+Ideal for developing engaging educational content that helps students understand molecular biology, biochemistry, and structural biology concepts.
+
+**Students & Learners**
+Great for exploring molecular structures, creating study materials, or completing assignments that require molecular visualization.
+
+### What Problems Does MolViewStories Solve?
+
+**Static Images Are Limiting**: Traditional molecular figures in papers and presentations are static. MolViewStories creates interactive visualizations that readers can explore.
+
+**Complex Software Barriers**: Professional molecular visualization software often has steep learning curves. MolViewStories provides an accessible interface while maintaining powerful capabilities.
+
+**Storytelling Challenges**: It's hard to explain complex molecular processes with single images. MolViewStories lets you create step-by-step narratives that guide viewers through molecular mechanisms.
+
+**Sharing Difficulties**: Sharing molecular visualizations typically requires specialized software. MolViewStories creates web-based stories that work in any browser.
+
 ### Getting Started
 
 **Q: Do I need to download or install anything?**

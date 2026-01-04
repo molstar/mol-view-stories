@@ -12,16 +12,41 @@ MolViewStories combines the advanced 3D rendering capabilities of [Mol*](https:/
 - **Share your stories** with colleagues, students, or the broader scientific community
 - **Export and reuse** your visualizations across different platforms
 
-## Who Should Use MolViewStories?
+## Quick Start
 
-### Researchers & Scientists
-Perfect for creating publication-quality figures, presenting research findings, or explaining complex molecular mechanisms to peers.
+### 🚀 New to MolViewStories?
 
-### Educators & Teachers
-Ideal for developing engaging educational content that helps students understand molecular biology, biochemistry, and structural biology concepts.
+Start here to learn the basics and create your first story:
 
-### Students & Learners
-Great for exploring molecular structures, creating study materials, or completing assignments that require molecular visualization.
+**[Getting Started Guide](getting-started.qmd)** - Step-by-step tutorial for creating your first molecular story
+
+**[Building Stories](core-features.qmd)** - Learn about scenes, descriptions, and story composition
+
+**[Interface Guide](webapp-interface.qmd)** - Navigate the MolViewStories interface with confidence
+
+### 📖 Learn MolViewSpec
+
+MolViewStories uses MolViewSpec to define molecular visualizations. These resources will help you master the API:
+
+**[MolViewSpec Examples](molviewspec/examples.qmd)** - Interactive examples you can edit and experiment with
+
+**[Selectors Guide](molviewspec/selectors.qmd)** - Learn how to select specific chains, residues, and atoms
+
+**[Tree Schema Reference](molviewspec/tree-schema.qmd)** - Complete API documentation for all available nodes
+
+### 🎓 For Educators & Students
+
+**[Tips & Workflows](tips-shortcuts.qmd)** - Best practices for creating educational content
+
+**[FAQ & Troubleshooting](faq-troubleshooting.qmd)** - Common questions and solutions
+
+### 👨‍💻 For Developers
+
+**[CLI Tool](cli.qmd)** - Command-line tool for local development and automation
+
+**[Advanced Features](reference-advanced.qmd)** - Power user features and customization options
+
+**[Glossary](reference-glossary.qmd)** - Technical terms and concepts explained
 
 ## Key Features
 
@@ -37,16 +62,6 @@ Publish your stories for sharing or embedding in presentations and websites.
 ### ☁️ Cloud Storage
 Save your work in the cloud, access it from anywhere, and collaborate with others by sharing story links.
 
-## What Problems Does MolViewStories Solve?
-
-**Static Images Are Limiting**: Traditional molecular figures in papers and presentations are static. MolViewStories creates interactive visualizations that readers can explore.
-
-**Complex Software Barriers**: Professional molecular visualization software often has steep learning curves. MolViewStories provides an accessible interface while maintaining powerful capabilities.
-
-**Storytelling Challenges**: It's hard to explain complex molecular processes with single images. MolViewStories lets you create step-by-step narratives that guide viewers through molecular mechanisms.
-
-**Sharing Difficulties**: Sharing molecular visualizations typically requires specialized software. MolViewStories creates web-based stories that work in any browser.
-
 ## How It Works
 
 1. **Load molecular structures** from online databases or upload your own files
@@ -55,8 +70,6 @@ Save your work in the cloud, access it from anywhere, and collaborate with other
 4. **Build your story** by combining scenes in a logical sequence
 5. **Share or export** your completed story for others to explore
 
-## Ready to Get Started?
+## Who Should Use This?
 
-Ready to create your first molecular story? Head over to our [Getting Started](getting-started.qmd) guide to learn the basics, or jump right into the [Core Features](core-features.qmd) documentation to explore what's possible.
-
-Whether you're visualizing protein-drug interactions, explaining DNA replication, or showcasing enzyme mechanisms, MolViewStories provides the tools you need to create compelling molecular narratives that engage and educate your audience.
+Wondering if MolViewStories is right for you? Check out the [FAQ & Troubleshooting](faq-troubleshooting.qmd#who-should-use-molviewstories) page to learn about use cases for researchers, educators, and students.
