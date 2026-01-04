@@ -7,7 +7,7 @@
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@^1.1.3": "1.1.3",
     "jsr:@std/yaml@^1.0.10": "1.0.10",
-    "npm:molstar@5.3.0": "5.3.0_react@19.2.3_react-dom@19.2.3__react@19.2.3"
+    "npm:molstar@5.5.0": "5.5.0_react@19.2.3_react-dom@19.2.3__react@19.2.3"
   },
   "jsr": {
     "@std/assert@1.0.16": {
@@ -1357,8 +1357,8 @@
         "mime-db@1.54.0"
       ]
     },
-    "molstar@5.3.0_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
-      "integrity": "sha512-R3luzA2ER8EuCjmLTcugCJJwKzQbc5UCPh6/u3x2rufn3Fz144pKTFklH5929vPtD7QgS0lBaGwCSl8vOtj7vg==",
+    "molstar@5.5.0_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+      "integrity": "sha512-JQIk/4O84/u26wu3+foORUMPFeQC+hx2GVA+JvKQF5jAkLQQlgChvaxp6SsPVtLt/HLZLzJ286IAXysU+gs6hQ==",
       "dependencies": [
         "@types/argparse",
         "@types/benchmark",
@@ -1494,8 +1494,8 @@
         "ipaddr.js"
       ]
     },
-    "qs@6.14.0": {
-      "integrity": "sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==",
+    "qs@6.14.1": {
+      "integrity": "sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==",
       "dependencies": [
         "side-channel"
       ]
@@ -2080,7 +2080,7 @@
       "jsr:@std/fs@^1.0.20",
       "jsr:@std/path@^1.1.3",
       "jsr:@std/yaml@^1.0.10",
-      "npm:molstar@5.3.0"
+      "npm:molstar@5.5.0"
     ]
   }
 }
