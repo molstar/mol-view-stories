@@ -68,26 +68,13 @@ const structure = builder
 
 This section provides comprehensive documentation for different aspects of the MolViewSpec API:
 
-### [Tree Schema](tree-schema.qmd)
-Complete reference of all MolViewSpec node types, their parameters, and relationships. This is the authoritative specification of what you can do with MVS.
-
-### [Selectors](selectors.qmd)
-Learn how to select specific parts of a structure (chains, residues, atoms) using static selectors, component expressions, and union expressions.
-
-### [Annotations](annotations.qmd)
-External annotation files for applying colors, labels, and tooltips to structures. Supports JSON, CIF, and BCIF formats.
-
-### [Camera Settings](camera.qmd)
-Control camera position, orientation, and field of view to create specific viewpoints.
-
-### [Primitives](primitives.qmd)
-Add custom geometric shapes (arrows, spheres, lines) to your visualizations for highlighting or annotations.
-
-### [Volumetric Data](volumes.qmd)
-Display electron density maps, cryo-EM maps, and other volumetric data with isosurfaces.
-
-### [Animations](animations.qmd)
-Create smooth transitions and animations between different states of your visualization.
+- [Tree Schema](tree-schema.qmd): Complete reference of all MolViewSpec node types, their parameters, and relationships. This is the authoritative specification of what you can do with MVS.
+- [Selectors](selectors.qmd): Learn how to select specific parts of a structure (chains, residues, atoms) using static selectors, component expressions, and union expressions.
+- [Annotations](annotations.qmd): External annotation files for applying colors, labels, and tooltips to structures. Supports JSON, CIF, and BCIF formats.
+- [Camera Settings](camera.qmd): Control camera position, orientation, and field of view to create specific viewpoints.
+- [Primitives](primitives.qmd): Add custom geometric shapes (arrows, spheres, lines) to your visualizations for highlighting or annotations.
+- [Volumetric Data](volumes.qmd): Display electron density maps, cryo-EM maps, and other volumetric data with isosurfaces.
+- [Animations](animations.qmd): Create smooth transitions and animations between different states of your visualization.
 
 ## Builder API Pattern
 
@@ -105,31 +92,34 @@ structure
     .component({ selector: 'protein' })    // Returns component node
     .representation({ type: 'cartoon' })   // Returns representation node
     .color({ color: 'blue' });             // Returns color node
+
+
+// If you need to branch, define a variable. `structure` is one such variable.
+const ligand = structure.component({ selector: 'ligand' });
+
+// now we define `ligand` and can reuse it
+ligand.focus()
+ligand
+    .representation({ type: 'cartoon' })
+    .color({ color: 'blue' });
 ```
 
 ## Common Patterns
 
-### Loading a PDB Entry
-
 ```javascript
+//Loading a PDB Entry
 const structure = builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
     .parse({ format: 'bcif' })
     .modelStructure();
-```
 
-### Loading an AlphaFold Prediction
-
-```javascript
+//Loading an AlphaFold Prediction
 const structure = builder
     .download({ url: 'https://alphafold.ebi.ac.uk/files/AF-P00520-F1-model_v4.cif' })
     .parse({ format: 'mmcif' })
     .modelStructure();
-```
 
-### Selecting and Styling Components
-
-```javascript
+/// Selecting and Styling Components
 // Protein as cartoon
 structure
     .component({ selector: 'protein' })
@@ -147,11 +137,8 @@ structure
     .component({ selector: 'water' })
     .representation({ type: 'spacefill' })
     .color({ color: 'red' });
-```
 
-### Highlighting Specific Residues
-
-```javascript
+// Highlighting Specific Residues
 // Highlight active site residues
 structure
     .component({
