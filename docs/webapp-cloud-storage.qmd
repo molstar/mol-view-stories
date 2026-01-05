@@ -1,132 +1,181 @@
 # Cloud Storage & Sharing
 
-::: {.callout-note}
-## Work in Progress
-This page is a placeholder. Content will be added about sessions, publishing, and cloud storage.
-:::
+MolViewStories provides multiple ways to save, share, and export your work. You'll need to [login](first-time-login.qmd) to use cloud storage features.
 
-## Overview
+## Saving Your Work
 
-This page will cover how to save, publish, and share your molecular visualization stories using MolViewStories cloud storage.
+### Save as Session (Private)
 
-## Planned Content
+Private sessions are only accessible to you and stored in your "My Stories" collection. To save a session:
 
-### Sessions vs Published Stories
+1. Click "Story → Save Session" in the top menu
+2. Add optional notes about your work
+3. Your session is now stored privately in the cloud
 
-**Sessions (Private)**
-- What are sessions?
-- Saving work in progress
-- Accessing your saved sessions
-- Session quotas and limits
+Sessions are perfect for:
 
-**Published Stories (Public)**
-- What is publishing?
-- Publishing workflow
-- Public vs private visibility
-- Managing published content
+- Work in progress
+- Drafts and experiments
+- Personal archives
+- Content not yet ready to share
 
-### Saving Your Work
+### My Stories
 
-**Save Operations**
-- Quick save vs save as new
-- Auto-save functionality (if applicable)
-- Session metadata and notes
-- Version history (if applicable)
+Access all your saved content by clicking "My Stories" in the top menu. Here you'll find:
 
-**Storage Limits**
-- Sessions per user (100)
-- File size limits (50MB per session)
-- Total storage quotas
-- Managing storage usage
+- **Sessions**: Your private work (marked with 🔒)
+- **Published Stories**: Your public stories (marked with 🌐)
 
-### Publishing Stories
+From My Stories you can:
 
-**Publishing Workflow**
-1. Complete your story
-2. Add metadata (title, description, tags)
-3. Review and preview
-4. Publish to get shareable link
-5. Update or unpublish as needed
+- Open and continue editing
+- Delete old work
+- Manage your storage quota
+- See creation and modification dates
 
-**Publishing Options**
-- Public visibility
-- Searchable vs unlisted
-- Editing published stories
-- Unpublishing content
+## Publishing Stories (Public)
 
-### Sharing Options
+Publishing creates a publicly accessible version of your story with a shareable link.
 
-**Share Published Stories**
-- Direct URL links
-- Embedding in websites
-- Social media sharing
-- QR codes (if supported)
+To publish a story:
 
-**Share Session Files**
-- Download session file (.mvstory)
-- Share via email or file sharing
-- Import session files
-- Collaborative workflows
+1. Click "Publish" in the top menu
+2. Add a title, description, and tags
+3. Review and confirm
+4. Get your shareable public URL
 
-### Export Options
+Published stories are:
 
-**File Formats**
-- **JSON** - Human-readable format
-- **MVStory** - Compressed session format
-- **MVSX** - Mol* viewer format
-- **HTML** - Standalone web page
+- Accessible to anyone with the link
+- View-only (others cannot edit)
+- Searchable by title and tags
+- Permanently available
 
-**Export Use Cases**
-- Offline presentations (HTML)
-- Backup and archival (MVStory)
-- Integration with other tools (MVSX, JSON)
-- Self-hosting options
+**When to Publish**:
 
-### Managing Your Content
+- Educational content ready to share
+- Presentations and demonstrations
+- Scientific communication
+- Portfolio pieces
 
-**My Stories Dashboard**
-- Viewing all sessions
-- Viewing published stories
-- Searching and filtering
-- Organizing content
-- Bulk operations
+## Export Options
 
-**Quota Management**
-- Checking current usage
-- Deleting old sessions
-- Cleaning up assets
-- Best practices for storage
+MolViewStories offers multiple export formats for different use cases:
 
-### Embedding Stories
+### Download Session (.mvstory)
 
-**Embed Options**
-- iframe embedding
-- URL parameters
-- Customization options
-- Responsive design considerations
+Complete project file that can be imported back into MolViewStories.
 
-**Example Code**
-```html
-<!-- Embedding example will go here -->
-<iframe src="https://molstar.org/mol-view-stories/story/YOUR_ID"></iframe>
-```
+- Click "Story → Download Session"
+- Includes all scenes, code, assets, and metadata
+- File extension: `.mvstory`
+- Use cases: Backups, sharing editable versions, transferring between computers
 
-### Privacy & Security
+### Export as HTML
 
-**Data Privacy**
-- Who can see your sessions?
-- Who can see published stories?
-- Data retention policies
-- Deleting your data
+Standalone web page that works offline without MolViewStories.
 
-**Access Control**
-- Authentication requirements
-- Session permissions
-- Published story visibility
-- Institutional access (if applicable)
+- Click "Story → Export HTML"
+- Self-contained file with embedded viewer
+- No internet required after download
+- Use cases: Presentations, offline viewing, archival
 
-## Next Steps
+### Export MolViewSpec State (.mvsj)
 
-- [First Time Login](first-time-login.qmd) - Setting up your account
-- [Building Stories](core-features.qmd) - Creating content
-- [FAQ](faq-troubleshooting.qmd) - Common questions about sharing
+JSON state file that can be opened in the Mol* Viewer.
+
+- Click "Story → Export MolViewSpec State"
+- Lightweight JSON format
+- Compatible with Mol* Viewer ecosystem
+- Use cases: Integration with other tools, sharing visualizations
+
+### Export Self-Hosted Package (.mvsx)
+
+ZIP file containing story data and all required assets.
+
+- Click "Story → Export Self-Hosted Package"
+- Complete package for self-hosting
+- File extension: `.mvsx`
+- Use cases: Hosting on your own server, archival with assets
+
+## Storage Limits & Quotas
+
+Each user has storage quotas to ensure fair resource allocation:
+
+**Limits**:
+- **100 sessions** (private saves)
+- **100 published stories** (public shares)
+- **50 MB** maximum per session
+- Total storage across all sessions and stories
+
+**Managing Your Quota**:
+- Check current usage in "My Stories"
+- Delete old or unused content regularly
+- Export important work as local files
+- Use published stories for final versions (they count separately)
+
+## Sharing Best Practices
+
+### For Different Audiences
+
+- **Students/Learners**: Publish stories with clear descriptions and tags
+- **Colleagues**: Share session files for collaborative editing
+- **Presentations**: Export as HTML for reliable offline access
+- **Publications**: Publish stories and include the permanent link
+
+### Privacy Considerations
+
+- Sessions are private by default
+- Publishing makes content publicly accessible
+- There's no "unpublish" feature (delete and republish instead)
+- Anyone with a published story link can view it
+
+## Common Workflows
+
+### Development Workflow
+
+1. Create and edit → Save as Session (private)
+2. Continue iterating on your private session
+3. When ready → Publish (public)
+4. Optional: Export HTML for presentations
+
+### Backup Workflow
+
+1. Regularly download session files locally
+2. Keep important work in both cloud and local storage
+3. Export HTML versions of finished stories
+
+### Collaboration Workflow
+
+1. Create initial story → Save as Session
+2. Download session file
+3. Share .mvstory file with collaborators
+4. They import, edit, and send back
+5. Import their version and merge changes
+6. Publish final version
+
+### Teaching Workflow
+
+1. Create educational content
+2. Publish with descriptive title and tags
+3. Share link with students
+4. Students can view but not edit
+5. Optionally: Export HTML for offline classroom use
+
+## Troubleshooting Storage Issues
+
+**"Quota exceeded" error**:
+- Delete unused sessions or stories
+- Export important work locally before deleting
+- Consider which saves are truly needed
+
+**Missing saved work**:
+- Verify you're logged in with the correct account
+- Check both Sessions and Published Stories tabs
+- Give "My Stories" time to load all items
+
+**Save/publish failed**:
+- Check your internet connection
+- Verify file size is under 50 MB
+- Try exporting locally as a backup
+- Contact support if problem persists

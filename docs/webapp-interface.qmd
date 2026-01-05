@@ -65,8 +65,6 @@ You can also specify scene-level metadata:
 
 ## Top Menu Bar
 
-- Stories can be downloaded in several formats.
-- Story/Session files are `.mvstory` files that are a full representation of a story including code and assets.
-- Story files can be embedded with HTML or as a completed standalone zip file with assets.
+The top menu bar provides access to file operations, saving/publishing, and story management. From here you can download stories in various formats, save private sessions, publish public stories, and access your saved work. See [Cloud Storage & Sharing](webapp-cloud-storage.qmd) for details.
 
 ![](img/top_panel.png)
