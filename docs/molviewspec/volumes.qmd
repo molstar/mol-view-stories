@@ -31,17 +31,19 @@ MolViewSpec can load volumetric data in these formats:
 
 ## Basic Volume Loading
 
-```javascript
+```{.molviewspec controls=true}
 // Load electron density map
 builder
-    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs_map.ccp4' })
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1tqn.ccp4' })
     .parse({ format: 'map' })
-    .volume({
+    .volume()
+    .representation({
         type: 'isosurface',
-        isovalue: 1.5,
-        color: 'blue',
-        opacity: 0.5
-    });
+        relative_isovalue: 1.5,
+        show_wireframe: true,
+        show_faces: false })
+    .color({color: "blue"})
+    .opacity({opacity: 0.66 });
 ```
 
 ## Volume Parameters
@@ -56,10 +58,10 @@ builder
 
 ## Example: Structure with Density
 
-```javascript
+```{.molviewspec controls=true}
 // Load structure
 const structure = builder
-    .download({ url: 'https://files.rcsb.org/download/1ABC.cif' })
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1tqn.ccp4' })
     .parse({ format: 'mmcif' })
     .modelStructure();
 
@@ -75,42 +77,51 @@ structure
 
 // Load density map
 builder
-    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1ABC_map.ccp4' })
+    .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1tqn.ccp4' })
     .parse({ format: 'map' })
-    .volume({
+    .volume()
+    .representation({
         type: 'isosurface',
-        isovalue: 1.0,
-        color: 'blue',
-        opacity: 0.3
-    });
+        relative_isovalue: 1.5,
+        show_wireframe: true,
+        show_faces: false
+    })
+    .color({color: "#ff00cc"})
+    .opacity({opacity: 0.66 });
 ```
 
 ## Multiple Contour Levels
 
 Show different density levels with different colors:
 
-```javascript
+```{.molviewspec controls=true}
 // 2Fo-Fc map (high confidence)
 builder
     .download({ url: 'https://example.org/2fofc.ccp4' })
     .parse({ format: 'map' })
-    .volume({
+    .volume()
+        .representation({
         type: 'isosurface',
-        isovalue: 1.5,
-        color: 'blue',
-        opacity: 0.4
-    });
+        relative_isovalue: 1.5,
+        show_wireframe: true,
+        show_faces: false
+    })
+    .color({color: "#ff00cc"})
+    .opacity({opacity: 0.66 });
 
 // Fo-Fc difference map (positive density)
 builder
     .download({ url: 'https://example.org/fofc.ccp4' })
     .parse({ format: 'map' })
-    .volume({
+    .volume()
+    .representation({
         type: 'isosurface',
-        isovalue: 3.0,
-        color: 'green',
-        opacity: 0.5
-    });
+        relative_isovalue: 3,
+        show_wireframe: true,
+        show_faces: false
+    })
+    .color({color: "#ff12cc"})
+    .opacity({opacity: 0.66 });
 ```
 
 ## Common Isovalue Ranges
@@ -128,17 +139,20 @@ builder
 
 PDBe provides electron density maps for X-ray structures:
 
-```javascript
+```{.molviewspec }
 // Pattern: https://www.ebi.ac.uk/pdbe/entry-files/{PDBID}_map.ccp4
 builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs_map.ccp4' })
     .parse({ format: 'map' })
-    .volume({
+    .volume()
+    .representation({
         type: 'isosurface',
-        isovalue: 1.0,
-        color: 'blue',
-        opacity: 0.3
-    });
+        relative_isovalue: 3,
+        show_wireframe: true,
+        show_faces: false
+    })
+    .color({color: "#ff12cc"})
+    .opacity({opacity: 0.66 });
 ```
 
 ## Styling Tips
@@ -166,5 +180,5 @@ Volumetric data files can be very large (100+ MB). Consider:
 ## See Also
 
 - [Official Volumes Documentation](https://molstar.org/mol-view-spec/docs/volumes/) - Complete volume reference
-- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Tree Schema](mvs-spec.qmd) - Complete node reference
 - [PDBe Density Maps](https://www.ebi.ac.uk/pdbe/) - Download electron density maps

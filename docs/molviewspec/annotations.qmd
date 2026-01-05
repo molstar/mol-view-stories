@@ -312,5 +312,5 @@ structure
 ## See Also
 
 - [Selectors](selectors.qmd) - Inline selection syntax
-- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Tree Schema](mvs-spec.qmd) - Complete node reference
 - [Official MolViewSpec Annotations Docs](https://molstar.org/mol-view-spec/docs/annotations/)

@@ -250,5 +250,5 @@ createOrbitAnimation(50, 5000, 60);  // 5s orbit, 60 frames
 ## See Also
 
 - [Camera Settings](camera.qmd) - Camera positioning for animation endpoints
-- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Tree Schema](mvs-spec.qmd) - Complete node reference
 - [Official Animations Documentation](https://molstar.org/mol-view-spec/docs/animations/) - Complete animation reference

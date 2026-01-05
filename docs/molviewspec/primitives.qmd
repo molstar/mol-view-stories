@@ -95,4 +95,4 @@ coords.primitive({
 
 - [Official Primitives Documentation](https://molstar.org/mol-view-spec/docs/primitives/) - Complete primitive reference
 - [Selectors](selectors.qmd) - For positioning primitives relative to atoms
-- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Tree Schema](mvs-spec.qmd) - Complete node reference

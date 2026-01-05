@@ -14,44 +14,31 @@ Camera position and orientation in MolViewSpec can be controlled using two appro
 
 The `camera` node directly sets camera position and orientation. It's a child of the root node.
 
-### Parameters
-
-- **`target`**: Look-at point `[x, y, z]` (where the camera looks)
-- **`position`**: Camera position `[x, y, z]` (where the camera is)
-- **`up`** (optional): Up direction `[x, y, z]` (default: `[0, 1, 0]`)
-
-### Example
-
-```javascript
-builder.camera({
-    target: [0, 0, 0],
-    position: [50, 50, 50],
-    up: [0, 1, 0]
-});
-```
-
 
 ```{.molviewspec}
+
 const structure = builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
     .parse({ format: 'bcif' })
     .modelStructure();
-builder.camera({
-    target: [20, 10, 15],
-    position: [50, 40, 80],
-    up: [0, 1, 0]
-});
-
----
 
 structure
     .component({ selector: 'polymer' })
     .representation({ type: 'cartoon' });
+---
+// try changing these params
+// note: in the webapp we can update these for you
+builder.camera({
+    target: [20, 10, 15],
+    position: [50, 40, 80],
+    up: [1, 1, 0]
+});
+
 ```
 
 ### Understanding Camera Parameters
 
-![Camera parameters](https://molstar.org/mol-view-spec/docs/files/camera.png)
+![Camera parameters](../img/camera_mvs_understanding.png)
 
 - **Target**: The point the camera is looking at (center of view)
 - **Position**: Where the camera is located in 3D space
@@ -83,9 +70,18 @@ structure
     .component({ selector: 'ligand' })
     .representation({ type: 'ball_and_stick' })
     .focus();
+
+structure
+.component({ selector: { label_asym_id: 'A' } })
+.representation({ type: 'cartoon' })
+.focus({
+    direction: [1, 1, -1],  // View from upper-right
+    up: [0, 1, 0]
+});
 ```
 
 ```{.molviewspec}
+
 const structure = builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
     .parse({ format: 'bcif' })
@@ -93,80 +89,62 @@ const structure = builder
 
 ---
 
-structure
-    .component({ selector: 'ligand' })
-    .representation({ type: 'ball_and_stick' })
-    .color({ color: 'element-symbol' })
-    .focus();
+let protein =  structure
+    .component({ selector: 'all' });
+
+protein.representation({ type: 'cartoon' });
+
+let ligand = structure
+.component({ selector: 'ligand' });
+
+ligand.representation({ type: 'ball_and_stick' })
+    .color({ color: '#cc00ff' });
+
+// uncomment this line
+// ligand.focus();
 ```
 
-### Custom Focus Direction
 
-```javascript
-structure
-    .component({ selector: { label_asym_id: 'A' } })
-    .representation({ type: 'cartoon' })
-    .focus({
-        direction: [1, 1, -1],  // View from upper-right
-        up: [0, 1, 0]
-    });
-```
 
 ## Canvas Node
 
 The `canvas` node sets global view properties like background color.
 
-### Parameters
-
-- **`background_color`**: Color value (named color or hex)
-
-### Example
-
-```javascript
-builder.canvas({ background_color: '#f0f0f0' });
-```
-
 ```{.molviewspec}
-builder.canvas({ background_color: '#2c3e50' });
-
 const structure = builder
     .download({ url: 'https://www.ebi.ac.uk/pdbe/entry-files/1cbs.bcif' })
     .parse({ format: 'bcif' })
     .modelStructure();
-
 ---
+
+builder.canvas(
+    { background_color: '#2c3e50' });
 
 structure
     .component({ selector: 'polymer' })
     .representation({ type: 'cartoon' })
-    .color({ color: 'chain-id' });
+    .color({ color: 'blue' });
 ```
 
 ## Common Patterns
 
-### Top-Down View
 
 ```javascript
+// Top-Down View
 builder.camera({
     target: [0, 0, 0],
     position: [0, 100, 0],  // Directly above
     up: [0, 0, -1]          // Z-axis points up
 });
-```
 
-### Side View
-
-```javascript
+// Side View
 builder.camera({
     target: [0, 0, 0],
     position: [100, 0, 0],  // From the side
     up: [0, 1, 0]           // Y-axis points up
 });
-```
 
-### Focus on Active Site
-
-```javascript
+// Focus on Active Site
 structure
     .component({
         selector: {
@@ -215,6 +193,6 @@ You generally don't need to worry about this - it's handled automatically!
 
 ## See Also
 
-- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Tree Schema](mvs-spec.qmd) - Complete node reference
 - [Official Camera Documentation](https://molstar.org/mol-view-spec/docs/camera-settings/) - Technical details
 - [Animations](animations.qmd) - Smooth camera transitions

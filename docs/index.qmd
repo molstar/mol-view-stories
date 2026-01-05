@@ -32,7 +32,7 @@ MolViewStories uses MolViewSpec to define molecular visualizations. These resour
 
 **[Selectors Guide](molviewspec/selectors.qmd)** - Learn how to select specific chains, residues, and atoms
 
-**[Tree Schema Reference](molviewspec/tree-schema.qmd)** - Complete API documentation for all available nodes
+**[Tree Schema Reference](molviewspec/mvs-spec.qmd)** - Complete API documentation for all available nodes
 
 ### 🎓 For Educators & Students
 

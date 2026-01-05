@@ -281,7 +281,7 @@ You can customize code blocks with these attributes:
 For complete API documentation, see:
 
 - [Selectors](selectors.qmd) - Component selection syntax
-- [Tree Schema](tree-schema.qmd) - Complete node reference
+- [Tree Schema](mvs-spec.qmd) - Complete node reference
 - [Annotations](annotations.qmd) - External color/label files
 - [Camera Settings](camera.qmd) - Camera positioning
 - [Official MolViewSpec Docs](https://molstar.org/mol-view-spec/)

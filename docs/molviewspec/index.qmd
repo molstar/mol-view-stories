@@ -68,7 +68,7 @@ const structure = builder
 
 This section provides comprehensive documentation for different aspects of the MolViewSpec API:
 
-- [Tree Schema](tree-schema.qmd): Complete reference of all MolViewSpec node types, their parameters, and relationships. This is the authoritative specification of what you can do with MVS.
+- [Tree Schema](mvs-spec.qmd): Complete reference of all MolViewSpec node types, their parameters, and relationships. This is the authoritative specification of what you can do with MVS.
 - [Selectors](selectors.qmd): Learn how to select specific parts of a structure (chains, residues, atoms) using static selectors, component expressions, and union expressions.
 - [Annotations](annotations.qmd): External annotation files for applying colors, labels, and tooltips to structures. Supports JSON, CIF, and BCIF formats.
 - [Camera Settings](camera.qmd): Control camera position, orientation, and field of view to create specific viewpoints.
@@ -154,7 +154,7 @@ structure
 ## Learning Path
 
 1. **Start with [Selectors](selectors.qmd)** - Understanding how to select parts of structures is fundamental
-2. **Review [Tree Schema](tree-schema.qmd)** - Learn what nodes are available and their parameters
+2. **Review [Tree Schema](mvs-spec.qmd)** - Learn what nodes are available and their parameters
 3. **Explore [Annotations](annotations.qmd)** - For advanced coloring and labeling from external data
 4. **Add [Primitives](primitives.qmd)** - For custom annotations and highlights
 5. **Fine-tune with [Camera Settings](camera.qmd)** - Perfect your viewpoints
