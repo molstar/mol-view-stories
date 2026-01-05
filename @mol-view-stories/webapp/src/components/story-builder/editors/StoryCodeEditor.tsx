@@ -19,6 +19,7 @@ export interface StoryCodeEditorProps {
 export function StoryCodeEditor({ value, onChange, onSave, className }: StoryCodeEditorProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const isUnmountingRef = useRef(false);
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -29,6 +30,13 @@ export function StoryCodeEditor({ value, onChange, onSave, className }: StoryCod
     }
     return () => {
       observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      // Mark that we're unmounting to prevent save-on-blur during cleanup
+      isUnmountingRef.current = true;
     };
   }, []);
 
@@ -47,10 +55,12 @@ export function StoryCodeEditor({ value, onChange, onSave, className }: StoryCod
       });
     }
 
-    // Save on blur
+    // Save on blur (but NOT during unmount)
     if (onSave) {
       editor.onDidBlurEditorWidget(() => {
-        onSave(editor.getValue());
+        if (!isUnmountingRef.current) {
+          onSave(editor.getValue());
+        }
       });
     }
   };

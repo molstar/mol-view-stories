@@ -28,24 +28,11 @@ const BuilderLib = {
 
 export const BuilderLibNamespaces: string[] = Object.keys(BuilderLib);
 
-export function adjustedCameraPosition(
-  camera: CameraData,
-): [number, number, number] {
+export function adjustedCameraPosition(camera: CameraData): [number, number, number] {
   // MVS uses FOV-adjusted camera position, need to apply inverse here so it doesn't offset the view when loaded
-  const f = camera.mode === 'orthographic'
-    ? 1 / (2 * Math.tan(camera.fov / 2))
-    : 1 / (2 * Math.sin(camera.fov / 2));
-  const delta = Vec3.sub(
-    Vec3(),
-    camera.position as Vec3,
-    camera.target as Vec3,
-  );
-  return Vec3.scaleAndAdd(
-    Vec3(),
-    camera.target as Vec3,
-    delta,
-    1 / f,
-  ) as unknown as [number, number, number];
+  const f = camera.mode === 'orthographic' ? 1 / (2 * Math.tan(camera.fov / 2)) : 1 / (2 * Math.sin(camera.fov / 2));
+  const delta = Vec3.sub(Vec3(), camera.position as Vec3, camera.target as Vec3);
+  return Vec3.scaleAndAdd(Vec3(), camera.target as Vec3, delta, 1 / f) as unknown as [number, number, number];
 }
 
 const createStateProvider = (code: string) => {
@@ -54,6 +41,12 @@ const createStateProvider = (code: string) => {
 
 async function getMVSSnapshot(story: Story, scene: SceneData, index: number) {
   try {
+    // DEBUG: Log what code is being combined
+    console.log('[getMVSSnapshot] Scene:', scene.header);
+    console.log('[getMVSSnapshot] story.javascript present:', !!story.javascript);
+    console.log('[getMVSSnapshot] story.javascript:', story.javascript?.substring(0, 100) || '(empty)');
+    console.log('[getMVSSnapshot] scene.javascript:', scene.javascript?.substring(0, 100) || '(empty)');
+
     const stateProvider = createStateProvider(`
 const { ${Object.keys(BuilderLib).join(', ')} } = __lib__;
 async function _run_builder() {
@@ -85,10 +78,7 @@ return _run_builder();
   }
 }
 
-export async function getMVSData(
-  story: Story,
-  scenes: SceneData[] = story.scenes,
-): Promise<MVSData | Uint8Array> {
+export async function getMVSData(story: Story, scenes: SceneData[] = story.scenes): Promise<MVSData | Uint8Array> {
   // Async in case of creating a ZIP archite with static assets
 
   const snapshots: Snapshot[] = [];
@@ -115,9 +105,7 @@ export async function getMVSData(
 
   const encoder = new TextEncoder();
   const files: Record<string, Uint8Array<ArrayBuffer>> = {
-    'index.mvsj': encoder.encode(JSON.stringify(index)) as Uint8Array<
-      ArrayBuffer
-    >,
+    'index.mvsj': encoder.encode(JSON.stringify(index)) as Uint8Array<ArrayBuffer>,
   };
   for (const asset of story.assets) {
     files[asset.name] = asset.content as Uint8Array<ArrayBuffer>;
@@ -129,34 +117,19 @@ export async function getMVSData(
 
 export async function readStoryContainer(bytes: Uint8Array): Promise<Story> {
   const inflated = await Task.create('Inflate Story Data', async (ctx) => {
-    return await inflate(
-      ctx,
-      new Uint8Array(
-        bytes.buffer as ArrayBuffer,
-        bytes.byteOffset,
-        bytes.byteLength,
-      ),
-    );
+    return await inflate(ctx, new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength));
   }).run();
 
   const decoded = decodeMsgPack(
-    new Uint8Array(
-      inflated.buffer as ArrayBuffer,
-      inflated.byteOffset,
-      inflated.byteLength,
-    ),
+    new Uint8Array(inflated.buffer as ArrayBuffer, inflated.byteOffset, inflated.byteLength)
   ) as StoryContainer;
   if (decoded.version !== 1) {
-    throw new Error(
-      `Unsupported story version: ${decoded.version}. Expected version 1.`,
-    );
+    throw new Error(`Unsupported story version: ${decoded.version}. Expected version 1.`);
   }
   return decoded.story;
 }
 
-export async function createCompressedStoryContainer(
-  story: Story,
-): Promise<Uint8Array> {
+export async function createCompressedStoryContainer(story: Story): Promise<Uint8Array> {
   const container: StoryContainer = {
     version: 1,
     story,
@@ -173,19 +146,14 @@ export async function createCompressedStoryContainer(
 
 const codeCache = new Map<string, Promise<Uint8Array>>();
 
-async function downloadStoriesCode(
-  version: string,
-  asset: 'js' | 'css',
-): Promise<Uint8Array> {
+async function downloadStoriesCode(version: string, asset: 'js' | 'css'): Promise<Uint8Array> {
   const cacheKey = `${version}:${asset}`;
   if (codeCache.has(cacheKey)) {
     return codeCache.get(cacheKey)!;
   }
 
   try {
-    const req = fetch(
-      `https://cdn.jsdelivr.net/npm/molstar@${version}/build/mvs-stories/mvs-stories.${asset}`,
-    );
+    const req = fetch(`https://cdn.jsdelivr.net/npm/molstar@${version}/build/mvs-stories/mvs-stories.${asset}`);
 
     const response = await req;
     if (!response.ok) {
@@ -206,10 +174,7 @@ async function downloadStoriesCode(
 /**
  * Creates a zip file containing the story and its assets for self-hosting purposes
  */
-export async function createSelfHostedZip(
-  story: Story,
-  options?: { molstarVersion?: string },
-): Promise<Uint8Array> {
+export async function createSelfHostedZip(story: Story, options?: { molstarVersion?: string }): Promise<Uint8Array> {
   const version = options?.molstarVersion || PLUGIN_VERSION;
 
   const [js, css, data, session] = await Promise.all([
@@ -230,13 +195,11 @@ export async function createSelfHostedZip(
       title: story.metadata.title,
       jsPath: 'assets/mvs-stories.js',
       cssPath: 'assets/mvs-stories.css',
-    },
+    }
   );
 
   const encoder = new TextEncoder();
-  const encodedData = data instanceof Uint8Array
-    ? data
-    : encoder.encode(JSON.stringify(data));
+  const encodedData = data instanceof Uint8Array ? data : encoder.encode(JSON.stringify(data));
 
   const files: Record<string, Uint8Array<ArrayBuffer>> = {
     'assets/mvs-stories.js': js as Uint8Array<ArrayBuffer>,

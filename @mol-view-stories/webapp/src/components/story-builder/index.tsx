@@ -25,47 +25,63 @@ export default function StoryBuilderPage() {
 
   // Client-side initialization - runs immediately after mount
   useLayoutEffect(() => {
-    const searchParams = new URL(window.location.href).searchParams;
-    const sessionId = searchParams.get('session-id');
-    const publishedSessionId = searchParams.get('published-session-id');
-    const sessionUrl = searchParams.get('session-url');
-    const templateName = searchParams.get('template');
-    const preview = searchParams.get('preview') === '1';
-    const sessionType = searchParams.get('type') as 'session' | 'story' | null;
+    let cancelled = false;
 
-    const url = sessionUrl ?? resolvePublishedSessionUrl(publishedSessionId);
-    if (url) {
-      loadSessionFromUrl(url, { doNotCleanSessionId: true, preview });
-      return;
-    }
+    const initializeStory = async () => {
+      const searchParams = new URL(window.location.href).searchParams;
+      const sessionId = searchParams.get('session-id');
+      const publishedSessionId = searchParams.get('published-session-id');
+      const sessionUrl = searchParams.get('session-url');
+      const templateName = searchParams.get('template');
+      const preview = searchParams.get('preview') === '1';
+      const sessionType = searchParams.get('type') as 'session' | 'story' | null;
 
-    if (sessionId) {
-      // Load session with type information to avoid unnecessary API calls
-      loadSession(sessionId, { type: sessionType, preview });
-      return;
-    }
+      const url = sessionUrl ?? resolvePublishedSessionUrl(publishedSessionId);
+      if (url) {
+        await loadSessionFromUrl(url, { doNotCleanSessionId: true, preview });
+        return;
+      }
 
-    // Only process template if no saved state was restored
-    if (!templateName) return;
+      if (sessionId) {
+        // Load session with type information to avoid unnecessary API calls
+        await loadSession(sessionId, { type: sessionType, preview });
+        return;
+      }
 
-    let story = ExampleStories[templateName as keyof typeof ExampleStories];
-    if (!story) story = ExampleStories.empty;
+      // Only process template if no saved state was restored
+      if (!templateName) return;
 
-    if (typeof story === 'string') {
-      const url = `/${process.env.NEXT_PUBLIC_APP_PREFIX ?? ''}examples/${templateName}/story.mvstory`;
-      loadSessionFromUrl(url, { doNotCleanSessionId: true, preview });
-      return;
-    }
+      let story = ExampleStories[templateName as keyof typeof ExampleStories];
+      if (!story) story = ExampleStories.empty;
 
-    store.set(CurrentViewAtom, preview ? { type: 'preview' } : { type: 'story-options', subview: 'story-metadata' });
-    store.set(StoryAtom, story);
-    store.set(SessionMetadataAtom, null);
+      if (typeof story === 'string') {
+        const url = `/${process.env.NEXT_PUBLIC_APP_PREFIX ?? ''}examples/${templateName}/story.mvstory`;
+        await loadSessionFromUrl(url, { doNotCleanSessionId: true, preview });
+        return;
+      }
 
-    if (templateName.toLowerCase() === 'empty') {
-      const url = new URL(window.location.href);
-      url.search = '';
-      window.history.replaceState({}, '', url.toString());
-    }
+      // Only update state if component hasn't been unmounted
+      if (!cancelled) {
+        store.set(
+          CurrentViewAtom,
+          preview ? { type: 'preview' } : { type: 'story-options', subview: 'story-metadata' }
+        );
+        store.set(StoryAtom, story);
+        store.set(SessionMetadataAtom, null);
+      }
+
+      if (templateName.toLowerCase() === 'empty') {
+        const url = new URL(window.location.href);
+        url.search = '';
+        window.history.replaceState({}, '', url.toString());
+      }
+    };
+
+    initializeStory();
+
+    return () => {
+      cancelled = true;
+    };
   }, [store]);
 
   // Clean up isDirty state when component unmounts (user navigates away from builder)
