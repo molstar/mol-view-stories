@@ -1,11 +1,17 @@
 # Animations
 
-::: {.callout-tip}
-## What are Animations?
-Animations create smooth transitions between different states of your visualization, such as camera movements, color changes, or showing/hiding components over time.
+::: {.callout-important}
+## Experimental Feature
+Animations are an **experimental feature** in MolViewSpec. The API may change in future releases. Use with caution in production environments.
 :::
 
+
 MolViewSpec supports animations to create dynamic, time-based visualizations that can show molecular processes, guide viewer attention, or create cinematic presentations.
+
+::: {.callout-note}
+## Current Implementation
+Animations in MolViewSpec require using `ref` properties and manually modifying the snapshot. The builder API for animations is planned for a future release.
+:::
 
 ## Animation Use Cases
 
@@ -15,191 +21,369 @@ MolViewSpec supports animations to create dynamic, time-based visualizations tha
 - **Process visualization**: Illustrate multi-step biochemical processes
 
 ### Presentations
-- **Camera transitions**: Smoothly move between viewpoints
 - **Progressive disclosure**: Reveal structure elements one at a time
 - **Emphasis**: Fade in/out or change colors to highlight features
 
-## Animation Types
+## How Animations Work
 
-### Camera Animations
-Smoothly transition between camera positions
+Animations in MolViewSpec use references (`ref`) to target specific properties. You:
 
-```javascript
-// Animate between two camera positions
-builder
-    .animate({
-        type: 'camera',
-        duration: 2000,  // 2 seconds
-        from: {
-            target: [0, 0, 0],
-            position: [50, 0, 0]
-        },
-        to: {
-            target: [0, 0, 0],
-            position: [0, 50, 50]
-        }
-    });
+1. Add `ref` to properties you want to animate (color, opacity)
+2. Get a snapshot from the builder
+3. Manually add animation data to the snapshot
+4. The animation interpolates between values over time
+
+## Basic Animation Pattern
+
+### Color Animation
+
+```{.molviewspec controls=true}
+const structure = builder
+  .download({ url: 'https://files.wwpdb.org/download/1cbs.cif' })
+  .parse({ format: 'mmcif' })
+  .modelStructure();
+
+// Add color with a reference
+structure
+  .component({ selector: "polymer" })
+  .representation({ type: "cartoon" })
+  .color({ color: "blue", ref: "protein_color" });
+
+// Get snapshot with metadata
+const snapshot = builder.getSnapshot({
+  title: "Color Animation",
+  description: "Animating protein color from blue to cyan",
+  linger_duration_ms: 5000
+});
+
+// Manually add animation
+snapshot.animation = {
+  kind: "animation",
+  params: {
+    frame_time_ms: 16.67,  // ~60fps
+    autoplay: true,
+    loop: false,
+  },
+  children: [
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "protein_color",
+        property: "color",
+        start_ms: 0,
+        duration_ms: 3000,
+        kind: "color",
+        palette: { kind: "continuous", colors: ["blue", "cyan"] },
+      },
+    },
+  ],
+};
 ```
 
-### Component Animations
-Show/hide or transform components over time
+### Opacity Animation
 
-```javascript
-// Fade in a component
-builder
-    .animate({
-        type: 'component',
-        duration: 1500,
-        property: 'opacity',
-        from: 0.0,
-        to: 1.0
-    });
+```{.molviewspec}
+const structure = builder
+  .download({ url: 'https://files.wwpdb.org/download/1cbs.cif' })
+  .parse({ format: 'mmcif' })
+  .modelStructure();
+
+// Add opacity with a reference
+structure
+  .component({ selector: "polymer" })
+  .representation({ type: "cartoon" })
+  .color({ color: "green" })
+  .opacity({ opacity: 1.0, ref: "protein_opacity" });
+
+const snapshot = builder.getSnapshot({
+  title: "Opacity Animation",
+  description: "Fading protein from solid to transparent",
+  linger_duration_ms: 4000
+});
+
+// Fade from solid to transparent
+snapshot.animation = {
+  kind: "animation",
+  params: {
+    frame_time_ms: 16.67,
+    autoplay: true,
+    loop: false,
+  },
+  children: [
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "protein_opacity",
+        property: "opacity",
+        start_ms: 0,
+        duration_ms: 2000,
+        kind: "scalar",
+        start: 1.0,
+        end: 0.3,
+        easing: "cubic-in-out",
+      },
+    },
+  ],
+};
 ```
 
-### Color Animations
-Smoothly change colors
+## Multiple Animations
 
-```javascript
-// Transition between colors
-builder
-    .animate({
-        type: 'color',
-        duration: 1000,
-        from: 'blue',
-        to: 'red'
-    });
+You can animate multiple properties simultaneously:
+
+```{.molviewspec}
+const structure = builder
+  .download({ url: 'https://files.wwpdb.org/download/1cbs.cif' })
+  .parse({ format: 'mmcif' })
+  .modelStructure();
+
+// Polymer with color and opacity references
+structure
+  .component({ selector: "polymer" })
+  .representation({ type: "cartoon" })
+  .color({ color: "blue", ref: "poly_color" })
+  .opacity({ opacity: 1.0, ref: "poly_opacity" });
+
+// Ligand with color reference
+structure
+  .component({ selector: "ligand" })
+  .representation({ type: "ball_and_stick" })
+  .color({ color: "red", ref: "lig_color" });
+
+const snapshot = builder.getSnapshot({
+  title: "Multiple Animations",
+  description: "Animating polymer and ligand simultaneously",
+  linger_duration_ms: 5000
+});
+
+// Animate all three properties
+snapshot.animation = {
+  kind: "animation",
+  params: {
+    frame_time_ms: 16.67,
+    autoplay: true,
+    loop: false,
+  },
+  children: [
+    // Animate polymer color
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "poly_color",
+        property: "color",
+        start_ms: 0,
+        duration_ms: 3000,
+        kind: "color",
+        palette: { kind: "continuous", colors: ["blue", "cyan"] },
+      },
+    },
+    // Animate polymer opacity
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "poly_opacity",
+        property: "opacity",
+        start_ms: 0,
+        duration_ms: 3000,
+        kind: "scalar",
+        start: 1.0,
+        end: 0.5,
+        easing: "cubic-in-out",
+      },
+    },
+    // Animate ligand color (delayed start)
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "lig_color",
+        property: "color",
+        start_ms: 1000,  // Start after 1 second
+        duration_ms: 2000,
+        kind: "color",
+        palette: { kind: "continuous", colors: ["red", "yellow"] },
+      },
+    },
+  ],
+};
 ```
 
-## Timeline Control
+## Animation Parameters
 
-### Sequential Animations
-Chain animations to play one after another
+### Animation Root
 
-```javascript
-// First animation: zoom to protein
-builder.animate({ /* ... */ delay: 0 });
+- `frame_time_ms`: Time per frame in milliseconds (16.67 ≈ 60fps)
+- `autoplay`: Start animation automatically
+- `loop`: Whether to loop the animation
 
-// Second animation: highlight active site
-builder.animate({ /* ... */ delay: 2000 });  // Start after 2s
+### Interpolate Node
 
-// Third animation: show ligand
-builder.animate({ /* ... */ delay: 4000 });  // Start after 4s
-```
+**Common Parameters**:
+- `target_ref`: Reference to the property to animate
+- `property`: Property name (`"color"` or `"opacity"`)
+- `start_ms`: When to start (milliseconds)
+- `duration_ms`: Animation duration (milliseconds)
 
-### Parallel Animations
-Run multiple animations simultaneously
+**For Color Animations** (`kind: "color"`):
+- `palette`: Color gradient
+  - `kind: "continuous"`: Smooth gradient
+  - `colors`: Array of color values
 
-```javascript
-// All start at the same time
-builder.animate({ type: 'camera', /* ... */ delay: 0 });
-builder.animate({ type: 'color', /* ... */ delay: 0 });
-builder.animate({ type: 'opacity', /* ... */ delay: 0 });
-```
+**For Scalar Animations** (`kind: "scalar"`):
+- `start`: Starting value
+- `end`: Ending value
+- `easing`: Easing function (optional)
 
 ## Easing Functions
 
 Control the acceleration of animations:
 
 - **linear**: Constant speed
-- **ease-in**: Start slow, end fast
-- **ease-out**: Start fast, end slow
-- **ease-in-out**: Start and end slow, fast in middle
+- **cubic-in**: Start slow, accelerate
+- **cubic-out**: Start fast, decelerate
+- **cubic-in-out**: Start and end slow, fast in middle
+- **quadratic-in**, **quadratic-out**, **quadratic-in-out**
+- **exponential-in**, **exponential-out**, **exponential-in-out**
 
 ```javascript
-builder.animate({
-    type: 'camera',
-    duration: 2000,
-    easing: 'ease-in-out',
-    // ...
-});
-```
-
-## Common Animation Patterns
-
-### Guided Tour
-
-```javascript
-// Scene 1: Overview
-builder.camera({ target: [0, 0, 0], position: [100, 100, 100] });
-
-// After 3s: Zoom to binding site
-builder.animate({
-    type: 'camera',
-    delay: 3000,
-    duration: 2000,
-    to: {
-        target: [10, 20, 15],
-        position: [20, 30, 35]
-    }
-});
-
-// After 6s: Highlight ligand
-builder.animate({
-    type: 'color',
-    delay: 6000,
-    duration: 1000,
-    selector: { selector: 'ligand' },
-    to: 'yellow'
-});
-```
-
-### Progressive Reveal
-
-```javascript
-// Start with everything invisible
-structure.component({ selector: 'all' }).representation({ type: 'cartoon', opacity: 0 });
-
-// Reveal protein over 2s
-builder.animate({
-    type: 'opacity',
-    delay: 0,
-    duration: 2000,
-    selector: { selector: 'protein' },
-    to: 1.0
-});
-
-// Reveal ligand over 1s
-builder.animate({
-    type: 'opacity',
-    delay: 2500,
-    duration: 1000,
-    selector: { selector: 'ligand' },
-    to: 1.0
-});
-```
-
-### Rotate Around Structure
-
-```javascript
-// Animate camera in a circle
-for (let i = 0; i < 360; i += 30) {
-    const angle = (i * Math.PI) / 180;
-    const x = 50 * Math.cos(angle);
-    const z = 50 * Math.sin(angle);
-
-    builder.animate({
-        type: 'camera',
-        delay: i * 100,  // 100ms per frame
-        duration: 3000,
-        to: {
-            target: [0, 0, 0],
-            position: [x, 0, z]
-        }
-    });
+{
+  kind: "interpolate",
+  params: {
+    // ... other params
+    easing: "cubic-in-out",
+  }
 }
+```
+
+## Sequential Animations
+
+Use `start_ms` to create sequences:
+
+```{.molviewspec controls=true}
+const structure = builder
+  .download({ url: 'https://files.wwpdb.org/download/1cbs.cif' })
+  .parse({ format: 'mmcif' })
+  .modelStructure();
+
+structure
+  .component({ selector: "polymer" })
+  .representation({ type: "cartoon" })
+  .color({ color: "blue", ref: "color_1" });
+
+const snapshot = builder.getSnapshot({
+  title: "Sequential Color Changes",
+  description: "Blue to green to red sequence",
+  linger_duration_ms: 5000
+});
+
+snapshot.animation = {
+  kind: "animation",
+  params: { frame_time_ms: 16.67, autoplay: true, loop: false },
+  children: [
+    // First: Blue to green (0-2s)
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "color_1",
+        property: "color",
+        start_ms: 0,
+        duration_ms: 2000,
+        kind: "color",
+        palette: { kind: "continuous", colors: ["blue", "green"] },
+      },
+    },
+    // Then: Green to red (2-4s)
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "color_1",
+        property: "color",
+        start_ms: 2000,
+        duration_ms: 2000,
+        kind: "color",
+        palette: { kind: "continuous", colors: ["green", "red"] },
+      },
+    },
+  ],
+};
+```
+
+## Progressive Reveal Pattern
+
+Fade in components one by one:
+
+```{.molviewspec}
+const structure = builder
+  .download({ url: 'https://files.wwpdb.org/download/1cbs.cif' })
+  .parse({ format: 'mmcif' })
+  .modelStructure();
+
+// Start all invisible
+structure
+  .component({ selector: "polymer" })
+  .representation({ type: "cartoon" })
+  .color({ color: "blue" })
+  .opacity({ opacity: 0.0, ref: "poly_opacity" });
+
+structure
+  .component({ selector: "ligand" })
+  .representation({ type: "ball_and_stick" })
+  .color({ color: "red" })
+  .opacity({ opacity: 0.0, ref: "lig_opacity" });
+
+const snapshot = builder.getSnapshot({
+  title: "Progressive Reveal",
+  description: "Fade in polymer then ligand",
+  linger_duration_ms: 5000
+});
+
+snapshot.animation = {
+  kind: "animation",
+  params: { frame_time_ms: 16.67, autoplay: true, loop: false },
+  children: [
+    // Reveal polymer first (0-2s)
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "poly_opacity",
+        property: "opacity",
+        start_ms: 0,
+        duration_ms: 2000,
+        kind: "scalar",
+        start: 0.0,
+        end: 1.0,
+        easing: "cubic-out",
+      },
+    },
+    // Then reveal ligand (2.5-3.5s)
+    {
+      kind: "interpolate",
+      params: {
+        target_ref: "lig_opacity",
+        property: "opacity",
+        start_ms: 2500,
+        duration_ms: 1000,
+        kind: "scalar",
+        start: 0.0,
+        end: 1.0,
+        easing: "cubic-out",
+      },
+    },
+  ],
+};
 ```
 
 ## Animation in MolViewStories
 
 ::: {.callout-note}
 ## Story Scenes as Animation Frames
-In MolViewStories, each scene can represent a "frame" in your narrative. Transitions between scenes can include animations to create smooth storytelling.
+In MolViewStories, each scene can represent a "frame" in your narrative. Scene transitions provide a higher-level alternative to MolViewSpec animations.
 :::
 
-While MolViewSpec has native animation support, MolViewStories provides a higher-level approach:
-- **Scene transitions**: Automatically animated
-- **Scene-specific cameras**: Each scene can have different viewpoints
+MolViewStories provides complementary approaches:
+- **Scene transitions**: Move between different states
+- **Scene-specific cameras**: Different viewpoints per scene
 - **Progressive scenes**: Build complexity across multiple scenes
+- **MolViewSpec animations**: Smooth transitions within a single scene
 
 ## Performance Tips
 
@@ -207,7 +391,8 @@ While MolViewSpec has native animation support, MolViewStories provides a higher
 ## Animation Performance
 - **Short durations**: Keep animations under 3-5 seconds for best UX
 - **Limit simultaneous animations**: Too many at once can cause lag
-- **Avoid complex representations**: Simple representations animate smoother
+- **Frame rate**: 16.67ms (60fps) is smooth; 33ms (30fps) is acceptable
+- **Simple representations**: Cartoon animates faster than surface
 :::
 
 ## Accessibility Considerations
@@ -215,40 +400,36 @@ While MolViewSpec has native animation support, MolViewStories provides a higher
 ::: {.callout-important}
 ## Motion Sensitivity
 Some users may be sensitive to motion. Consider:
-- Providing a way to disable animations
-- Using slower transitions by default
-- Avoiding rapid rotations or flashing
+- Using the `autoplay: false` option
+- Providing slower transitions by default
+- Avoiding rapid color changes or flashing
+- Including a note that animations are present
 :::
 
-## Advanced: Custom Animation Scripts
+## Future API
 
-For complex animations, use JavaScript to programmatically generate animation sequences:
+::: {.callout-note}
+## Builder API Coming Soon
+A builder-based API for animations is planned:
 
 ```javascript
-function createOrbitAnimation(radius, duration, steps) {
-    for (let i = 0; i < steps; i++) {
-        const angle = (i / steps) * 2 * Math.PI;
-        builder.animate({
-            type: 'camera',
-            delay: (i / steps) * duration,
-            duration: duration / steps,
-            to: {
-                target: [0, 0, 0],
-                position: [
-                    radius * Math.cos(angle),
-                    0,
-                    radius * Math.sin(angle)
-                ]
-            }
-        });
-    }
-}
+// Future API (not yet available)
+const anim = builder.animation();
 
-createOrbitAnimation(50, 5000, 60);  // 5s orbit, 60 frames
+anim.interpolate({
+  kind: "color",
+  target_ref: "protein_color",
+  property: "color",
+  duration_ms: 3000,
+  palette: { kind: "continuous", colors: ["blue", "cyan"] },
+});
 ```
+
+Currently, use the manual snapshot modification approach shown above.
+:::
 
 ## See Also
 
-- [Camera Settings](camera.qmd) - Camera positioning for animation endpoints
+- [Camera Settings](camera.qmd) - Camera positioning
 - [Tree Schema](mvs-spec.qmd) - Complete node reference
-- [Official Animations Documentation](https://molstar.org/mol-view-spec/docs/animations/) - Complete animation reference
+- [Examples](examples.qmd) - More interactive examples
