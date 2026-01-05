@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file, following t
 ## [Unreleased]
 
 ### Added
+- majore docs refactor to use interactive docs
 - Update to latest Monaco with a color picker
 - **Backend API Service**: REST API backend for storing and managing molecular visualization stories and states
   - Flask-based service with Pydantic validation and MinIO S3 storage
