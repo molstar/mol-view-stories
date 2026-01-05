@@ -1,9 +1,44 @@
-# CLI Tool
+# MolViewStories CLI Tool
 
-The MVS CLI is a command-line tool for creating, building, and serving molecular visualization stories. It provides an efficient workflow for developing interactive narratives with 3D molecular structures.
+::: {.callout-warning}
+## Development Status
+The CLI is currently in active development. Features and commands may change.
+:::
+
+In other sections we have described that a Story is a collection of scenes where each scene is defined by having
+a molecular description in MolViewSpec (and created using Javascript) and a narrative component written in markdown. Stories
+also have shared metadata.  The structure that we have built up to create stories on the web can also be reused locally by recreating
+the Story in the form of a nested set of files. In this case a story would consist of a file tree that looks something like the
+files structure below.
+
+The MVS CLI is a way to reuse the `StoryManager` class of the `mol-view-stories` repository and allow us to build stories form
+the command line.
 
 
-## Quick Start
+```
+my-story/
+├── story.yaml              # Story metadata and settings
+├── story.js                # Optional global JavaScript
+├── assets/                 # Local molecular files (optional)
+└── scenes/
+    ├── scene1/
+    │   ├── scene1.yaml     # Camera, timing, settings
+    │   ├── scene1.md       # Narrative content (Markdown)
+    │   └── scene1.js       # Visualization code
+    └── scene2/
+        ├── scene2.yaml
+        ├── scene2.md
+        └── scene2.js
+```
+
+
+
+
+## MVS CLI Quick Start
+
+The best way to get started is to build a preexisting story from our repo. We will work on creating a quarto template
+that will help users get started on new stories or incorporating them into existing website workflows.
+
 
 ```bash
 # Install
