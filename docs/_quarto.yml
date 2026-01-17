@@ -28,6 +28,8 @@ website:
             href: webapp-interface.qmd
           - text: 'Building Stories'
             href: core-features.qmd
+          - text: 'Example Stories'
+            href: example-stories/index.qmd
           - text: 'Cloud Storage & Sharing'
             href: webapp-cloud-storage.qmd
           - text: 'Tips & Workflows'
