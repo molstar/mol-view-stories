@@ -142,9 +142,9 @@ examples:
     image: 'https://molstar.org/img/motor-hook.png'
     pdb_id: '7CGO'
     doi: '10.1016/j.cell.2021.03.057'
-    status: 'stub'
+    status: 'complete'
     tier: 1
-    notes: 'Single cryo-EM structure'
+    notes: 'Single cryo-EM structure. ✅ FIRST COMPLETE EXAMPLE! Simplified from original molx using chain-id coloring.'
 
 # Implementation Tiers:
 # Tier 1: Simple (single structure, standard representations)

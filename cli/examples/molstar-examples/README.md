@@ -46,10 +46,12 @@ These examples showcase the conversion of Molstar's molx state files into the mo
 
 | Status | Count | Examples |
 |--------|-------|----------|
-| 🚧 Stub | 11 | All examples |
+| 🚧 Stub | 10 | Most examples |
 | 🔍 Investigating | 0 | - |
 | 🚧 In Progress | 0 | - |
-| ✅ Complete | 0 | - |
+| ✅ Complete | 1 | **motor-hook** |
+
+**Latest:** motor-hook completed 2026-01-18 - First successful molx → mol-view-stories conversion!
 
 ## molx File Format
 
