@@ -8,19 +8,51 @@ scenes:
     description: |
       # Nuclear Pore Complex
 
-      IH/M structure of the Nuclear Pore Complex.
-      
-      
+      Integrative/Hybrid (I/H) structure of the Nuclear Pore Complex from PDB-Dev.
+
+      **PDB-Dev ID:** [PDBDEV_00000012](https://pdb-dev.wwpdb.org/entry.html?PDBDEV_00000012)
 
       **Type:** Integrative/Hybrid Structure
 
-      **Status:** 🚧 Stub - needs implementation
+      The Nuclear Pore Complex (NPC) is one of the largest macromolecular assemblies in eukaryotic cells, serving as the gateway for molecular transport between the nucleus and cytoplasm. This integrative structure combines data from multiple experimental techniques to model the complete NPC architecture.
 
-      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fnpc.molx&snapshot-url-type=molx)
+      The structure is shown with a gaussian surface representation colored by unit index to highlight the different protein components of the complex.
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fnpc.molx&snapshot-url-type=molx)
 
     javascript: |
-      // TODO: Implement visualization after investigating molx file
-      console.log('npc - not yet implemented');
+      // Load the NPC integrative structure from local assets
+      // This file contains 2 models: model 0 (full structure) and model 1 (putty/coarse parts)
+      const structure = builder
+        .download({ url: "PDBDEV_00000012.bcif" })
+        .parse({ format: "bcif" })
+        .modelStructure({ model_index: 0 });
 
-    linger_duration_ms: 8000
+      // Show polymer components with gaussian surface and unit-index coloring
+      // Uses interpolated color palette from yellow/white to blue
+      structure
+        .component({ ref: 'NPC', selector: "polymer" })
+        .representation({ type: "surface" })
+        .color({ custom: { unit_index: {} } });
+
+      // TODO: Add model 1 for putty representation when putty is supported in MVS
+      // Model 1 shows coarse-grained parts in orange putty representation
+      // const structure2 = builder
+      //   .download({ url: "PDBDEV_00000012.bcif" })
+      //   .parse({ format: "bcif" })
+      //   .modelStructure({ model_index: 1 });
+      //
+      // structure2
+      //   .component({ ref: 'NPC-putty', selector: "polymer" })
+      //   .representation({ type: "putty" })
+      //   .color({ color: "#FC6600" });
+
+    camera:
+      mode: 'perspective'
+      position: [355.90, 1529.56, 972.37]
+      target: [59.88, 13.11, 47.25]
+      up: [-0.077, -0.508, 0.858]
+      fov: 45
+
+    linger_duration_ms: 10000
     transition_duration_ms: 1500

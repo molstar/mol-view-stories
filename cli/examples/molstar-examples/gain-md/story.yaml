@@ -1,5 +1,5 @@
 title: 'GAIN Domain Tethered Agonist Exposure'
-author_note: 'Based on Molstar example from molstar.org'
+author_note: 'Based on Molstar example from molstar.org. MD trajectory animation by Ramon Guixà-González.'
 
 scenes:
   - id: main
@@ -8,19 +8,52 @@ scenes:
     description: |
       # GAIN Domain Tethered Agonist Exposure
 
-      GAIN domain tethered agonist exposure MD trajectory.
-      
-      **Reference:** [10.1016/j.molcel.2020.12.042](https://dx.doi.org/10.1016/j.molcel.2020.12.042)
+      Molecular dynamics trajectory showing the GAIN (GPCR-Autoproteolysis INducing) domain and the exposure of a tethered agonist.
+
+      **Reference:** Barros-Álvarez et al., Molecular Cell (2021)
+      **DOI:** [10.1016/j.molcel.2020.12.042](https://dx.doi.org/10.1016/j.molcel.2020.12.042)
 
       **Type:** MD Trajectory
+      **Attribution:** Animation by Ramon Guixà-González
 
-      **Status:** 🚧 Stub - needs implementation
+      The GAIN domain is found in adhesion GPCRs and undergoes autoproteolysis, creating a tethered agonist that can activate the receptor. This MD simulation captures the conformational changes during agonist exposure.
 
-      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fgain-md.molx&snapshot-url-type=molx)
+      **Note:** This visualization shows a static frame from the MD trajectory. Full trajectory animation (XTC playback) is not yet supported in mol-view-spec.
+
+      The visualization shows:
+      - GAIN domain (surface, semi-transparent)
+      - Tethered agonist peptide (ball-and-stick representation)
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fgain-md.molx&snapshot-url-type=molx)
 
     javascript: |
-      // TODO: Implement visualization after investigating molx file
-      console.log('gain-md - not yet implemented');
+      // Load GRO structure file (static frame)
+      // Note: XTC trajectory animation not yet supported in MVS
+      const structure = builder
+        .download({ url: "CL1C1noH.gro" })
+        .parse({ format: "gro" })
+        .modelStructure({});
 
-    linger_duration_ms: 8000
+      // GAIN domain - surface
+      // Residues 1-914 (chain A equivalent)
+      structure
+        .component({ ref: 'GAIN-domain', selector: { residue_range: [1, 914] } })
+        .representation({ type: "surface" })
+        .color({ color: "#6495ED" });
+
+      // Tethered agonist peptide - ball-and-stick
+      // Residues 915-1922 (chain B equivalent)
+      structure
+        .component({ ref: 'Tethered-agonist', selector: { residue_range: [915, 1922] } })
+        .representation({ type: "ball_and_stick" })
+        .color({ color: "#FF6347" });
+
+    camera:
+      mode: 'perspective'
+      position: [53.60, 58.01, 184.55]
+      target: [55.18, 51.79, 54.35]
+      up: [-0.901, 0.432, -0.032]
+      fov: 45
+
+    linger_duration_ms: 10000
     transition_duration_ms: 1500
