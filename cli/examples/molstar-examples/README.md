@@ -13,11 +13,11 @@ These examples showcase the conversion of Molstar's molx state files into the mo
 
 ### Tier 1: Simple Examples (Good Starting Points)
 
-| Example | Description | PDB | Type |
-|---------|-------------|-----|------|
-| [motor-hook](./motor-hook/) | Bacterial flagellar motor-hook complex | 7CGO | Cryo-EM |
-| [1rb8-assembly](./1rb8-assembly/) | PhiX174 DNA binding protein assembly | 1RB8 | Assembly |
-| [zika-em](./zika-em/) | Zika virus with Cryo-EM density | - | Structure + EM |
+| Example | Description | PDB | Type | Status |
+|---------|-------------|-----|------|--------|
+| [motor-hook](./motor-hook/) | Bacterial flagellar motor-hook complex | 7CGO | Cryo-EM | ✅ Complete |
+| [zika-em](./zika-em/) | Zika virus assembly (360-mer) | 5IRE | Structure + EM | ✅ Complete |
+| [1rb8-assembly](./1rb8-assembly/) | PhiX174 DNA binding protein assembly | 1RB8 | Assembly | 🚧 Stub |
 
 ### Tier 2: Medium Complexity
 
@@ -46,12 +46,14 @@ These examples showcase the conversion of Molstar's molx state files into the mo
 
 | Status | Count | Examples |
 |--------|-------|----------|
-| 🚧 Stub | 10 | Most examples |
+| 🚧 Stub | 9 | Most examples |
 | 🔍 Investigating | 0 | - |
 | 🚧 In Progress | 0 | - |
-| ✅ Complete | 1 | **motor-hook** |
+| ✅ Complete | 2 | **motor-hook**, **zika-em** |
 
-**Latest:** motor-hook completed 2026-01-18 - First successful molx → mol-view-stories conversion!
+**Latest:** 
+- **zika-em** completed 2026-01-18 - Full assembly visualization (360-mer viral capsid)
+- **motor-hook** completed 2026-01-18 - First successful molx → mol-view-stories conversion with 5 functional components
 
 ## molx File Format
 

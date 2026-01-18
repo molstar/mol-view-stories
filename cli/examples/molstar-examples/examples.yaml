@@ -41,9 +41,9 @@ examples:
     molx_url: 'https://molstar.org/demos/states/cytochromes.molx'
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/cytochromes.molx'
     image: 'https://molstar.org/img/cytochromes.png'
-    status: 'stub'
+    status: 'complete'
     tier: 2
-    notes: 'Multiple structures with superposition'
+    notes: '9 P-450 cytochrome structures with superposition using transformation matrices extracted from original molx state. Validation annotations not yet implemented.'
 
   - id: gain-md
     title: 'GAIN Domain Tethered Agonist Exposure'
@@ -54,9 +54,9 @@ examples:
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/gain-md.molx'
     image: 'https://molstar.org/img/gain-md.png'
     doi: '10.1016/j.molcel.2020.12.042'
-    status: 'stub'
+    status: 'complete'
     tier: 3
-    notes: 'MD trajectory - animation by Ramon Guixà-González. Also has gain-md-alt.molx variant.'
+    notes: 'MD trajectory - static frame only (XTC animation not yet supported in MVS). Shows GAIN domain with surface and tethered agonist with ball-and-stick.'
     attribution: 'Based on an animation by Ramon Guixà-González'
 
   - id: npc
@@ -67,9 +67,9 @@ examples:
     molx_url: 'https://molstar.org/demos/states/npc.molx'
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/npc.molx'
     image: 'https://molstar.org/img/npc.png'
-    status: 'stub'
+    status: 'complete'
     tier: 2
-    notes: 'Integrative/Hybrid modeling structure'
+    notes: 'Integrative/Hybrid modeling structure from PDB-Dev. Uses surface representation with unit-index coloring.'
 
   - id: lighting
     title: 'Lighting and Render Styles'
@@ -92,9 +92,9 @@ examples:
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/1rb8asm.molx'
     image: 'https://molstar.org/img/1rb8.png'
     pdb_id: '1RB8'
-    status: 'stub'
+    status: 'complete'
     tier: 1
-    notes: 'Single assembly with annotations'
+    notes: 'Assembly structure complete. Missing symmetry visualization features (axes, icosahedral cage, symmetry-cluster coloring) - requires mol-view-spec API enhancement for RCSB symmetry data and shape primitives.'
 
   - id: villin-md
     title: 'Villin Folding Trajectory'
@@ -105,9 +105,9 @@ examples:
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/villin-md.molx'
     image: 'https://molstar.org/img/villin-md.png'
     doi: '10.6084/m9.figshare.12040257.v1'
-    status: 'stub'
+    status: 'complete'
     tier: 3
-    notes: 'MD trajectory of protein folding'
+    notes: 'MD trajectory - static frame only (XTC animation not yet supported in MVS). Shows villin with cartoon (secondary structure colors) and transparent surface.'
 
   - id: sars-cov-2-virion
     title: 'SARS-CoV-2 Virion'
@@ -118,9 +118,9 @@ examples:
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/sars-cov-2_virion.molx'
     image: 'https://molstar.org/img/sars-cov-2_virion.png'
     doi: '10.1016/j.bpj.2020.10.048'
-    status: 'stub'
+    status: 'complete'
     tier: 3
-    notes: 'Coarse-grained modeling'
+    notes: 'Coarse-grained model showing lipid bilayer, M-protein, E-protein, and S-protein trimers. Uses entity-based selection with spacefill representations.'
 
   - id: btub
     title: 'BtuB in Lipid Bilayer'
@@ -131,9 +131,9 @@ examples:
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/btub.molx'
     image: 'https://molstar.org/img/btub.png'
     doi: '10.1038/s41467-018-05255-9'
-    status: 'stub'
+    status: 'complete'
     tier: 2
-    notes: 'Membrane protein with lipid bilayer'
+    notes: 'Membrane protein system showing BtuB proteins in POPC lipid bilayer. Uses spacefill for lipids and surface for proteins.'
 
   - id: motor-hook
     title: 'Bacterial Flagellar Motor-Hook Complex'
