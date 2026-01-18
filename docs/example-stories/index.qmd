@@ -1,5 +1,11 @@
 # Example Stories
 
-- **[MOM1](making-of-mom1.qmd)** - the making of the MOM1 story
-- **[MOM2](making-of-mom2.qmd)** - the making of the MOM2 story
-...
+Here a couple making of several example story we design with molviewstory builder. They can help you better understand molviewspec and how to make great interactive molecular story.
+
+- ![](img/mom1-thumb.png){width=40} **[MOM1](making-of-mom1.qmd)** 
+
+The first *Molecule of the Month* story on myoglobin by David Goodsell (January 2000) as an interactive, narrated experience. It demonstrates how MolViewSpec scenes combine Markdown, animation, and user interaction to turn a classic scientific article into an explorable molecular story.
+
+- ![](img/mom300-thumb.png){width=40} **[MOM300](making-of-mom300.qmd)** 
+
+This story adapts the 300th *Molecule of the Month* by David Goodsell (December 2024) on the bacterial flagellar motor into an interactive exploration of one of nature’s most powerful molecular machines. It shows how large multi-protein assemblies, rotational motion, and regulatory switches can be communicated through coordinated text, highlights, and animation.

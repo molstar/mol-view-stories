@@ -10,13 +10,15 @@ We start with the original *Molecule of the Month* content by David Goodsell:
 [https://pdb101.rcsb.org/motm/1](https://pdb101.rcsb.org/motm/1)
 
 We use ChatGPT to transform the written explanations into clear, descriptive audio narration while preserving the scientific intent and rhythm of the original text. The narration is then brought to life using Evernote's AI text-to-voice tool, generating a natural female voice-over that guides the viewer through the story:  
-[https://evernote.com/ai-text-to-voice](https://evernote.com/ai-text-to-voice)
+[https://evernote.com/ai-text-to-voice](https://evernote.com/ai-text-to-voice). Note that the audio will not play here; this example simply shows how to specify it.
 
 Rather than reinventing the narration, we closely follow David's structure, breaking it into distinct scenes that unfold step by step. Each scene focuses on a specific idea, visual moment, or molecular insight, allowing the story to remain accessible and faithful to the source material.
 
 To support this process, we prepare each story using a shared set of helper functions and utilities—defined once and made available across all scenes through story-wide code. This allows us to focus on storytelling and visualization while keeping the technical foundation consistent and reusable.
+This code is available to all scenes in the story. Throughout the scenes, we will use [primitives](../molviewspec/primitives.qmd), [selectors](../molviewspec/selectors.qmd), and [animations](../molviewspec/animations.qmd), as well as audio playback through customization of the builder. We will also use advanced features from the [molstar customisation of the markdown syntaxe](https://molstar.org/docs/plugin/managers/markdown-extensions/).
 
-<!-- ## Story-Wide Code {.collapse=true} -->
+## Story Options
+In the story options we can specify metadata such as title, authors note. This is also where we provide story-wide reusable code and also where the asset are upload. In this story the only asset is the audio description for each scene. 
 <details>
 <summary><strong>Story-Wide Code</strong></summary>
 
@@ -97,7 +99,7 @@ const GColors3 = {
 // for each scene we have prepared an audio file, preloaded in the asset upload
 
 ```
-![](img/mof_mat4_1.png)
+![](img/mof_audio_asset.png)
 
 ```javascript
 const _Audio1 = 'AudioMOM1_A.mp3';
@@ -166,10 +168,11 @@ const getEllipse = (builder, pos1, pos2, ref) => {
 
 
 // Helper function to build the 1mbn structure with common representations - using const for proper scoping
+// We also keep a reference to the object's opacity for later animation.
 const build1mbn = (builder) => {
  const struct = structure(builder, '1MBN');
 
-
+ 
  struct
    .component({ selector: 'ligand' })
    .representation({ ref: 'ligand', type: 'ball_and_stick' })
@@ -213,16 +216,16 @@ const build1mbn = (builder) => {
    },
  };
 };
-
-
 // All helper functions and constants are available globally to scene files
 // No exports needed - all code is combined together
 ```
 </details>
 
+## Scene 1 Introduction
+In the *Scene Options* section, we specify the scene name and the key `first-slide`, which can be used to reference this scene and trigger it from another scene using a clickable label. 
+
 <details>
-<summary><strong>Scene 1 Introduction</strong></summary>
-In the scene options, we had the following markdown description: 
+<summary><strong>Markdown description</strong></summary>
 
 ```markdown
 # Introduction
@@ -233,12 +236,24 @@ A story based on the orginal [first Molecule of the Month](https://pdb101.rcsb.o
 For the best experience, please keep your sound on or use headphones.
 ```
 
-And in the 3D view we add the following code :
+</details>
 
-```javascript
+<details>
+<summary><strong>MolviewSpec 3D view and code</strong></summary>
 
+```{.molviewspec}
+// Hidden setup code
+{{< include js/mom1.mvs.js >}}
+
+---
+// Visible, editable code
+// First, we load and prepare the visualization for hemoglobin
+// using the code defined in the story-wide section.
 const _1mbn = build1mbn(builder, '1MBN');
 
+// Get the animation manager and specify that
+// We will use the camera spin automation in counterclockwise 
+// mode at a low speed (-0.05).
 const anim = builder.animation({
   custom: {
     molstar_trackball: {
@@ -248,6 +263,16 @@ const anim = builder.animation({
   },
 });
 
+// We first create a primitives container, which acts as a logical and
+// reusable handle for all low-level geometric elements associated with
+// this interaction. Defining the primitive up front allows us to assign
+// shared properties—such as a reference ID, opacity, background color,
+// and snapshot key—once, and then reuse them across any geometry we add.
+//
+// This primitive serves as the anchor point for interaction and animation:
+// by giving it a stable reference ("start-story"), we can later retrieve
+// and manipulate the label (e.g., fade it in, move it, or hide it) through
+// the animation manager.
 const prims = _1mbn.struct.primitives({
   ref: 'start-story',
   label_opacity: 0,
@@ -255,12 +280,24 @@ const prims = _1mbn.struct.primitives({
   snapshot_key: 'intro',
 });
 
+// After the primitive is created, we add the actual label geometry. The
+// label defines the visible, screen-facing text, including its content,
+// spatial position in the scene, and visual size. Separating the primitive
+// definition from the label geometry keeps the structure modular: the
+// primitive handles identity and behavior, while the label specifies
+// appearance and placement.
 prims.label({
   text: 'Start story',
   position: [13.5, -4, 7.7],
   label_size: 8,
 });
 
+// Animate the label opacity to smoothly fade in the "Start story" label.
+// This interpolation targets the primitive with the reference "start-story"
+// and linearly updates its `label_opacity` property from fully transparent
+// (0.0) to fully visible (1.0). The animation starts almost immediately
+// (at 1 ms) and completes over 1 second, creating a gentle, non-intrusive
+// reveal of the interactive label.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'start-story',
@@ -272,13 +309,13 @@ anim.interpolate({
 });
 ```
 
-
 </details>
 
-<details>
-<summary><strong>Scene 2 Molecule of the Month: Myoglobin</strong></summary>
+## Scene 2 Molecule of the Month: Myoglobin
+This scene adapts the first part of the Molecule of the Month entry on myoglobin into an interactive, narrated visual experience. In the Scene Options, we define the scene key reference (intro) and provide the associated description. The Markdown supplies the scientific narrative—why myoglobin mattered historically, how it stores oxygen through the heme group, and how early pioneers visualized protein structures. The MolViewSpec script then builds a guided animation: it loads the structure, configures visual styles, and progressively reveals the protein and its heme group in sync with the narration. The result is a “read + explore” scene where text, highlights, and motion work together to teach the molecule.
 
-scene options : 
+<details>
+<summary><strong>Scene description</strong></summary>
 ```markdown
 # Molecule of the Month: Myoglobin
 
@@ -317,19 +354,52 @@ You can learn more about the work of Irving Geis at the **[Geis Archive on PDB-1
 *Illustration of myoglobin by Irving Geis. You can learn more about this painting at the Geis Archive on PDB-101.  
 Used with permission from the Howard Hughes Medical Institute, Copyright 2015.*
 ```
+The scene Markdown here include interactive links that control the 3D viewer. For example:
+```markdown
+[Myoglobin](!query%3Dchain%20A%26lang%3Dpymol%26action%3Dhighlight%2Cfocus)
+```
+This is a special link (not a normal URL). When you hover it, the viewer previews the target, and when you click it, the viewer applies the requested actions:
+- `query=chain A` selects the target using a **PyMOL-style query**
+- `lang=pymol` tells the system how to interpret the query string
+- `action=highlight,focus` highlights the selection and moves the camera to focus on it
 
-scene code : 
-```javascript
+In practice, this lets the narration stay in Markdown while the reader can directly trigger viewer interactions.
 
+</details>
+
+<details>
+<summary><strong>Scene MolviewSpec 3D View and Code</strong></summary>
+
+```{.molviewspec}
+// Hidden setup code
+{{< include js/mom1.mvs.js >}}
+
+---
+// Visible, editable code
 // Scene 2: Molecule of the Month: Myoglobin
 // Main introduction to myoglobin with animations highlighting the heme group and structure
 
-// No outline here
+// Turns off Mol* outline post-processing for this scene.
+// That keeps the look softer/cleaner, especially for spacefill + emissive pulses.
 builder.canvas({ custom: { molstar_postprocessing: { enable_outline: false } } });
 
+// Registers a custom Markdown command (play-audio) that triggers _Audio1 when the scene loads.
+// This links narration to the scene timeline.
+builder.extendRootCustomState({
+  molstar_on_load_markdown_commands: {
+    'play-audio': _Audio1,
+  },
+});
+
+// Loads and prepares the myoglobin structure using the helper.
 const _1mbn = build1mbn(builder, '1MBN');
 
 // Whale myoglobin - spacefill representation with CPK colors
+// Creates a spacefill (CPK-like) view for chain A and colors 
+// atoms by element via colorFromSource (C, N, O, S palette). 
+// It starts fully transparent (opacity 0.0) and stores opacity 
+// under ref cpkopa1 so you can animate it later.
+// Note: ignoreLight: true makes the look flatter/brighter, more “illustrative”.
 _1mbn.struct
   .component({ selector: { label_asym_id: 'A' } })
   .representation({ type: 'spacefill', custom: { molstar_representation_params: { ignoreLight: true } } })
@@ -350,14 +420,21 @@ _1mbn.struct
   .opacity({ ref: 'cpkopa1', opacity: 0.0 });
 
 // Heme group
+// Builds a separate representation for the heme group (selected by auth_seq_id: 155)
+// with a custom palette GColors2 (defined in the story-wide code),
+// also starting hidden and tracked with ref cpkopa2.
 _1mbn.struct
   .component({ selector: { auth_seq_id: 155 } })
   .representation({ type: 'spacefill', custom: { molstar_representation_params: { ignoreLight: true } } })
   .color({ custom: GColors2 })
   .opacity({ ref: 'cpkopa2', opacity: 0.0 });
 
+// Adds a clickable “Next” label/button at that position, 
+// linking to the next scene with key 'whale'.
 addNextButton(builder, 'whale', [13.5, -4, 7.7]);
 
+// Creates an animation timeline and enables a slow counterclockwise camera spin (negative speed). 
+// This gives a subtle “alive” feel without distracting.
 const anim = builder.animation({
   custom: {
     molstar_trackball: {
@@ -367,7 +444,7 @@ const anim = builder.animation({
   },
 });
 
-// Fade in the line representation
+// Fades in the line representation referenced as lineopa (defined in the story-wide code) over 2 seconds at scene start.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'lineopa',
@@ -379,6 +456,8 @@ anim.interpolate({
 });
 
 // Pulse the ligand (heme group) to draw attention
+// Creates a pulsing glow effect by animating the emissive parameter on the object referenced as ligand (in the story-wide code).
+// It starts at 22s, runs 10s, oscillates 6 times, alternating direction (so it pulses in/out).
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'ligand',
@@ -390,7 +469,8 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Fade in the spacefill representation of the protein
+// At 40 seconds, fades in chain A spacefill over 5 seconds.
+// This is the reveal after the earlier line view + heme emphasis.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'cpkopa1',
@@ -401,14 +481,8 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Play audio when this scene loads
-builder.extendRootCustomState({
-  molstar_on_load_markdown_commands: {
-    'play-audio': _Audio1,
-  },
-});
-
-// Fade in the spacefill representation of the heme
+// Also at 40 seconds, fades in the heme spacefill representation.
+// Doing protein + heme together creates a nice synchronized reveal.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'cpkopa2',
@@ -419,7 +493,8 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Fade in the "Next" button
+// At 43 seconds, fades in the navigation label by animating label_opacity from 0→1 over 2 seconds.
+// It appears after the main visual reveal and at the end of the narration, so it doesn’t distract early.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'next',
@@ -433,8 +508,16 @@ anim.interpolate({
 
 </details>
 
+## Scene 3 Myoglobin and Whales
+Scene 3 extends the myoglobin story into an evolutionary and biophysical comparison: why whales can dive so long. The markdown explains the biological motivation—marine mammals carry far more myoglobin and need molecular adaptations to avoid aggregation at high concentration. The MolViewSpec script turns that into a visual side-by-side comparison of sperm whale myoglobin (1MBN) and pig myoglobin (1PMB), then draws attention to key surface mutations by marking charged residues and pulsing a surface representation. The result is a clear “compare and understand” moment where structure, labels, and animation reinforce the narrative.
+
 <details>
-<summary><strong>Scene 3 Myoglobin and Whales</strong></summary>
+<summary><strong>Scene Description</strong></summary>
+This markdown is the scene narrative:
+Establishes the “whale source” fact (Kendrew’s whale myoglobin).
+Explains the functional reason: high oxygen storage for deep dives.
+Introduces the hypothesis/mechanism: extra positively charged residues on the surface help reduce aggregation.
+Sets up the comparison explicitly via PDB links to [1mbn] and [1pmb].
 
 ```markdown
 # Myoglobin and Whales
@@ -451,16 +534,26 @@ several mutations that add extra positively-charged amino acids to the surface. 
 the surface of their myoglobin to help repel neighboring molecules and prevent aggregation when myoglobin is at 
 high concentrations.
 ```
+</details>
 
-```javascript
+<details>
+<summary><strong>Scene MolviewSpec Code</strong></summary>
 
+```{.molviewspec}
+// Hidden setup code
+{{< include js/mom1.mvs.js >}}
+
+---
+// Visible, editable code
 // Scene 3: Myoglobin and Whales
 // Comparison of whale and pig myoglobin showing charged residues
 
-// Whale myoglobin (1mbn)
+// Loads whale myoglobin (1MBN) and applies a translation so it starts left of center.
+// The transform is stored under ref whalex so you can animate its translation later.
 const _1mbn = structure(builder, '1mbn').transform({ ref: 'whalex', translation: [-30, 0, 0] });
 
-// Whale - spacefill representation with CPK colors
+// Creates a spacefill representation for chain A and colors atoms by element using a custom palette (C/N/O/S).
+// This gives a classic “CPK-like” look using the same color as in the original entry.
 _1mbn
   .component({ selector: { label_asym_id: 'A' } })
   .representation({ type: 'spacefill', custom: { molstar_representation_params: { ignoreLight: true } } })
@@ -479,13 +572,14 @@ _1mbn
     },
   });
 
-// Heme group in whale myoglobin
+// Selects the heme group (via auth_seq_id: 155) and renders it in spacefill with a distinct palette (GColors2) so it stands out.
 _1mbn
   .component({ selector: { auth_seq_id: 155 } })
   .representation({ type: 'spacefill', custom: { molstar_representation_params: { ignoreLight: true } } })
   .color({ custom: GColors2 });
 
-// Label for whale
+// Creates a primitives container (ref prims) and adds a tethered label “whale” anchored to a position on the structure (residue 8).
+// The tether makes the label feel “attached” to the molecule.
 _1mbn
   .primitives({
     ref: 'prims',
@@ -500,7 +594,10 @@ _1mbn
     label_size: 10,
   });
 
-// Star markers for charged residues
+// Defines a group of star labels under a single ref startres, starting invisible.
+// Each “★” is placed at a specific atom/residue location to mark key charged sites.
+// Because they share the same primitive ref, you can fade them all in together with one animation.
+// Note how you can use a selector to get a 3D position in the scene and place the label accordingly.
 _1mbn
   .primitives({
     ref: 'startres',
@@ -526,6 +623,7 @@ _1mbn
   });
 
 // Charged residues surface representation
+// Creates a selection containing the charged residues of interest and renders a gaussian surface around them.
 const seld = _1mbn.component({
   selector: [
     { label_asym_id: 'A', auth_seq_id: 12 },
@@ -533,7 +631,7 @@ const seld = _1mbn.component({
     { label_asym_id: 'A', auth_seq_id: 87 },
   ],
 });
-
+// This surface representation has ref 'scharged', so you can later pulse its emissive parameter to visually “glow” those sites.
 seld
   .representation({
     ref: 'scharged',
@@ -543,22 +641,24 @@ seld
   })
   .colorFromSource(GColors3);
 
-// Pig myoglobin (1pmb) - transformed to align with whale
+// Loads pig myoglobin (1PMB) and applies a transform matrix (alignMatrix) so it’s aligned/posed relative to the whale molecule.
+// The transform ref is 'pig' so you can animate its matrix later.
+// the matrix come from Molstar superimpose feature, and is stored in the story-wide code.
 const _1pmb = structure(builder, '1pmb').transform({ ref: 'pig', matrix: alignMatrix });
 
-// Pig - spacefill representation
+// Renders pig myoglobin in spacefill and colors it (using GColors3).
 _1pmb
   .component({ selector: { label_asym_id: 'A' } })
   .representation({ type: 'spacefill', custom: { molstar_representation_params: { ignoreLight: true } } })
   .colorFromSource(GColors3);
 
-// Heme group in pig myoglobin
+// Then separately renders the heme group for pig with GColors2.
 _1pmb
   .component({ selector: { label_asym_id: 'C', auth_seq_id: 154 } })
   .representation({ type: 'spacefill', custom: { molstar_representation_params: { ignoreLight: true } } })
   .color({ custom: GColors2 });
 
-// Label for pig
+// Adds a tethered “pig” label with its own ref labelpig. You later fade its opacity in during the animation.
 _1pmb
   .primitives({
     ref: 'labelpig',
@@ -573,6 +673,7 @@ _1pmb
     label_size: 10,
   });
 
+// Creates a timeline and sets a gentle counterclockwise camera spin, keeping the comparison visually dynamic.
 const anim = builder.animation({
   custom: {
     molstar_trackball: {
@@ -582,7 +683,7 @@ const anim = builder.animation({
   },
 });
 
-// Move whale to the left to make room for pig
+// Moves whale left over 10 seconds to make room for the pig molecule to enter.
 anim.interpolate({
   kind: 'vec3',
   target_ref: 'whalex',
@@ -593,7 +694,7 @@ anim.interpolate({
   end: [-60, 0, 0],
 });
 
-// Show star markers for charged residues
+// Fades in all “★” markers at once at 20 seconds, drawing attention to charged residues.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'startres',
@@ -604,7 +705,8 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Pig appears at 18s - slide in from the right
+// Animates the pig transform so it slides in from the right between 18–23 seconds.
+// This is a nice “compare reveal” moment.
 anim.interpolate({
   kind: 'transform_matrix',
   target_ref: 'pig',
@@ -615,7 +717,7 @@ anim.interpolate({
   translation_end: [-52.54880970106205, 37.49099778180445, -6.133850309914719],
 });
 
-// Fade in pig label
+// Reveals the “pig” label as it appears (so the viewer immediately knows which is which).
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'labelpig',
@@ -626,9 +728,10 @@ anim.interpolate({
   end: 1.0,
 });
 
+//Adds navigation to the next scene (oxygen) and fades the button in near the end of the scene.
 addNextButton(builder, 'oxygen', [-18.9, -4, 7.3]);
 
-// Fade in next button
+// Fade in next button at the end of the scene
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'next',
@@ -640,13 +743,14 @@ anim.interpolate({
 });
 
 // Play audio when this scene loads
+// Maps the play-audio command to _Audio2 for this scene, so narration can be triggered on load or via markdown commands.
 builder.extendRootCustomState({
   molstar_on_load_markdown_commands: {
     'play-audio': _Audio2,
   },
 });
 
-// Pulse the charged residues surface
+// Adds a pulsing “glow” to the charged-residue surface representation (scharged) by animating its emissive parameter. This reinforces the narrative: “these mutations matter.”
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'scharged',
@@ -661,8 +765,17 @@ anim.interpolate({
 ```
 </details>
 
+## Scene 4 Oxygen Bound
+Scene 4 (key: oxygen) focuses on the moment oxygen binds to myoglobin—and, more importantly, on the dynamic nature of proteins that makes binding possible. The markdown explains that a crystal structure such as 1MBO is only a single snapshot, while real proteins continuously “breathe” through small conformational fluctuations, creating transient pathways for oxygen to enter and leave. The MolViewSpec script reinforces this idea visually: it shows bound oxygen, animates an NMR ensemble (1MYF) to convey motion, and illustrates oxygen traveling along a path into the binding pocket. The result is a clear, intuitive explanation of how molecular dynamics enables function.
+
 <details>
-<summary><strong>Scene 4 Oxygen Bound</strong></summary>
+<summary><strong>Scene Description</strong></summary>
+This markdown provides the scientific narrative for the scene:
+Introduces oxygen binding observed in PDB 1MBO
+Answers the “how does oxygen get in/out?” question by emphasizing protein dynamics
+Uses PDB 1MYF as the visual illustration of breathing/flexing motions
+Frames the viewer’s understanding: the PDB is a snapshot; biology is motion
+
 ```markdown
 # Oxygen Bound to Myoglobin
 
@@ -675,26 +788,36 @@ myoglobin (and all other proteins) is constantly in motion, performing
 small flexing and breathing motions (illustrated here by PDB entry [1myf](https://www.rcsb.org/structure/1myf)). So, temporary openings constantly 
 appear and disappear, allowing oxygen in and out.
 ```
+</details>
 
-```javascript
+<details>
+<summary><strong>Scene MolViewSpec 3D View and Code</strong></summary>
 
+```{.molviewspec}
+// Hidden setup code
+{{< include js/mom1.mvs.js >}}
+
+---
+// Visible, editable code
 // Scene 4: Oxygen Bound
 // Shows oxygen binding to myoglobin and protein breathing motions
 
-// Myoglobin with bound oxygen (1mbo) - transformed to align with NMR structure
+// Loads 1MBO (myoglobin with oxygen bound) and applies a precomputed transform matrix alignMboMatrix so it aligns with the NMR ensemble view.
 const _1mbo = structure(builder, '1mbo').transform({ matrix: alignMboMatrix });
 
-// NMR structure showing multiple conformations (1myf)
+// Downloads and prepares 1MYF, which contains multiple conformations (an ensemble). You keep a reference 1myf so you can animate the model index later.
 const _1myf = builder
   .download({ url: pdbUrl('1myf') })
   .parse({ format: 'bcif' })
   .modelStructure({ ref: '1myf' });
 
+// Defines a consistent palette: soft red for the protein, stronger red for the heme, cyan for oxygen.
 const red1 = '#d3a4a6';
 const red2 = '#d75354';
 const blue1 = '#02d1d1';
 
-// Protein spacefill representation
+// Renders the protein in spacefill (chain A) and stores its opacity in ref spo.
+// The plan is to start with a solid “blob” view, then fade it down to reveal the backbone and emphasize motion.
 _1myf
   .component({ selector: { label_asym_id: 'A' } })
   .transform({ translation: [0, 0, 0] })
@@ -702,30 +825,20 @@ _1myf
   .color({ color: red1 })
   .opacity({ ref: 'spo', opacity: 1.0 });
 
-// Heme group
+// Shows the heme group in spacefill and colors it with an “illustration-style” helper ill_color(...).
 _1mbo
   .component({ selector: { label_asym_id: 'C', auth_seq_id: 155 } })
   .representation({ type: 'spacefill' })
   .color({ custom: ill_color(14134100, 1.0)});
-  // .color({
-  //   custom: {
-  //     molstar_color_theme_name: 'element-symbol',
-  //     molstar_color_theme_params: {
-  //       carbonColor: {
-  //         name: 'uniform',
-  //         params: { value: red2 },
-  //       },
-  //     },
-  //   },
-  // });
 
-// Protein backbone
+// Adds a backbone representation so that when spacefill fades out, the viewer still sees the protein structure clearly—especially as it changes across the ensemble models.
 _1myf
   .component({ selector: { label_asym_id: 'A' } })
   .representation({ type: 'backbone' })
   .color({ color: red1 });
 
-// Oxygen molecule - static
+// Creates a static oxygen representation with ref oxy. 
+// You animate its emissive later to “pulse” it and draw attention.
 _1mbo
   .component({ selector: { label_asym_id: 'D', auth_seq_id: 555 } })
   .representation({
@@ -739,7 +852,8 @@ _1mbo
   })
   .color({ color: blue1 });
 
-// Oxygen molecule - animated (moving in/out)
+// Creates a second oxygen representation intended for motion: it has its own transform ref oxyy (so you can translate it in/out) and starts hidden (oxop opacity = 0).
+// This is a nice pattern: one oxygen for pulsing highlight, another for motion demonstration.
 _1mbo
   .component({ selector: { label_asym_id: 'D', auth_seq_id: 555 } })
   .transform({ ref: 'oxyy', translation: [0, 0, 0] })
@@ -747,6 +861,7 @@ _1mbo
   .color({ color: blue1 })
   .opacity({ ref: 'oxop', opacity: 0.0 });
 
+//Get the animation manager and adds subtle camera spin to keep the view lively while the text/audio explains dynamics.
 const anim = builder.animation({
   custom: {
     molstar_trackball: {
@@ -756,7 +871,7 @@ const anim = builder.animation({
   },
 });
 
-// Fade out spacefill to reveal backbone
+// Immediately fades the spacefill from opaque to nearly transparent, so the backbone becomes the main readable structure while still retaining faint volumetric context.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'spo',
@@ -767,7 +882,7 @@ anim.interpolate({
   end: 0.05,
 });
 
-// Animate through NMR ensemble models to show protein breathing
+// Animates the model_index of the ensemble between models 0–11 (discrete stepping) to show breathing/flexing motions. With alternate_direction: true, it cycles back and forth, which reads as “breathing”.
 anim.interpolate({
   kind: 'scalar',
   target_ref: '1myf',
@@ -781,7 +896,7 @@ anim.interpolate({
   end: 11,
 });
 
-// Pulse the oxygen to draw attention
+// Makes the static oxygen glow/pulse via emissive to highlight the binding event early in the scene.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'oxy',
@@ -793,7 +908,7 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Animate oxygen moving in and out
+// Moves the animated oxygen from outside the protein toward the binding site. The noise_magnitude adds slight jitter so it looks more like diffusion.
 anim.interpolate({
   kind: 'vec3',
   target_ref: 'oxyy',
@@ -807,7 +922,7 @@ anim.interpolate({
   noise_magnitude: 1,
 });
 
-// Fade in the animated oxygen
+// Reveals the moving oxygen shortly before the motion begins, so the “in/out” motion is visible.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'oxop',
@@ -818,6 +933,7 @@ anim.interpolate({
   end: 1.0,
 });
 
+//Adds navigation to the next scene (end) and fades the button in so it appears after the key teaching moment.
 addNextButton(builder, 'end', [0, -25, 0.0]);
 
 // Fade in next button
@@ -832,6 +948,7 @@ anim.interpolate({
 });
 
 // Play audio when this scene loads
+// Maps the play-audio command to _Audio3, connecting narration to this scene.
 builder.extendRootCustomState({
   molstar_on_load_markdown_commands: {
     'play-audio': _Audio3,
@@ -840,8 +957,16 @@ builder.extendRootCustomState({
 ```
 </details>
 
+## Scene 5 Conclusion
+
+Scene 5 (key: end) wraps up the story by connecting myoglobin’s structure to broader principles of protein stability and function. The markdown summarizes classic ideas—hydrophobic residues packed inside, charged residues exposed on the surface, and occasional salt bridges that stabilize local structure—then invites the reader to freely explore. The MolViewSpec script turns those principles into a guided visual: it highlights hydrophobic and charged amino acids with distinct colors, overlays salt-bridge cues using distance measurements and ellipse annotations, and paces the reveal with simple animations. The scene ends with a navigation label that loops back to the start, making the story replayable.
+
 <details>
 <summary><strong>Scene 5 Conclusion</strong></summary>
+This Markdown provides the concluding narrative and references for the story.
+It summarizes key structural principles revealed by the atomic structure of myoglobin, including the burial of hydrophobic (carbon-rich) residues in the protein core, the exposure of charged residues on the surface, and the formation of stabilizing salt bridges between oppositely charged amino acids. The text then encourages readers to explore these principles directly in the interactive view.
+The final sections offer directions for further exploration—such as comparing myoglobin sequences across species or examining cyanide-bound myoglobin—and include a set of primary references that document the historical and scientific context of the structures used in this story.
+
 ```markdown
 # Molecule of the Month: Myoglobin
 
@@ -872,25 +997,33 @@ PDB entry [2jho](https://www.rcsb.org/structure/2jho) includes myoglobin poisone
 - 1myf: Osapay K, Theriault Y, Wright PE, Case DA. Solution structure of carbonmonoxy myoglobin determined from nuclear magnetic resonance distance and chemical shift constraints. J Mol Biol. 1994;244(2):183-197. doi:10.1006/jmbi.1994.1718
 - S. Mirceta, A. V. Signore, J. M. Burns, A. R. Cossins, K. L. Campbell & M. Berenbrink (2013) Evolution of mammalian diving capacity traced by myoglobin net surface charge. Science 340, 1234192.
 ```
+</details>
 
-```javascript
+<details>
+<summary><strong>Molviewspec 3D view and code</strong></summary>
 
+```{.molviewspec}
+// Hidden setup code
+{{< include js/mom1.mvs.js >}}
+
+---
+// Visible, editable code
 // Scene 5: Conclusion
 // Shows different amino acid types and salt bridges in myoglobin
 
+//Loads whale myoglobin (1MBN) as the base structure used for the final teaching summary.
 const _1mbn = structure(builder, '1mbn');
 
-// Define amino acid groups
-// Carbon-rich amino acids (hydrophobic)
+// Builds selectors for three chemically meaningful categories.
+// These selector arrays are later used to create separate components and representations for each group.
+// hydrophobic (carbon-rich) residues
 const carb = ['ALA', 'VAL', 'LEU', 'ILE', 'MET', 'PHE', 'TRP', 'PRO'].map((amk) => ({ label_comp_id: amk }));
-
-// Positively charged amino acids
+// positively charged residues
 const chargedp = ['LYS', 'ARG', 'HIS'].map((amk) => ({ label_comp_id: amk }));
-
-// Negatively charged amino acids
+// negatively charged residues
 const chargedn = ['ASP', 'GLU'].map((amk) => ({ label_comp_id: amk }));
 
-// Salt bridges
+// Creates two distance measurement annotations corresponding to two proposed salt bridges. They start with label_opacity: 0.0 so you can reveal them later in sync with the narration.
 // ASP44-OD1-356 to LYS47-NZ-388
 // LYS77-NZ-613 to GLU18-OE1-149
 _1mbn
@@ -910,43 +1043,46 @@ _1mbn
     label_size: 2,
   });
 
-// Create ellipse visualization for first salt bridge
+// Adds two ellipse graphics (refs salt1 and salt2) to visually “circle” the regions around each salt bridge, matching the wording in the markdown (“shown here with circles”).
+// First salt bridge
 // ASP44 OD1: 22.300 33.300 -6.200
 // LYS47 NZ: 23.200 32.000 -8.400
 const r44 = [22.3, 33.3, -6.2];
 const r47 = [23.2, 32.0, -8.4];
 getEllipse(builder, r44, r47, 'salt1');
 
-// Create ellipse visualization for second salt bridge
+// Second salt bridge
 // GLU18 OE1: 16.600 22.500 20.500
 // LYS77 NZ: 14.100 23.600 22.200
 const r18 = [16.6, 22.5, 20.5];
 const r77 = [14.1, 23.6, 22.2];
 getEllipse(builder, r18, r77, 'salt2');
 
-// Carbon-rich amino acids representation
+// Creates separate ball-and-stick representations for each residue category, with distinct colors.
+// Each group stores an opacity reference (carb, chargedp, chargedn) so you can animate them independently.
+// hydrophobic residues carbon-rich amino acids representation, light violet
 const a = _1mbn.component({ selector: carb });
 a.representation({ type: 'ball_and_stick' }).color({ color: '#bec0f2' }).opacity({ ref: 'carb', opacity: 1.0 });
 
-// Positively charged amino acids representation
+// Positively charged amino acids representation, blue
 const b = _1mbn.component({ selector: chargedp });
 b.representation({ type: 'ball_and_stick' })
   .color({ custom: ill_color('blue', 3.0) })
   .opacity({ ref: 'chargedp', opacity: 1.0 });
 
-// Negatively charged amino acids representation
+// Negatively charged amino acids representation, red
 const c = _1mbn.component({ selector: chargedn });
 c.representation({ type: 'ball_and_stick' })
   .color({ custom: ill_color('red', 3.0) })
   .opacity({ ref: 'chargedn', opacity: 1.0 });
 
-// Backbone representation
+// Renders a neutral backbone so the residue highlights sit in structural context.
 _1mbn
   .component({ selector: { label_asym_id: 'A' } })
   .representation({ type: 'backbone' })
   .color({ color: '#919191' });
 
-// Ligand (heme) representation
+// Displays the heme (and any ligand selection) in orange, giving the viewer a familiar reference point even in the conclusion scene.
 _1mbn
   .component({ selector: 'ligand' })
   .representation({
@@ -960,9 +1096,11 @@ _1mbn
   })
   .color({ color: 'orange' });
 
+// Creates the animation timeline.
 const anim = builder.animation({});
 
 // Pulse carbon-rich amino acids
+// Uses a brief pulse to draw attention to the buried hydrophobic residues concept.
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'carb',
@@ -975,7 +1113,8 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Show positively charged amino acids
+// Brings positive and negative surface residues in together, matching the “charged residues are on the surface” message.
+// positively charged amino acids
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'chargedp',
@@ -986,7 +1125,7 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Show negatively charged amino acids
+// negatively charged amino acids
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'chargedn',
@@ -997,7 +1136,8 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Show salt bridge ellipses
+// Shows the circles/ellipses lightly (opacity 0.3) and then brings in the measured distances, reinforcing “salt bridges pair opposite charges.”
+// First salt bridge ellipses
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'salt1',
@@ -1007,7 +1147,7 @@ anim.interpolate({
   start: 0.0,
   end: 0.3,
 });
-
+// Second salt bridge ellipses
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'salt2',
@@ -1018,7 +1158,7 @@ anim.interpolate({
   end: 0.3,
 });
 
-// Show distance measurements
+// Distance measurements
 anim.interpolate({
   kind: 'scalar',
   target_ref: 'dist',
@@ -1029,7 +1169,7 @@ anim.interpolate({
   end: 1.0,
 });
 
-// Add "Next" button to loop back to intro
+// Adds the “Next” button that actually loops back to intro, turning the ending into a “replay / restart” affordance. The fade-in timing ensures it appears after the teaching sequence.
 addNextButton(builder, 'intro', [13.5, -10.0, 7.7]);
 
 anim.interpolate({
@@ -1042,6 +1182,7 @@ anim.interpolate({
   end: 1.0,
 });
 
+// Maps play-audio to the conclusion narration _Audio4.
 // Play audio when this scene loads
 builder.extendRootCustomState({
   molstar_on_load_markdown_commands: {
@@ -1050,3 +1191,12 @@ builder.extendRootCustomState({
 });
 ```
 </details>
+
+
+## Conclusion
+
+Myoglobin was the first protein whose atomic structure was solved, and it remains a landmark example of how structure explains biological function. Across these scenes, we have seen how a static PDB structure captures only a single moment, while real proteins are dynamic objects whose motion enables processes such as oxygen binding and release.
+
+By combining scientific narration with interactive visualization, this story invites readers to move beyond passive observation and actively explore molecular structure. Highlighting residues, comparing species, and animating motion help translate abstract structural principles into intuitive, visual understanding.
+
+This approach—linking trusted scientific content with interactive, scene-based exploration—can be extended to many other molecules, offering a powerful way to communicate molecular biology to both specialists and broader audiences.
