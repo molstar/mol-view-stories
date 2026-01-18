@@ -26,9 +26,12 @@ examples:
     molx_url: 'https://molstar.org/demos/states/zikaem.molx'
     github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/zikaem.molx'
     image: 'https://molstar.org/img/zika.png'
-    status: 'stub'
+    pdb_id: '5IRE'
+    emdb_id: 'EMD-8116'
+    doi: '10.1126/science.aaf5316'
+    status: 'complete'
     tier: 1
-    notes: 'Structure + volume data'
+    notes: 'Structure visualization complete. EM volume (EMD-8116) requires volume streaming server support not yet available in mol-view-spec.'
 
   - id: cytochromes
     title: 'P-450 Cytochromes Superposition'
