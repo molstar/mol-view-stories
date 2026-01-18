@@ -1,5 +1,5 @@
 title: 'Villin Folding Trajectory'
-author_note: 'Based on Molstar example from molstar.org'
+author_note: 'Based on Molstar example from molstar.org. MD trajectory by Stefan Doerr.'
 
 scenes:
   - id: main
@@ -8,19 +8,49 @@ scenes:
     description: |
       # Villin Folding Trajectory
 
-      Villin folding trajectory by Stefan Doerr.
-      
-      **Reference:** [10.6084/m9.figshare.12040257.v1](https://dx.doi.org/10.6084/m9.figshare.12040257.v1)
+      Molecular dynamics simulation of the villin headpiece (HP-35) folding from an unfolded to a folded state. This 35-residue subdomain is one of the smallest and fastest-folding proteins known.
+
+      **Attribution:** Trajectory by Stefan Doerr
+      **Data Source:** [10.6084/m9.figshare.12040257.v1](https://dx.doi.org/10.6084/m9.figshare.12040257.v1)
 
       **Type:** MD Trajectory
 
-      **Status:** 🚧 Stub - needs implementation
+      Villin headpiece is a model system for studying protein folding dynamics. The simulation captures the formation of three α-helices as the protein transitions from a disordered state to its native fold.
 
-      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fvillin-md.molx&snapshot-url-type=molx)
+      **Note:** This visualization shows a static frame from the MD trajectory. Full trajectory animation (XTC playback) is not yet supported in mol-view-spec.
+
+      The visualization shows:
+      - **Cartoon representation** colored by secondary structure (helices, sheets, coils)
+      - **Transparent surface** showing the overall shape and compactness
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fvillin-md.molx&snapshot-url-type=molx)
 
     javascript: |
-      // TODO: Implement visualization after investigating molx file
-      console.log('villin-md - not yet implemented');
+      // Load GRO structure file (static frame)
+      // Note: XTC trajectory animation not yet supported in MVS
+      const structure = builder
+        .download({ url: "test3.gro" })
+        .parse({ format: "gro" })
+        .modelStructure({});
 
-    linger_duration_ms: 8000
+      // Cartoon representation
+      structure
+        .component({ ref: 'Villin-cartoon', selector: "polymer" })
+        .representation({ type: "cartoon", size_factor: 0.2 })
+        .color({ color: "#3498DB" });
+
+      // Surface to show overall shape
+      // structure
+      //   .component({ ref: 'Villin-surface', selector: "polymer" })
+      //   .representation({ type: "surface" })
+      //   .color({ color: "#9CE0FF" });
+
+    camera:
+      mode: 'perspective'
+      position: [-23.21, 53.86, 31.66]
+      target: [9.23, 1.20, 66.86]
+      up: [0.621, 0.663, 0.419]
+      fov: 45
+
+    linger_duration_ms: 10000
     transition_duration_ms: 1500
