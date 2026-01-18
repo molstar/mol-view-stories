@@ -1,0 +1,729 @@
+{
+  "timestamp": 1640976645309,
+  "version": "3.0.0-dev.7",
+  "current": "8VODhWn5Z1cdMmwy8heCpA",
+  "playback": {
+    "isPlaying": false,
+    "nextSnapshotDelayInMs": 1500
+  },
+  "entries": [
+    {
+      "timestamp": 1640976645309,
+      "snapshot": {
+        "id": "8VODhWn5Z1cdMmwy8heCpA",
+        "data": {
+          "tree": {
+            "transforms": [
+              {
+                "parent": "-=root=-",
+                "transformer": "build-in.root",
+                "params": {},
+                "ref": "-=root=-",
+                "version": "Z0qrUpz2X6CvTWg_zUN-8A"
+              },
+              {
+                "parent": "-=root=-",
+                "transformer": "ms-plugin.read-file",
+                "params": {
+                  "file": {
+                    "kind": "file",
+                    "id": "JWp56aQJvVtXWX_lTB2jMQ",
+                    "name": "now_20micros_dt1000_fixed_t1_ref19999ns.bcif",
+                    "file": {}
+                  },
+                  "label": "",
+                  "isBinary": true
+                },
+                "ref": "GbxGca5nW8bcxI8w9ykesA",
+                "version": "J87jUFkLWoFUUawHFVdpmw"
+              },
+              {
+                "parent": "GbxGca5nW8bcxI8w9ykesA",
+                "transformer": "ms-plugin.parse-cif",
+                "params": {},
+                "state": {
+                  "isGhost": true
+                },
+                "ref": "60eCr5pdGmvnve8XvMQoXQ",
+                "version": "CtRVMjceCDvhHcXFW_3iYA"
+              },
+              {
+                "parent": "60eCr5pdGmvnve8XvMQoXQ",
+                "transformer": "ms-plugin.trajectory-from-mmcif",
+                "params": {
+                  "blockHeader": "WRITTENBYMDANALYSIS"
+                },
+                "ref": "hlWSaOmh--xfpdoQ2OdfgA",
+                "version": "rFbhpoiSxHCEekbmKPjA8A"
+              },
+              {
+                "parent": "hlWSaOmh--xfpdoQ2OdfgA",
+                "transformer": "ms-plugin.model-from-trajectory",
+                "params": {
+                  "modelIndex": 0
+                },
+                "ref": "yOYWlIm-tr8VEAoFcD5bFQ",
+                "version": "JgJZvDZ5dFBWbozaXJ4phQ"
+              },
+              {
+                "parent": "yOYWlIm-tr8VEAoFcD5bFQ",
+                "transformer": "ms-plugin.custom-model-properties",
+                "params": {
+                  "autoAttach": [],
+                  "properties": {
+                    "asym_id_offset": {
+                      "value": {
+                        "auth": 0,
+                        "label": 0
+                      }
+                    },
+                    "index": {
+                      "value": 0
+                    }
+                  }
+                },
+                "ref": "WPjP9wO8_Cm7FzvXEsA2rQ",
+                "version": "2oIdDhgaiUeYq0TW23KFIw"
+              },
+              {
+                "parent": "WPjP9wO8_Cm7FzvXEsA2rQ",
+                "transformer": "ms-plugin.structure-from-model",
+                "params": {
+                  "type": {
+                    "name": "model",
+                    "params": {
+                      "dynamicBonds": false
+                    }
+                  }
+                },
+                "ref": "sKVwhgrEJggXhhPcnJ2QHQ",
+                "version": "XhMQO12lYthGEmc0IBuEzg"
+              },
+              {
+                "parent": "sKVwhgrEJggXhhPcnJ2QHQ",
+                "transformer": "ms-plugin.custom-structure-properties",
+                "params": {
+                  "autoAttach": [],
+                  "properties": {
+                    "index": {
+                      "value": 0
+                    },
+                    "molstar_accessible_surface_area": {
+                      "numberOfSpherePoints": 92,
+                      "probeSize": 1.4,
+                      "nonPolymer": false,
+                      "traceOnly": false
+                    },
+                    "molstar_computed_secondary_structure": {
+                      "type": {
+                        "name": "dssp",
+                        "params": {
+                          "oldDefinition": true,
+                          "oldOrdering": true
+                        }
+                      }
+                    },
+                    "molstar_computed_valence_model": {
+                      "assignCharge": "auto",
+                      "assignH": "auto"
+                    },
+                    "anvil_computed_membrane_orientation": {
+                      "numberOfSpherePoints": 120,
+                      "stepSize": 1,
+                      "minThickness": 20,
+                      "maxThickness": 40,
+                      "asaCutoff": 40,
+                      "adjust": 14,
+                      "tmdetDefinition": false
+                    }
+                  }
+                },
+                "ref": "2ZJpcT3m0_vPpKvRMuUxJw",
+                "version": "4zPBX6phFH1srsIRDuflPA"
+              },
+              {
+                "parent": "2ZJpcT3m0_vPpKvRMuUxJw",
+                "transformer": "ms-plugin.structure-component",
+                "params": {
+                  "type": {
+                    "name": "static",
+                    "params": "polymer"
+                  },
+                  "nullIfEmpty": true,
+                  "label": ""
+                },
+                "tags": [
+                  "structure-component-static-polymer"
+                ],
+                "ref": "j5lcSt455Fb59RCZXzHkCA",
+                "version": "B1XOuHBYqXh0vCzTi1qnkg"
+              },
+              {
+                "parent": "j5lcSt455Fb59RCZXzHkCA",
+                "transformer": "ms-plugin.structure-representation-3d",
+                "params": {
+                  "type": {
+                    "name": "gaussian-surface",
+                    "params": {
+                      "alpha": 1,
+                      "quality": "lower",
+                      "material": {
+                        "metalness": 0,
+                        "roughness": 1,
+                        "bumpiness": 0
+                      },
+                      "clip": {
+                        "variant": "pixel",
+                        "objects": []
+                      },
+                      "doubleSided": false,
+                      "flipSided": false,
+                      "flatShaded": false,
+                      "ignoreLight": false,
+                      "xrayShaded": false,
+                      "bumpFrequency": 1,
+                      "bumpAmplitude": 1,
+                      "unitKinds": [
+                        "atomic",
+                        "spheres"
+                      ],
+                      "includeParent": false,
+                      "resolution": 1,
+                      "radiusOffset": 2,
+                      "smoothness": 1,
+                      "ignoreHydrogens": false,
+                      "traceOnly": false,
+                      "smoothColors": {
+                        "name": "auto",
+                        "params": {}
+                      },
+                      "tryUseGpu": true,
+                      "sizeFactor": 3,
+                      "lineSizeAttenuation": false,
+                      "visuals": [
+                        "gaussian-surface-mesh"
+                      ]
+                    }
+                  },
+                  "colorTheme": {
+                    "name": "uniform",
+                    "params": {
+                      "value": 8508716
+                    }
+                  },
+                  "sizeTheme": {
+                    "name": "physical",
+                    "params": {
+                      "scale": 1
+                    }
+                  }
+                },
+                "tags": [
+                  "polymer"
+                ],
+                "ref": "JZMDVIPC_TV_PrWXiYg4dw",
+                "version": "drZO727puuRp2WT1XFyLbQ"
+              },
+              {
+                "parent": "2ZJpcT3m0_vPpKvRMuUxJw",
+                "transformer": "ms-plugin.structure-component",
+                "params": {
+                  "type": {
+                    "name": "static",
+                    "params": "lipid"
+                  },
+                  "nullIfEmpty": true,
+                  "label": ""
+                },
+                "tags": [
+                  "structure-component-static-lipid"
+                ],
+                "ref": "GBLaI4oUvDnwLDNs0T5xLQ",
+                "version": "FaOgVF7j7-9tB7xx0Oxa3A"
+              },
+              {
+                "parent": "GBLaI4oUvDnwLDNs0T5xLQ",
+                "transformer": "ms-plugin.structure-representation-3d",
+                "params": {
+                  "type": {
+                    "name": "gaussian-surface",
+                    "params": {
+                      "alpha": 1,
+                      "quality": "lower",
+                      "material": {
+                        "metalness": 0,
+                        "roughness": 1,
+                        "bumpiness": 0
+                      },
+                      "clip": {
+                        "variant": "pixel",
+                        "objects": []
+                      },
+                      "doubleSided": false,
+                      "flipSided": false,
+                      "flatShaded": false,
+                      "ignoreLight": false,
+                      "xrayShaded": false,
+                      "bumpFrequency": 1,
+                      "bumpAmplitude": 1,
+                      "unitKinds": [
+                        "atomic",
+                        "spheres"
+                      ],
+                      "includeParent": false,
+                      "resolution": 1,
+                      "radiusOffset": 2,
+                      "smoothness": 1,
+                      "ignoreHydrogens": false,
+                      "traceOnly": false,
+                      "smoothColors": {
+                        "name": "auto",
+                        "params": {}
+                      },
+                      "tryUseGpu": true,
+                      "sizeFactor": 3,
+                      "lineSizeAttenuation": false,
+                      "visuals": [
+                        "structure-gaussian-surface-mesh"
+                      ]
+                    }
+                  },
+                  "colorTheme": {
+                    "name": "uniform",
+                    "params": {
+                      "value": 13421772
+                    }
+                  },
+                  "sizeTheme": {
+                    "name": "physical",
+                    "params": {
+                      "scale": 1
+                    }
+                  }
+                },
+                "tags": [
+                  "lipid"
+                ],
+                "ref": "hlrGzYNFzMe4tuSoD4d_Ag",
+                "version": "OWcvTNu1i5KmUBY5rsCqSw"
+              }
+            ]
+          }
+        },
+        "animation": {
+          "state": {
+            "params": {
+              "current": "built-in.animate-model-index"
+            },
+            "animationState": "stopped"
+          },
+          "current": {
+            "paramValues": {
+              "mode": {
+                "name": "loop",
+                "params": {
+                  "direction": "forward"
+                }
+              },
+              "duration": {
+                "name": "fixed",
+                "params": {
+                  "durationInS": 5
+                }
+              }
+            },
+            "state": {}
+          }
+        },
+        "camera": {
+          "current": {
+            "mode": "perspective",
+            "fov": 0.7853981633974483,
+            "position": [
+              690.4102368530083,
+              28.318794248140648,
+              2114.6437253413637
+            ],
+            "up": [
+              0.1537227837143574,
+              0.9590249605732011,
+              0.23799250148825127
+            ],
+            "target": [
+              546.8907357805325,
+              563.1963021724614,
+              51.979310888417025
+            ],
+            "radius": 859.7720786644584,
+            "radiusMax": 859.7720786644584,
+            "fog": 15,
+            "clipFar": true
+          },
+          "transitionStyle": "animate",
+          "transitionDurationInMs": 250
+        },
+        "canvas3d": {
+          "props": {
+            "camera": {
+              "mode": "perspective",
+              "helper": {
+                "axes": {
+                  "name": "on",
+                  "params": {
+                    "alpha": 0.33,
+                    "quality": "auto",
+                    "material": {
+                      "metalness": 0,
+                      "roughness": 1,
+                      "bumpiness": 0
+                    },
+                    "clip": {
+                      "variant": "pixel",
+                      "objects": []
+                    },
+                    "doubleSided": false,
+                    "flipSided": false,
+                    "flatShaded": false,
+                    "ignoreLight": true,
+                    "xrayShaded": false,
+                    "bumpFrequency": 0,
+                    "bumpAmplitude": 1,
+                    "colorX": 16711680,
+                    "colorY": 32768,
+                    "colorZ": 255,
+                    "scale": 0.33
+                  }
+                }
+              },
+              "stereo": {
+                "name": "off",
+                "params": {}
+              },
+              "manualReset": false
+            },
+            "cameraFog": {
+              "name": "on",
+              "params": {
+                "intensity": 15
+              }
+            },
+            "cameraClipping": {
+              "far": true,
+              "radius": 0
+            },
+            "cameraResetDurationMs": 250,
+            "transparentBackground": false,
+            "viewport": {
+              "name": "canvas",
+              "params": {}
+            },
+            "postprocessing": {
+              "occlusion": {
+                "name": "on",
+                "params": {
+                  "samples": 32,
+                  "radius": 6.5,
+                  "bias": 1.2,
+                  "blurKernelSize": 15
+                }
+              },
+              "outline": {
+                "name": "off",
+                "params": {}
+              },
+              "antialiasing": {
+                "name": "smaa",
+                "params": {
+                  "edgeThreshold": 0.1,
+                  "maxSearchSteps": 16
+                }
+              }
+            },
+            "marking": {
+              "enabled": true,
+              "highlightEdgeColor": 13119595,
+              "selectEdgeColor": 51712,
+              "edgeScale": 1,
+              "ghostEdgeStrength": 0.3,
+              "innerEdgeFactor": 1.5
+            },
+            "multiSample": {
+              "mode": "temporal",
+              "sampleLevel": 2
+            },
+            "renderer": {
+              "backgroundColor": 16579577,
+              "pickingAlphaThreshold": 0.5,
+              "interiorDarkening": 0.5,
+              "interiorColorFlag": true,
+              "interiorColor": 5000268,
+              "highlightColor": 16737945,
+              "selectColor": 3407641,
+              "highlightStrength": 0.3,
+              "selectStrength": 0.3,
+              "markerPriority": 1,
+              "xrayEdgeFalloff": 1,
+              "light": [
+                {
+                  "inclination": 180,
+                  "azimuth": 0,
+                  "color": 16777215,
+                  "intensity": 0.6
+                }
+              ],
+              "ambientColor": 16777215,
+              "ambientIntensity": 0.4
+            },
+            "trackball": {
+              "noScroll": true,
+              "rotateSpeed": 5,
+              "zoomSpeed": 7,
+              "panSpeed": 1,
+              "spin": false,
+              "spinSpeed": 1,
+              "staticMoving": true,
+              "dynamicDampingFactor": 0.2,
+              "minDistance": 5,
+              "maxDistance": 8597.720786644584,
+              "gestureScaleFactor": 1,
+              "maxWheelDelta": 0.02,
+              "bindings": {
+                "dragRotate": {
+                  "triggers": [
+                    {
+                      "buttons": 1,
+                      "modifiers": {
+                        "shift": false,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Rotate",
+                  "description": "Drag using ${triggers}"
+                },
+                "dragRotateZ": {
+                  "triggers": [
+                    {
+                      "buttons": 1,
+                      "modifiers": {
+                        "shift": true,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Rotate around z-axis",
+                  "description": "Drag using ${triggers}"
+                },
+                "dragPan": {
+                  "triggers": [
+                    {
+                      "buttons": 2,
+                      "modifiers": {
+                        "shift": false,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    },
+                    {
+                      "buttons": 1,
+                      "modifiers": {
+                        "shift": false,
+                        "alt": false,
+                        "control": true,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Pan",
+                  "description": "Drag using ${triggers}"
+                },
+                "dragZoom": {
+                  "triggers": [],
+                  "action": "",
+                  "description": ""
+                },
+                "dragFocus": {
+                  "triggers": [
+                    {
+                      "buttons": 8,
+                      "modifiers": {
+                        "shift": false,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Focus",
+                  "description": "Drag using ${triggers}"
+                },
+                "dragFocusZoom": {
+                  "triggers": [
+                    {
+                      "buttons": 4,
+                      "modifiers": {
+                        "shift": false,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Focus and zoom",
+                  "description": "Drag using ${triggers}"
+                },
+                "scrollZoom": {
+                  "triggers": [
+                    {
+                      "buttons": 4,
+                      "modifiers": {
+                        "shift": false,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Zoom",
+                  "description": "Scroll using ${triggers}"
+                },
+                "scrollFocus": {
+                  "triggers": [
+                    {
+                      "buttons": 4,
+                      "modifiers": {
+                        "shift": true,
+                        "alt": false,
+                        "control": false,
+                        "meta": false
+                      }
+                    }
+                  ],
+                  "action": "Clip",
+                  "description": "Scroll using ${triggers}"
+                },
+                "scrollFocusZoom": {
+                  "triggers": [],
+                  "action": "",
+                  "description": ""
+                }
+              },
+              "autoAdjustMinMaxDistance": {
+                "name": "on",
+                "params": {
+                  "minDistanceFactor": 0,
+                  "minDistancePadding": 5,
+                  "maxDistanceFactor": 10,
+                  "maxDistanceMin": 20
+                }
+              }
+            },
+            "interaction": {
+              "maxFps": 30,
+              "preferAtomPixelPadding": 3
+            },
+            "debug": {
+              "sceneBoundingSpheres": false,
+              "visibleSceneBoundingSpheres": false,
+              "objectBoundingSpheres": false,
+              "instanceBoundingSpheres": false
+            },
+            "handle": {
+              "handle": {
+                "name": "off",
+                "params": {}
+              }
+            }
+          }
+        },
+        "interactivity": {
+          "props": {
+            "granularity": "residue"
+          }
+        },
+        "structureFocus": {},
+        "structureComponentManager": {
+          "options": {
+            "showHydrogens": true,
+            "visualQuality": "auto",
+            "materialStyle": {
+              "metalness": 0,
+              "roughness": 1,
+              "bumpiness": 0
+            },
+            "clipObjects": {
+              "variant": "pixel",
+              "objects": []
+            },
+            "interactions": {
+              "providers": {
+                "ionic": {
+                  "name": "off",
+                  "params": {}
+                },
+                "pi-stacking": {
+                  "name": "on",
+                  "params": {
+                    "distanceMax": 5.5,
+                    "offsetMax": 2,
+                    "angleDevMax": 30
+                  }
+                },
+                "cation-pi": {
+                  "name": "on",
+                  "params": {
+                    "distanceMax": 6,
+                    "offsetMax": 2
+                  }
+                },
+                "halogen-bonds": {
+                  "name": "on",
+                  "params": {
+                    "distanceMax": 4,
+                    "angleMax": 30
+                  }
+                },
+                "hydrogen-bonds": {
+                  "name": "on",
+                  "params": {
+                    "distanceMax": 3.5,
+                    "backbone": true,
+                    "accAngleDevMax": 45,
+                    "donAngleDevMax": 45,
+                    "accOutOfPlaneAngleMax": 90,
+                    "donOutOfPlaneAngleMax": 45,
+                    "water": false,
+                    "sulfurDistanceMax": 4.1
+                  }
+                },
+                "weak-hydrogen-bonds": {
+                  "name": "off",
+                  "params": {}
+                },
+                "hydrophobic": {
+                  "name": "off",
+                  "params": {}
+                },
+                "metal-coordination": {
+                  "name": "on",
+                  "params": {
+                    "distanceMax": 3
+                  }
+                }
+              },
+              "contacts": {
+                "lineOfSightDistFactor": 1
+              }
+            }
+          }
+        },
+        "durationInMs": 1500
+      }
+    }
+  ]
+}

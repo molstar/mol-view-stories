@@ -1,5 +1,5 @@
 title: 'BtuB in Lipid Bilayer'
-author_note: 'Based on Molstar example from molstar.org'
+author_note: 'Based on Molstar example from molstar.org. BtuB protein in lipid bilayer membrane system.'
 
 scenes:
   - id: main
@@ -8,19 +8,45 @@ scenes:
     description: |
       # BtuB in Lipid Bilayer
 
-      BtuB molecules in a lipid bilayer. Coarse-grained model by Matthieu Chavent et al.
-      
-      **Reference:** [10.1038/s41467-018-05255-9](https://dx.doi.org/10.1038/s41467-018-05255-9)
+      BtuB (outer membrane cobalamin transporter) molecules embedded in a lipid bilayer membrane. This coarse-grained model demonstrates membrane protein-lipid interactions.
 
-      **Type:** Membrane System
+      **System:** BtuB proteins in POPC lipid bilayer
+      **Method:** Coarse-grained molecular dynamics
+      **Reference:** Chavent et al., Nature Communications (2018)
+      **DOI:** [10.1038/s41467-018-05255-9](https://doi.org/10.1038/s41467-018-05255-9)
 
-      **Status:** 🚧 Stub - needs implementation
+      The visualization shows:
+      - BtuB proteins (outer membrane β-barrel proteins)
+      - Lipid bilayer membrane (POPC phospholipids)
+      - Protein-lipid interactions
 
-      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fbtub.molx&snapshot-url-type=molx)
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fbtub.molx&snapshot-url-type=molx)
 
     javascript: |
-      // TODO: Implement visualization after investigating molx file
-      console.log('btub - not yet implemented');
+      // Load the coarse-grained model from local bcif file
+      const structure = builder
+        .download({ url: "now_20micros_dt1000_fixed_t1_ref19999ns.bcif" })
+        .parse({ format: "bcif" })
+        .modelStructure({});
 
-    linger_duration_ms: 8000
+      // Show lipids (non-polymer) with grey
+      structure
+        .component({ ref: 'Lipids', selector: "ligand" })
+        .representation({ type: "spacefill" })
+        .color({ color: "#CCCCCC" });
+
+      // Show protein components with green surface
+      structure
+        .component({ ref: 'Protein', selector: "polymer" })
+        .representation({ type: "surface" })
+        .color({ color: "#81B29C" });
+
+    camera:
+      mode: 'perspective'
+      position: [690.41, 28.32, 2114.64]
+      target: [546.89, 563.20, 51.98]
+      up: [0.154, 0.959, 0.238]
+      fov: 45
+
+    linger_duration_ms: 10000
     transition_duration_ms: 1500
