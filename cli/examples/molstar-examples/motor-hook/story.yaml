@@ -132,9 +132,9 @@ scenes:
 
     camera:
       mode: 'perspective'
-      position: [150, 150, 150]
-      target: [0, 0, 0]
-      up: [0, 1, 0]
+      position: [192.71, -256.18, 708.85]
+      target: [344.47, 345.31, 295.34]
+      up: [0.930, -0.336, -0.147]
       fov: 45
 
     linger_duration_ms: 10000
