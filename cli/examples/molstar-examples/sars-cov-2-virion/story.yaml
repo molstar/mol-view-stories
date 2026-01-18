@@ -8,19 +8,65 @@ scenes:
     description: |
       # SARS-CoV-2 Virion
 
-      SARS-CoV-2 Virion coarse-grained model by Alvin Yu et al.
-      
-      **Reference:** [10.1016/j.bpj.2020.10.048](https://dx.doi.org/10.1016/j.bpj.2020.10.048)
+      Coarse-grained model of the SARS-CoV-2 virion, showing the complete viral particle structure including the lipid bilayer envelope and embedded spike proteins.
+
+      **Reference:** Yu et al., Biophysical Journal 2021 ([10.1016/j.bpj.2020.10.048](https://dx.doi.org/10.1016/j.bpj.2020.10.048))
 
       **Type:** Coarse-Grained Model
 
-      **Status:** 🚧 Stub - needs implementation
+      This model represents the entire SARS-CoV-2 viral particle at a coarse-grained level, showing:
+      - Lipid bilayer envelope
+      - Spike (S) proteins protruding from the surface
+      - Internal viral components
 
-      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fsars-cov-2_virion.molx&snapshot-url-type=molx)
+      The coarse-grained representation allows visualization of the full virion structure while maintaining computational efficiency.
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fsars-cov-2_virion.molx&snapshot-url-type=molx)
 
     javascript: |
-      // TODO: Implement visualization after investigating molx file
-      console.log('sars-cov-2-virion - not yet implemented');
+      // Load the coarse-grained SARS-CoV-2 virion model
+      const structure = builder
+        .download({ url: "cg-virion.bcif" })
+        .parse({ format: "bcif" })
+        .modelStructure({});
 
-    linger_duration_ms: 8000
+      // Color palette from original Molstar (decimal to hex)
+      // 3636920 = #377778 (dark teal)
+      // 5091146 = #4DAABA (teal)
+      // 9981603 = #984EA3 (purple)
+      // 16744192 = #FF7F00 (orange)
+
+      // Different entity selections with size_factor for larger spheres
+      // Entity 1: Lipid bilayer
+      structure
+        .component({ ref: 'Lipid', selector: { label_entity_id: "1" } })
+        .representation({ type: "spacefill", size_factor: 9 })
+        .color({ color: "#377778" });
+
+      // Entity 2: M-protein dimers
+      structure
+        .component({ ref: 'M-protein', selector: { label_entity_id: "2" } })
+        .representation({ type: "spacefill", size_factor: 9 })
+        .color({ color: "#4DAABA" });
+
+      // Entity 3: E-protein pentamers
+      structure
+        .component({ ref: 'E-protein', selector: { label_entity_id: "3" } })
+        .representation({ type: "spacefill", size_factor: 9 })
+        .color({ color: "#984EA3" });
+
+      // Entity 4: S-protein trimers
+      structure
+        .component({ ref: 'S-protein', selector: { label_entity_id: "4" } })
+        .representation({ type: "spacefill", size_factor: 9 })
+        .color({ color: "#FF7F00" });
+
+    camera:
+      mode: 'perspective'
+      position: [-1686.59, 1498.73, 788.47]
+      target: [-6.73, -11.44, 20.86]
+      up: [-0.636, -0.360, -0.683]
+      fov: 45
+
+    linger_duration_ms: 10000
     transition_duration_ms: 1500
