@@ -1,0 +1,27 @@
+title: 'PhiX174 DNA Binding Protein Assembly'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'PhiX174 DNA Binding Protein Assembly'
+    key: 'overview'
+    description: |
+      # PhiX174 DNA Binding Protein Assembly
+
+      Annotated assembly of the phiX174 DNA binding protein (PDB id 1RB8).
+      
+      **PDB ID:** 1RB8
+      
+
+      **Type:** Assembly Annotation
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2F1rb8asm.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('1rb8-assembly - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

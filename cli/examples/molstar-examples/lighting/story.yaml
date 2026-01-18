@@ -1,0 +1,26 @@
+title: 'Lighting and Render Styles'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'Lighting and Render Styles'
+    key: 'overview'
+    description: |
+      # Lighting and Render Styles
+
+      Render styles and lighting modes demonstration.
+      
+      
+
+      **Type:** Rendering Showcase
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/demos/lighting)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('lighting - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

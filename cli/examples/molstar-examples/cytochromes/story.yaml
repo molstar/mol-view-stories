@@ -1,0 +1,26 @@
+title: 'P-450 Cytochromes Superposition'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'P-450 Cytochromes Superposition'
+    key: 'overview'
+    description: |
+      # P-450 Cytochromes Superposition
+
+      Superposition and validation annotation of P-450 cytochromes.
+      
+      
+
+      **Type:** Superposition + Validation
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fcytochromes.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('cytochromes - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

@@ -1,0 +1,26 @@
+title: 'Alpha Orbitals and Density of Atorvastatin'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'Alpha Orbitals and Density of Atorvastatin'
+    key: 'overview'
+    description: |
+      # Alpha Orbitals and Density of Atorvastatin
+
+      Alpha orbitals and density of Atorvastatin.
+      
+      
+
+      **Type:** Custom Visualization
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/demos/alpha-orbitals)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('alpha-orbitals - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

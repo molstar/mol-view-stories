@@ -1,0 +1,26 @@
+title: 'GAIN Domain Tethered Agonist Exposure'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'GAIN Domain Tethered Agonist Exposure'
+    key: 'overview'
+    description: |
+      # GAIN Domain Tethered Agonist Exposure
+
+      GAIN domain tethered agonist exposure MD trajectory.
+      
+      **Reference:** [10.1016/j.molcel.2020.12.042](https://dx.doi.org/10.1016/j.molcel.2020.12.042)
+
+      **Type:** MD Trajectory
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fgain-md.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('gain-md - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

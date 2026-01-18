@@ -1,0 +1,26 @@
+title: 'Villin Folding Trajectory'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'Villin Folding Trajectory'
+    key: 'overview'
+    description: |
+      # Villin Folding Trajectory
+
+      Villin folding trajectory by Stefan Doerr.
+      
+      **Reference:** [10.6084/m9.figshare.12040257.v1](https://dx.doi.org/10.6084/m9.figshare.12040257.v1)
+
+      **Type:** MD Trajectory
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fvillin-md.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('villin-md - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

@@ -1,0 +1,26 @@
+title: 'SARS-CoV-2 Virion'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'SARS-CoV-2 Virion'
+    key: 'overview'
+    description: |
+      # SARS-CoV-2 Virion
+
+      SARS-CoV-2 Virion coarse-grained model by Alvin Yu et al.
+      
+      **Reference:** [10.1016/j.bpj.2020.10.048](https://dx.doi.org/10.1016/j.bpj.2020.10.048)
+
+      **Type:** Coarse-Grained Model
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fsars-cov-2_virion.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('sars-cov-2-virion - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

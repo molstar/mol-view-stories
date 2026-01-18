@@ -1,0 +1,27 @@
+title: 'Bacterial Flagellar Motor-Hook Complex'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'Bacterial Flagellar Motor-Hook Complex'
+    key: 'overview'
+    description: |
+      # Bacterial Flagellar Motor-Hook Complex
+
+      Cryo-EM structure of the bacterial flagellar motor-hook complex.
+      
+      **PDB ID:** 7CGO
+      **Reference:** [10.1016/j.cell.2021.03.057](https://dx.doi.org/10.1016/j.cell.2021.03.057)
+
+      **Type:** Cryo-EM Structure
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fmotor-hook.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('motor-hook - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500

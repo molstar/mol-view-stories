@@ -1,0 +1,26 @@
+title: 'BtuB in Lipid Bilayer'
+author_note: 'Based on Molstar example from molstar.org'
+
+scenes:
+  - id: main
+    header: 'BtuB in Lipid Bilayer'
+    key: 'overview'
+    description: |
+      # BtuB in Lipid Bilayer
+
+      BtuB molecules in a lipid bilayer. Coarse-grained model by Matthieu Chavent et al.
+      
+      **Reference:** [10.1038/s41467-018-05255-9](https://dx.doi.org/10.1038/s41467-018-05255-9)
+
+      **Type:** Membrane System
+
+      **Status:** 🚧 Stub - needs implementation
+
+      **Source:** [View in Molstar](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fbtub.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // TODO: Implement visualization after investigating molx file
+      console.log('btub - not yet implemented');
+
+    linger_duration_ms: 8000
+    transition_duration_ms: 1500
