@@ -6,6 +6,8 @@ project:
   preview:
     port: 4200
     browser: false
+  resources:
+    - example-stories/assets/**
 
 website:
   title: 'MolViewStories Documentation'
