@@ -21,7 +21,15 @@ To support this process, we prepare each story using a shared set of helper func
 This code is available to all scenes in the story. Throughout the scenes, we will use [primitives](../molviewspec/primitives.qmd), [selectors](../molviewspec/selectors.qmd), and [animations](../molviewspec/animations.qmd), as well as audio playback through customization of the builder. We will also use advanced features from the [molstar customisation of the markdown syntaxe](https://molstar.org/docs/plugin/managers/markdown-extensions/).
 
 ## Story preparation : Building the asset
-The flagella motor consist of multiple structure that we need to assamble to represent both satete, the clockwise and coutnterclockwise conformation. 
+The flagellar motor is composed of multiple structural components that must be assembled to represent both rotational states: the **clockwise (CW)** and **counterclockwise (CCW)** conformations. We begin with the hook structure [`7CGO`](https://www.rcsb.org/structure/7CGO), which serves as the structural reference. This model includes the hook, the L/P ring, and the M ring, each built from repeated instances of a unique chain corresponding to a specific functional entity. As a first step, we identify these chains and store the chain-to-entity mapping in story-wide code (see below).
+
+Next, we incorporate the C-ring in both rotational states using the CW and CCW structures [`8UPL`](https://www.rcsb.org/structure/8UPL) and [`8UOX`](https://www.rcsb.org/structure/8UOX). By recentering these structures, they can be directly aligned to the hook reference frame defined by 7CGO. 
+
+We then assemble the MotAB stator using two complementary structures, [`8UCS`](https://www.rcsb.org/structure/8UCS) and [`2ZVY`](https://www.rcsb.org/structure/2ZVY). Using Mol* superposition tools, the MotAB complexes are aligned relative to the C-ring. To generate the full stator ring, consisting of 11 copies, we apply the [ChimeraX symmetry command](https://www.cgl.ucsf.edu/chimerax/docs/user/commands/sym.html). This procedure is performed independently for both the CW and CCW configurations.
+
+Finally, the CheY response regulator [`1F4V`](https://www.rcsb.org/structure/1F4V) is added and aligned in the same reference frame, completing the assembly for both rotational states.
+
+All customized structure are provided directly in the story template.
 
 ## Story Options
 In the story options we can specify metadata such as title, authors note. This is also where we provide story-wide reusable code and also where the asset are upload. 
@@ -452,19 +460,35 @@ Flagellar motors have fascinated biologists for decades. These are **huge molecu
 
 The *Salmonella* motor shown here turns at an astonishing **18,000 revolutions per minute** — and some bacteria spin even faster! At this speed, movement is invisible to the eye—so here, the motion is slowed by a factor of 1,000 to make it visible.
 
----
+This model compares the **clockwise (CW)** and **counterclockwise (CCW)** rotation states of the bacterial flagellar motor using experimentally determined **PDB structures**.  
+Interactive links allow you to **highlight** and **focus** individual components in the 3D viewer.
 
-See the [next slide](#motor) for a more detail view of the motor.
+
+## Structural Components
+
+
+## Flagellar Motor — CW Configuration
+ 
+ [![Hook](cw1.jpg)](!highlight-refs=hook,hook2&focus-refs=hook,hook2)
+  **Hook** — Flexible universal joint transmitting torque from the motor to the external filament.  _PDB: [`7CGO`](https://www.rcsb.org/structure/7CGO)
+ [![L/P ring](cw2.jpg)](!highlight-refs=lpring,lpring2&focus-refs=lpring,lpring2)
+  **L/P ring** — Rigid bushing that stabilizes the rotating rod as it passes through the cell envelope.  _PDB: [`7CGO`](https://www.rcsb.org/structure/7CGO)
+ [![MotAB stator](cw3.jpg)](!highlight-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10,motabrep20,motabrep21,motabrep22,motabrep23,motabrep24,motabrep25,motabrep26,motabrep27,motabrep28,motabrep29,motabrep210&focus-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10,motabrep20,motabrep21,motabrep22,motabrep23,motabrep24,motabrep25,motabrep26,motabrep27,motabrep28,motabrep29,motabrep210)
+ **MotAB stator** — Ion-powered torque generators embedded in the inner membrane that drive motor rotation.  _PDB: [`8UCS`](https://www.rcsb.org/structure/8UCS), [`2ZVY`](https://www.rcsb.org/structure/2ZVY)
+ [![CheY-P](cw4.jpg)](!highlight-refs=chey&focus-refs=chey)
+  **CheY-P regulator** — Phosphorylated response regulator that binds the C-ring to bias motor switching toward CW rotation.  _PDB: [`1F4V`](https://www.rcsb.org/structure/1F4V)
+ [![C-ring](cw5.jpg)](!highlight-refs=cring,ccw_cring&focus-refs=cring,ccw_cring)
+ **C-ring (switch complex)** — Cytoplasmic ring that controls the direction of rotation by switching between CW and CCW states.  _PDB: [`8UPL`](https://www.rcsb.org/structure/8UPL),[`8UOX`](https://www.rcsb.org/structure/8UOX)
+
+See the [next slide](#motor) to start a detail tour of the motor.
 
 **References:**  
 - [RCSB PDB Molecule of the Month](https://pdb101.rcsb.org/motm/300)  
-
-![Flagellar Motor of *Salmonella*](https://cdn.rcsb.org/pdb101/motm/300/cw.jpg)  
-*Flagellar motor of Salmonella bacteria. The two membranes and peptidoglycan are shown schematically in gray and green.*
-
-[Download high-quality TIFF image](https://cdn.rcsb.org/pdb101/motm/300/cw.tif)
+- [Download high-quality TIFF image](https://cdn.rcsb.org/pdb101/motm/300/cw.tif)
 ---
 ```
+
+Notes : we can use highlight action on text but also on image.
 
 </details>
 
@@ -499,33 +523,38 @@ The scene is identified by the key motor, which allows it to be triggered from t
 
 **Bidirectional motors power the swimming of many bacterial cells.**
 
+## Introduction
+
+In this **300th installment** of the *Molecule of the Month*, we explore newly revealed atomic details of one of the wonders of the biomolecular world, the **bacterial flagellar motor**.  
+
+Flagellar motors have fascinated biologists for decades. These are **huge molecular assemblies**, composed of about **20 types of proteins**, which together form **rotary motors** strong enough to spin long, corkscrew-shaped flagella many times the length of the cell.  
+
+The *Salmonella* motor shown here turns at an astonishing **18,000 revolutions per minute** — and some bacteria spin even faster! At this speed, movement is invisible to the eye—so here, the motion is slowed by a factor of 1,000 to make it visible.
+
+---
+
 ## Moving Parts
 
 Flagellar motors contain many intricate, interlocking components studied through **X-ray crystallography** and **cryo-electron microscopy**.
 
-The model here shows the **clockwise form of the motor**, combining several **PDB entries**:  
+The model here shows the **clockwise form of the motor**, combining several **PDB entries**.
 
-- [MotAB stator](!highlight-refs=motab0&focus-refs=motab0), [`8UCS`](https://www.rcsb.org/structure/8UCS) and [`2ZVY`](https://www.rcsb.org/structure/2ZVY),  
-- [Hook complex](!highlight-refs=hook&focus-refs=hook), [`7CGO`](https://www.rcsb.org/structure/7CGO),  
-- [CHEY](!highlight-refs=chey&focus-refs=chey), [`1F4V`](https://www.rcsb.org/structure/1F4V).
-- [clockwise C-ring ](!highlight-refs=cring&focus-refs=cring), [`8UPL`](https://www.rcsb.org/structure/8UPL),  
-
-At the **top**, the [**hook**](!highlight-refs=hook&focus-refs=hook) connects the motor to the long flagellum.  
+At the **top**, the [**hook**](!highlight-refs=hook&focus-refs=hook) connects the motor to the long flagellum.PDB: [`7CGO`](https://www.rcsb.org/structure/7CGO).  
+[![Hook](cw1.jpg)](!highlight-refs=hook,hook2&focus-refs=hook,hook2)
 The [**LP ring**](!highlight-refs=lpring&focus-refs=lpring) surrounds the central axle, reducing friction with the **outer membrane** and **peptidoglycan**.  
-
-Power is generated by about **11 rotary [stator](!highlight-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10&focus-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10) units** — each itself a tiny motor driven by **proton flow** across the inner membrane. These stators together turn the large [**C-ring**](!highlight-refs=cring&focus-refs=cring), which rotates the central axle and the attached flagellum.
-
-Finally, **[CheY](!highlight-refs=chey&focus-refs=chey) proteins** act as molecular switches that determine **rotation direction**, toggling between **clockwise (CW)** and **counterclockwise (CCW)** modes. 
-
+[![L/P ring](cw2.jpg)](!highlight-refs=lpring,lpring2&focus-refs=lpring,lpring2)
+Power is generated by about **11 rotary [stator](!highlight-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10&focus-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10) units** — each itself a tiny motor driven by **proton flow** across the inner membrane. PDB: [`8UCS`](https://www.rcsb.org/structure/8UCS), [`2ZVY`](https://www.rcsb.org/structure/2ZVY)
+[![MotAB stator](cw3.jpg)](!highlight-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10&focus-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10)
+**[CheY](!highlight-refs=chey&focus-refs=chey) proteins** act as molecular switches that determine **rotation direction**, toggling between **clockwise (CW)** and **counterclockwise (CCW)** modes. PDB: [`1F4V`](https://www.rcsb.org/structure/1F4V)
+[![CheY-P](cw4.jpg)](!highlight-refs=chey&focus-refs=chey)
+Cytoplasmic ring that controls the direction of rotation by switching between CW and CCW states.  PDB: [`8UPL`](https://www.rcsb.org/structure/8UPL),[`8UOX`](https://www.rcsb.org/structure/8UOX)
+[![C-ring](cw5.jpg)](!highlight-refs=cring&focus-refs=cring)
+ 
 See the [next slide](#switch) for the rotation switch.
 
 **References:**  
 - [RCSB PDB Molecule of the Month](https://pdb101.rcsb.org/motm/300)  
-
-![Flagellar Motor of *Salmonella*](https://cdn.rcsb.org/pdb101/motm/300/cw.jpg)  
-*Flagellar motor of Salmonella bacteria. The two membranes and peptidoglycan are shown schematically in gray and green.*
-
-[Download high-quality TIFF image](https://cdn.rcsb.org/pdb101/motm/300/cw.tif)
+- [Download high-quality TIFF image](https://cdn.rcsb.org/pdb101/motm/300/cw.tif)
 
 ---
 ```
@@ -576,7 +605,7 @@ This simple mechanical reversal allows bacteria to navigate their environment th
 ---
 ## Switching Direction
 
-The motor switches rotation with a direct approach that is quite similar to machines in our macroscale world. The [C-ring](!highlight-refs=cring&focus-refs=cring) acts like a large gear and the stators act like smaller gears. In the counterclockwise state, shown below at the top from PDB ID [8UOX](https://www.rcsb.org/structure/8UOX) and [8UCS](https://www.rcsb.org/structure/8UCS), the [stators](!highlight-refs=motabrep20,motabrep21,motabrep22,motabrep23,motabrep24,motabrep25,motabrep26,motabrep27,motabrep28,motabrep29,motabrep210&focus-refs=motabrep20,motabrep21,motabrep22,motabrep23,motabrep24,motabrep25,motabrep26,motabrep27,motabrep28,motabrep29,motabrep210)  are positioned outside the C-ring, and when the gears mesh the C-ring is driven in the opposite direction from the stator rotation. When [CheY](!highlight-refs=chey&focus-refs=chey) binds, the shape of the C-ring changes slightly and the stator binds on the inside of the ring ([8UPL](https://www.rcsb.org/structure/8UPL), [8UCS](https://www.rcsb.org/structure/8UCS), [1F4V](https://www.rcsb.org/structure/1F4V)). In that position, the C-ring is driven in the same direction as the rotation of the stator.
+The motor switches rotation with a direct approach that is quite similar to machines in our macroscale world. The [C-ring](!highlight-refs=cring,ccw_cring&focus-refs=cring,ccw_cring) acts like a large gear and the stators act like smaller gears. In the counterclockwise state, shown below at the top from PDB ID [8UOX](https://www.rcsb.org/structure/8UOX) and [8UCS](https://www.rcsb.org/structure/8UCS), the [stators](!highlight-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10,motabrep20,motabrep21,motabrep22,motabrep23,motabrep24,motabrep25,motabrep26,motabrep27,motabrep28,motabrep29,motabrep210&focus-refs=motabrep0,motabrep1,motabrep2,motabrep3,motabrep4,motabrep5,motabrep6,motabrep7,motabrep8,motabrep9,motabrep10,motabrep20,motabrep21,motabrep22,motabrep23,motabrep24,motabrep25,motabrep26,motabrep27,motabrep28,motabrep29,motabrep210)  are positioned outside the C-ring, and when the gears mesh the C-ring is driven in the opposite direction from the stator rotation. When [CheY](!highlight-refs=chey&focus-refs=chey) binds, the shape of the C-ring changes slightly and the stator binds on the inside of the ring ([8UPL](https://www.rcsb.org/structure/8UPL), [8UCS](https://www.rcsb.org/structure/8UCS), [1F4V](https://www.rcsb.org/structure/1F4V)). In that position, the C-ring is driven in the same direction as the rotation of the stator.
 
 
 ![](https://cdn.rcsb.org/pdb101/motm/300/CRing_Figure.jpg)
