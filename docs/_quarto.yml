@@ -6,8 +6,6 @@ project:
   preview:
     port: 4200
     browser: false
-  resources:
-    - example-stories/assets/**
 
 website:
   title: 'MolViewStories Documentation'
@@ -30,14 +28,24 @@ website:
             href: webapp-interface.qmd
           - text: 'Building Stories'
             href: core-features.qmd
-          - text: 'Example Stories'
-            href: example-stories/index.qmd
           - text: 'Cloud Storage & Sharing'
             href: webapp-cloud-storage.qmd
           - text: 'Tips & Workflows'
             href: tips-shortcuts.qmd
           - text: 'CLI Tool'
             href: cli.qmd
+          - text: 'Cloud Storage'
+            href: webapp-cloud-storage.qmd
+          - text: 'Tips & Workflows'
+            href: tips-shortcuts.qmd
+          - text: 'CLI Tool'
+            href: cli.qmd
+          - section: 'Full Examples'
+            contents:
+              - text: 'Creating MOTM 01'
+                href: example-stories/making-of-mom1.qmd
+              - text: 'Creating MOTM 300'
+                href: example-stories/making-of-mom300.qmd
 
       - section: 'MolViewSpec API'
         contents:
@@ -72,6 +80,7 @@ website:
             href: first-time-login.qmd
           - text: 'MVS Spec'
             href: molviewspec/mvs-spec.qmd
+
 format:
   html:
     theme: cosmo
