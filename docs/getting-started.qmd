@@ -139,7 +139,7 @@ Congratulations! You've created your first molecular story. Here's what to explo
 - **[MolViewSpec](https://molstar.org)** - Visit MolViewSpec to learn more about the underlying technology that powers MolViewStories
 - **[Core Features](core-features.qmd)** - Learn about advanced visualization options
 - **[Tips & Shortcuts](tips-shortcuts.qmd)** - Discover efficient workflows
-- **Example Stories** - Study the pre-made examples for inspiration
+- **[Example Stories](example-stories/index.qmd)** - Study the pre-made examples for inspiration
 
 ## Common First Steps Issues
 
