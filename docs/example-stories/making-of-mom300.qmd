@@ -687,3 +687,5 @@ Atomic structures of the stator confirmed the hypothesis that it is a small rota
 
 
 ## Conclusion
+
+You can use this as a template for your own story, just head to [https://molstar.org/mol-view-stories/](https://molstar.org/mol-view-stories/) and click on 'Use as a template'.
