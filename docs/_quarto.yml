@@ -39,8 +39,6 @@ website:
             href: core-features.qmd
           - text: 'Cloud Storage & Sharing'
             href: webapp-cloud-storage.qmd
-          - text: 'Tips & Workflows'
-            href: tips-shortcuts.qmd
           - text: 'CLI Tool'
             href: cli.qmd
           - text: 'Cloud Storage'
