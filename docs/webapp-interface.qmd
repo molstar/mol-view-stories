@@ -15,24 +15,23 @@ The story panel is where global information about a story goes.  Str
 - Scene options and settings
 - Assets management
 
-### Story Assets
 
-![](img/story_assets.png)
 
-### Story Code
+::: {layout-ncol=2}
+![Story Assets](img/story_assets.png)
 
-![](img/story_code.png)
+![Story Code](img/story_code.png)
+:::
 
-### Story Metadata
 
-![](img/story_metadata.png)
+::: {layout-ncol=2}
+![Story Metadata](img/story_metadata.png)
 
-### Story Preview
+![Story Preview](img/story_preview.png)
+:::
 
 At any time you can press `Story Preview` and get a live view of your story.
 
-
-![](img/story_preview.png)
 
 
 ## Scene Panels
@@ -47,7 +46,6 @@ The code in this panel will be combined with the `Story` code and executed to re
 - Code execution (Ctrl/Cmd+S)
 - Error highlighting
 
-![](img/scene_code.png)
 
 ### Scene Options Panel
 
@@ -59,8 +57,11 @@ You can also specify scene-level metadata:
 - linger/transition  duration
 
 
+::: {layout-ncol=2}
+![Scene Code](img/scene_code.png)
 
-![](img/scene_options.png)
+![Scene Options](img/scene_options.png)
+:::
 
 
 ## Top Menu Bar
