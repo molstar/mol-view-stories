@@ -9,13 +9,22 @@ project:
 
 website:
   title: 'MolViewStories Documentation'
+  favicon: img/favicon.ico
   repo-url: https://github.com/molstar/mol-view-stories
   repo-actions: [edit, issue]
   site-url: https://molstar.org/mol-view-stories/
-
   sidebar:
     style: 'docked'
     search: true
+    # logo: img/favicon.ico
+    title: 'MolViewStories'
+    tools:
+      - icon: github
+        href: https://github.com/molstar/mol-view-stories
+        text: 'GitHub Repository'
+      - icon: globe
+        href: https://molstar.org/mol-view-stories/
+        text: 'Live Website'
     contents:
       - text: 'Introduction'
         href: index.qmd
