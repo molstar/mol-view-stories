@@ -53,6 +53,10 @@ website:
                 href: example-stories/making-of-mom1.qmd
               - text: 'Creating MOTM 300'
                 href: example-stories/making-of-mom300.qmd
+              - text: 'Creating NPC Basket'
+                href: example-stories/making-of-npc.qmd
+              - text: 'Creating CYP3A4'
+                href: example-stories/making-of-cyp3a4.qmd
 
       - section: 'MolViewSpec API'
         contents:
