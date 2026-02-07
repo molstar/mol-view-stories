@@ -18,28 +18,30 @@ scenes:
 
       The GAIN domain is found in adhesion GPCRs and undergoes autoproteolysis, creating a tethered agonist that can activate the receptor. This MD simulation captures the conformational changes during agonist exposure.
 
-      **Note:** This visualization shows a static frame from the MD trajectory. Full trajectory animation (XTC playback) is not yet supported in mol-view-spec.
-
       The visualization shows:
-      - GAIN domain (surface, semi-transparent)
-      - Tethered agonist peptide (ball-and-stick representation)
+      - **GAIN domain** - surface representation showing conformational changes
+      - **Tethered agonist peptide** - ball-and-stick representation highlighting the agonist
+      - **Animated trajectory** - cycling through MD frames showing agonist exposure dynamics
 
       **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fgain-md.molx&snapshot-url-type=molx)
 
     javascript: |
-      // Load GRO structure file (static frame)
-      // Note: XTC trajectory animation not yet supported in MVS
+      // Load trajectory file separately from coordinates
+      builder.download({ url: "CL1C1noH-2.xtc" }).parse({ format: "xtc" }).coordinates({ ref: "coords" });
+
+      // Load GRO structure file and link to trajectory coordinates
       const structure = builder
         .download({ url: "CL1C1noH.gro" })
         .parse({ format: "gro" })
-        .modelStructure({});
+        .modelStructure({ coordinates_ref: "coords", ref: "model" });
 
-      // GAIN domain - surface
+      // GAIN domain - surface with lower quality for better performance
       // Residues 1-914 (chain A equivalent)
       structure
         .component({ ref: 'GAIN-domain', selector: { residue_range: [1, 914] } })
-        .representation({ type: "surface" })
-        .color({ color: "#6495ED" });
+        .representation({ type: "surface", custom: { molstar_representation_params: { quality: "low" } } })
+        .color({ color: "#6495ED" })
+        .opacity({ opacity: 0.5 });
 
       // Tethered agonist peptide - ball-and-stick
       // Residues 915-1922 (chain B equivalent)
@@ -47,6 +49,10 @@ scenes:
         .component({ ref: 'Tethered-agonist', selector: { residue_range: [915, 1922] } })
         .representation({ type: "ball_and_stick" })
         .color({ color: "#FF6347" });
+
+      // Create animation to play through trajectory frames
+      const anim = builder.animation({ loop: true });
+      anim.interpolate({ kind: "scalar", target_ref: "model", duration_ms: 5000, property: "model_index", start: 0, end: 100, discrete: true });
 
     camera:
       mode: 'perspective'
