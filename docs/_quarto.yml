@@ -72,6 +72,8 @@ website:
             href: molviewspec/primitives.qmd
           - text: 'Volumetric Data'
             href: molviewspec/volumes.qmd
+          - text: 'Trajectory Data'
+            href: molviewspec/trajectories.qmd
           - text: 'Animations'
             href: molviewspec/animations.qmd
           - text: 'Examples'
