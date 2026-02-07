@@ -17,33 +17,39 @@ scenes:
 
       Villin headpiece is a model system for studying protein folding dynamics. The simulation captures the formation of three α-helices as the protein transitions from a disordered state to its native fold.
 
-      **Note:** This visualization shows a static frame from the MD trajectory. Full trajectory animation (XTC playback) is not yet supported in mol-view-spec.
-
       The visualization shows:
-      - **Cartoon representation** colored by secondary structure (helices, sheets, coils)
-      - **Transparent surface** showing the overall shape and compactness
+      - **Cartoon representation** colored by secondary structure (helices in magenta, sheets in yellow, loops in white)
+      - **Transparent surface** showing the overall molecular envelope
+      - **Animated trajectory** cycling through MD frames showing the folding dynamics
 
       **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fvillin-md.molx&snapshot-url-type=molx)
 
     javascript: |
-      // Load GRO structure file (static frame)
-      // Note: XTC trajectory animation not yet supported in MVS
+      // Load trajectory file separately from coordinates
+      builder.download({ url: "test3.xtc" }).parse({ format: "xtc" }).coordinates({ ref: "coords" });
+
+      // Load GRO structure file and link to trajectory coordinates
       const structure = builder
         .download({ url: "test3.gro" })
         .parse({ format: "gro" })
-        .modelStructure({});
+        .modelStructure({ coordinates_ref: "coords", ref: "model" });
 
-      // Cartoon representation
+      // Cartoon representation colored by secondary structure
       structure
         .component({ ref: 'Villin-cartoon', selector: "polymer" })
-        .representation({ type: "cartoon", size_factor: 0.2 })
-        .color({ color: "#3498DB" });
+        .representation({ type: "cartoon" })
+        .color({ custom: { molstar_color_theme_name: "secondary-structure" } });
 
-      // Surface to show overall shape
-      // structure
-      //   .component({ ref: 'Villin-surface', selector: "polymer" })
-      //   .representation({ type: "surface" })
-      //   .color({ color: "#9CE0FF" });
+      // Surface to show overall shape (lower quality for better performance)
+      structure
+        .component({ ref: 'Villin-surface', selector: "polymer" })
+        .representation({ type: "surface", custom: { molstar_representation_params: { quality: "low" } } })
+        .color({ color: "#9CE0FF" })
+        .opacity({ opacity: 0.3 });
+
+      // Create animation to play through trajectory frames
+      const anim = builder.animation({ loop: true });
+      anim.interpolate({ kind: "scalar", target_ref: "model", duration_ms: 5000, property: "model_index", start: 0, end: 100, discrete: true });
 
     camera:
       mode: 'perspective'
