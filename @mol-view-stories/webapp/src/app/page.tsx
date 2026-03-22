@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header, Main } from '@/components/common';
 import { ExampleStoryList } from './examples/list';
 import { useAuth } from './providers';
-import { BookDashed, BookOpen, Github, Library, LucideMessageCircleQuestion } from 'lucide-react';
+import { BookDashed, BookOpen, Github, Library, LucideLink, LucideMessageCircleQuestion } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { ApiStatus } from '@/components/get-api-status';
 import { APP_VERSION } from './version';
@@ -122,68 +122,101 @@ export default function Home() {
     <>
       <Header />
       <Main className='flex-1 gap-0'>
-        <section className='pt-20 pb-10 px-4 md:px-8 bg-gradient-to-br from-background to-muted/20'>
+        <section className='pt-20 pb-3 px-4 md:px-8 bg-gradient-to-br from-background to-muted/20'>
           <div className='max-w-4xl mx-auto text-center'>
             <h1 className='text-5xl md:text-6xl font-bold text-foreground mb-6'>MolViewStories</h1>
 
-            <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
-              Build engaging and interactive molecular visualizations with code by combining Mol*&apos;s powerful 3D
-              rendering with custom scripts to tell your scientific story
+            <p className='text-[1.1rem] text-muted-foreground mb-8 max-w-2xl mx-auto'>
+              Build engaging and interactive molecular visualizations with code by combining powerful{' '}
+              <a href='https://molstar.org' target='_blank' rel='noopener noreferrer' className='underline'>
+                Mol* 3D rendering
+              </a>{' '}
+              with custom scripts to tell your scientific story
             </p>
 
-            <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-              <Link
-                href='/builder?template=empty'
-                className='bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex gap-2 items-center'
-              >
-                <BookOpen className='w-4 h-4' />
-                Start Building
-              </Link>
+            <div className='flex gap-4 flex-col sm:flex-row justify-center items-center'>
+              <div className='flex no-wrap'>
+                <Link
+                  href='/builder?template=empty'
+                  className='bg-primary text-primary-foreground px-8 py-3 rounded-lg rounded-r-none font-semibold hover:bg-primary/90 transition-colors flex gap-2 items-center'
+                >
+                  <BookOpen className='w-4 h-4' />
+                  Start Building
+                </Link>
 
-              <div className='flex justify-center'>
-                {auth.isAuthenticated ? (
-                  <Link
-                    href='/my-stories'
-                    className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
-                  >
-                    <Library className='w-4 h-4' />
-                    My Stories
-                  </Link>
-                ) : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className='bg-muted/50 border border-border/50 px-4 py-3 rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
-                        <Library className='w-4 h-4' />
-                        My Stories
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Log in to access your stories</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+                <div className='flex justify-center'>
+                  {auth.isAuthenticated ? (
+                    <Link
+                      href='/my-stories'
+                      className='border border-primary/20 px-4 py-3 border-l-0 rounded-l-none rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                    >
+                      <Library className='w-4 h-4' />
+                      My Stories
+                    </Link>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='bg-muted/50 border border-border/50 border-l-0 px-4 py-3 rounded-l-none rounded-lg font-semibold text-muted-foreground/50 cursor-not-allowed flex items-center gap-2 justify-center'>
+                          <Library className='w-4 h-4' />
+                          My Stories
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Log in to access your stories</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
 
-              <Link
-                href='/docs'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
-              >
-                <LucideMessageCircleQuestion className='w-4 h-4' />
-                Docs
-              </Link>
-
-              <div className='flex justify-center'>
+              <div className='flex no-wrap'>
                 <Link
-                  href='https://github.com/molstar/mol-view-stories'
-                  className='border border-primary/20 px-4 py-3 rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                  href='/docs'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='border border-primary/20 px-4 py-3 rounded-lg rounded-r-none font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
                 >
-                  <Github className='w-4 h-4' />
-                  GitHub
+                  <LucideMessageCircleQuestion className='w-4 h-4' />
+                  Docs
                 </Link>
+
+                <Link
+                  href='https://doi.org/10.1002/pro.70540'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='border border-primary/20 px-4 py-3 border-l-0 rounded-l-none rounded-r-none font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                >
+                  <LucideLink className='w-4 h-4' />
+                  Publication
+                </Link>
+
+                <div className='flex justify-center'>
+                  <Link
+                    href='https://github.com/molstar/mol-view-stories'
+                    className='border border-primary/20 px-4 py-3 border-l-0 rounded-l-none rounded-lg font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center gap-2'
+                  >
+                    <Github className='w-4 h-4' />
+                    GitHub
+                  </Link>
+                </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className='text-[0.6rem] text-justify text-muted-foreground'>
+          <div className='max-w-2xl mx-auto mb-20'>
+            <b>When using MolViewStories, please cite:</b> Terézia Slanináková, Zachary Charlop‐Powers, Viktoriia
+            Doshchenko, Alexander S Rose, Adam Midlik, Anna Sekuła, Neli Fonseca, Kyle L Morris, Stephen K Burley,
+            Sameer Velankar, Jennifer Fleming, Brinda Vallat, Ludovic Autin, David Sehnal:{' '}
+            <a href='https://doi.org/10.1002/pro.70540' className='hover:underline'>
+              MolViewStories: Interactive molecular storytelling
+            </a>
+            , <i>Protein Science</i>, 2026;{' '}
+            <a href='https://doi.org/10.1002/pro.70540' className='hover:underline'>
+              https://doi.org/10.1002/pro.70540
+            </a>
+            .
           </div>
         </section>
 
