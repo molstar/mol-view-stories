@@ -4,12 +4,13 @@
   "scripts": {
     "prettier": "pnpm run --filter=* prettier",
     "prettier:check": "pnpm run --filter=* prettier:check",
-    "build": "pnpm run --filter=* build",
+    "mvs-types": "pnpm run --filter=* mvs-types",
+    "build": "pnpm run --filter=* mvs-types && pnpm run --filter=* build",
     "dev:web": "pnpm run --filter=@mol-view-stories/webapp dev",
     "tsc:check": "pnpm run --filter=* tsc:check"
   },
   "dependencies": {
-    "molstar": "^5.5.0"
+    "molstar": "^5.7.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",

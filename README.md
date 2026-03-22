@@ -4,6 +4,10 @@ A framework for building beautiful molecular stories.
 
 Online at https://molstar.org/mol-view-stories.
 
+**When using MolViewStories, please cite**:
+
+Terézia Slanináková, Zachary Charlop‐Powers, Viktoriia Doshchenko, Alexander S Rose, Adam Midlik, Anna Sekuła, Neli Fonseca, Kyle L Morris, Stephen K Burley, Sameer Velankar, Jennifer Fleming, Brinda Vallat, Ludovic Autin, David Sehnal: [MolViewStories: Interactive molecular storytelling](https://doi.org/10.1002/pro.70540), *Protein Science*, 2026; https://doi.org/10.1002/pro.70540.
+
 ## Local Development (Quick Start)
 
 ### Requirements

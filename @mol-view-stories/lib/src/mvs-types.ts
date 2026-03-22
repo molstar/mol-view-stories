@@ -3,14 +3,14 @@
 
 /**
  * TypeScript type definitions for the Mol* Viewer (MVS) API.
- *
+ * 
  * This string contains complete type definitions that can be used with Monaco Editor
  * to provide IntelliSense/autocomplete for MVS scene JavaScript code.
- *
+ * 
  * @example
  * ```typescript
  * import { setupMonacoCodeCompletion, MVSTypes } from "@mol-view-stories/lib";
- *
+ * 
  * // Configure Monaco Editor for MVS code completion
  * setupMonacoCodeCompletion(monaco, MVSTypes);
  * ```
@@ -1419,6 +1419,8 @@ namespace _ {
             field_name: OptionalField<string>;
             /** Customize mapping of annotation values to colors. */
             palette: OptionalField<CategoricalPalette | DiscretePalette | ContinuousPalette | null>;
+            /** Defines to what part of the representation this coloring should be applied. */
+            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
@@ -1441,6 +1443,8 @@ namespace _ {
             field_name: OptionalField<string>;
             /** Customize mapping of annotation values to colors. */
             palette: OptionalField<CategoricalPalette | DiscretePalette | ContinuousPalette | null>;
+            /** Defines to what part of the representation this coloring should be applied. */
+            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
             schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
@@ -1489,6 +1493,10 @@ namespace _ {
         label_from_uri: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the label text. */
             field_name: OptionalField<string>;
+            /** Formatting template for the label text. Supports simplified f-string syntax. */
+            text_format: OptionalField<string>;
+            /** Set of annotation fields for grouping annotation rows into label instances (i.e. annotation rows with the same values in all group-by fields will yield one label instance). Annotation row with undefined value in any group-by field is considered a separate label instance. */
+            group_by_fields: OptionalField<string[] | null>;
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
@@ -1509,6 +1517,10 @@ namespace _ {
         label_from_source: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the label text. */
             field_name: OptionalField<string>;
+            /** Formatting template for the label text. Supports simplified f-string syntax. */
+            text_format: OptionalField<string>;
+            /** Set of annotation fields for grouping annotation rows into label instances (i.e. annotation rows with the same values in all group-by fields will yield one label instance). Annotation row with undefined value in any group-by field is considered a separate label instance. */
+            group_by_fields: OptionalField<string[] | null>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
             schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
@@ -1529,6 +1541,8 @@ namespace _ {
         tooltip_from_uri: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the tooltip text. */
             field_name: OptionalField<string>;
+            /** Formatting template for the tooltip text. Supports simplified f-string syntax. */
+            text_format: OptionalField<string>;
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
@@ -1549,6 +1563,8 @@ namespace _ {
         tooltip_from_source: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the tooltip text. */
             field_name: OptionalField<string>;
+            /** Formatting template for the tooltip text. Supports simplified f-string syntax. */
+            text_format: OptionalField<string>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
             schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
@@ -2023,7 +2039,7 @@ namespace _ {
     }
     
     /**
-     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     * Copyright (c) 2023-2026 mol* contributors, licensed under MIT, See LICENSE file for more info.
      *
      * @author Adam Midlik <midlik@gmail.com>
      * @author David Sehnal <david.sehnal@gmail.com>
@@ -2093,6 +2109,22 @@ namespace _ {
         fromMVSJ(mvsjString: string): MVSData;
         /** Encode \`MVSData\` to MVSJ (MolViewSpec-JSON) string. Use \`space\` parameter to control formatting (as with \`JSON.stringify\`). */
         toMVSJ(mvsData: MVSData, space?: string | number): string;
+        /** Encode \`MVSData\` to MVSX (MolViewSpec JSON zipped together with referenced assets). Automatically fetches all referenced assets unless specified otherwise in \`options\`. */
+        toMVSX(mvsData: MVSData, options?: {
+            /** Explicitely define assets to be included in the MVSX (binary data or string with asset content).
+             * If not specified, assets will be fetched automatically. */
+            assets?: {
+                [uri: string]: Uint8Array<ArrayBuffer> | string;
+            };
+            /** Base URI for resolving relative URIs (only applies if \`assets\` not specified). */
+            baseUri?: string;
+            /** Do not include external resources (i.e. absolute URIs) in the MVSX (default is to include both relative and absolute URIs) (only applies if \`assets\` not specified). */
+            skipExternal?: boolean;
+            /** Optional cache for sharing fetched assets across multiple \`toMVSX\` calls (only applies if \`assets\` not specified). */
+            cache?: {
+                [absoluteUri: string]: Uint8Array<ArrayBuffer> | string;
+            };
+        }): Promise<Uint8Array<ArrayBuffer>>;
         /** Validate \`MVSData\`. Return \`true\` if OK; \`false\` if not OK.
          * If \`options.noExtra\` is true, presence of any extra node parameters is treated as an issue. */
         isValid(mvsData: MVSData, options?: {
@@ -2353,7 +2385,7 @@ namespace _ {
     }
     
     /**
-     * Copyright (c) 2017-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     * Copyright (c) 2017-2026 mol* contributors, licensed under MIT, See LICENSE file for more info.
      *
      * @author David Sehnal <david.sehnal@gmail.com>
      * @author Alexander Rose <alexander.rose@weirdbyte.de>
@@ -2516,6 +2548,7 @@ namespace _ {
          */
         function equals(a: Vec3, b: Vec3): boolean;
         function makeRotation(mat: Mat4, a: Vec3, b: Vec3): Mat4;
+        function rotateAroundAxis(out: Vec3, v: Vec3, axis: Vec3, angle: number): Vec3;
         function isZero(v: Vec3): boolean;
         /** Project \`point\` onto \`vector\` starting from \`origin\` */
         function projectPointOnVector(out: Vec3, point: Vec3, vector: Vec3, origin: Vec3): Vec3;
