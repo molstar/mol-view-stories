@@ -1,0 +1,158 @@
+# Molstar Interactive Examples
+# Metadata for all examples from molstar.org
+#
+# GitHub Repository: https://github.com/molstar/molstar.github.io
+# molx files: https://github.com/molstar/molstar.github.io/tree/master/demos/states
+# Custom demos: https://github.com/molstar/molstar.github.io/tree/master/demos
+
+examples:
+  - id: alpha-orbitals
+    title: 'Alpha Orbitals and Density of Atorvastatin'
+    description: 'Alpha orbitals and density of Atorvastatin.'
+    type: 'Custom Visualization'
+    source_url: 'https://molstar.org/demos/alpha-orbitals'
+    github_demo_url: 'https://github.com/molstar/molstar.github.io/tree/master/demos/alpha-orbitals'
+    molx_url: null
+    image: 'https://molstar.org/img/ao.png'
+    status: 'stub'
+    tier: 4
+    notes: 'Custom demo - may require special features. Source code available on GitHub.'
+
+  - id: zika-em
+    title: 'Zika Virus Assembly and Cryo-EM Density'
+    description: 'Zika virus assembly and Cryo-EM density.'
+    type: 'Structure + EM Data'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fzikaem.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/zikaem.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/zikaem.molx'
+    image: 'https://molstar.org/img/zika.png'
+    pdb_id: '5IRE'
+    emdb_id: 'EMD-8116'
+    doi: '10.1126/science.aaf5316'
+    status: 'complete'
+    tier: 1
+    notes: 'Structure visualization complete. EM volume (EMD-8116) requires volume streaming server support not yet available in mol-view-spec.'
+
+  - id: cytochromes
+    title: 'P-450 Cytochromes Superposition'
+    description: 'Superposition and validation annotation of P-450 cytochromes.'
+    type: 'Superposition + Validation'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fcytochromes.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/cytochromes.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/cytochromes.molx'
+    image: 'https://molstar.org/img/cytochromes.png'
+    status: 'complete'
+    tier: 2
+    notes: '9 P-450 cytochrome structures with superposition using transformation matrices extracted from original molx state. Validation annotations not yet implemented.'
+
+  - id: gain-md
+    title: 'GAIN Domain Tethered Agonist Exposure'
+    description: 'GAIN domain tethered agonist exposure MD trajectory.'
+    type: 'MD Trajectory'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fgain-md.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/gain-md.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/gain-md.molx'
+    image: 'https://molstar.org/img/gain-md.png'
+    doi: '10.1016/j.molcel.2020.12.042'
+    status: 'complete'
+    tier: 3
+    notes: 'MD trajectory - static frame only (XTC animation not yet supported in MVS). Shows GAIN domain with surface and tethered agonist with ball-and-stick.'
+    attribution: 'Based on an animation by Ramon Guixà-González'
+
+  - id: npc
+    title: 'Nuclear Pore Complex'
+    description: 'IH/M structure of the Nuclear Pore Complex.'
+    type: 'Integrative/Hybrid Structure'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fnpc.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/npc.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/npc.molx'
+    image: 'https://molstar.org/img/npc.png'
+    status: 'complete'
+    tier: 2
+    notes: 'Integrative/Hybrid modeling structure from PDB-Dev. Uses surface representation with unit-index coloring.'
+
+  - id: lighting
+    title: 'Lighting and Render Styles'
+    description: 'Render styles and lighting modes demonstration.'
+    type: 'Rendering Showcase'
+    source_url: 'https://molstar.org/demos/lighting'
+    github_demo_url: 'https://github.com/molstar/molstar.github.io/tree/master/demos/lighting'
+    molx_url: null
+    image: 'https://molstar.org/img/lighting.png'
+    status: 'stub'
+    tier: 4
+    notes: 'Custom demo - showcases render modes. Source code available on GitHub.'
+
+  - id: 1rb8-assembly
+    title: 'PhiX174 DNA Binding Protein Assembly'
+    description: 'Annotated assembly of the phiX174 DNA binding protein (PDB id 1RB8).'
+    type: 'Assembly Annotation'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2F1rb8asm.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/1rb8asm.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/1rb8asm.molx'
+    image: 'https://molstar.org/img/1rb8.png'
+    pdb_id: '1RB8'
+    status: 'complete'
+    tier: 1
+    notes: 'Assembly structure complete. Missing symmetry visualization features (axes, icosahedral cage, symmetry-cluster coloring) - requires mol-view-spec API enhancement for RCSB symmetry data and shape primitives.'
+
+  - id: villin-md
+    title: 'Villin Folding Trajectory'
+    description: 'Villin folding trajectory by Stefan Doerr.'
+    type: 'MD Trajectory'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fvillin-md.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/villin-md.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/villin-md.molx'
+    image: 'https://molstar.org/img/villin-md.png'
+    doi: '10.6084/m9.figshare.12040257.v1'
+    status: 'complete'
+    tier: 3
+    notes: 'MD trajectory - static frame only (XTC animation not yet supported in MVS). Shows villin with cartoon (secondary structure colors) and transparent surface.'
+
+  - id: sars-cov-2-virion
+    title: 'SARS-CoV-2 Virion'
+    description: 'SARS-CoV-2 Virion coarse-grained model by Alvin Yu et al.'
+    type: 'Coarse-Grained Model'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fsars-cov-2_virion.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/sars-cov-2_virion.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/sars-cov-2_virion.molx'
+    image: 'https://molstar.org/img/sars-cov-2_virion.png'
+    doi: '10.1016/j.bpj.2020.10.048'
+    status: 'complete'
+    tier: 3
+    notes: 'Coarse-grained model showing lipid bilayer, M-protein, E-protein, and S-protein trimers. Uses entity-based selection with spacefill representations.'
+
+  - id: btub
+    title: 'BtuB in Lipid Bilayer'
+    description: 'BtuB molecules in a lipid bilayer. Coarse-grained model by Matthieu Chavent et al.'
+    type: 'Membrane System'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fbtub.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/btub.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/btub.molx'
+    image: 'https://molstar.org/img/btub.png'
+    doi: '10.1038/s41467-018-05255-9'
+    status: 'complete'
+    tier: 2
+    notes: 'Membrane protein system showing BtuB proteins in POPC lipid bilayer. Uses spacefill for lipids and surface for proteins.'
+
+  - id: motor-hook
+    title: 'Bacterial Flagellar Motor-Hook Complex'
+    description: 'Cryo-EM structure of the bacterial flagellar motor-hook complex.'
+    type: 'Cryo-EM Structure'
+    source_url: 'https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fmotor-hook.molx&snapshot-url-type=molx'
+    molx_url: 'https://molstar.org/demos/states/motor-hook.molx'
+    github_molx_url: 'https://github.com/molstar/molstar.github.io/blob/master/demos/states/motor-hook.molx'
+    image: 'https://molstar.org/img/motor-hook.png'
+    pdb_id: '7CGO'
+    doi: '10.1016/j.cell.2021.03.057'
+    status: 'complete'
+    tier: 1
+    notes: 'Single cryo-EM structure. ✅ FIRST COMPLETE EXAMPLE! Simplified from original molx using chain-id coloring.'
+
+# Implementation Tiers:
+# Tier 1: Simple (single structure, standard representations)
+# Tier 2: Medium (multiple structures, superposition, special features)
+# Tier 3: Complex (trajectories, coarse-grained models)
+# Tier 4: Custom (demos requiring special code)
+
+# Status values: stub, investigating, in-progress, complete

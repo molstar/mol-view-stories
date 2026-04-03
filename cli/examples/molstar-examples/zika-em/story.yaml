@@ -1,0 +1,69 @@
+title: 'Zika Virus Assembly and Cryo-EM Density'
+author_note: 'Based on Molstar example from molstar.org. Structure only - EM volume requires volume streaming server support.'
+
+scenes:
+  - id: main
+    header: 'Zika Virus Assembly and Cryo-EM Density'
+    key: 'overview'
+    description: |
+      # Zika Virus Assembly and Cryo-EM Density
+
+      Cryo-EM structure of the Zika virus at 3.8 Å resolution, revealing the detailed architecture of the viral capsid.
+
+      **PDB ID:** [5IRE](https://www.rcsb.org/structure/5IRE)
+      **EMDB ID:** [EMD-8116](https://www.ebi.ac.uk/emdb/EMD-8116)
+      **Resolution:** 3.8 Å
+      **Method:** Cryo-EM
+      **Reference:** Sirohi et al., Science 2016 ([doi:10.1126/science.aaf5316](https://dx.doi.org/10.1126/science.aaf5316))
+
+      The Zika virus structure shows the arrangement of the viral envelope (E) and membrane (M) proteins that form the outer shell of the virus. This structure was crucial for understanding Zika virus maturation and developing therapeutic strategies.
+
+      **Note:** This implementation shows the atomic structure only. The original Molstar example includes EM density visualization from EMD-8116, which requires volume streaming server support not currently available in mol-view-spec.
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fzikaem.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // Download the 5IRE Zika virus structure
+      // Using assemblyStructure to show the complete viral capsid sphere (360-mer)
+      const structure = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/5ire.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" });
+
+      // Show protein chains with cartoon representation
+      // Using uniform black color to match original molx (uniform color value: 0)
+      const polymer = structure
+        .component({
+          ref: 'Polymer',
+          selector: "polymer"
+        })
+        .representation({ type: "cartoon" })
+        .color({ color: "#000000" });
+
+      // Note: Original includes EM volume visualization:
+      // - EMD-8116 from https://ds.litemol.org volume streaming server
+      // - Detail level: 6
+      // - Isosurface at isoValue: 3.5
+      //
+      // This requires volume streaming support which is not yet available
+      // in mol-view-spec for EMDB data. X-ray density is supported via
+      // PDBe volume server, but EM volumes use a different server/format.
+      //
+      // Future implementation would look like:
+      // builder
+      //   .download({ url: "https://www.ebi.ac.uk/emdb/emd-8116/..." })
+      //   .parse({ format: "..." })
+      //   .volume({ channel_id: "em" })
+      //   .representation({ type: "isosurface", relative_isovalue: 3.5 })
+      //   .color({ color: "#6688ff" })
+      //   .opacity({ opacity: 0.3 });
+
+    camera:
+      mode: 'perspective'
+      position: [314.49, -758.96, 48.21]
+      target: [0.23, -3.76, -5.09]
+      up: [0.011, 0.076, 1.005]
+      fov: 45
+
+    linger_duration_ms: 10000
+    transition_duration_ms: 1500

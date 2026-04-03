@@ -1,0 +1,234 @@
+title: 'P-450 Cytochromes Superposition'
+author_note: 'Based on Molstar example from molstar.org. Superposition of 9 P-450 cytochrome structures with transformation matrices from original molx state.'
+
+scenes:
+  - id: main
+    header: 'P-450 Cytochromes Superposition'
+    key: 'overview'
+    description: |
+      # P-450 Cytochromes Superposition
+
+      Structural superposition of 9 P-450 cytochrome structures showing structural diversity and conservation in the P-450 superfamily.
+
+      **Structures:**
+      - **2H7S** - CYP2C8 (reference, cyan)
+      - **2RFC** - CYP2C9 (red)
+      - **2L8M** - CYP2C19 (orange)
+      - **3WRK** - CYP2D6 (yellow)
+      - **2LQD** - CYP2E1 (green)
+      - **3FWG** - CYP3A4 (blue)
+      - **6WE6** - CYP3A5 (purple)
+      - **1K2O** - CYP2A6 (magenta)
+      - **6OOX** - CYP1A2 (pink)
+
+      All structures are superposed using transformation matrices from the original Molstar example to show the conserved P-450 fold and structural variations. Ligands and cofactors (including heme groups) are shown as ball_and_stick representations.
+
+      **Protein coloring:**
+      - Structure 1 (2H7S) colored by PDBe structure quality report (validation data)
+        - Green = Good quality, Yellow = Moderate issues, Red = Significant issues
+      - Other structures colored by distinct solid colors for easy identification
+
+      **Ligands:** Element-based coloring (ball_and_stick)
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fcytochromes.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // Helper function to add ligands to a structure
+      function addLigands(struct, refPrefix) {
+        // Ligands
+        struct
+          .component({ ref: `${refPrefix}-ligand`, selector: "ligand" })
+          .representation({ type: "ball_and_stick" })
+          .color({ custom: { element_symbol: {} } });
+      }
+
+      // Structure 1: 2H7S - CYP2C8 (Reference, no transformation)
+      const struct1 = builder
+        .download({ url: "2h7s.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" });
+
+      struct1
+        .component({ ref: 'CYP2C8', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct1, 'CYP2C8');
+
+      // Structure 2: 2RFC - CYP2C9
+      const struct2 = builder
+        .download({ url: "2rfc.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            0.34182254141476376, 0.07806573308799436, 0.9365164257835175,
+            0.5860559591695829, -0.7967333618598289, -0.1474929017714519,
+            0.7346398349985663, 0.5992674567074179, -0.31809224525770263
+          ],
+          translation: [8.907616393261645, -11.187590465815065, -4.709857887550006]
+        });
+
+      struct2
+        .component({ ref: 'CYP2C9', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct2, 'CYP2C9');
+
+      // Structure 3: 2L8M - CYP2C19
+      const struct3 = builder
+        .download({ url: "2l8m.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            0.9140851515863844, -0.1289745451335449, 0.3844657244416254,
+            0.35932279223625585, 0.6970744254063774, -0.6204630080722779,
+            -0.18797727932484065, 0.7053033248994041, 0.6835288793263032
+          ],
+          translation: [-46.5288922248276, -60.66796444941024, -11.535225160239397]
+        });
+
+      struct3
+        .component({ ref: 'CYP2C19', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct3, 'CYP2C19');
+
+      // Structure 4: 3WRK - CYP2D6
+      const struct4 = builder
+        .download({ url: "3wrk.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            0.8836890440776667, -0.44564032366242845, 0.14317246104079562,
+            0.17350713199014844, 0.02778385017312912, -0.9844405271069323,
+            0.4347285668356582, 0.89478074308071, 0.10187407622176614
+          ],
+          translation: [-12.854705520505094, 1.56985021975178, 7.326314792460778]
+        });
+
+      struct4
+        .component({ ref: 'CYP2D6', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct4, 'CYP2D6');
+
+      // Structure 5: 2LQD - CYP2E1
+      const struct5 = builder
+        .download({ url: "2lqd.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            0.39655777593795705, -0.2712159952812403, -0.8770313943005705,
+            0.47496595935149166, 0.8781687207472241, -0.05680744937781057,
+            0.785588645629832, -0.39403252752926576, 0.47706295788240094
+          ],
+          translation: [-63.96990411058045, -16.757053961049735, 50.46713941036159]
+        });
+
+      struct5
+        .component({ ref: 'CYP2E1', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct5, 'CYP2E1');
+
+      // Structure 6: 3FWG - CYP3A4
+      const struct6 = builder
+        .download({ url: "3fwg.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            -0.5290122342921536, 0.0267596667885327, -0.8481922966932932,
+            -0.04147634475108164, -0.9991236230243459, -0.0056528718633998,
+            -0.8476001207896128, 0.03218947603769429, 0.5296583173628305
+          ],
+          translation: [57.759934438772056, -3.0953398815252813, 3.8825486450360707]
+        });
+
+      struct6
+        .component({ ref: 'CYP3A4', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct6, 'CYP3A4');
+
+      // Structure 7: 6WE6 - CYP3A5
+      const struct7 = builder
+        .download({ url: "6we6.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            -0.2445064086615787, 0.0018303953195255573, 0.9696461075490066,
+            -0.07778578521907331, -0.9968126269999686, -0.01773281229692225,
+            0.96652278599618, -0.07976045804206455, 0.24386914663836023
+          ],
+          translation: [47.24516959700969, 0.8037446320517798, 42.61520371832785]
+        });
+
+      struct7
+        .component({ ref: 'CYP3A5', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct7, 'CYP3A5');
+
+      // Structure 8: 1K2O - CYP2A6
+      const struct8 = builder
+        .download({ url: "1k2o.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            -0.7282961665492067, -0.19210142874352698, 0.6577855662499097,
+            -0.6852376030867049, 0.21235401258970654, -0.6966744244308991,
+            -0.0058512740498279925, -0.9581246617297943, -0.28629177727562194
+          ],
+          translation: [11.088895132266268, -0.09977801240559475, 11.826484545796673]
+        });
+
+      struct8
+        .component({ ref: 'CYP2A6', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct8, 'CYP2A6');
+
+      // Structure 9: 6OOX - CYP1A2
+      const struct9 = builder
+        .download({ url: "6oox.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" })
+        .transform({
+          rotation: [
+            0.5059756968932105, 0.7471009786103839, -0.43107866873054324,
+            -0.8623251451823601, 0.4267860710771756, -0.2724868909624627,
+            -0.0195968074265247, 0.5096016969355324, 0.8601872487965059
+          ],
+          translation: [-11.543063194050648, -76.34639544213732, -57.93977343439325]
+        });
+
+      struct9
+        .component({ ref: 'CYP1A2', selector: "polymer" })
+        .representation({ type: "cartoon" })
+        .color({ color: "#4caf50" });
+
+      addLigands(struct9, 'CYP1A2');
+
+    camera:
+      mode: 'perspective'
+      position: [50, 50, 50]
+      target: [0, 0, 0]
+      up: [0, 1, 0]
+      fov: 45
+
+    linger_duration_ms: 10000
+    transition_duration_ms: 1500

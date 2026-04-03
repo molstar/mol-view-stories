@@ -1,0 +1,253 @@
+title: 'PhiX174 DNA Binding Protein Assembly'
+author_note: 'Based on Molstar example from molstar.org. Includes all 31 symmetry axes with end markers.'
+
+scenes:
+  - id: main
+    header: 'PhiX174 DNA Binding Protein Assembly'
+    key: 'overview'
+    description: |
+      # PhiX174 DNA Binding Protein Assembly
+
+      Crystal structure of the phiX174 DNA binding protein, showing the complete biological assembly with icosahedral symmetry visualization.
+
+      **PDB ID:** [1RB8](https://www.rcsb.org/structure/1RB8)
+      **Resolution:** 2.3 Å
+      **Method:** X-ray crystallography
+      **Organism:** Enterobacteria phage phiX174
+      **Symmetry:** Icosahedral (I)
+
+      The phiX174 DNA binding protein (gene J protein) is essential for viral DNA packaging. This structure reveals the protein's assembly architecture and icosahedral symmetry with:
+
+      - **Red axes** (15 total) - 2-fold rotation axes with oval end markers
+      - **Blue axes** (10 total) - 3-fold rotation axes with triangular end markers
+      - **Green axes** (6 total) - 5-fold rotation axes with pentagonal end markers
+
+      Symmetry data from RCSB GraphQL API assembly symmetry endpoint.
+
+      **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2F1rb8asm.molx&snapshot-url-type=molx)
+
+    javascript: |
+      // Download the 1RB8 structure
+      const structure = builder
+        .download({ url: "https://www.ebi.ac.uk/pdbe/entry-files/download/1rb8.bcif" })
+        .parse({ format: "bcif" })
+        .assemblyStructure({ assembly_id: "1" });
+
+      // Show protein with gaussian surface
+      const protein = structure
+        .component({ ref: 'Protein', selector: "polymer" })
+        .representation({ type: "surface", surface_type: "gaussian" })
+        .color({ custom: { molstar_color_theme_name: "chain-id" } });
+
+      // Helper function to normalize a vector
+      function normalize(v) {
+        const len = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        return [v[0]/len, v[1]/len, v[2]/len];
+      }
+
+      // Helper function to get perpendicular vectors for a given axis direction
+      function getPerpendiculars(dir) {
+        const [dx, dy, dz] = normalize(dir);
+        // Find a vector not parallel to dir
+        let perp1;
+        if (Math.abs(dx) < 0.9) {
+          perp1 = [1, 0, 0];
+        } else {
+          perp1 = [0, 1, 0];
+        }
+        // Cross product to get first perpendicular
+        const cross1 = [
+          perp1[1]*dz - perp1[2]*dy,
+          perp1[2]*dx - perp1[0]*dz,
+          perp1[0]*dy - perp1[1]*dx
+        ];
+        const u = normalize(cross1);
+        // Second perpendicular via cross product
+        const v = [
+          dy*u[2] - dz*u[1],
+          dz*u[0] - dx*u[2],
+          dx*u[1] - dy*u[0]
+        ];
+        return [u, v];
+      }
+
+      // Create oval end marker (2-fold)
+      function createOvalMarker(center, axis, color) {
+        structure.primitives({ opacity: 0.9 })
+          .ellipsoid({ center, radius: [3, 5, 3], color });
+      }
+
+      // Create solid triangle face (3-fold) - filled with many small ellipsoids
+      function createTriangleMarker(center, axis, color) {
+        const [u, v] = getPerpendiculars(axis);
+        const size = 8;  // Triangle size
+        const dotSize = 1.2;  // Size of each dot filling the face
+        const white = "#ffffff";
+
+        // Calculate the 3 vertices of equilateral triangle
+        const vertices = [];
+        for (let i = 0; i < 3; i++) {
+          const angle = (i * 2 * Math.PI / 3) - Math.PI/2;
+          const cos = Math.cos(angle);
+          const sin = Math.sin(angle);
+          vertices.push([
+            cos * u[0] + sin * v[0],
+            cos * u[1] + sin * v[1],
+            cos * u[2] + sin * v[2]
+          ]);
+        }
+
+        // Fill triangle with a grid of points
+        const steps = 12;
+        for (let i = 0; i <= steps; i++) {
+          for (let j = 0; j <= steps - i; j++) {
+            // Barycentric coordinates for triangle filling
+            const a = i / steps;
+            const b = j / steps;
+            const c = 1 - a - b;
+
+            if (c >= 0) {  // Inside triangle
+              const pos = [
+                center[0] + size * (a * vertices[0][0] + b * vertices[1][0] + c * vertices[2][0]),
+                center[1] + size * (a * vertices[0][1] + b * vertices[1][1] + c * vertices[2][1]),
+                center[2] + size * (a * vertices[0][2] + b * vertices[1][2] + c * vertices[2][2])
+              ];
+              structure.primitives({ opacity: 0.95 })
+                .ellipsoid({ center: pos, radius: dotSize, color: white });
+            }
+          }
+        }
+      }
+
+      // Create pentagon outline using lines (5-fold)
+      function createPentagonMarker(center, axis, color) {
+        const [u, v] = getPerpendiculars(axis);
+        const size = 9;  // Pentagon size
+
+        // Calculate the 5 vertices of regular pentagon - flatten to single array
+        const vertices = [];
+        for (let i = 0; i < 5; i++) {
+          const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
+          const cos = Math.cos(angle);
+          const sin = Math.sin(angle);
+          vertices.push(
+            center[0] + size * (cos * u[0] + sin * v[0]),
+            center[1] + size * (cos * u[1] + sin * v[1]),
+            center[2] + size * (cos * u[2] + sin * v[2])
+          );
+        }
+
+        // Create line indices for pentagon (connecting vertices in order, closing the loop)
+        const indices = [
+          0, 1,  // edge 1-2
+          1, 2,  // edge 2-3
+          2, 3,  // edge 3-4
+          3, 4,  // edge 4-5
+          4, 0   // edge 5-1 (close the loop)
+        ];
+
+        // Draw pentagon outline - use axis color (green for 5-fold)
+        structure.primitives({ opacity: 0.95 })
+          .lines({
+            vertices,
+            indices,
+            color,
+            width: 3
+          });
+      }
+
+      // Helper to create axis with appropriate end markers
+      function createAxis(start, end, color, markerType) {
+        // Draw axis line - vertices must be flat array
+        structure.primitives({ opacity: 0.9 })
+          .lines({
+            vertices: [...start, ...end],  // Flatten to [x1,y1,z1,x2,y2,z2]
+            indices: [0, 1],
+            color,
+            width: 3
+          });
+
+        // Direction vector
+        const dir = [end[0] - start[0], end[1] - start[1], end[2] - start[2]];
+
+        // Create end markers based on type
+        if (markerType === 'oval') {
+          createOvalMarker(start, dir, color);
+          createOvalMarker(end, dir, color);
+        } else if (markerType === 'triangle') {
+          createTriangleMarker(start, dir, color);
+          createTriangleMarker(end, dir, color);
+        } else if (markerType === 'pentagon') {
+          createPentagonMarker(start, dir, color);
+          createPentagonMarker(end, dir, color);
+        }
+      }
+
+      // All 31 symmetry axes from RCSB assembly symmetry data
+      // 2-fold axes (red) - 15 total with oval end markers
+      const axes2 = [
+        [[-149.26,71.18,116.87],[149.26,-71.18,-116.87]],
+        [[57.61,180.18,72.25],[-57.61,-180.18,-72.25]],
+        [[-56.65,155.35,116.88],[56.65,-155.35,-116.88]],
+        [[70.56,15.37,189.18],[-70.56,-15.37,-189.18]],
+        [[-22.05,-68.80,189.17],[22.05,68.80,-189.17]],
+        [[-184.86,-40.18,72.22],[184.86,40.18,-72.22]],
+        [[162.81,-28.62,116.95],[-162.81,28.62,-116.95]],
+        [[-48.64,53.49,189.15],[48.64,-53.49,-189.15]],
+        [[-106.24,-126.69,116.90],[106.24,126.69,-116.90]],
+        [[136.23,93.67,116.93],[-136.23,-93.67,-116.93]],
+        [[149.85,136.19,0.02],[-149.85,-136.19,-0.02]],
+        [[43.02,-197.87,0.03],[-43.02,197.87,-0.03]],
+        [[192.87,-61.68,0.05],[-192.87,61.68,-0.05]],
+        [[127.21,-139.98,72.30],[-127.21,139.98,-72.30]],
+        [[12.96,-164.82,116.93],[-12.96,164.82,-116.93]]
+      ];
+
+      axes2.forEach(([start, end]) => {
+        createAxis(start, end, "#ff0000", 'oval');
+      });
+
+      // 3-fold axes (blue) - 10 total with triangular end markers
+      const axes3 = [
+        [[-0.04,0.02,202.50],[0.04,-0.02,-202.50]],
+        [[-15.01,190.33,67.48],[15.01,-190.33,-67.48]],
+        [[172.31,-82.17,67.54],[-172.31,82.17,-67.54]],
+        [[131.88,28.69,150.96],[-131.88,-28.69,-150.96]],
+        [[122.64,146.31,67.51],[-122.64,-146.31,-67.51]],
+        [[-188.04,33.07,67.45],[188.04,-33.07,-67.45]],
+        [[65.36,-179.36,67.53],[-65.36,179.36,-67.53]],
+        [[-157.34,-108.14,67.47],[157.34,108.14,-67.47]],
+        [[-90.83,99.92,150.90],[90.83,-99.92,-150.90]],
+        [[-41.15,-128.57,150.93],[41.15,128.57,-150.93]]
+      ];
+
+      axes3.forEach(([start, end]) => {
+        createAxis(start, end, "#0000ff", 'triangle');
+      });
+
+      // 5-fold axes (green) - 6 total with pentagonal end markers
+      const axes5 = [
+        [[37.41,117.10,160.91],[-37.41,-117.10,-160.91]],
+        [[-133.78,147.20,37.94],[133.78,-147.20,-37.94]],
+        [[-60.60,-189.44,37.99],[60.60,189.44,-37.99]],
+        [[82.64,-90.96,160.94],[-82.64,90.96,-160.94]],
+        [[194.35,42.26,38.02],[-194.35,-42.26,-38.02]],
+        [[-120.16,-26.10,160.89],[120.16,26.10,-160.89]]
+      ];
+
+      axes5.forEach(([start, end]) => {
+        createAxis(start, end, "#00ff00", 'pentagon');
+      });
+
+      // Note: End markers show rotation symmetry - ovals (2-fold), triangles (3-fold), pentagons (5-fold)
+      // Original also includes icosahedral cage connecting the axes
+
+    camera:
+      mode: 'perspective'
+      position: [-402.71, -268.98, 493.14]
+      target: [0.68, -0.05, -0.16]
+      up: [-0.130, 0.911, 0.391]
+      fov: 45
+
+    linger_duration_ms: 10000
+    transition_duration_ms: 1500
