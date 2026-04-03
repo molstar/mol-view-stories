@@ -37,15 +37,16 @@ scenes:
 
       // TODO: Add model 1 for putty representation when putty is supported in MVS
       // Model 1 shows coarse-grained parts in orange putty representation
-      // const structure2 = builder
-      //   .download({ url: "PDBDEV_00000012.bcif" })
-      //   .parse({ format: "bcif" })
-      //   .modelStructure({ model_index: 1 });
-      //
-      // structure2
-      //   .component({ ref: 'NPC-putty', selector: "polymer" })
-      //   .representation({ type: "putty" })
-      //   .color({ color: "#FC6600" });
+
+      const structure2 = builder
+        .download({ url: "PDBDEV_00000012.bcif" })
+        .parse({ format: "bcif" })
+        .modelStructure({ model_index: 1 });
+
+      structure2
+        .component({ ref: 'NPC-putty', selector: "polymer" })
+        .representation({ type: "putty", size_theme: 'uniform', size_factor: 2  })
+        .color({ color: "#D4890A" });
 
     camera:
       mode: 'perspective'
