@@ -16,7 +16,7 @@ scenes:
 
       The Nuclear Pore Complex (NPC) is one of the largest macromolecular assemblies in eukaryotic cells, serving as the gateway for molecular transport between the nucleus and cytoplasm. This integrative structure combines data from multiple experimental techniques to model the complete NPC architecture.
 
-      The structure is shown with a gaussian surface representation colored by unit index to highlight the different protein components of the complex.
+      The structure is shown with a gaussian surface representation colored by unit index using an interpolated yellow-orange-brown palette to highlight the different protein components of the complex.
 
       **Original Molstar Example:** [View here](https://molstar.org/viewer/?snapshot-url=https%3A%2F%2Fmolstar.org%2Fdemos%2Fstates%2Fnpc.molx&snapshot-url-type=molx)
 
@@ -29,11 +29,26 @@ scenes:
         .modelStructure({ model_index: 0 });
 
       // Show polymer components with gaussian surface and unit-index coloring
-      // Uses interpolated color palette from yellow/white to blue
+      // Interpolated yellow-orange-brown palette matching the adjacent state.json snapshot
       structure
         .component({ ref: 'NPC', selector: "polymer" })
-        .representation({ type: "surface" })
-        .color({ custom: { unit_index: {} } });
+        .representation({ type: "surface", surface_type: "gaussian", custom: {
+          molstar_representation_params: { radiusOffset: 2, sizeFactor: 3, smoothness: 0.5 }
+        } })
+        .color({ custom: {
+          molstar_color_theme_name: 'unit-index',
+          molstar_color_theme_params: {
+            palette: {
+              name: 'colors',
+              params: {
+                list: { kind: 'interpolate', colors: [
+                  16777189, 16775100, 16704401, 16696399, 16685353,
+                  15495188, 13388802, 10040324, 6694150
+                ]}
+              }
+            }
+          }
+        } });
 
       // TODO: Add model 1 for putty representation when putty is supported in MVS
       // Model 1 shows coarse-grained parts in orange putty representation
