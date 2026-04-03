@@ -10,7 +10,7 @@
     "mvs-types": "rollup -c scripts/rollup-mvs-data-bundle.config.mjs && node ./scripts/process-mvs-types.mjs"
   },
   "devDependencies": {
-    "rollup": "^4.60.0",
+    "rollup": "^4.60.1",
     "rollup-plugin-dts": "^6.4.1"
   }
 }
