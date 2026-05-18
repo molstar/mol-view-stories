@@ -62,7 +62,8 @@ export function compareStories(currentStory: Story, initialStory: Story): boolea
       currentScene.javascript !== initialScene.javascript ||
       currentScene.linger_duration_ms !== initialScene.linger_duration_ms ||
       currentScene.transition_duration_ms !== initialScene.transition_duration_ms ||
-      JSON.stringify(currentScene.camera) !== JSON.stringify(initialScene.camera)
+      JSON.stringify(currentScene.camera) !== JSON.stringify(initialScene.camera) ||
+      JSON.stringify(currentScene.ui_builder_state) !== JSON.stringify(initialScene.ui_builder_state)
     ) {
       return false;
     }

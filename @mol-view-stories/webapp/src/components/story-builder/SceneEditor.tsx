@@ -2,6 +2,7 @@
 
 import {
   ActiveSceneAtom,
+  ActiveSceneIdAtom,
   CameraPositionAtom,
   modifyCurrentScene,
   SceneData,
@@ -33,6 +34,7 @@ import {
   Edit,
   FolderIcon,
   PinIcon,
+  TriangleAlert,
   XIcon,
   LucideMessageCircleQuestion,
   Copy,
@@ -49,9 +51,12 @@ import { Markdown } from 'molstar/lib/mol-plugin-ui/controls/markdown';
 import { PluginConfig } from 'molstar/lib/mol-plugin/config';
 import { PluginSpec } from 'molstar/lib/mol-plugin/spec';
 import { Scheduler } from 'molstar/lib/mol-task';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, type RefObject } from 'react';
 import { Label } from '../ui/label';
-import { SceneCodeEditor } from './editors/SceneCodeEditor';
+import { MolViewEditor, useSyncToBuilder } from '@molstar/molstar-components';
+import { setupMonacoWorkers } from '@/lib/monaco-worker-setup';
+
+setupMonacoWorkers();
 import { SceneMarkdownEditor } from './editors/SceneMarkdownEditor';
 import { OptionsEditor } from './editors/SceneOptions';
 import { PressToCodeComplete, PressToSave } from '../common';
@@ -62,7 +67,10 @@ import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 import Link from 'next/link';
 import { ImmediateInput } from '../controls';
 import { adjustedCameraPosition } from '@mol-view-stories/lib';
+import { snapshotToCameraParams, UIBuilder, UIBuilderProvider } from '@molstar/molstar-components';
+import type { UIBuilderHandle, UIBuilderSnapshot, ConstantDefinition } from '@molstar/molstar-components';
 import { LLMContext } from './editors/llm-context';
+import { modifyStoryConstants } from '@/app/state/actions';
 
 function Vector({ value, className }: { value?: Vec3 | number[]; title?: string; className?: string }) {
   return (
@@ -182,9 +190,14 @@ function copyFovAdjustedCameraToClipboard(snapshot: Camera.Snapshot | CameraData
   copyToClipboard(text, 'Camera position');
 }
 
-function CameraActions() {
+function CameraActions({ builderRef }: { builderRef: RefObject<UIBuilderHandle | null> }) {
   const cameraSnapshot = useAtomValue(CameraPositionAtom);
   const scene = useAtomValue(ActiveSceneAtom);
+
+  const sendToBuilder = () => {
+    if (!cameraSnapshot) return;
+    builderRef.current?.setCamera(snapshotToCameraParams(cameraSnapshot as CameraData));
+  };
 
   return (
     <>
@@ -221,6 +234,13 @@ function CameraActions() {
           >
             <CopyIcon className='h-3 w-3 mr-1' /> Copy Position
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={sendToBuilder}
+            disabled={!cameraSnapshot}
+            title='Send FOV-adjusted camera position to the Visual Builder camera section'
+          >
+            <BoxIcon className='h-3 w-3 mr-1' /> Send to Builder
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DropdownMenu>
@@ -249,10 +269,10 @@ function CameraActions() {
   );
 }
 
-function CodeUIControls() {
+function CodeUIControls({ builderRef }: { builderRef: RefObject<UIBuilderHandle | null> }) {
   return (
     <div className='flex items-center gap-2'>
-      <CameraActions />
+      <CameraActions builderRef={builderRef} />
       <AssetList />
       <div className='m-auto' />
       <Button
@@ -267,6 +287,41 @@ function CodeUIControls() {
         <BadgeInfo className='size-4 mr-1' />
         LLM Context
       </Button>
+    </div>
+  );
+}
+
+function ExperimentalBanner({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className='rounded border border-amber-200 bg-amber-50 text-amber-900 px-3 py-2 text-sm flex flex-col gap-1'>
+      <div className='flex items-start gap-2'>
+        <TriangleAlert className='size-4 shrink-0 mt-0.5' />
+        <span className='flex-1'>
+          The State Builder is an <strong>experimental feature</strong> — features and workflows may evolve before the
+          stable release, and you may also encounter bugs.
+        </span>
+        <button onClick={onDismiss} title='Dismiss' className='shrink-0 opacity-70 hover:opacity-100'>
+          <XIcon className='size-4' />
+        </button>
+      </div>
+      <div className='flex gap-4 pl-6 text-xs font-medium'>
+        <Link
+          href='https://molstar.org/molstar-components/state-builder-docs.html'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='font-semibold hover:opacity-70'
+        >
+          Getting started (docs) ↗
+        </Link>
+        <Link
+          href='https://github.com/molstar/molstar-components/issues'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='font-semibold hover:opacity-70'
+        >
+          Have an idea or a bug to report? ↗
+        </Link>
+      </div>
     </div>
   );
 }
@@ -404,9 +459,23 @@ function CurrentSceneView() {
   model.store = useStore();
   model.setCameraSnapshot = useAtom(CameraPositionAtom)[1];
 
+  const storyRef = useRef(story);
+  storyRef.current = story;
+  const sceneRef = useRef(scene);
+  sceneRef.current = scene;
+
+  // Only depend on fields that affect MVS rendering — not ui_builder_state, header, description
   useEffect(() => {
-    model.loadStory(story, scene);
-  }, [model, story, scene]);
+    model.loadStory(storyRef.current, sceneRef.current);
+  }, [
+    model,
+    story?.javascript,
+    scene?.id,
+    scene?.javascript,
+    scene?.camera,
+    scene?.linger_duration_ms,
+    scene?.transition_duration_ms,
+  ]);
 
   useEffect(() => {
     return () => model.plugin.managers.markdownExtensions.audio.stop();
@@ -561,31 +630,159 @@ function SceneMarkdownEditorSection() {
 }
 
 function SceneCodeEditorSection() {
+  const builderRef = useRef<UIBuilderHandle>(null);
+  const editorRef = useRef<{ getValue(): string } | null>(null);
   const scene = useAtomValue(ActiveSceneAtom);
   const story = useAtomValue(StoryAtom);
+  const activeSceneId = useAtomValue(ActiveSceneIdAtom);
+  const cameraSnapshot = useAtomValue(CameraPositionAtom);
+  const [viewMode, setViewMode] = useState<'code' | 'builder'>('code');
+  const [confirmingSync, setConfirmingSync] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  const {
+    sync,
+    isSyncing,
+    error: syncError,
+    clearError,
+  } = useSyncToBuilder(builderRef, {
+    commonCode: story.javascript || undefined,
+  });
+
+  const handleSyncConfirm = async () => {
+    const code = editorRef.current?.getValue() ?? scene?.javascript ?? '';
+    const ok = await sync(code);
+    if (ok) {
+      setConfirmingSync(false);
+      setViewMode('builder');
+    }
+  };
 
   return (
     <div className='flex flex-col h-full gap-2'>
       <div className='flex gap-6 items-center'>
         <div className='flex-1'>
-          <CodeUIControls />
+          <CodeUIControls builderRef={builderRef} />
         </div>
         <div className='flex-1'>
           <CameraState />
         </div>
       </div>
-      <div className='flex gap-6 h-full'>
-        <div className='flex-1 flex flex-col gap-2 shrink-0'>
-          <div className='border rounded flex-1 relative'>
-            <SceneCodeEditor
-              value={scene?.javascript || ''}
-              commonCode={story.javascript || ''}
-              onSave={(code) => modifyCurrentScene({ javascript: code })}
-            />
+      <div className='flex gap-6 flex-1 min-h-0'>
+        <div className='flex-1 flex flex-col gap-2 shrink-0 min-h-0'>
+          <div className='flex gap-2 items-center mb-2'>
+            <Button size='sm' variant={viewMode === 'code' ? 'default' : 'outline'} onClick={() => setViewMode('code')}>
+              Code Editor
+            </Button>
+            <Button
+              size='sm'
+              variant={viewMode === 'builder' ? 'default' : 'outline'}
+              onClick={() => setViewMode('builder')}
+            >
+              UI Builder (experimental)
+            </Button>
+            {viewMode === 'code' && (
+              <Button
+                size='sm'
+                variant='outline'
+                className='ml-auto'
+                onClick={() => {
+                  clearError();
+                  setConfirmingSync(true);
+                }}
+              >
+                → Sync to Builder
+              </Button>
+            )}
           </div>
-          <div className='flex gap-2'>
-            <PressToSave />
-            <PressToCodeComplete />
+          {/* Code editor — always mounted to avoid losing editor state; hidden when in builder mode */}
+          <div className={cn('flex flex-col flex-1 gap-2', viewMode !== 'code' && 'hidden')}>
+            <div className='border rounded flex-1 relative'>
+              <MolViewEditor
+                value={scene?.javascript || ''}
+                commonCode={story.javascript || ''}
+                onSave={(code) => modifyCurrentScene({ javascript: code })}
+                onEditorMount={(editor) => {
+                  editorRef.current = editor;
+                }}
+                className='absolute inset-0'
+                editorOptions={{ theme: 'vs' }}
+                hybridMode={true}
+              />
+            </div>
+            <div className='flex gap-2'>
+              <PressToSave />
+              <PressToCodeComplete />
+            </div>
+          </div>
+
+          {/* Sync confirmation dialog */}
+          {confirmingSync && (
+            <div
+              className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'
+              onClick={() => {
+                if (!isSyncing) {
+                  setConfirmingSync(false);
+                  clearError();
+                }
+              }}
+            >
+              <div
+                className='bg-white rounded-lg border shadow-lg p-6 max-w-md w-[90%] flex flex-col gap-3'
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className='font-semibold text-base'>Sync Code to Builder?</p>
+                <p className='text-sm text-muted-foreground'>
+                  This will overwrite the UI Builder state by running your code with the MVS builder.
+                </p>
+                <p className='text-sm text-amber-600'>
+                  ⚠ If you later generate code from the builder, it will be reformatted and may differ from your
+                  original code.
+                </p>
+                {syncError && <p className='text-sm text-destructive'>{syncError}</p>}
+                <div className='flex gap-2 justify-end'>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    disabled={isSyncing}
+                    onClick={() => {
+                      setConfirmingSync(false);
+                      clearError();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button size='sm' disabled={isSyncing} onClick={handleSyncConfirm}>
+                    {isSyncing ? 'Syncing…' : 'Sync to Builder'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          {viewMode === 'builder' && !bannerDismissed && (
+            <ExperimentalBanner onDismiss={() => setBannerDismissed(true)} />
+          )}
+
+          {/* Builder — always mounted so Jotai store survives tab switches; hidden when in code mode */}
+          <div className={cn('border rounded flex-1 relative overflow-hidden', viewMode !== 'builder' && 'hidden')}>
+            <UIBuilderProvider
+              ref={builderRef}
+              sceneKey={activeSceneId || 'default'}
+              sceneInitialState={scene?.ui_builder_state as Partial<UIBuilderSnapshot> | undefined}
+              onStateChange={(snapshot: UIBuilderSnapshot) =>
+                modifyCurrentScene({ ui_builder_state: snapshot as unknown as Record<string, unknown> })
+              }
+              storyConstants={story.ui_builder_constants as ConstantDefinition[] | undefined}
+              onStoryConstantsChange={(constants: ConstantDefinition[]) => modifyStoryConstants(constants)}
+              plugin={_modelInstance?.plugin}
+              cameraSnapshot={cameraSnapshot}
+              onCodeGenerated={(code: string) => modifyCurrentScene({ javascript: code })}
+              onNotification={(n: { type: 'success' | 'error'; message: string }) =>
+                n.type === 'error' ? toast.error(n.message) : toast.success(n.message)
+              }
+            >
+              <UIBuilder />
+            </UIBuilderProvider>
           </div>
         </div>
         <div className='flex-1 shrink-0'>

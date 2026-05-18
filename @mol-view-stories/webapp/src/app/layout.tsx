@@ -1,9 +1,9 @@
 'use client';
 
+import 'molstar/build/viewer/molstar.css';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
-import 'molstar/build/viewer/molstar.css';
 import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'] });

@@ -3,6 +3,7 @@
 import { tryFindIfStoryIsShared } from '@/lib/data-utils';
 import { StoryManager, generateStoriesHtml, StoryFileExtension } from '@mol-view-stories/lib';
 import type { SceneAsset, SceneData, Story, StoryMetadata } from '@mol-view-stories/lib';
+import type { ConstantDefinition } from '@molstar/molstar-components';
 import { getDefaultStore } from 'jotai';
 import { MVSData } from 'molstar/lib/extensions/mvs/mvs-data';
 import { download } from 'molstar/lib/mol-util/download';
@@ -273,6 +274,7 @@ export function cloneStory(story: Story): Story {
   return {
     metadata: { ...story.metadata },
     javascript: story.javascript,
+    ui_builder_constants: story.ui_builder_constants ? [...story.ui_builder_constants] : undefined,
     scenes: story.scenes.map((scene) => ({
       id: scene.id,
       header: scene.header,
@@ -282,6 +284,7 @@ export function cloneStory(story: Story): Story {
       camera: scene.camera ? { ...scene.camera } : scene.camera,
       linger_duration_ms: scene.linger_duration_ms,
       transition_duration_ms: scene.transition_duration_ms,
+      ui_builder_state: scene.ui_builder_state ? { ...scene.ui_builder_state } : undefined,
     })),
     assets: story.assets.map((asset) => ({
       name: asset.name,
@@ -297,6 +300,16 @@ export function checkCurrentStoryAgainstSharedStories() {
   if (myStoriesData['stories-public'].length > 0) {
     tryFindIfStoryIsShared(myStoriesData['stories-public'] as StoryItem[]);
   }
+}
+
+export function modifyStoryConstants(constants: ConstantDefinition[]) {
+  const store = getDefaultStore();
+  const story = store.get(StoryAtom);
+  store.set(StoryAtom, {
+    ...story,
+    ui_builder_constants: constants as unknown as Record<string, unknown>[],
+  });
+  setIsDirty();
 }
 
 // Check if there are unsaved changes

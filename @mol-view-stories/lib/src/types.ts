@@ -15,6 +15,7 @@ export type Story = {
   javascript: string;
   scenes: SceneData[];
   assets: SceneAsset[];
+  ui_builder_constants?: Record<string, unknown>[];
 };
 
 // a file
@@ -40,4 +41,5 @@ export type SceneData = {
   camera?: CameraData | null;
   linger_duration_ms?: number;
   transition_duration_ms?: number;
+  ui_builder_state?: Record<string, unknown>;
 };
