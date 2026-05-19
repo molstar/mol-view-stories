@@ -43,8 +43,8 @@ importers:
         specifier: workspace:*
         version: link:../lib
       '@molstar/molstar-components':
-        specifier: jsr:0.6.0-experimental.16
-        version: '@jsr/molstar__molstar-components@0.6.0-experimental.16(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))'
+        specifier: jsr:0.6.0-experimental.17
+        version: '@jsr/molstar__molstar-components@0.6.0-experimental.17(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))'
       '@monaco-editor/react':
         specifier: 4.8.0-rc.3
         version: 4.8.0-rc.3(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -435,8 +435,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@jsr/molstar__molstar-components@0.6.0-experimental.16':
-    resolution: {integrity: sha512-j7kz29hHdPx4yky3TSnGPbSq7YBE/54AIlIH3srEUsBQliCsNoeAK7UDVtlHAjMnP3DbAnHKVkwib9yVWJwZhg==, tarball: https://npm.jsr.io/~/11/@jsr/molstar__molstar-components/0.6.0-experimental.16.tgz}
+  '@jsr/molstar__molstar-components@0.6.0-experimental.17':
+    resolution: {integrity: sha512-JruhYaYSPJwt5K17K7gH4zfQrmo+HHjI08XHqgBO00Y3taVmTVksHH1qIV4LFpBiDLNC464BTHbW0Hij3OkRFQ==, tarball: https://npm.jsr.io/~/11/@jsr/molstar__molstar-components/0.6.0-experimental.17.tgz}
 
   '@monaco-editor/loader@1.7.0':
     resolution: {integrity: sha512-gIwR1HrJrrx+vfyOhYmCZ0/JcWqG5kbfG7+d3f/C1LXk2EvzAbHSg3MQ5lO2sMlo9izoAZ04shohfKLVT6crVA==}
@@ -3790,7 +3790,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@jsr/molstar__molstar-components@0.6.0-experimental.16(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))':
+  '@jsr/molstar__molstar-components@0.6.0-experimental.17(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))':
     dependencies:
       '@radix-ui/react-dialog': 1.1.14(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
       '@radix-ui/react-dropdown-menu': 2.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
