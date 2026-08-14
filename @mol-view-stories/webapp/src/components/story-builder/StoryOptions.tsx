@@ -181,6 +181,10 @@ function FileUploadZone() {
       'application/x-map': ['.map'],
       'application/x-dx': ['.dx'],
       'application/x-dxbin': ['.dxbin'],
+      // Shapes (MVS `shape` node)
+      'application/x-vtp': ['.vtp'],
+      'application/x-ply': ['.ply'],
+      'model/obj': ['.obj'],
       // Images
       'image/png': ['.png'],
       'image/jpeg': ['.jpg', '.jpeg'],
