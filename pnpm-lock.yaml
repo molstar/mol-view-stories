@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       molstar:
-        specifier: ^5.8.0
-        version: 5.9.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^5.11.0
+        version: 5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.5
@@ -43,11 +43,11 @@ importers:
         specifier: workspace:*
         version: link:../lib
       '@molstar/molstar-components':
-        specifier: jsr:0.6.0-experimental.27
-        version: '@jsr/molstar__molstar-components@0.6.0-experimental.27(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))'
+        specifier: jsr:0.6.0-experimental.29
+        version: '@jsr/molstar__molstar-components@0.6.0-experimental.29(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))'
       '@monaco-editor/react':
         specifier: 4.8.0-rc.3
-        version: 4.8.0-rc.3(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 4.8.0-rc.3(monaco-editor@0.56.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@radix-ui/react-collapsible':
         specifier: ^1.1.11
         version: 1.1.12(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -106,11 +106,11 @@ importers:
         specifier: ^0.511.0
         version: 0.511.0(react@19.2.6)
       monaco-editor:
-        specifier: ^0.55.1
-        version: 0.55.1
+        specifier: ^0.56.0
+        version: 0.56.0
       monaco-editor-auto-typings:
         specifier: ^0.4.6
-        version: 0.4.6(monaco-editor@0.55.1)
+        version: 0.4.6(monaco-editor@0.56.0)
       next:
         specifier: ^15.5.9
         version: 15.5.18(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -435,8 +435,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@jsr/molstar__molstar-components@0.6.0-experimental.27':
-    resolution: {integrity: sha512-9xexx9o8kG+mv0QmKYcCmXgjCpt3WgAY0CRJtbPQVCSml0s05wJ9lr11eER8OqfSelBD/iWiGDsuJufNeCBa4g==, tarball: https://npm.jsr.io/~/11/@jsr/molstar__molstar-components/0.6.0-experimental.27.tgz}
+  '@jsr/molstar__molstar-components@0.6.0-experimental.29':
+    resolution: {integrity: sha512-eebfVJ6ecP4g+b0BHK/0/s8SVJQ+t30EKawFapWEKjp6J6Zc2w5YCqXYMAdDJxiGCoV7QuE44VnzJsPrV20Tvg==, tarball: https://npm.jsr.io/~/11/@jsr/molstar__molstar-components/0.6.0-experimental.29.tgz}
 
   '@monaco-editor/loader@1.7.0':
     resolution: {integrity: sha512-gIwR1HrJrrx+vfyOhYmCZ0/JcWqG5kbfG7+d3f/C1LXk2EvzAbHSg3MQ5lO2sMlo9izoAZ04shohfKLVT6crVA==}
@@ -1444,8 +1444,8 @@ packages:
   '@types/node@20.19.41':
     resolution: {integrity: sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ==}
 
-  '@types/node@22.19.19':
-    resolution: {integrity: sha512-dyh/xO2Fh5bYrfWaaqGrRQQGkNdmYw6AmaAUvYeUMNTWQtvb796ikLdmTchRmOlOiIJ1TDXfWgVx1QkUlQ6Hew==}
+  '@types/node@22.20.2':
+    resolution: {integrity: sha512-xlvWf4Vs9n1PEVYwP1n4vvG07M6y8WgvJ2t0vbrWTmijsIHp1cS+uJ2kMIRdY3nHZK0nCYKrPeD171+SzF4/zw==}
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
@@ -1946,8 +1946,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dompurify@3.2.7:
-    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
+  dompurify@3.4.8:
+    resolution: {integrity: sha512-yb1cEmaOum7wFvOCSQxyfgVlv5D47Rc30iZWoMpbDIWTnJ6grDDQyu2KFJzB2k7u0pMuJcQ1zphH//fFnw2tjQ==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -2327,8 +2327,8 @@ packages:
     resolution: {integrity: sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==}
     engines: {node: '>= 4'}
 
-  immutable@5.1.5:
-    resolution: {integrity: sha512-t7xcm2siw+hlUM68I+UEOK+z84RzmN59as9DZ7P1l0994DKUWV7UXBMQZVxaoMSRQ+PBZbHCOoBt7a2wxOMt+A==}
+  immutable@5.1.9:
+    resolution: {integrity: sha512-m8nVez3rwrgmWxtLMt1ZYXB2Lv7OKYn/disyxAlSDYAlKSlFoPPfIAmAM/M5xqL4m4C/wAPw7S2/CNaUii1Hxg==}
 
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
@@ -2836,8 +2836,8 @@ packages:
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
-  molstar@5.9.0:
-    resolution: {integrity: sha512-yNf9FpWVxoo0blc4y0joCE83/OEFNWlhlGYPEWIO0OYgkshT25R5qYJJdsKJwlEG44q2tjKbQ+e0LXV10hpBQg==}
+  molstar@5.11.0:
+    resolution: {integrity: sha512-Jv2oHkKoCpzrhqLmGlknepm0pfRsoTDebsGRkvXpbUFb6p+JIAkhLyM3uqV2twC6VR83ZbXtdswOtouPhozpuQ==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -2865,8 +2865,8 @@ packages:
     peerDependencies:
       monaco-editor: '*'
 
-  monaco-editor@0.55.1:
-    resolution: {integrity: sha512-jz4x+TJNFHwHtwuV9vA9rMujcZRb0CEilTEwG2rRSpe/A7Jdkuj8xPKttCgOh+v/lkHy7HsZ64oj+q3xoAFl9A==}
+  monaco-editor@0.56.0:
+    resolution: {integrity: sha512-sXboRm3BeBeLm938eaiyLMe0OxzfXIlZvbv4ir/jVgQy1zDhWjgmny0WoN45fuDKhCCQsYMbBJrv/A6jd8aCUg==}
 
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -3375,8 +3375,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  swagger-ui-dist@5.32.6:
-    resolution: {integrity: sha512-75ttZNaYCLoFPnozPZcTUU6mS3wKT8l7WLjU5zJSHFeJa23i5vtnze6IiCl4jDMPeQTXVXIgovq4M11NNfQvSA==}
+  swagger-ui-dist@5.32.15:
+    resolution: {integrity: sha512-TSFER+rFQlf1nzk6WvKkMaHTxAPQ3eAAxigFThnxQedSREanfZgSbJFayZVs/ULnSbNdrJOb99vLD6xpb3R3eg==}
 
   tailwind-merge@3.3.0:
     resolution: {integrity: sha512-fyW/pEfcQSiigd5SNn0nApUOxx0zB/dm6UDU/rEwc2c3sX2smWUNbapHv+QRqLGVp9GWX3THIa7MUGPo+YkDzQ==}
@@ -3790,7 +3790,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@jsr/molstar__molstar-components@0.6.0-experimental.27(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))':
+  '@jsr/molstar__molstar-components@0.6.0-experimental.29(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))':
     dependencies:
       '@radix-ui/react-dialog': 1.1.14(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
       '@radix-ui/react-dropdown-menu': 2.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
@@ -3804,8 +3804,8 @@ snapshots:
       clsx: 2.1.1
       jotai: 2.12.2(@types/react@19.2.14)(react@19.2.3)
       lucide-react: 0.511.0(react@19.2.3)
-      molstar: 5.9.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
-      monaco-editor: 0.55.1
+      molstar: 5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
+      monaco-editor: 0.56.0
       react: 19.2.3
       tailwind-merge: 3.3.0
     transitivePeerDependencies:
@@ -3823,10 +3823,10 @@ snapshots:
     dependencies:
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.8.0-rc.3(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@monaco-editor/react@4.8.0-rc.3(monaco-editor@0.56.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@monaco-editor/loader': 1.7.0
-      monaco-editor: 0.55.1
+      monaco-editor: 0.56.0
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
 
@@ -4917,7 +4917,7 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@22.19.19':
+  '@types/node@22.20.2':
     dependencies:
       undici-types: 6.21.0
 
@@ -5422,7 +5422,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dompurify@3.2.7:
+  dompurify@3.4.8:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -5987,7 +5987,7 @@ snapshots:
 
   ignore@7.0.5: {}
 
-  immutable@5.1.5: {}
+  immutable@5.1.9: {}
 
   import-fresh@3.3.1:
     dependencies:
@@ -6654,20 +6654,20 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  molstar@5.9.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3):
+  molstar@5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3):
     dependencies:
       '@types/argparse': 2.0.17
       '@types/benchmark': 2.1.5
       '@types/compression': 1.8.1
       '@types/express': 5.0.6
-      '@types/node': 22.19.19
+      '@types/node': 22.20.2
       '@types/swagger-ui-dist': 3.30.6
       argparse: 2.0.1
       compression: 1.8.1
       cors: 2.8.6
       express: 5.2.1
       h264-mp4-encoder: 1.0.12
-      immutable: 5.1.5
+      immutable: 5.1.9
       io-ts: 2.2.22(fp-ts@2.16.11)
       mutative: 1.3.0
       react: 19.2.3
@@ -6675,27 +6675,27 @@ snapshots:
       react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.3)
       remark-gfm: 4.0.1
       rxjs: 7.8.2
-      swagger-ui-dist: 5.32.6
+      swagger-ui-dist: 5.32.15
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@types/react'
       - fp-ts
       - supports-color
 
-  molstar@5.9.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  molstar@5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       '@types/argparse': 2.0.17
       '@types/benchmark': 2.1.5
       '@types/compression': 1.8.1
       '@types/express': 5.0.6
-      '@types/node': 22.19.19
+      '@types/node': 22.20.2
       '@types/swagger-ui-dist': 3.30.6
       argparse: 2.0.1
       compression: 1.8.1
       cors: 2.8.6
       express: 5.2.1
       h264-mp4-encoder: 1.0.12
-      immutable: 5.1.5
+      immutable: 5.1.9
       io-ts: 2.2.22(fp-ts@2.16.11)
       mutative: 1.3.0
       react: 19.2.6
@@ -6703,20 +6703,20 @@ snapshots:
       react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.6)
       remark-gfm: 4.0.1
       rxjs: 7.8.2
-      swagger-ui-dist: 5.32.6
+      swagger-ui-dist: 5.32.15
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@types/react'
       - fp-ts
       - supports-color
 
-  monaco-editor-auto-typings@0.4.6(monaco-editor@0.55.1):
+  monaco-editor-auto-typings@0.4.6(monaco-editor@0.56.0):
     dependencies:
-      monaco-editor: 0.55.1
+      monaco-editor: 0.56.0
 
-  monaco-editor@0.55.1:
+  monaco-editor@0.56.0:
     dependencies:
-      dompurify: 3.2.7
+      dompurify: 3.4.8
       marked: 14.0.0
 
   ms@2.0.0: {}
@@ -7416,7 +7416,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  swagger-ui-dist@5.32.6:
+  swagger-ui-dist@5.32.15:
     dependencies:
       '@scarf/scarf': 1.4.0
 

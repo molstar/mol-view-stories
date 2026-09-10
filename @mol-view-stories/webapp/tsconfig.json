@@ -25,8 +25,9 @@
       "npm:react@*": ["./node_modules/@types/react/index.d.ts"],
       "npm:react-dom@*": ["./node_modules/@types/react-dom/index.d.ts"],
 
-      "npm:molstar@5.9.0/*": ["../../node_modules/molstar/*"],
-      "npm:monaco-editor@0.55.1/*": ["./node_modules/monaco-editor/*"],
+      "npm:molstar@5.11.0/*": ["../../node_modules/molstar/*"],
+      "npm:monaco-editor@0.56.0": ["./node_modules/monaco-editor/esm/vs/index.d.ts"],
+      "npm:monaco-editor@0.56.0/*": ["./node_modules/monaco-editor/*"],
       "npm:@radix-ui/react-dialog@*": ["./node_modules/@radix-ui/react-dialog/dist/index.d.ts"],
       "npm:@radix-ui/react-dropdown-menu@*": ["./node_modules/@radix-ui/react-dropdown-menu/dist/index.d.ts"],
       "npm:@radix-ui/react-label@*": ["./node_modules/@radix-ui/react-label/dist/index.d.ts"],

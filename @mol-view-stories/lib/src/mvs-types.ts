@@ -1388,6 +1388,10 @@ namespace _ {
                 size_factor: OptionalField<number>;
                 ignore_hydrogens: OptionalField<boolean>;
             }>;
+            putty: SimpleParamsSchema<{
+                size_factor: OptionalField<number>;
+                size_theme: OptionalField<"uniform" | "uncertainty">;
+            }>;
         }>;
         volume: SimpleParamsSchema<{
             /** Channel identifier (only applies when the input data contain multiple channels). */
@@ -2429,6 +2433,7 @@ namespace _ {
         function sub(out: Vec3, a: Vec3, b: Vec3): Vec3;
         function mul(out: Vec3, a: Vec3, b: Vec3): Vec3;
         function div(out: Vec3, a: Vec3, b: Vec3): Vec3;
+        function mod(out: Vec3, a: Vec3, b: Vec3): Vec3;
         function scale(out: Vec3, a: Vec3, b: number): Vec3;
         /** Scales b, then adds a and b together */
         function scaleAndAdd(out: Vec3, a: Vec3, b: Vec3, scale: number): Vec3;
