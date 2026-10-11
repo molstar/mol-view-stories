@@ -42,6 +42,7 @@ All notable changes to this project will be documented in this file, following t
 - **Scene editor**:
   - Mol* log under viewer
   - Add "copy camera position"
+- Bumped `@molstar/molstar-components` to `0.6.0-experimental.29`, `monaco-editor` to `^0.56.0`, and `molstar` to `^5.11.0`
 
 ### Fixed
 - **File Size Validation**: Fixed upload limit validation for story publishing
