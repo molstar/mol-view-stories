@@ -10,7 +10,7 @@ importers:
     dependencies:
       molstar:
         specifier: ^5.11.0
-        version: 5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 5.12.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.5
@@ -43,8 +43,8 @@ importers:
         specifier: workspace:*
         version: link:../lib
       '@molstar/molstar-components':
-        specifier: jsr:0.6.0-experimental.29
-        version: '@jsr/molstar__molstar-components@0.6.0-experimental.29(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))'
+        specifier: jsr:0.6.0-experimental.30
+        version: '@jsr/molstar__molstar-components@0.6.0-experimental.30(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))'
       '@monaco-editor/react':
         specifier: 4.8.0-rc.3
         version: 4.8.0-rc.3(monaco-editor@0.56.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -435,8 +435,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@jsr/molstar__molstar-components@0.6.0-experimental.29':
-    resolution: {integrity: sha512-eebfVJ6ecP4g+b0BHK/0/s8SVJQ+t30EKawFapWEKjp6J6Zc2w5YCqXYMAdDJxiGCoV7QuE44VnzJsPrV20Tvg==, tarball: https://npm.jsr.io/~/11/@jsr/molstar__molstar-components/0.6.0-experimental.29.tgz}
+  '@jsr/molstar__molstar-components@0.6.0-experimental.30':
+    resolution: {integrity: sha512-uHcFapp0CdSBNX1m5Lr+Gh7zu82Dq35EYsHn4gOp9z+y2KjXjyFQNdzsYkhTthSUx+tMHR1GWdC9nL1dohVo1w==, tarball: https://npm.jsr.io/~/11/@jsr/molstar__molstar-components/0.6.0-experimental.30.tgz}
 
   '@monaco-editor/loader@1.7.0':
     resolution: {integrity: sha512-gIwR1HrJrrx+vfyOhYmCZ0/JcWqG5kbfG7+d3f/C1LXk2EvzAbHSg3MQ5lO2sMlo9izoAZ04shohfKLVT6crVA==}
@@ -2836,14 +2836,14 @@ packages:
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
-  molstar@5.11.0:
-    resolution: {integrity: sha512-Jv2oHkKoCpzrhqLmGlknepm0pfRsoTDebsGRkvXpbUFb6p+JIAkhLyM3uqV2twC6VR83ZbXtdswOtouPhozpuQ==}
+  molstar@5.12.0:
+    resolution: {integrity: sha512-KBwdn8ie42a6kqgp/zhCjBb8fIJdBcBq/AMc17iWdYLtGF4doxmaMe5Rf0cUUwMj7FiH+/1Hp7F2Px6ywQV/rg==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
       '@google-cloud/storage': ^7.14.0
       canvas: ^2.11.2
-      gl: ^6.0.2
+      gl: '>=6 <9'
       jpeg-js: ^0.4.4
       pngjs: ^6.0.0
       react: '>=16.14.0'
@@ -3790,7 +3790,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@jsr/molstar__molstar-components@0.6.0-experimental.29(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))':
+  '@jsr/molstar__molstar-components@0.6.0-experimental.30(@types/react-dom@19.2.3(@types/react@19.2.14))(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))':
     dependencies:
       '@radix-ui/react-dialog': 1.1.14(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
       '@radix-ui/react-dropdown-menu': 2.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
@@ -3804,7 +3804,7 @@ snapshots:
       clsx: 2.1.1
       jotai: 2.12.2(@types/react@19.2.14)(react@19.2.3)
       lucide-react: 0.511.0(react@19.2.3)
-      molstar: 5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
+      molstar: 5.12.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3)
       monaco-editor: 0.56.0
       react: 19.2.3
       tailwind-merge: 3.3.0
@@ -6654,7 +6654,7 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  molstar@5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3):
+  molstar@5.12.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.3):
     dependencies:
       '@types/argparse': 2.0.17
       '@types/benchmark': 2.1.5
@@ -6682,7 +6682,7 @@ snapshots:
       - fp-ts
       - supports-color
 
-  molstar@5.11.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  molstar@5.12.0(@types/react@19.2.14)(fp-ts@2.16.11)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       '@types/argparse': 2.0.17
       '@types/benchmark': 2.1.5

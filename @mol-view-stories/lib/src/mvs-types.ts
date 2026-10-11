@@ -953,14 +953,14 @@ namespace _ {
     type TreeFor<TTreeSchema extends TreeSchema> = Tree<NodeFor<TTreeSchema>, RootFor<TTreeSchema> & NodeFor<TTreeSchema>>;
     
     /**
-     * Copyright (c) 2023-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     * Copyright (c) 2023-2026 mol* contributors, licensed under MIT, See LICENSE file for more info.
      *
      * @author Adam Midlik <midlik@gmail.com>
      * @author David Sehnal <david.sehnal@gmail.com>
      */
     
     /** \`format\` parameter values for \`parse\` node in MVS tree */
-    type ParseFormatT = 'mmcif' | 'bcif' | 'pdb' | 'pdbqt' | 'gro' | 'xyz' | 'mol' | 'sdf' | 'mol2' | 'lammpstrj' | 'xtc' | 'nctraj' | 'dcd' | 'trr' | 'psf' | 'prmtop' | 'top' | 'map' | 'dx' | 'dxbin';
+    type ParseFormatT = 'mmcif' | 'bcif' | 'pdb' | 'pdbqt' | 'gro' | 'xyz' | 'mol' | 'sdf' | 'mol2' | 'lammpstrj' | 'xtc' | 'nctraj' | 'dcd' | 'trr' | 'psf' | 'prmtop' | 'top' | 'map' | 'dx' | 'dxbin' | 'vtp' | 'ply' | 'obj';
     declare const ParseFormatT: Type<ParseFormatT, ParseFormatT, unknown>;
     /** \`kind\` parameter values for \`structure\` node in MVS tree */
     type StructureTypeT = 'model' | 'assembly' | 'symmetry' | 'symmetry_mates';
@@ -996,7 +996,12 @@ namespace _ {
     /** \`selector\` parameter values for \`component\` node in MVS tree */
     interface ComponentExpressionT extends ValueFor<typeof _ComponentExpressionT> {
     }
-    declare const ComponentExpressionT: Type<ComponentExpressionT>;
+    declare const ComponentExpressionT: Type<ComponentExpressionT, ComponentExpressionT, unknown>;
+    /** A MolQL expression serialized as JSON. The expression is validated by the MolScript compiler. */
+    interface MolQLExpressionT {
+        molql: unknown;
+    }
+    declare const MolQLExpressionT: Type<MolQLExpressionT, MolQLExpressionT, unknown>;
     /** \`schema\` parameter values for \`*_from_uri\` and \`*_from_source\` nodes in MVS tree */
     type SchemaT = 'whole_structure' | 'entity' | 'chain' | 'auth_chain' | 'residue' | 'auth_residue' | 'residue_range' | 'auth_residue_range' | 'atom' | 'auth_atom' | 'all_atomic';
     declare const SchemaT: Type<SchemaT, SchemaT, unknown>;
@@ -1008,6 +1013,12 @@ namespace _ {
     declare const Vector3: Type<Vector3>;
     type LabelAttachments = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'top-left' | 'top-center' | 'top-right';
     declare const LabelAttachments: Type<LabelAttachments, LabelAttachments, unknown>;
+    /** \`trajectory\` parameter values for \`transition\` node in MVS tree, describes camera transition trajectory shape */
+    type CameraTransitionTrajectoryT = 'linear' | 'linear-relative' | 'leap' | 'leap-relative';
+    declare const CameraTransitionTrajectoryT: Type<CameraTransitionTrajectoryT, CameraTransitionTrajectoryT, unknown>;
+    /** \`easing\` parameter values for \`transition\` node in MVS tree and for animations, describes easing function */
+    type EasingT = 'linear' | 'bounce-in' | 'bounce-out' | 'bounce-in-out' | 'circle-in' | 'circle-out' | 'circle-in-out' | 'cubic-in' | 'cubic-out' | 'cubic-in-out' | 'exp-in' | 'exp-out' | 'exp-in-out' | 'quad-in' | 'quad-out' | 'quad-in-out' | 'sin-in' | 'sin-out' | 'sin-in-out';
+    declare const EasingT: Type<EasingT, EasingT, unknown>;
     /** Primitives-related types */
     declare const _PrimitiveComponentExpressionT: PartialC<{
         structure_ref: StringC;
@@ -1015,10 +1026,15 @@ namespace _ {
         expressions: ArrayC<Type<ComponentExpressionT, ComponentExpressionT, unknown>>;
     }>;
     /** Primitives-related types */
-    interface PrimitiveComponentExpressionT extends ValueFor<typeof _PrimitiveComponentExpressionT> {
+    interface PrimitiveComponentExpressionT extends ComponentExpressionT, ValueFor<typeof _PrimitiveComponentExpressionT> {
     }
-    declare const PrimitiveComponentExpressionT: Type<PrimitiveComponentExpressionT>;
-    declare const PrimitivePositionT: UnionC<[Type<Vector3, Vector3, unknown>, Type<ComponentExpressionT, ComponentExpressionT, unknown>, Type<PrimitiveComponentExpressionT, PrimitiveComponentExpressionT, unknown>]>;
+    declare const PrimitiveComponentExpressionT: Type<PrimitiveComponentExpressionT, PrimitiveComponentExpressionT, unknown>;
+    /** A MolQL primitive position, optionally evaluated against a referenced structure. */
+    interface PrimitiveMolQLExpressionT extends MolQLExpressionT {
+        structure_ref?: string;
+    }
+    declare const PrimitiveMolQLExpressionT: Type<PrimitiveMolQLExpressionT, PrimitiveMolQLExpressionT, unknown>;
+    declare const PrimitivePositionT: UnionC<[Type<Vector3, Vector3, unknown>, Type<PrimitiveComponentExpressionT, PrimitiveComponentExpressionT, unknown>, Type<ComponentExpressionT, ComponentExpressionT, unknown>, Type<PrimitiveMolQLExpressionT, PrimitiveMolQLExpressionT, unknown>]>;
     type PrimitivePositionT = ValueFor<typeof PrimitivePositionT>;
     /** Hexadecimal color string, e.g. '#FF1100' (the type matches more than just valid HexColor strings) */
     type HexColorT = \`#\${string}\`;
@@ -1027,11 +1043,11 @@ namespace _ {
     declare const ColorNameT: Type<ColorNameT, ColorNameT, unknown>;
     type ColorNameT = 'aliceblue' | 'antiquewhite' | 'aqua' | 'aquamarine' | 'azure' | 'beige' | 'bisque' | 'black' | 'blanchedalmond' | 'blue' | 'blueviolet' | 'brown' | 'burlywood' | 'cadetblue' | 'chartreuse' | 'chocolate' | 'coral' | 'cornflower' | 'cornflowerblue' | 'cornsilk' | 'crimson' | 'cyan' | 'darkblue' | 'darkcyan' | 'darkgoldenrod' | 'darkgray' | 'darkgreen' | 'darkgrey' | 'darkkhaki' | 'darkmagenta' | 'darkolivegreen' | 'darkorange' | 'darkorchid' | 'darkred' | 'darksalmon' | 'darkseagreen' | 'darkslateblue' | 'darkslategray' | 'darkslategrey' | 'darkturquoise' | 'darkviolet' | 'deeppink' | 'deepskyblue' | 'dimgray' | 'dimgrey' | 'dodgerblue' | 'firebrick' | 'floralwhite' | 'forestgreen' | 'fuchsia' | 'gainsboro' | 'ghostwhite' | 'gold' | 'goldenrod' | 'gray' | 'green' | 'greenyellow' | 'grey' | 'honeydew' | 'hotpink' | 'indianred' | 'indigo' | 'ivory' | 'khaki' | 'laserlemon' | 'lavender' | 'lavenderblush' | 'lawngreen' | 'lemonchiffon' | 'lightblue' | 'lightcoral' | 'lightcyan' | 'lightgoldenrod' | 'lightgoldenrodyellow' | 'lightgray' | 'lightgreen' | 'lightgrey' | 'lightpink' | 'lightsalmon' | 'lightseagreen' | 'lightskyblue' | 'lightslategray' | 'lightslategrey' | 'lightsteelblue' | 'lightyellow' | 'lime' | 'limegreen' | 'linen' | 'magenta' | 'maroon' | 'maroon2' | 'maroon3' | 'mediumaquamarine' | 'mediumblue' | 'mediumorchid' | 'mediumpurple' | 'mediumseagreen' | 'mediumslateblue' | 'mediumspringgreen' | 'mediumturquoise' | 'mediumvioletred' | 'midnightblue' | 'mintcream' | 'mistyrose' | 'moccasin' | 'navajowhite' | 'navy' | 'oldlace' | 'olive' | 'olivedrab' | 'orange' | 'orangered' | 'orchid' | 'palegoldenrod' | 'palegreen' | 'paleturquoise' | 'palevioletred' | 'papayawhip' | 'peachpuff' | 'peru' | 'pink' | 'plum' | 'powderblue' | 'purple' | 'purple2' | 'purple3' | 'rebeccapurple' | 'red' | 'rosybrown' | 'royalblue' | 'saddlebrown' | 'salmon' | 'sandybrown' | 'seagreen' | 'seashell' | 'sienna' | 'silver' | 'skyblue' | 'slateblue' | 'slategray' | 'slategrey' | 'snow' | 'springgreen' | 'steelblue' | 'tan' | 'teal' | 'thistle' | 'tomato' | 'turquoise' | 'violet' | 'wheat' | 'white' | 'whitesmoke' | 'yellow' | 'yellowgreen';
     /** \`color\` parameter values for \`color\` node in MVS tree */
-    type ColorT = ColorNameT | HexColorT;
-    declare const ColorT: Type<ColorT>;
+    declare const ColorT: Type<ColorT, ColorT, unknown>;
+    type ColorT = ColorNameT | HexColorT | \`\${string}/\${string}\`;
     type ColorListNameT = 'Reds' | 'Oranges' | 'Greens' | 'Blues' | 'Purples' | 'Greys' | 'OrRd' | 'BuGn' | 'PuBuGn' | 'GnBu' | 'PuBu' | 'BuPu' | 'RdPu' | 'PuRd' | 'YlOrRd' | 'YlOrBr' | 'YlGn' | 'YlGnBu' | 'Magma' | 'Inferno' | 'Plasma' | 'Viridis' | 'Cividis' | 'Turbo' | 'Warm' | 'Cool' | 'CubehelixDefault' | 'Rainbow' | 'Sinebow' | 'RdBu' | 'RdGy' | 'PiYG' | 'BrBG' | 'PRGn' | 'PuOr' | 'RdYlGn' | 'RdYlBu' | 'Spectral' | 'Category10' | 'Observable10' | 'Tableau10' | 'Set1' | 'Set2' | 'Set3' | 'Pastel1' | 'Pastel2' | 'Dark2' | 'Paired' | 'Accent' | 'Chainbow';
     declare const ColorListNameT: Type<ColorListNameT, ColorListNameT, unknown>;
-    type ColorDictNameT = 'ElementSymbol' | 'ResidueName' | 'ResidueProperties' | 'SecondaryStructure';
+    type ColorDictNameT = 'ElementSymbol' | 'ResidueName' | 'ResidueProperties' | 'SecondaryStructure' | 'CarbohydrateSymbol';
     declare const ColorDictNameT: Type<ColorDictNameT, ColorDictNameT, unknown>;
     declare const _CategoricalPalette: IntersectionC<[TypeC<{
         kind: Type<"categorical", "categorical", unknown>;
@@ -1093,8 +1109,12 @@ namespace _ {
     }
     declare const ContinuousPalette: Type<ContinuousPalette>;
     
-    type Easing = 'linear' | 'bounce-in' | 'bounce-out' | 'bounce-in-out' | 'circle-in' | 'circle-out' | 'circle-in-out' | 'cubic-in' | 'cubic-out' | 'cubic-in-out' | 'exp-in' | 'exp-out' | 'exp-in-out' | 'quad-in' | 'quad-out' | 'quad-in-out' | 'sin-in' | 'sin-out' | 'sin-in-out';
-    declare const Easing: Type<Easing, Easing, unknown>;
+    /**
+     * Copyright (c) 2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     *
+     * @author David Sehnal <david.sehnal@gmail.com>
+     */
+    
     declare const MVSAnimationSchema: TreeSchema<{
         animation: SimpleParamsSchema<{
             /** Frame time in milliseconds. */
@@ -1121,7 +1141,7 @@ namespace _ {
                 /** Whether to round the values to the closest integer. Useful for example for trajectory animation. */
                 discrete: OptionalField<boolean>;
                 /** Easing function to use for the transition. */
-                easing: OptionalField<Easing>;
+                easing: OptionalField<EasingT>;
                 /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1145,7 +1165,7 @@ namespace _ {
                 /** Whether to use spherical interpolation. */
                 spherical: OptionalField<boolean>;
                 /** Easing function to use for the transition. */
-                easing: OptionalField<Easing>;
+                easing: OptionalField<EasingT>;
                 /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1167,7 +1187,7 @@ namespace _ {
                 /** End value. If unset, only noise is applied. */
                 end: OptionalField<number[] | null>;
                 /** Easing function to use for the transition. */
-                easing: OptionalField<Easing>;
+                easing: OptionalField<EasingT>;
                 /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1191,7 +1211,7 @@ namespace _ {
                 /** Magnitude of the noise to apply to the rotation. */
                 rotation_noise_magnitude: OptionalField<number>;
                 /** Easing function to use for the rotation. */
-                rotation_easing: OptionalField<Easing>;
+                rotation_easing: OptionalField<EasingT>;
                 /** Determines how many times the rotation interpolation loops. Current T = frequency * t mod 1. */
                 rotation_frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1203,7 +1223,7 @@ namespace _ {
                 /** Magnitude of the noise to apply to the translation. */
                 translation_noise_magnitude: OptionalField<number>;
                 /** Easing function to use for the translation. */
-                translation_easing: OptionalField<Easing>;
+                translation_easing: OptionalField<EasingT>;
                 /** Determines how many times the translation interpolation loops. Current T = frequency * t mod 1. */
                 translation_frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1215,7 +1235,7 @@ namespace _ {
                 /** Magnitude of the noise to apply to the scale. */
                 scale_noise_magnitude: OptionalField<number>;
                 /** Easing function to use for the scale. */
-                scale_easing: OptionalField<Easing>;
+                scale_easing: OptionalField<EasingT>;
                 /** Determines how many times the scale interpolation loops. Current T = frequency * t mod 1. */
                 scale_frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1243,7 +1263,7 @@ namespace _ {
                 /** Palette to sample colors from. Overrides start and end values. */
                 palette: OptionalField<DiscretePalette | ContinuousPalette | null>;
                 /** Easing function to use for the transition. */
-                easing: OptionalField<Easing>;
+                easing: OptionalField<EasingT>;
                 /** Determines how many times the interpolation loops. Current T = frequency * t mod 1. */
                 frequency: OptionalField<number>;
                 /** Whether to alternate the direction of the interpolation for frequency > 1. */
@@ -1318,7 +1338,7 @@ namespace _ {
         }>;
         component: SimpleParamsSchema<{
             /** Defines what part of the parent structure should be included in this component. */
-            selector: RequiredField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
+            selector: RequiredField<ComponentSelectorT | ComponentExpressionT | MolQLExpressionT | ComponentExpressionT[]>;
         }>;
         component_from_uri: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the component identifier. */
@@ -1412,11 +1432,12 @@ namespace _ {
                 absolute_isovalue: OptionalField<number | null>;
             }>;
         }>;
+        shape: SimpleParamsSchema<{}>;
         color: SimpleParamsSchema<{
             /** Color to apply to the representation. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
             color: OptionalField<ColorT>;
             /** Defines to what part of the representation this color should be applied. */
-            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
+            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | MolQLExpressionT | ComponentExpressionT[]>;
         }>;
         color_from_uri: SimpleParamsSchema<{
             /** Name of the column in CIF or field name (key) in JSON that contains the color. */
@@ -1424,7 +1445,7 @@ namespace _ {
             /** Customize mapping of annotation values to colors. */
             palette: OptionalField<CategoricalPalette | DiscretePalette | ContinuousPalette | null>;
             /** Defines to what part of the representation this coloring should be applied. */
-            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
+            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | MolQLExpressionT | ComponentExpressionT[]>;
             /** URL of the annotation resource. */
             uri: RequiredField<string>;
             /** Format of the annotation resource. */
@@ -1448,7 +1469,7 @@ namespace _ {
             /** Customize mapping of annotation values to colors. */
             palette: OptionalField<CategoricalPalette | DiscretePalette | ContinuousPalette | null>;
             /** Defines to what part of the representation this coloring should be applied. */
-            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | ComponentExpressionT[]>;
+            selector: OptionalField<ComponentSelectorT | ComponentExpressionT | MolQLExpressionT | ComponentExpressionT[]>;
             /** Annotation schema defines what fields in the annotation will be taken into account. */
             schema: RequiredField<SchemaT>;
             /** Header of the CIF block to read annotation from. If \`null\`, block is selected based on \`block_index\`. */
@@ -1594,20 +1615,6 @@ namespace _ {
             /** Addition to the radius of the focused sphere, if computed from the radius of parent component (default: 0). Focused radius = component_radius * radius_factor + radius_extent. */
             radius_extent: OptionalField<number>;
         }>;
-        camera: SimpleParamsSchema<{
-            /** Coordinates of the point in space at which the camera is pointing. */
-            target: RequiredField<Vector3>;
-            /** Coordinates of the camera. */
-            position: RequiredField<Vector3>;
-            /** Vector which will be aligned with the screen Y axis. */
-            up: OptionalField<Vector3>;
-            /** Near clipping plane distance from the position. */
-            near: OptionalField<number | null>;
-        }>;
-        canvas: SimpleParamsSchema<{
-            /** Color of the canvas background. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
-            background_color: OptionalField<ColorT>;
-        }>;
         primitives: SimpleParamsSchema<{
             /** Default color for primitives in this group. */
             color: OptionalField<ColorT>;
@@ -1677,15 +1684,15 @@ namespace _ {
             }>;
             tube: SimpleParamsSchema<{
                 tooltip: OptionalField<string | null>;
-                start: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
-                end: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                start: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                end: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 radius: OptionalField<number>;
                 dash_length: OptionalField<number | null>;
                 color: OptionalField<ColorT | null>;
             }>;
             arrow: SimpleParamsSchema<{
-                start: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
-                end: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                start: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                end: OptionalField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
                 direction: OptionalField<Vector3 | null>;
                 length: OptionalField<number | null>;
                 show_start_cap: OptionalField<boolean>;
@@ -1706,16 +1713,16 @@ namespace _ {
                 label_auto_size_scale: OptionalField<number>;
                 label_auto_size_min: OptionalField<number>;
                 label_color: OptionalField<ColorT | null>;
-                start: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
-                end: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                start: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                end: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 radius: OptionalField<number>;
                 dash_length: OptionalField<number | null>;
                 color: OptionalField<ColorT | null>;
             }>;
             angle_measurement: SimpleParamsSchema<{
-                a: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
-                b: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
-                c: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                a: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                b: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                c: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 label_template: OptionalField<string>;
                 label_size: OptionalField<number | null>;
                 label_auto_size_scale: OptionalField<number>;
@@ -1730,7 +1737,7 @@ namespace _ {
                 section_radius_scale: OptionalField<number>;
             }>;
             label: SimpleParamsSchema<{
-                position: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                position: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 text: RequiredField<string>;
                 label_size: OptionalField<number>;
                 label_color: OptionalField<ColorT | null>;
@@ -1739,11 +1746,11 @@ namespace _ {
             ellipse: SimpleParamsSchema<{
                 color: OptionalField<ColorT | null>;
                 as_circle: OptionalField<boolean>;
-                center: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                center: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 major_axis: OptionalField<Vector3 | null>;
                 minor_axis: OptionalField<Vector3 | null>;
-                major_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
-                minor_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                major_axis_endpoint: OptionalField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                minor_axis_endpoint: OptionalField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
                 radius_major: OptionalField<number | null>;
                 radius_minor: OptionalField<number | null>;
                 theta_start: OptionalField<number>;
@@ -1752,17 +1759,17 @@ namespace _ {
             }>;
             ellipsoid: SimpleParamsSchema<{
                 color: OptionalField<ColorT | null>;
-                center: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                center: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 major_axis: OptionalField<Vector3 | null>;
                 minor_axis: OptionalField<Vector3 | null>;
-                major_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
-                minor_axis_endpoint: OptionalField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                major_axis_endpoint: OptionalField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
+                minor_axis_endpoint: OptionalField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT | null>;
                 radius: OptionalField<number | Vector3 | null>;
                 radius_extent: OptionalField<number | Vector3 | null>;
                 tooltip: OptionalField<string | null>;
             }>;
             box: SimpleParamsSchema<{
-                center: RequiredField<ComponentExpressionT | Vector3 | PrimitiveComponentExpressionT>;
+                center: RequiredField<ComponentExpressionT | PrimitiveMolQLExpressionT | Vector3 | PrimitiveComponentExpressionT>;
                 extent: OptionalField<Vector3 | null>;
                 show_faces: OptionalField<boolean>;
                 face_color: OptionalField<ColorT | null>;
@@ -1771,6 +1778,28 @@ namespace _ {
                 edge_color: OptionalField<ColorT | null>;
                 tooltip: OptionalField<string | null>;
             }>;
+        }>;
+        camera: SimpleParamsSchema<{
+            /** Coordinates of the point in space at which the camera is pointing. */
+            target: RequiredField<Vector3>;
+            /** Coordinates of the camera. */
+            position: RequiredField<Vector3>;
+            /** Vector which will be aligned with the screen Y axis. */
+            up: OptionalField<Vector3>;
+            /** Near clipping plane distance from the position. */
+            near: OptionalField<number | null>;
+        }>;
+        canvas: SimpleParamsSchema<{
+            /** Color of the canvas background. Can be either an X11 color name (e.g. \`"red"\`) or a hexadecimal code (e.g. \`"#FF0011"\`). */
+            background_color: OptionalField<ColorT>;
+        }>;
+        transition: SimpleParamsSchema<{
+            /** Duration of the transition from the previous snapshot to this snapshot, in milliseconds. This overrides the deprecated \`transition_duration_ms\` in the snapshot metadata (which applies to the transition from this snapshot to the next snapshot). */
+            duration_ms: OptionalField<number>;
+            /** Camera transition trajectory shape. "linear": interpolates along a straight line with constant absolute speed; "linear-relative": like "linear" but moves relatively slower when zoomed-in more; "leap": zooms out during the transition to capture both the initial and the final camera target (becomes linear if the targets are near); "leap-relative": like "leap" but moves relatively slower when zoomed-in more. Defaults to "linear". */
+            trajectory: OptionalField<CameraTransitionTrajectoryT>;
+            /** Transition easing function. Adjusts transition speed near the beginning and end of the transition to create smoother camera motion. Defaults to "linear". */
+            easing: OptionalField<EasingT>;
         }>;
     }, "root">;
     /** Node kind in a \`MVSTree\` */
@@ -1802,6 +1831,8 @@ namespace _ {
         camera(params: MVSNodeParams<'camera'> & CustomAndRef): Root;
         /** Add a 'canvas' node and return builder pointing to the root. 'canvas' node sets canvas properties. */
         canvas(params: MVSNodeParams<'canvas'> & CustomAndRef): Root;
+        /** Add a 'transition' node and return builder pointing to the root. 'transition' node specifies camera transition when entering the current MVS snapshot from the previous snapshot. */
+        transition(params: MVSNodeParams<'transition'> & CustomAndRef): Root;
         /** Add a 'download' node and return builder pointing to it. 'download' node instructs to retrieve a data resource. */
         download(params: MVSNodeParams<'download'> & CustomAndRef): Download;
         focus: (params?: ({} & {
@@ -1851,6 +1882,8 @@ namespace _ {
         symmetryMatesStructure(params?: Pick<MVSNodeParams<'structure'>, typeof StructureParamsSubsets['symmetry_mates'][number]> & CustomAndRef): Structure;
         /** Add a 'volume' node representing raw volume data */
         volume(params?: MVSNodeParams<'volume'> & CustomAndRef): Volume;
+        /** Add a 'shape' node representing a mesh loaded from a 3D geometry resource (VTP, PLY, or OBJ) */
+        shape(params?: MVSNodeParams<'shape'> & CustomAndRef): Shape;
         /** Add a 'coordinates' node indicating the parsed data type */
         coordinates(params?: MVSNodeParams<'coordinates'> & CustomAndRef): Parse;
     }
@@ -1930,6 +1963,35 @@ namespace _ {
     declare class Volume extends _Base<'volume'> implements FocusMixin, TransformMixin {
         /** Add a 'representation' node and return builder pointing to it. 'representation' node instructs to create a visual representation of a component. */
         representation(params?: MVSNodeParams<'volume_representation'> & CustomAndRef): VolumeRepresentation;
+        focus: (params?: ({} & {
+            direction?: Vector3 | undefined;
+            up?: Vector3 | undefined;
+            radius?: number | null | undefined;
+            radius_factor?: number | undefined;
+            radius_extent?: number | undefined;
+        } & CustomAndRef) | undefined) => this;
+        transform: (params?: ({} & {
+            rotation?: number[] | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
+            matrix?: number[] | null | undefined;
+        } & CustomAndRef) | undefined) => this;
+        instance: (params?: ({} & {
+            rotation?: number[] | undefined;
+            translation?: Vector3 | undefined;
+            rotation_center?: "centroid" | Vector3 | null | undefined;
+            matrix?: number[] | null | undefined;
+        } & CustomAndRef) | undefined) => this;
+    }
+    /** MVS builder pointing to a 'shape' node.
+     * A shape has exactly one representation (a mesh), so color and opacity attach directly to it. */
+    declare class Shape extends _Base<'shape'> implements FocusMixin, TransformMixin {
+        /** Add a 'color' node and return builder pointing back to the shape node. 'color' node instructs to apply color to a visual representation. */
+        color(params: MVSNodeParams<'color'> & CustomAndRef): Shape;
+        /** Add an 'opacity' node and return builder pointing back to the shape node. 'opacity' node instructs to customize opacity/transparency of a visual representation. */
+        opacity(params: MVSNodeParams<'opacity'> & CustomAndRef): Shape;
+        /** Add a 'clip' node and return builder pointing back to the shape node. 'clip' node instructs to apply clipping to a visual representation. */
+        clip(params: MVSNodeParams<'clip'> & CustomAndRef): Shape;
         focus: (params?: ({} & {
             direction?: Vector3 | undefined;
             up?: Vector3 | undefined;
@@ -2075,11 +2137,26 @@ namespace _ {
         description_format?: 'markdown' | 'plaintext';
         /** Unique identifier of this state, useful when working with collections of states. */
         key?: string;
-        /** Timespan for snapshot. */
-        linger_duration_ms: number;
-        /** Timespan for the animation to the next snapshot. Leave empty to skip animations. */
+        /** Timespan for snapshot, in milliseconds. Does not include time of the camera transition. */
+        duration_ms?: number;
+        /** @deprecated Use \`duration_ms\` instead. */
+        linger_duration_ms?: number;
+        /**
+         * @deprecated Timespan for the animation to the next snapshot. Leave empty to skip animations.
+         *
+         * This parameter is deprecated. The preferred way of setting transition duration is to add a \`transition\` node with \`duration_ms\` parameter on the root of the snapshot's tree.
+         *
+         * Note:
+         * \`transition_duration_ms\` here refers to the transition from the CURRENT to the NEXT snapshot.
+         * \`duration_ms\` in the \`transition\` node refers to the transition from the PREVIOUS to the CURRENT snapshot.
+         */
         transition_duration_ms?: number;
     }
+    declare const SnapshotMetadata: {
+        Defaults: {
+            duration_ms: number;
+        };
+    };
     interface Snapshot {
         /** Root of the node tree */
         root: MVSTree;
@@ -2187,6 +2264,7 @@ namespace _ {
         function setIdentity(out: Quat): void;
         function hasNaN(q: Quat): boolean;
         function create(x: number, y: number, z: number, w: number): Quat;
+        function is(a: any): a is Quat;
         function setAxisAngle(out: Quat, axis: Vec3, rad: number): Quat;
         /**
          * Gets the rotation axis and angle for a given
@@ -2291,6 +2369,7 @@ namespace _ {
         function set(out: Euler, x: number, y: number, z: number): Euler;
         function clone(a: Euler): Euler;
         function copy(out: Euler, a: Euler): Euler;
+        function is(a: any): a is Euler;
         /**
          * Assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
          */
@@ -2335,6 +2414,7 @@ namespace _ {
         function fromRotation(out: Mat3, rad: number, axis: Vec3): Mat3;
         function create(a00: number, a01: number, a02: number, a10: number, a11: number, a12: number, a20: number, a21: number, a22: number): Mat3;
         function isIdentity(m: Mat3, eps?: number): boolean;
+        function is(a: any): a is Mat3;
         function hasNaN(m: Mat3): boolean;
         /**
          * Creates a new Mat3 initialized with values from an existing matrix
@@ -2409,6 +2489,7 @@ namespace _ {
     declare namespace Vec3 {
         function zero(): Vec3;
         function clone(a: Vec3): Vec3;
+        function is(a: any): a is Vec3;
         function isFinite(a: Vec3): boolean;
         function isInteger(a: Vec3): boolean;
         function hasNaN(a: Vec3): boolean;
@@ -2588,7 +2669,7 @@ namespace _ {
     }
     
     /**
-     * Copyright (c) 2017-2025 mol* contributors, licensed under MIT, See LICENSE file for more info.
+     * Copyright (c) 2017-2026 mol* contributors, licensed under MIT, See LICENSE file for more info.
      *
      * @author David Sehnal <david.sehnal@gmail.com>
      * @author Alexander Rose <alexander.rose@weirdbyte.de>
@@ -2616,6 +2697,7 @@ namespace _ {
         function setZero(mat: Mat4): Mat4;
         function ofRows(rows: number[][]): Mat4;
         function isIdentity(m: Mat4, eps?: number): boolean;
+        function is(a: any): a is Mat4;
         function hasNaN(m: Mat4): boolean;
         function areEqual(a: Mat4, b: Mat4, eps: number): boolean;
         function setValue(a: Mat4, i: number, j: number, value: number): void;
