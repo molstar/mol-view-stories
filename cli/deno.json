@@ -34,7 +34,7 @@
     "@mol-view-stories/lib/": "../@mol-view-stories/lib/src/",
     "@mol-view-stories/lib/StoryManager": "../@mol-view-stories/lib/src/story-manager.ts",
     "@mol-view-stories/lib/types": "../@mol-view-stories/lib/src/types.ts",
-    "molstar": "npm:molstar@5.8.0",
+    "molstar": "npm:molstar@5.13.0",
     "molstar/vec3": "npm:molstar@5.8.0/lib/mol-math/linear-algebra/3d/vec3.js",
     "molstar/mvs-data": "npm:molstar@5.8.0/lib/extensions/mvs/mvs-data.js",
     "molstar/zip": "npm:molstar@5.8.0/lib/mol-util/zip/zip.js",
