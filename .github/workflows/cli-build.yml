@@ -62,10 +62,11 @@ jobs:
         if: runner.os != 'Windows'
         working-directory: cli
         run: |
-          if [ -f "mvs" ]; then
+          if [ -f "mvs" ] && [ -x "mvs" ]; then
             echo "✓ CLI binary built successfully"
             ls -lh mvs
-            file mvs
+            # Deno embeds its module archive in an ELF note, which can exceed
+            # libmagic's note-size limit. The smoke tests below execute the binary.
           else
             echo "✗ CLI binary not found"
             exit 1

@@ -55,6 +55,22 @@ monaco.languages.typescript.javascriptDefaults.addExtraLib(
 );
 ```
 
+Story and scene scripts can use `pymol(text)` or `molql(text, language?)` wherever
+the builder accepts a selector. The editor provides types for both helpers.
+Selections compile eagerly to JSON MolQL expressions when the script runs;
+invalid selection text fails story compilation. `molql` defaults to PyMOL and
+also supports `'vmd'`, `'jmol'`, and `'mol-script'`.
+
+```javascript
+structure.component({ selector: pymol('chain A and resi 248-256') });
+structure.component({
+  selector: molql(
+    '(sel.atom.atom-groups :chain-test (= atom.auth_asym_id A) :residue-test (in-range atom.auth_seq_id 248 256))',
+    'mol-script'
+  ),
+});
+```
+
 ### Default Editor Options
 
 Pre-configured options for code and markdown editors:

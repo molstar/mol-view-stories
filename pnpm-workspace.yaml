@@ -1,3 +1,10 @@
 packages:
   - '@mol-view-stories/webapp'
   - '@mol-view-stories/lib'
+
+# These parents pin versions below the security fixes.
+overrides:
+  'monaco-editor>dompurify': '^3.4.17'
+  'next>postcss': '^8.5.31'
+  'next>sharp': '^0.35.5'
+  '@tailwindcss/typography>postcss-selector-parser': '^7.1.6'
