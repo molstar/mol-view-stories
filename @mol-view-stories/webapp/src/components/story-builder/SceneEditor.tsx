@@ -54,8 +54,7 @@ import { Scheduler } from 'molstar/lib/mol-task';
 import { memo, useEffect, useRef, useState, type RefObject } from 'react';
 import { Label } from '../ui/label';
 import { MolViewEditor, useSyncToBuilder } from '@molstar/molstar-components';
-import * as monacoTypescript from 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
-import type { typescript } from 'monaco-editor';
+import { javascriptDefaults } from 'monaco-editor/language/typescript/monaco.contribution.js';
 import { setupMonacoWorkers } from '@/lib/monaco-worker-setup';
 
 setupMonacoWorkers();
@@ -632,8 +631,6 @@ function SceneMarkdownEditorSection() {
 }
 
 function registerStoryTypes() {
-  // This ESM entry ships an empty .d.ts in Monaco 0.55; use its public API type.
-  const { javascriptDefaults } = monacoTypescript as unknown as typeof typescript;
   // MolViewEditor ships its own older typings. Replace the same extra library
   // with this app's generated definitions, preserving its other editor settings.
   if (javascriptDefaults.getExtraLibs()['ts:mvs.d.ts']?.content !== MVSTypes) {
