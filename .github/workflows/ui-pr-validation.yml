@@ -62,7 +62,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Prettier
-        run: npm install prettier -g
+        run: npm install -g prettier@$(node -p "require('./package.json').devDependencies.prettier")
 
       - name: Check Linting
         run: pnpm run prettier:check

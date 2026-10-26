@@ -10,13 +10,13 @@
     "tsc:check": "pnpm run --filter=* tsc:check"
   },
   "dependencies": {
-    "molstar": "^5.8.0"
+    "molstar": "^5.12.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "eslint": "^9.39.4",
     "eslint-config-next": "15.3.2",
-    "prettier": "^3.8.1",
+    "prettier": "3.8.3",
     "typescript": "^5.9.3"
   }
 }
