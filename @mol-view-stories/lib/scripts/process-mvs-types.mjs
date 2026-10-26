@@ -35,6 +35,10 @@ const final = [
   'declare const builder: _.Builder;',
   ...lib.map((name) => `declare const ${name}: typeof _.${name};`),
   `declare function decodeColor(input: string): number;`,
+  '/** Compile selection text eagerly to a MolQL selector. Defaults to PyMOL; also accepts VMD, Jmol and MolScript. */',
+  "declare function molql(text: string, language?: 'pymol' | 'vmd' | 'jmol' | 'mol-script'): { molql: unknown };",
+  '/** Compile a PyMOL selection eagerly, e.g. pymol("chain A and resi 248-256"). Shorthand for molql(text, "pymol"). */',
+  'declare function pymol(text: string): { molql: unknown };',
   '`;',
 ];
 

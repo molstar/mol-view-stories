@@ -59,6 +59,7 @@
     "molstar/lib/mol-util/color/utils.js": "npm:molstar@5.8.0/lib/mol-util/color/utils.js",
     "molstar/lib/mol-task.js": "npm:molstar@5.8.0/lib/mol-task.js",
     "molstar/lib/mol-script/language/builder.js": "npm:molstar@5.8.0/lib/mol-script/language/builder.js",
+    "molstar/lib/mol-script/script.js": "npm:molstar@5.13.0/lib/mol-script/script.js",
     "molstar/lib/mol-script/language/expression-formatter.js": "npm:molstar@5.8.0/lib/mol-script/language/expression-formatter.js",
     "molstar/lib/mol-util/zip/zip": "npm:molstar@5.8.0/lib/mol-util/zip/zip.js",
     "molstar/lib/mol-util/color/utils": "npm:molstar@5.8.0/lib/mol-util/color/utils.js",

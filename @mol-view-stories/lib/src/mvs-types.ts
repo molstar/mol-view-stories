@@ -2848,4 +2848,8 @@ declare const Mat4: typeof _.Mat4;
 declare const Quat: typeof _.Quat;
 declare const Euler: typeof _.Euler;
 declare function decodeColor(input: string): number;
+/** Compile selection text eagerly to a MolQL selector. Defaults to PyMOL; also accepts VMD, Jmol and MolScript. */
+declare function molql(text: string, language?: 'pymol' | 'vmd' | 'jmol' | 'mol-script'): { molql: unknown };
+/** Compile a PyMOL selection eagerly, e.g. pymol("chain A and resi 248-256"). Shorthand for molql(text, "pymol"). */
+declare function pymol(text: string): { molql: unknown };
 `;

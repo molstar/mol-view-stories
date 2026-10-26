@@ -13,7 +13,7 @@ export interface MonacoInstance {
     typescript: {
       javascriptDefaults: {
         setEagerModelSync(value: boolean): void;
-        getExtraLibs(): Record<string, unknown>;
+        getExtraLibs(): Record<string, { content: string }>;
         addExtraLib(content: string, filePath: string): void;
         setCompilerOptions(options: Record<string, unknown>): void;
         setDiagnosticsOptions(options: {
@@ -87,8 +87,8 @@ export function setupMonacoCodeCompletion(monaco: MonacoInstance, mvsTypes?: str
 
   const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();
 
-  // Add MVS types if provided and not already added
-  if (mvsTypes && !('ts:mvs.d.ts' in extraLibs)) {
+  // Replace stale definitions too, including those registered by another editor.
+  if (mvsTypes && extraLibs['ts:mvs.d.ts']?.content !== mvsTypes) {
     monaco.languages.typescript.javascriptDefaults.addExtraLib(mvsTypes, 'ts:mvs.d.ts');
   }
 

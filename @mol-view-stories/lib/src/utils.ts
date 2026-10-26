@@ -12,8 +12,29 @@ import { Task } from 'molstar/lib/mol-task';
 import { generateStoriesHtml } from './html-template.ts';
 import { MolScriptBuilder } from 'molstar/lib/mol-script/language/builder.js';
 import { formatMolScript } from 'molstar/lib/mol-script/language/expression-formatter.js';
+import { Script } from 'molstar/lib/mol-script/script.js';
 
 export const StoryFileExtension = '.mvstory';
+
+/** Compile selection text eagerly into a JSON MolQL selector. */
+function molql(text: string, language: Script.Language = 'pymol'): { molql: unknown } {
+  try {
+    return { molql: JSON.parse(JSON.stringify(Script.toExpression(Script(text, language)))) };
+  } catch (error) {
+    const why = (error instanceof Error ? error.message : String(error)).split('\n')[0];
+    throw new Error(`molql("${text}") is not a ${language} selection Mol* reads: ${why}`);
+  }
+}
+
+/** PyMOL shorthand, compiled when the story script calls it. */
+function pymol(text: string): { molql: unknown } {
+  try {
+    return { molql: JSON.parse(JSON.stringify(Script.toExpression(Script(text, 'pymol')))) };
+  } catch (error) {
+    const why = (error instanceof Error ? error.message : String(error)).split('\n')[0];
+    throw new Error(`pymol("${text}") is not a PyMOL selection Mol* reads: ${why}`);
+  }
+}
 
 const BuilderLib = {
   Vec3,
@@ -24,6 +45,8 @@ const BuilderLib = {
   decodeColor,
   MolScriptBuilder,
   formatMolScript,
+  molql,
+  pymol,
 };
 
 export const BuilderLibNamespaces: string[] = Object.keys(BuilderLib);

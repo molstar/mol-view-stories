@@ -54,6 +54,8 @@ import { Scheduler } from 'molstar/lib/mol-task';
 import { memo, useEffect, useRef, useState, type RefObject } from 'react';
 import { Label } from '../ui/label';
 import { MolViewEditor, useSyncToBuilder } from '@molstar/molstar-components';
+import * as monacoTypescript from 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+import type { typescript } from 'monaco-editor';
 import { setupMonacoWorkers } from '@/lib/monaco-worker-setup';
 
 setupMonacoWorkers();
@@ -66,7 +68,7 @@ import { toast } from 'sonner';
 import { PluginReactContext } from 'molstar/lib/mol-plugin-ui/base';
 import Link from 'next/link';
 import { ImmediateInput } from '../controls';
-import { adjustedCameraPosition } from '@mol-view-stories/lib';
+import { adjustedCameraPosition, MVSTypes } from '@mol-view-stories/lib';
 import { snapshotToCameraParams, UIBuilder, UIBuilderProvider } from '@molstar/molstar-components';
 import type { UIBuilderHandle, UIBuilderSnapshot, ConstantDefinition } from '@molstar/molstar-components';
 import { LLMContext } from './editors/llm-context';
@@ -629,6 +631,16 @@ function SceneMarkdownEditorSection() {
   );
 }
 
+function registerStoryTypes() {
+  // This ESM entry ships an empty .d.ts in Monaco 0.55; use its public API type.
+  const { javascriptDefaults } = monacoTypescript as unknown as typeof typescript;
+  // MolViewEditor ships its own older typings. Replace the same extra library
+  // with this app's generated definitions, preserving its other editor settings.
+  if (javascriptDefaults.getExtraLibs()['ts:mvs.d.ts']?.content !== MVSTypes) {
+    javascriptDefaults.addExtraLib(MVSTypes, 'ts:mvs.d.ts');
+  }
+}
+
 function SceneCodeEditorSection() {
   const builderRef = useRef<UIBuilderHandle>(null);
   const editorRef = useRef<{ getValue(): string } | null>(null);
@@ -639,6 +651,11 @@ function SceneCodeEditorSection() {
   const [viewMode, setViewMode] = useState<'code' | 'builder'>('code');
   const [confirmingSync, setConfirmingSync] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // Also refresh an already mounted editor after regenerated typings hot-reload.
+  useEffect(() => {
+    if (editorRef.current) registerStoryTypes();
+  });
 
   const {
     sync,
@@ -704,6 +721,7 @@ function SceneCodeEditorSection() {
                 onSave={(code) => modifyCurrentScene({ javascript: code })}
                 onEditorMount={(editor) => {
                   editorRef.current = editor;
+                  registerStoryTypes();
                 }}
                 className='absolute inset-0'
                 editorOptions={{ theme: 'vs' }}
