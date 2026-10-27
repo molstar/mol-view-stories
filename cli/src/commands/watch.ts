@@ -1,3 +1,4 @@
+import { createRebuildScheduler } from '../utils/rebuild-scheduler.ts';
 import { exists } from '@std/fs';
 import { join } from '@std/path';
 import { StoryManager } from '@mol-view-stories/lib/StoryManager';
@@ -123,6 +124,10 @@ export async function watchStory(
   // Set up file watcher
   const watcher = Deno.watchFs(folderPath, { recursive: true });
 
+  const rebuilds = createRebuildScheduler(rebuildStory, (error) => {
+    console.error('❌ Rebuild failed:', error);
+  });
+
   // File watching loop
   const watchLoop = async () => {
     try {
@@ -131,11 +136,7 @@ export async function watchStory(
 
         // Only rebuild on file modifications, not directory changes
         if (event.kind === 'modify' || event.kind === 'create' || event.kind === 'remove') {
-          // Debounce rapid changes
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          if (!abortController.signal.aborted) {
-            await rebuildStory();
-          }
+          rebuilds.schedule();
         }
       }
     } catch (error) {
@@ -143,6 +144,7 @@ export async function watchStory(
         console.error('❌ File watcher error:', error);
       }
     } finally {
+      await rebuilds.close();
       // Ensure watcher is closed when loop ends
       try {
         watcher.close();
@@ -273,7 +275,6 @@ export async function watchStory(
             const liveReloadScript = `
 <script>
   (function() {
-    const ws = new WebSocket('ws://' + window.location.host + '/ws');
     let reconnectTimeout;
 
     function connect() {
@@ -323,7 +324,6 @@ export async function watchStory(
             const liveReloadScript = `
 <script>
   (function() {
-    const ws = new WebSocket('ws://' + window.location.host + '/ws');
     let reconnectTimeout;
 
     function connect() {
@@ -467,6 +467,9 @@ export async function watchStory(
 
       // Abort the controller to signal server shutdown
       abortController.abort();
+
+      // Finish any active build before removing the serving directory.
+      await rebuilds.close();
 
       // Explicitly shutdown the server and wait for it to finish
       try {

@@ -1,3 +1,5 @@
+import { PLUGIN_VERSION } from 'molstar/lib/mol-plugin/version';
+
 // Enhanced template utilities for MVS Stories viewer
 // Based on molstar/mol-view-stories template with support for both MVSJ and MVSX formats
 
@@ -12,7 +14,7 @@ export interface ViewerTemplateOptions {
  */
 export function generateMVSJViewerHtml(options?: ViewerTemplateOptions): string {
   const title = options?.title ?? 'MVS Story';
-  const version = options?.molstarVersion ?? '5.8.0';
+  const version = options?.molstarVersion ?? PLUGIN_VERSION;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -149,7 +151,7 @@ export function generateMVSJViewerHtml(options?: ViewerTemplateOptions): string 
  */
 export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string {
   const title = options?.title ?? 'MVS Story';
-  const version = options?.molstarVersion ?? '5.8.0';
+  const version = options?.molstarVersion ?? PLUGIN_VERSION;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -290,7 +292,7 @@ export function generateMVSXViewerHtml(options?: ViewerTemplateOptions): string 
  */
 export function generateInlineStoriesHtml(data: any | Uint8Array, options?: ViewerTemplateOptions): string {
   const title = options?.title ?? 'MVS Story';
-  const version = options?.molstarVersion ?? '5.8.0';
+  const version = options?.molstarVersion ?? PLUGIN_VERSION;
   const format = data instanceof Uint8Array ? 'mvsx' : 'mvsj';
 
   let state: string;
