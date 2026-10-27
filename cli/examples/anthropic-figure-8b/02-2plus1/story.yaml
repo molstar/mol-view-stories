@@ -1,0 +1,7 @@
+title: "Figure 8b | 2+1"
+author_note: "Figure 8b representative reconstruction; template/proxy geometry, illustrative poses"
+scenes:
+  - folder: context
+  - folder: antibody
+  - folder: complete
+  - folder: contacts

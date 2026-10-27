@@ -1,0 +1,226 @@
+[
+  {
+    "id": "01-crossmab",
+    "title": "1+1 CrossMab",
+    "subtitle": "Murine arms; one beta-DG Fab + one LAMA4 Fab",
+    "format": "1+1",
+    "receptors": [
+      -65
+    ],
+    "betaFabs": [
+      {
+        "center": [
+          -48,
+          65,
+          8
+        ],
+        "angle": 24
+      }
+    ],
+    "fc": {
+      "center": [
+        22,
+        -20,
+        40
+      ],
+      "angle": -35
+    },
+    "lamaArms": [
+      {
+        "center": [
+          -15,
+          -75,
+          8
+        ],
+        "angle": 158,
+        "type": "fab"
+      }
+    ],
+    "hinge": [
+      0,
+      8,
+      8
+    ],
+    "coatTargets": [
+      -30
+    ],
+    "contacts": [
+      [
+        -66,
+        108,
+        10
+      ],
+      [
+        -30,
+        -113,
+        8
+      ]
+    ],
+    "potentialContacts": [],
+    "explanation": "Both specificities attach through the hinge. The Fc is tilted forward. The published construct has murine arms and a mouse IgG2a Fc; this example uses a generic 1HZH human IgG1 scaffold."
+  },
+  {
+    "id": "02-2plus1",
+    "title": "2+1",
+    "subtitle": "Humanized arms; two beta-DG Fabs + one LAMA4 Fab",
+    "format": "2+1",
+    "receptors": [
+      -65,
+      65
+    ],
+    "betaFabs": [
+      {
+        "center": [
+          -48,
+          65,
+          8
+        ],
+        "angle": 24
+      },
+      {
+        "center": [
+          48,
+          65,
+          8
+        ],
+        "angle": -24
+      }
+    ],
+    "fc": {
+      "center": [
+        0,
+        -36,
+        8
+      ],
+      "angle": 0
+    },
+    "lamaArms": [
+      {
+        "center": [
+          66,
+          -76,
+          8
+        ],
+        "angle": 195,
+        "type": "fab"
+      }
+    ],
+    "hinge": [
+      0,
+      8,
+      8
+    ],
+    "coatTargets": [
+      76
+    ],
+    "contacts": [
+      [
+        -66,
+        108,
+        10
+      ],
+      [
+        66,
+        108,
+        10
+      ],
+      [
+        76,
+        -114,
+        8
+      ]
+    ],
+    "potentialContacts": [],
+    "explanation": "Two N-terminal beta-DG Fabs share a hinge. One LAMA4 Fab is attached by a linker below the Fc. The linker path is illustrative, not a modeled peptide."
+  },
+  {
+    "id": "03-igg-scfv",
+    "title": "2+2 IgG-scFv",
+    "subtitle": "Humanized arms; two beta-DG Fabs + two LAMA4 scFvs",
+    "format": "2+2",
+    "receptors": [
+      -65,
+      65
+    ],
+    "betaFabs": [
+      {
+        "center": [
+          -48,
+          65,
+          8
+        ],
+        "angle": 24
+      },
+      {
+        "center": [
+          48,
+          65,
+          8
+        ],
+        "angle": -24
+      }
+    ],
+    "fc": {
+      "center": [
+        0,
+        -36,
+        8
+      ],
+      "angle": 0
+    },
+    "lamaArms": [
+      {
+        "center": [
+          -66,
+          -89,
+          8
+        ],
+        "angle": 165,
+        "type": "fv"
+      },
+      {
+        "center": [
+          66,
+          -89,
+          8
+        ],
+        "angle": 195,
+        "type": "fv"
+      }
+    ],
+    "hinge": [
+      0,
+      8,
+      8
+    ],
+    "coatTargets": [
+      -72,
+      72
+    ],
+    "contacts": [
+      [
+        -66,
+        108,
+        10
+      ],
+      [
+        66,
+        108,
+        10
+      ],
+      [
+        72,
+        -114,
+        8
+      ]
+    ],
+    "potentialContacts": [
+      [
+        -72,
+        -114,
+        8
+      ]
+    ],
+    "explanation": "Two LAMA4 single-chain Fv arms attach below the Fc. The second LAMA4 contact is within reach; Figure 8b does not show it forming. Fv templates here omit the engineered VH-VL peptide connection."
+  }
+]
