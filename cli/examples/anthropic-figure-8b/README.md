@@ -27,22 +27,22 @@ Open the localhost address printed by the command. Widen the viewer for the thre
 | Cell membrane and cell interior | MolViewSpec boxes and lipid-headgroup primitives | Schematic bilayer, nominal 40 Å thickness; not an atomistic membrane |
 | α/β-dystroglycan | Rabbit **9C3C**, α chain A residues 485–653, β chain B residues 654–798 | Experimental coordinates retain their relative arrangement. Released α-DG N-terminal domain and unmodeled regions omitted; no added glycans |
 | β-DG-binding Fab(s) | **1HZH**, H residues 1–225 + L | Generic Fab scaffold with dark variable domains; not AS30 or an engineered crossover |
-| Fc | **1HZH**, H/K residues 230–end | Generic human IgG1 scaffold; CrossMab panel does not model its mouse IgG2a sequence |
+| Fc | **1HZH**, H/K residues 230–end + experimental Asn297 glycans (chains A/B) | Generic human IgG1 scaffold; glycans fill the CH2 cavity. CrossMab panel does not model its mouse IgG2a sequence |
 | LAMA4-binding Fab | Same generic Fab scaffold, blue | Illustrative specificity coloring, not the tool antibody's variable domains |
 | LAMA4-binding scFv(s) | **1HZH** H/L residues 1–110, blue | Fv shape proxy; engineered VH–VL peptide connection is absent |
 | Hinge / Fc-terminal linkers | MolViewSpec tubes | Schematic connections; lengths and conformations are not peptide predictions |
 | LAMA4 LG4–5 coat | **5IK8 chain B, mouse LAMA2 LG4–5 homolog proxy** | Temporary proxy. The paper uses **AF-Q16363-F1 v4** LAMA4; public AlphaFold file downloads returned HTTP 403 during preparation |
 | Well bottom and pale bystanders | Slab + additional structural copies | Schematic adsorption poses and densities |
-| Contacts and second-arm reach | Filled contact markers; open possible-contact marker | Mirrors the figure's distinction, not atom-level bonds or measured stoichiometry |
+| Contacts and second-arm reach | Black markers for bonds, grey for a second bond within reach; placed at each arm's paratope end | Mirrors the figure's distinction, not atom-level bonds or measured stoichiometry |
 | Scale | 100 Å bar = 10 nm; no coordinate scaling | Structural template dimensions retained. Relative placement is illustrative |
 
-In 1+1, both Fabs connect at the hinge and the Fc tilts forward. In 2+1, one LAMA4 Fab connects below the Fc. In 2+2, two LAMA4 Fv proxies connect below the Fc; the second LAMA4 contact is shown as **within reach**, not asserted to form. The paper explicitly states that coat orientation and density are unknown, stoichiometry was not measured, and poses are illustrative.
+In 1+1, both Fabs connect at the hinge and the Fc tilts forward. In 2+1, one LAMA4 Fab connects below the Fc. In 2+2, two LAMA4 Fv proxies connect below the Fc. As in the figure, the second β-DG bond (2+1, 2+2) and the second LAMA4 bond (2+2) are shown as **within reach**, not asserted to form. The vertical layout follows the figure's ~21 nm from the inner membrane surface to the well bottom, and each LAMA4 arm rests on a coat copy. The paper explicitly states that coat orientation and density are unknown, stoichiometry was not measured, and poses are illustrative.
 
 ## Loading performance
 
 The renderer uses **Gaussian surfaces** and groups copies with the same template, colors,
-opacity, and tooltip into MolViewSpec **instances**. The comparison retains all 38 molecular
-placements while reducing independently constructed structures from 38 to 8 and surface
+opacity, and tooltip into MolViewSpec **instances**. The comparison retains all 36 molecular
+placements while reducing independently constructed structures from 36 to 8 and surface
 representations from 52 to 11 per snapshot. The exact timings depend on the browser/GPU
 and whether the Mol* viewer bundle is already cached; the validation script guards these
 structure/representation counts. Gaussian envelopes are illustrative molecular shapes,
@@ -59,7 +59,7 @@ from the installed builder package, preventing the previous 5.8.0 preview mismat
 
 1. Watch a panel or the comparison above.
 2. For a quick experiment, edit that story's `story.js` or `scenes/<stage>/<stage>.js`; the browser reloads. These are generated files, so move accepted changes to the shared sources before regeneration.
-3. For persistent changes, edit **`shared/panels.json`** (domain centers, angles, receptor positions, coat targets, contact markers) or **`shared/scene.js`** (styles, labels, primitives and connections).
+3. For persistent changes, edit **`shared/panels.json`** (domain centers, angles/tilt/spin, receptor positions, coat targets, `"bond": "reach"` on an arm) or **`shared/scene.js`** (styles, labels, primitives and connections).
 4. Run `python3 examples/anthropic-figure-8b/generate.py` from `cli/`. This updates all four watchable stories. No third-party Python packages are required.
 5. Run `deno run --allow-all examples/anthropic-figure-8b/check.ts`. It validates all 14 snapshots, checks bundled structure references and builds all four `.mvsx` and `.mvstory` files into `.build/`.
 6. Record feedback in [FEEDBACK.md](FEEDBACK.md), using panel, scene, visible issue, and desired change. Make one geometric change at a time and compare the same scene/camera.

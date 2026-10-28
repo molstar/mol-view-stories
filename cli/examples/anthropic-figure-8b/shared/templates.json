@@ -36,8 +36,8 @@
     ]
   },
   "fc": {
-    "atoms": 3567,
-    "source": "PDB 1HZH: H/K 230-end; generic human IgG1 Fc scaffold",
+    "atoms": 3788,
+    "source": "PDB 1HZH: H/K 230-end + Asn297 glycans A/B; generic human IgG1 Fc scaffold",
     "bounds": [
       [
         -32.955,

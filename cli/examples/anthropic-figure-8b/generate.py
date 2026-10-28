@@ -45,9 +45,9 @@ def story(name, title, panels, scenes):
 for p in PANELS:
     scenes = []
     for stage, title in STAGES:
-        js = f"builder.canvas({{ background_color: '#ffffff' }});\ndrawPanel(panels[0], '{stage}');\nbuilder.camera({{ target: [0, 20, 0], position: [0, 20, 600], up: [0, 1, 0] }});"
+        js = f"builder.canvas({{ background_color: '#ffffff' }});\ndrawPanel(panels[0], '{stage}');\nbuilder.camera({{ target: [0, 58, 0], position: [0, 58, 540], up: [0, 1, 0] }});"
         description = '## '+p['title']+' - '+title+'\n\n'+p['subtitle']+'. '+p['explanation']
-        if stage == 'contacts': description += '\n\nFilled markers indicate contacts illustrated in the paper. An open marker indicates a possible second LAMA4 contact, not a demonstrated bond.'
+        if stage == 'contacts': description += '\n\nBlack markers indicate bonds illustrated in the paper. Grey markers indicate a second bond within reach, not shown to form.'
         scenes.append((stage, p['title']+' | '+title, js, description))
     story(p['id'], 'Figure 8b | '+p['title'], [p], scenes)
 
@@ -55,7 +55,7 @@ scenes=[]
 for stage, title in [('complete','All three formats'),('contacts','Compare contacts and reach')]:
     js = "builder.canvas({ background_color: '#ffffff' });\n"
     js += f"panels.forEach((p, i) => drawPanel(p, '{stage}', (i - 1) * 360));\n"
-    js += "builder.camera({ target: [0, 20, 0], position: [0, 20, 1300], up: [0, 1, 0] });"
+    js += "builder.camera({ target: [0, 58, 0], position: [0, 58, 1300], up: [0, 1, 0] });"
     scenes.append((stage,title,js,'## Figure 8b - '+title+'\n\nLeft: **1+1 CrossMab**. Center: **2+1**. Right: **2+2 IgG-scFv**. All three panels share the same coordinate scale.'))
 story('00-comparison','Figure 8b | Antibody formats side by side',PANELS,scenes)
 print('Generated comparison + three independent panel stories.')

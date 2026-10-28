@@ -21,14 +21,17 @@ def unit(v):
 def cross(a, b): return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
 def center(atoms): return [sum(a['xyz'][i] for a in atoms)/len(atoms) for i in range(3)]
 
-def pdb(path):
+SUGARS = {'NAG', 'BMA', 'MAN', 'GAL', 'FUC'}
+
+def pdb(path, sugars=False):
     atoms = []
     for line in path.read_text().splitlines():
         if line.startswith('ENDMDL'): break
-        if line.startswith('ATOM  ') and line[16] in ' A':
+        het = sugars and line.startswith('HETATM') and line[17:20] in SUGARS
+        if (line.startswith('ATOM  ') or het) and line[16] in ' A':
             atoms.append(dict(atom=line[12:16].strip(), res=line[17:20], chain=line[21],
                               seq=int(line[22:26]), xyz=[float(line[i:i+8]) for i in (30,38,46)],
-                              element=line[76:78].strip()))
+                              element=line[76:78].strip(), het=het))
     return atoms
 
 def cif(path):
@@ -70,7 +73,8 @@ def write(name, atoms, source):
         if prev is not None and a['chain'] != prev: lines.append('TER')
         prev = a['chain']
         x,y,z = a['xyz']
-        lines.append(f"ATOM  {i:5d} {a['atom']:>4s} {a['res']:3s} {a['chain']}{a['seq']:4d}    {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00          {a['element']:>2s}")
+        record = 'HETATM' if a.get('het') else 'ATOM  '
+        lines.append(f"{record}{i:5d} {a['atom']:>4s} {a['res']:3s} {a['chain']}{a['seq']:4d}    {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00          {a['element']:>2s}")
     lines.extend(['TER', 'END', ''])
     (dest / (name+'.pdb')).write_text('\n'.join(lines))
     return dict(atoms=len(atoms), source=source,
@@ -78,8 +82,10 @@ def write(name, atoms, source):
 
 def main():
     source = Path(sys.argv[1])
-    igg, dg, lg = pdb(source/'1hzh.pdb'), cif(source/'9c3c.cif'), pdb(source/'5ik8.pdb')
+    igg, dg, lg = pdb(source/'1hzh.pdb', sugars=True), cif(source/'9c3c.cif'), pdb(source/'5ik8.pdb')
     stats = {}
+    glycans = [a for a in igg if a['het']]
+    igg = [a for a in igg if not a['het']]
     fab = [a for a in igg if (a['chain']=='H' and a['seq']<=225) or a['chain']=='L']
     # Orient Fab with variable-domain/paratope end upward, constant end downward.
     var = [a for a in fab if a['seq']<=110 and a['atom']=='CA']
@@ -90,7 +96,9 @@ def main():
     fc = [a for a in igg if a['chain'] in ('H','K') and a['seq']>=230]
     top = [a for a in fc if a['seq']<=250 and a['atom']=='CA']
     bot = [a for a in fc if a['seq']>=440 and a['atom']=='CA']
-    stats['fc'] = write('fc', normalized(fc, sub(center(top),center(bot))), 'PDB 1HZH: H/K 230-end; generic human IgG1 Fc scaffold')
+    # Experimental Asn297 glycans (chains A/B) fill the space between the CH2 domains.
+    # The frame comes from CA atoms only, so protein coordinates are unchanged.
+    stats['fc'] = write('fc', normalized(fc + glycans, sub(center(top),center(bot))), 'PDB 1HZH: H/K 230-end + Asn297 glycans A/B; generic human IgG1 Fc scaffold')
     # Retain the experimental alpha/beta relationship; omit released alpha NTD.
     dg = [a for a in dg if (a['chain']=='A' and a['seq']>=485) or a['chain']=='B']
     tm = [a for a in dg if a['chain']=='B' and 750<=a['seq']<=774 and a['atom']=='CA']

@@ -8,7 +8,8 @@ Current pass: representative structural templates, four scenes per panel, side-b
 | All / context | Correct coat protein | Replace explicitly labeled 5IK8 LAMA2 homolog proxy with LAMA4 LG4–5 |
 | 1+1 / antibody | Shared hinge and forward Fc tilt | Generic scaffold; refine domain angles / linker endpoints against figure |
 | 2+1 / antibody | One LAMA4 Fab below Fc | Illustrative linker path; refine its attachment geometry |
-| 2+2 / contacts | Formed versus possible second coat contact | Filled / open marker distinction implemented; do not imply all four arms are bound |
+| 2+1, 2+2 / contacts | Formed versus possible second bond | Black / grey markers derived from arm geometry; second β-DG (2+1, 2+2) and second LAMA4 (2+2) bonds within reach, as in the figure |
+| 2+1, 2+2 / complete | Fc reads as a ring face-on | Asn297 glycans added and Fc spun 35°; remaining pocket is surface shading — revisit with outline/flat-shading viewer settings |
 | All / complete | Atom-level clashes, glycans, engineered sequences | Not validated as a molecular complex; needs original construct coordinates |
 
 ## Review notes

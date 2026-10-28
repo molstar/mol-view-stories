@@ -1,8 +1,8 @@
 ## 2+2 IgG-scFv - Contacts and reach
 
-Humanized arms; two beta-DG Fabs + two LAMA4 scFvs. Two LAMA4 single-chain Fv arms attach below the Fc. The second LAMA4 contact is within reach; Figure 8b does not show it forming. Fv templates here omit the engineered VH-VL peptide connection.
+Humanized arms; two beta-DG Fabs + two LAMA4 scFvs. Two LAMA4 single-chain Fv arms attach below the Fc. The second beta-DG and second LAMA4 bonds are within reach; Figure 8b does not show them forming. Fv templates here omit the engineered VH-VL peptide connection.
 
-Filled markers indicate contacts illustrated in the paper. An open marker indicates a possible second LAMA4 contact, not a demonstrated bond.
+Black markers indicate bonds illustrated in the paper. Grey markers indicate a second bond within reach, not shown to form.
 
 This is a representative reconstruction, with illustrative poses and spacing. The coat uses a **LAMA2 LG4-5 homolog shape proxy (5IK8 B), not LAMA4**. IgG/Fab/Fv domains use generic 1HZH scaffolds, not the tool antibody sequences. Dystroglycan comes from rabbit 9C3C, without the released alpha-DG N-terminal domain. Contacts are schematic markers, not measured atomic bonds. The paper reports unknown coat orientation/density and no measured stoichiometry.
 
