@@ -18,20 +18,20 @@
     ]
   },
   "fv": {
-    "atoms": 1855,
-    "source": "PDB 1HZH: H/L 1-110; Fv proxy, no engineered scFv sequence",
+    "atoms": 1849,
+    "source": "PDB 1HZH: H 1-113 + L 1-107; Fv proxy, no engineered scFv sequence",
     "bounds": [
       [
-        -20.711,
-        23.007
+        -21.014,
+        22.703
       ],
       [
-        -28.557,
-        23.135
+        -22.264,
+        23.046
       ],
       [
-        -24.678,
-        24.381
+        -24.25,
+        24.81
       ]
     ]
   },

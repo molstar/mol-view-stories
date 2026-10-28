@@ -30,7 +30,7 @@ def pdb(path, sugars=False):
         het = sugars and line.startswith('HETATM') and line[17:20] in SUGARS
         if (line.startswith('ATOM  ') or het) and line[16] in ' A':
             atoms.append(dict(atom=line[12:16].strip(), res=line[17:20], chain=line[21],
-                              seq=int(line[22:26]), xyz=[float(line[i:i+8]) for i in (30,38,46)],
+                              seq=int(line[22:26]), icode=line[26], xyz=[float(line[i:i+8]) for i in (30,38,46)],
                               element=line[76:78].strip(), het=het))
     return atoms
 
@@ -44,6 +44,7 @@ def cif(path):
             if row['pdbx_PDB_model_num'] != '1' or row['label_alt_id'] not in ('.', 'A'): continue
             atoms.append(dict(atom=row['auth_atom_id'], res=row['auth_comp_id'],
                               chain=row['auth_asym_id'], seq=int(row['auth_seq_id']),
+                              icode=row.get('pdbx_PDB_ins_code', '?').replace('?', ' '),
                               xyz=[float(row['Cartn_'+i]) for i in 'xyz'], element=row['type_symbol']))
     return atoms
 
@@ -74,7 +75,7 @@ def write(name, atoms, source):
         prev = a['chain']
         x,y,z = a['xyz']
         record = 'HETATM' if a.get('het') else 'ATOM  '
-        lines.append(f"{record}{i:5d} {a['atom']:>4s} {a['res']:3s} {a['chain']}{a['seq']:4d}    {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00          {a['element']:>2s}")
+        lines.append(f"{record}{i:5d} {a['atom']:>4s} {a['res']:3s} {a['chain']}{a['seq']:4d}{a['icode']}   {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00          {a['element']:>2s}")
     lines.extend(['TER', 'END', ''])
     (dest / (name+'.pdb')).write_text('\n'.join(lines))
     return dict(atoms=len(atoms), source=source,
@@ -91,8 +92,9 @@ def main():
     var = [a for a in fab if a['seq']<=110 and a['atom']=='CA']
     con = [a for a in fab if a['seq']>=120 and a['atom']=='CA']
     stats['fab'] = write('fab', normalized(fab, sub(center(var),center(con))), 'PDB 1HZH: H 1-225 + L; generic Fab scaffold')
-    fv = [a for a in fab if a['seq']<=110]
-    stats['fv'] = write('fv', normalized(fv, sub(center(var),center(con))), 'PDB 1HZH: H/L 1-110; Fv proxy, no engineered scFv sequence')
+    # Kabat numbering: VH ends at 113 (CH1 starts ASTKGP at 114), VL ends at 107.
+    fv = [a for a in fab if a['seq'] <= (113 if a['chain'] == 'H' else 107)]
+    stats['fv'] = write('fv', normalized(fv, sub(center(var),center(con))), 'PDB 1HZH: H 1-113 + L 1-107; Fv proxy, no engineered scFv sequence')
     fc = [a for a in igg if a['chain'] in ('H','K') and a['seq']>=230]
     top = [a for a in fc if a['seq']<=250 and a['atom']=='CA']
     bot = [a for a in fc if a['seq']>=440 and a['atom']=='CA']
