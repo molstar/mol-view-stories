@@ -23,8 +23,8 @@ for (const snapshot of data.snapshots) {
     node.children?.forEach(walk);
   };
   walk(snapshot.root);
-  // One structure per styled template (9 in the comparison); a regression to one per copy would be 36.
-  assert(structures <= 9, `${snapshot.metadata?.key}: ${structures} structures; repeated molecules should be instances`);
+  // One structure per styled template (11 in the comparison); one structure per copy would be about 70.
+  assert(structures <= 11, `${snapshot.metadata?.key}: ${structures} structures; repeated molecules should be instances`);
 }
 
 const output = join(root, '.build');

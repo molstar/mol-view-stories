@@ -33,11 +33,11 @@ deno run --allow-all examples/anthropic-figure-8b/check.ts
 | LAMA4 LG4–5 coat | **5IK8** chain B (mouse LAMA2 LG4–5), end-on | Proxy; the paper uses **AF-Q16363-F1 v4**, whose download returned HTTP 403 during preparation |
 | Contacts | Black: bond drawn in the figure; grey: second bond within reach | Schematic markers at each arm's paratope end |
 
-Placements, angles and colors are measured from the figure's own panel renders (about 4.43 px/Å). Surfaces are Gaussian with `size_factor: 1.5`. The figure's illustration style (flat fills, dark outlines, soft occlusion, smooth domain blobs) comes from Mol*-specific `custom` properties that the MVS loader honors: `molstar_representation_params` on each surface (`ignoreLight`, a coarser Gaussian grid) and `molstar_postprocessing` on the canvas (outline, SSAO). They travel inside the MVS data, so `.mvsx` exports keep the look in Mol*; other viewers ignore them. Smoothing widens each domain's envelope by about 2 Å. Repeated molecules are MVS instances of one styled structure, so a snapshot builds at most 9 structures; `check.ts` guards this.
+Placements, angles and colors are measured from the figure's own panel renders (about 4.43 px/Å). Surfaces are Gaussian with `size_factor: 1.5`. The figure's illustration style comes from Mol*-specific `custom` properties that the MVS loader honors: `molstar_representation_params` on each surface (a slightly coarser, smoother Gaussian grid) and `molstar_postprocessing` on the canvas (dark outlines and SSAO). They travel inside the MVS data, so `.mvsx` exports keep the look in Mol*; other viewers ignore them. Mol* outlines share one color and skip transparent objects, so the front coat row is opaque and outlined while the rows behind are faded. Palette colors are sampled from the figure and brightened slightly (hue kept) to offset Mol*'s lighting.
 
 ## Open differences from the figure
 
-- The coat is one row of copies; the figure shows two or three staggered rows.
+- Coat outlines use the antibody's near-black instead of the figure's blue-grey (Mol* has one outline color).
 - The 2+1 / 2+2 Fc is a little rounder than the figure's two-column shape.
 - Not validated as a molecular complex: no clash checks, generic scaffolds, no engineered sequences.
 

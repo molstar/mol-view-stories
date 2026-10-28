@@ -4,8 +4,8 @@
 // beta-DG arms: spin puts VH/CH1 (heavy chain) on the membrane side, as drawn.
 const leftArm = { center: [-49, 80, 8], angle: 66, spin: -90 };
 const rightArm = { center: [50, 77, 8], angle: -48, spin: 90, bond: 'reach' };
-// Spun 180 degrees so the pale Asn297 glycans face the viewer between the CH2 lobes.
-const humanizedFc = { center: [0, -8, 8], angle: 0, spin: 180 };
+// Spun 180 degrees so the pale Asn297 glycans face the viewer; tilted back so the two chains read as columns.
+const humanizedFc = { center: [0, -8, 8], angle: 0, spin: 180, tilt: -30 };
 
 const panels = [
   {
@@ -29,13 +29,14 @@ const panels = [
   },
 ];
 
-// Colors sampled from the figure. Antibody domains are colored by type, so the CrossMab
-// crossover (heavy chain VH-CL, light chain VL-CH1) shows as swapped constant domains.
+// Colors sampled from the figure, brightened up to 12% (hue kept) for lit surfaces so Mol*'s lighting renders them
+// near the sampled values. Antibody domains are colored by type, so the CrossMab crossover (heavy chain VH-CL,
+// light chain VL-CH1) shows as swapped constant domains.
 const palette = {
-  vh: '#6a6a68', vl: '#949492', ch1: '#dddacd', cl: '#f1f0ec', fc: '#c9c4b3', glycan: '#e7e2d2',
-  linker: '#d9d4c5', lama: '#3d81d4', betaDG: '#3c3c39', tm: '#8f8f8c', alpha: '#dad9d5',
-  coatBound: '#b7d3f5', coat: '#cfe1f7', interior: '#f1ede2', membrane: '#eeece5', lipid: '#dedbd2',
-  well: '#dcdfe2', text: '#303b46', contact: '#20252a', reach: '#9aa0a5',
+  vh: '#777774', vl: '#a6a6a4', ch1: '#f8f4e6', cl: '#fffefa', fc: '#e1dcc8', glycan: '#fff9e8',
+  linker: '#f3eddd', lama: '#4490ed', betaDG: '#434340', tm: '#a0a09d', alpha: '#f4f3ef',
+  coatBound: '#c2deff', coatFront: '#deeeff', coatMid: '#e7f2ff', coatBack: '#f3f8ff',
+  interior: '#fffbef', membrane: '#fffdf5', lipid: '#f9f5eb', well: '#f6fafd', text: '#303b46', contact: '#20252a', reach: '#9aa0a5',
 };
 // ~21 nm from the inner membrane surface to the well, as in the figure.
 const membraneBottom = 120;
@@ -44,11 +45,12 @@ const coatTop = wellTop + 40; // LG4-5 proxy seen end-on, ~40 A tall
 // size_factor is the only Gaussian-surface parameter MVS exposes; 1.5 smooths side chains into domain blobs.
 const surfaceSize = 1.5;
 // Figure-style rendering via Mol*-specific `custom` properties of the MVS loader (other viewers ignore them):
-// flat-lit, coarser Gaussian surfaces, plus dark outlines and ambient occlusion on the canvas.
-const molstarSurface = { ignoreLight: true, quality: 'custom', resolution: 1.2, radiusOffset: 1 };
+// slightly smoothed, normally lit surfaces with dark outlines and ambient occlusion. Mol* outlines share one
+// color and skip transparent objects, so the front coat row is opaque (outlined) and the rows behind are faded.
+const molstarSurface = { quality: 'custom', resolution: 1, radiusOffset: 0.5 };
 const molstarCanvas = {
   molstar_postprocessing: {
-    enable_outline: true, outline_params: { scale: 2, threshold: 0.2, color: 0x2a2a2a, includeTransparent: false },
+    enable_outline: true, outline_params: { scale: 2, color: 0x2b2b2b, includeTransparent: false },
     enable_ssao: true,
   },
 };
@@ -134,16 +136,20 @@ function drawPanel(panel, stage, offset = 0) {
       'Rabbit alpha/beta-DG from 9C3C (beta-DG TM 750-774 in grey; cytoplasmic tail hidden); released alpha NTD omitted; illustrative placement',
       0, 0, x > 0 ? 180 : 0);
   }
-  // A bound coat copy sits under each LAMA4 arm and replaces any bystander it would overlap.
+  // Coat: three staggered rows, paler and higher further back (the figure looks slightly down onto the well).
+  // A bound copy sits under each LAMA4 arm and replaces any front-row copy it would overlap (copies are ~48 A wide).
   const coatTargets = panel.lamaArms.map(arm => paratope(arm)[0]);
-  const coatXs = [-140, -72, 0, 72, 140]
-    .filter(x => coatTargets.every(t => Math.abs(x - t) >= 50)) // end-on copies are ~48 A wide
-    .concat(coatTargets);
-  for (const x of coatXs) {
-    const bound = coatTargets.includes(x);
-    template('lg45-proxy', [x, wellTop + 20, bound ? 5 : -25],
-      [['polymer', bound ? palette.coatBound : palette.coat]], envOpacity * (bound ? 0.9 : 0.5),
-      'LAMA4 coat SHAPE PROXY: mouse LAMA2 LG4-5, PDB 5IK8 B. Not LAMA4 coordinates; adsorption pose unknown.', 0, 90);
+  const coatRows = [
+    { color: palette.coatBack, opacity: 0.45, y: wellTop + 80, z: -115, xs: [-128, -64, 0, 64, 128] },
+    { color: palette.coatMid, opacity: 0.65, y: wellTop + 60, z: -70, xs: [-160, -106, -36, 36, 106, 160] },
+    { color: palette.coatFront, opacity: 1, y: wellTop + 20, z: -25, xs: [-140, -84, -28, 28, 84, 140].filter(x => coatTargets.every(t => Math.abs(x - t) >= 50)) },
+    { color: palette.coatBound, opacity: 1, y: wellTop + 20, z: 5, xs: coatTargets },
+  ];
+  for (const row of coatRows) {
+    for (const x of row.xs) {
+      template('lg45-proxy', [x, row.y, row.z], [['polymer', row.color]], envOpacity * row.opacity,
+        'LAMA4 coat SHAPE PROXY: mouse LAMA2 LG4-5, PDB 5IK8 B. Not LAMA4 coordinates; adsorption pose unknown.', 0, 90);
+    }
   }
 
   if (stage !== 'context') {
