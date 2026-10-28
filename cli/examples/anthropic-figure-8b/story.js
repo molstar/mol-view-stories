@@ -43,6 +43,15 @@ const wellTop = -96;
 const coatTop = wellTop + 40; // LG4-5 proxy seen end-on, ~40 A tall
 // size_factor is the only Gaussian-surface parameter MVS exposes; 1.5 smooths side chains into domain blobs.
 const surfaceSize = 1.5;
+// Figure-style rendering via Mol*-specific `custom` properties of the MVS loader (other viewers ignore them):
+// flat-lit, coarser Gaussian surfaces, plus dark outlines and ambient occlusion on the canvas.
+const molstarSurface = { ignoreLight: true, quality: 'custom', resolution: 1.2, radiusOffset: 1 };
+const molstarCanvas = {
+  molstar_postprocessing: {
+    enable_outline: true, outline_params: { scale: 2, threshold: 0.2, color: 0x2a2a2a, includeTransparent: false },
+    enable_ssao: true,
+  },
+};
 
 // Kabat numbering in 1HZH: VH 1-113 / CH1 114-; VL 1-107 / CL 108-.
 const domains = {
@@ -91,7 +100,8 @@ function drawPanel(panel, stage, offset = 0) {
       for (const [selector, color, factor = 1] of colors) {
         const component = structure.component({ selector });
         component.tooltip({ text: tooltip });
-        component.representation({ type: 'surface', surface_type: 'gaussian', size_factor: surfaceSize })
+        component.representation({ type: 'surface', surface_type: 'gaussian', size_factor: surfaceSize,
+          custom: { molstar_representation_params: molstarSurface } })
           .color({ color }).opacity({ opacity: opacity * factor });
       }
       templateGroups.set(key, structure);
@@ -217,13 +227,13 @@ function drawPanel(panel, stage, offset = 0) {
 }
 
 function panelScene(index, stage) {
-  builder.canvas({ background_color: '#ffffff' });
+  builder.canvas({ background_color: '#ffffff', custom: molstarCanvas });
   drawPanel(panels[index], stage);
   builder.camera({ target: [0, 58, 0], position: [0, 58, 540], up: [0, 1, 0] });
 }
 
 function comparisonScene(stage) {
-  builder.canvas({ background_color: '#ffffff' });
+  builder.canvas({ background_color: '#ffffff', custom: molstarCanvas });
   panels.forEach((panel, i) => drawPanel(panel, stage, (i - 1) * 360));
   builder.camera({ target: [0, 58, 0], position: [0, 58, 1300], up: [0, 1, 0] });
 }
