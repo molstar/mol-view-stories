@@ -30,10 +30,11 @@ for (const [name, count] of [['00-comparison', 2], ['01-crossmab', 4], ['02-2plu
   assert(data.kind === 'multiple');
   for (const snapshot of data.snapshots) walk(snapshot.root);
   if (name === '00-comparison') {
-    // Each comparison keeps all 36 placements but only builds 8 styled templates.
-    assertEquals(structures, count * 8);
+    // Each comparison keeps all 36 placements but only builds 9 styled templates
+    // (the CrossMab arm has its own domain colors); surfaces are one per colored domain group.
+    assertEquals(structures, count * 9);
     assertEquals(instances, count * 36);
-    assertEquals(surfaces, count * 11);
+    assertEquals(surfaces, count * 22);
   }
   for (const url of references) {
     assert(url.startsWith('./') && !url.slice(2).includes('/'), `Non-local reference: ${url}`);

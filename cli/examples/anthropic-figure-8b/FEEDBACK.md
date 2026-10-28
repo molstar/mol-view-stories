@@ -9,7 +9,9 @@ Current pass: representative structural templates, four scenes per panel, side-b
 | 1+1 / antibody | Shared hinge and forward Fc tilt | Generic scaffold; refine domain angles / linker endpoints against figure |
 | 2+1 / antibody | One LAMA4 Fab below Fc | Illustrative linker path; refine its attachment geometry |
 | 2+1, 2+2 / contacts | Formed versus possible second bond | Black / grey markers derived from arm geometry; second β-DG (2+1, 2+2) and second LAMA4 (2+2) bonds within reach, as in the figure |
-| 2+1, 2+2 / complete | Fc reads as a ring face-on | Asn297 glycans added and Fc spun 35°; remaining pocket is surface shading — revisit with outline/flat-shading viewer settings |
+| 2+1, 2+2 / complete | Fc reads as a ring face-on | Hinge residues 230-245 drawn as tubes; Fc spun 180° so the pale Asn297 glycans face the viewer between the CH2 lobes, as in the figure |
+| All / complete | Subunit colors and handedness | Sampled from the native figure renders: VH/VL/CH1/CL by domain type, CrossMab CH1/CL swap, heavy chain on the membrane side of each beta-DG arm; LAMA4 V regions blue |
+| All / complete | Coat density | Figure shows 2-3 staggered rows; this example has one row of end-on copies |
 | All / complete | Atom-level clashes, glycans, engineered sequences | Not validated as a molecular complex; needs original construct coordinates |
 
 ## Review notes

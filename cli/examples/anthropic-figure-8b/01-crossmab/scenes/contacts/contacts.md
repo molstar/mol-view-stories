@@ -1,6 +1,6 @@
 ## 1+1 CrossMab - Contacts and reach
 
-Murine arms; one beta-DG Fab + one LAMA4 Fab. Both specificities attach through the hinge. The Fc is tilted forward. The published construct has murine arms and a mouse IgG2a Fc; this example uses a generic 1HZH human IgG1 scaffold.
+Murine arms; one beta-DG Fab + one LAMA4 Fab. Both specificities attach through the hinge. The Fc is tilted forward. The beta-DG arm is the CrossMab crossover: its CH1/CL colors are swapped (heavy chain VH-CL, light chain VL-CH1). The published construct has murine arms and a mouse IgG2a Fc; this example uses a generic 1HZH human IgG1 scaffold.
 
 Black markers indicate bonds illustrated in the paper. Grey markers indicate a second bond within reach, not shown to form.
 

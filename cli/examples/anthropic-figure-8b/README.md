@@ -24,14 +24,14 @@ Open the localhost address printed by the command. Widen the viewer for the thre
 
 | Piece | Implementation | Fidelity / limitation |
 | --- | --- | --- |
-| Cell membrane and cell interior | MolViewSpec boxes and lipid-headgroup primitives | Schematic bilayer, nominal 40 Å thickness; not an atomistic membrane |
-| α/β-dystroglycan | Rabbit **9C3C**, α chain A residues 485–653, β chain B residues 654–798 | Experimental coordinates retain their relative arrangement. Released α-DG N-terminal domain and unmodeled regions omitted; no added glycans |
-| β-DG-binding Fab(s) | **1HZH**, H residues 1–225 + L | Generic Fab scaffold with dark variable domains; not AS30 or an engineered crossover |
-| Fc | **1HZH**, H/K residues 230–end + experimental Asn297 glycans (chains A/B) | Generic human IgG1 scaffold; glycans fill the CH2 cavity. CrossMab panel does not model its mouse IgG2a sequence |
-| LAMA4-binding Fab | Same generic Fab scaffold, blue | Illustrative specificity coloring, not the tool antibody's variable domains |
-| LAMA4-binding scFv(s) | **1HZH** H/L residues 1–110, blue | Fv shape proxy; engineered VH–VL peptide connection is absent |
+| Cell membrane and cell interior | Flat MolViewSpec backdrops and lipid-headgroup primitives | Schematic bilayer, nominal 40 Å thickness; not an atomistic membrane |
+| α/β-dystroglycan | Rabbit **9C3C**, α chain A residues 485–653 (light grey), β chain B 654–749 (near-black) + TM 750–774 (grey) | Experimental coordinates retain their relative arrangement; receptors right of center are spun 180° so α-DG faces outward, as drawn. Cytoplasmic tail hidden (the figure's cell interior covers it). Released α-DG N-terminal domain omitted; no added glycans |
+| β-DG-binding Fab(s) | **1HZH**, H residues 1–225 + L | Colored by domain type as in the figure: VH dark grey, VL mid grey, CH1 beige, CL near-white (Kabat boundaries VH ≤113, VL ≤107). The CrossMab arm shows its crossover by swapped CH1/CL colors; coordinates are not swapped. Not AS30 |
+| Fc | **1HZH**, H/K residues 246–end + experimental Asn297 glycans (chains A/B, pale) | Generic human IgG1 scaffold; the extended hinge (230–245) is drawn as tubes, as in the figure. CrossMab panel does not model its mouse IgG2a sequence |
+| LAMA4-binding Fab | Same generic Fab scaffold; variable domains blue, CH1 beige, CL near-white | Illustrative specificity coloring, not the tool antibody's variable domains |
+| LAMA4-binding scFv(s) | **1HZH** H 1–113 + L 1–107, blue | Fv shape proxy; engineered VH–VL peptide connection is absent |
 | Hinge / Fc-terminal linkers | MolViewSpec tubes | Schematic connections; lengths and conformations are not peptide predictions |
-| LAMA4 LG4–5 coat | **5IK8 chain B, mouse LAMA2 LG4–5 homolog proxy** | Temporary proxy. The paper uses **AF-Q16363-F1 v4** LAMA4; public AlphaFold file downloads returned HTTP 403 during preparation |
+| LAMA4 LG4–5 coat | **5IK8 chain B, mouse LAMA2 LG4–5 homolog proxy**, seen end-on | Temporary proxy. The paper uses **AF-Q16363-F1 v4** LAMA4; public AlphaFold file downloads returned HTTP 403 during preparation |
 | Well bottom and pale bystanders | Slab + additional structural copies | Schematic adsorption poses and densities |
 | Contacts and second-arm reach | Black markers for bonds, grey for a second bond within reach; placed at each arm's paratope end | Mirrors the figure's distinction, not atom-level bonds or measured stoichiometry |
 | Scale | 100 Å bar = 10 nm; no coordinate scaling | Structural template dimensions retained. Relative placement is illustrative |
@@ -40,10 +40,10 @@ In 1+1, both Fabs connect at the hinge and the Fc tilts forward. In 2+1, one LAM
 
 ## Loading performance
 
-The renderer uses **Gaussian surfaces** and groups copies with the same template, colors,
+The renderer uses **Gaussian surfaces** with `size_factor: 1.5`, which smooths side-chain detail into domain-level blobs like the figure's (about 1 Å wider envelope; `size_factor` is the only Gaussian-surface parameter MVS exposes). It groups copies with the same template, colors,
 opacity, and tooltip into MolViewSpec **instances**. The comparison retains all 36 molecular
-placements while reducing independently constructed structures from 36 to 8 and surface
-representations from 52 to 11 per snapshot. The exact timings depend on the browser/GPU
+placements while reducing independently constructed structures from 36 to 9 and building one surface
+per colored domain group (22 per snapshot). The exact timings depend on the browser/GPU
 and whether the Mol* viewer bundle is already cached; the validation script guards these
 structure/representation counts. Gaussian envelopes are illustrative molecular shapes,
 not solvent-excluded molecular surfaces for atom-level analysis.

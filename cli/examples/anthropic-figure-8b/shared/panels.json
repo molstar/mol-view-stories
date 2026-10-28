@@ -5,47 +5,50 @@
     "subtitle": "Murine arms; one beta-DG Fab + one LAMA4 Fab",
     "format": "1+1",
     "receptors": [
-      -76
+      -79
     ],
     "betaFabs": [
       {
         "center": [
-          -46,
-          78,
+          -49,
+          80,
           8
         ],
-        "angle": 48
+        "angle": 66,
+        "spin": -90,
+        "crossover": true
       }
     ],
     "fc": {
       "center": [
-        26,
-        36,
-        20
+        19,
+        32,
+        15
       ],
-      "angle": 60,
-      "tilt": -45
+      "angle": 73,
+      "tilt": -35
     },
     "lamaArms": [
       {
         "center": [
-          -12,
-          -8,
+          -19,
+          -15,
           2
         ],
-        "angle": 187,
+        "angle": 183,
+        "spin": 90,
         "type": "fab"
       }
     ],
     "hinge": [
-      -6,
-      52,
+      -13,
+      42,
       8
     ],
     "coatTargets": [
-      -7
+      -10
     ],
-    "explanation": "Both specificities attach through the hinge. The Fc is tilted forward. The published construct has murine arms and a mouse IgG2a Fc; this example uses a generic 1HZH human IgG1 scaffold."
+    "explanation": "Both specificities attach through the hinge. The Fc is tilted forward. The beta-DG arm is the CrossMab crossover: its CH1/CL colors are swapped (heavy chain VH-CL, light chain VL-CH1). The published construct has murine arms and a mouse IgG2a Fc; this example uses a generic 1HZH human IgG1 scaffold."
   },
   {
     "id": "02-2plus1",
@@ -53,55 +56,58 @@
     "subtitle": "Humanized arms; two beta-DG Fabs + one LAMA4 Fab",
     "format": "2+1",
     "receptors": [
-      -76,
-      76
+      -79,
+      75
     ],
     "betaFabs": [
       {
         "center": [
-          -46,
-          78,
+          -49,
+          80,
           8
         ],
-        "angle": 48
+        "angle": 66,
+        "spin": -90
       },
       {
         "center": [
-          46,
-          78,
+          50,
+          77,
           8
         ],
         "angle": -48,
+        "spin": 90,
         "bond": "reach"
       }
     ],
     "fc": {
       "center": [
         0,
-        -4,
+        -8,
         8
       ],
       "angle": 0,
-      "spin": 35
+      "spin": 180
     },
     "lamaArms": [
       {
         "center": [
           62,
-          -8,
+          -14,
           20
         ],
-        "angle": 189,
+        "angle": 185,
+        "spin": 90,
         "type": "fab"
       }
     ],
     "hinge": [
       0,
-      50,
+      57,
       8
     ],
     "coatTargets": [
-      72
+      60
     ],
     "explanation": "Two N-terminal beta-DG Fabs share a hinge. One LAMA4 Fab is attached by a linker below the Fc. The second beta-DG bond is within reach; Figure 8b does not show it forming. The linker path is illustrative, not a modeled peptide."
   },
@@ -111,42 +117,44 @@
     "subtitle": "Humanized arms; two beta-DG Fabs + two LAMA4 scFvs",
     "format": "2+2",
     "receptors": [
-      -76,
-      76
+      -79,
+      75
     ],
     "betaFabs": [
       {
         "center": [
-          -46,
-          78,
+          -49,
+          80,
           8
         ],
-        "angle": 48
+        "angle": 66,
+        "spin": -90
       },
       {
         "center": [
-          46,
-          78,
+          50,
+          77,
           8
         ],
         "angle": -48,
+        "spin": 90,
         "bond": "reach"
       }
     ],
     "fc": {
       "center": [
         0,
-        -4,
+        -8,
         8
       ],
       "angle": 0,
-      "spin": 35
+      "spin": 180
     },
     "lamaArms": [
       {
         "center": [
-          -68,
-          -27,
+          -66,
+          -31,
           8
         ],
         "angle": 172,
@@ -155,8 +163,8 @@
       },
       {
         "center": [
-          68,
-          -27,
+          66,
+          -31,
           8
         ],
         "angle": 188,
@@ -165,12 +173,12 @@
     ],
     "hinge": [
       0,
-      50,
+      57,
       8
     ],
     "coatTargets": [
-      -71,
-      71
+      -58,
+      58
     ],
     "explanation": "Two LAMA4 single-chain Fv arms attach below the Fc. The second beta-DG and second LAMA4 bonds are within reach; Figure 8b does not show them forming. Fv templates here omit the engineered VH-VL peptide connection."
   }

@@ -6,68 +6,85 @@ const panels = [
     "subtitle": "Humanized arms; two beta-DG Fabs + one LAMA4 Fab",
     "format": "2+1",
     "receptors": [
-      -76,
-      76
+      -79,
+      75
     ],
     "betaFabs": [
       {
         "center": [
-          -46,
-          78,
+          -49,
+          80,
           8
         ],
-        "angle": 48
+        "angle": 66,
+        "spin": -90
       },
       {
         "center": [
-          46,
-          78,
+          50,
+          77,
           8
         ],
         "angle": -48,
+        "spin": 90,
         "bond": "reach"
       }
     ],
     "fc": {
       "center": [
         0,
-        -4,
+        -8,
         8
       ],
       "angle": 0,
-      "spin": 35
+      "spin": 180
     },
     "lamaArms": [
       {
         "center": [
           62,
-          -8,
+          -14,
           20
         ],
-        "angle": 189,
+        "angle": 185,
+        "spin": 90,
         "type": "fab"
       }
     ],
     "hinge": [
       0,
-      50,
+      57,
       8
     ],
     "coatTargets": [
-      72
+      60
     ],
     "explanation": "Two N-terminal beta-DG Fabs share a hinge. One LAMA4 Fab is attached by a linker below the Fc. The second beta-DG bond is within reach; Figure 8b does not show it forming. The linker path is illustrative, not a modeled peptide."
   }
 ];
 // Canonical renderer. Run generate.py after editing. Coordinates are Angstroms.
+// Colors sampled from the Figure 8b renders. Antibody domains are colored by domain type,
+// so the CrossMab crossover (heavy chain VH-CL, light chain VL-CH1) shows as swapped constants.
 const palette = {
-  beta: '#545958', alpha: '#c7c7bd', antibody: '#c1bba6', lama: '#438ac6',
-  coat: '#c0d9ee', membrane: '#d9d8cc', text: '#303b46', contact: '#20252a', reach: '#9aa0a5',
+  vh: '#6a6a68', vl: '#949492', ch1: '#dddacd', cl: '#f1f0ec', fc: '#c9c4b3', glycan: '#e7e2d2',
+  linker: '#d9d4c5', lama: '#3d81d4', betaDG: '#3c3c39', tm: '#8f8f8c', alpha: '#dad9d5',
+  coatBound: '#b7d3f5', coat: '#cfe1f7', interior: '#f1ede2', membrane: '#eeece5', lipid: '#dedbd2',
+  well: '#dcdfe2', text: '#303b46', contact: '#20252a', reach: '#9aa0a5',
 };
 // Vertical layout, matched to Figure 8b's ~21 nm from the inner membrane surface to the well.
 const membraneBottom = 120;
 const wellTop = -96;
-const coatTop = wellTop + 48; // LG4-5 proxy lies on its side: 48 A tall
+const coatTop = wellTop + 40; // LG4-5 proxy seen end-on, as in the figure: ~40 A tall
+
+// Inflated atom radii merge side-chain detail into the figure's smooth domain blobs (~1 A wider envelope).
+// size_factor is the only Gaussian-surface knob MVS exposes; Mol*'s smoothness/resolution are not passed through.
+const surfaceSize = 1.5;
+
+// Kabat numbering in 1HZH: VH 1-113 / CH1 114-; VL 1-107 / CL 108-.
+const domains = {
+  vh: { auth_asym_id: 'H', end_auth_seq_id: 113 }, ch1: { auth_asym_id: 'H', beg_auth_seq_id: 114 },
+  vl: { auth_asym_id: 'L', end_auth_seq_id: 107 }, cl: { auth_asym_id: 'L', beg_auth_seq_id: 108 },
+};
 
 // One template/representation per style per snapshot; repeated molecules are instances.
 const templateGroups = new Map();
@@ -90,7 +107,7 @@ function drawPanel(panel, stage, offset = 0, labels = true) {
   function label(text, p, size = 10) {
     if (labels) annotation.label({ position: pos(p), text, label_size: Math.max(size, 12), label_offset: 3 });
   }
-  function tube(points, color = palette.antibody, radius = 2.2, tooltip = 'Illustrative flexible linker') {
+  function tube(points, color = palette.linker, radius = 2.2, tooltip = 'Illustrative flexible linker') {
     const prim = builder.primitives({});
     for (let i = 1; i < points.length; i++) {
       prim.tube({ start: pos(points[i - 1]), end: pos(points[i]), radius, color, tooltip });
@@ -101,82 +118,105 @@ function drawPanel(panel, stage, offset = 0, labels = true) {
     const r = rotation(part.angle, part.tilt);
     return [0, 1, 2].map(i => part.center[i] + r[3 + i] * y);
   }
+  // `colors`: [selector, color, opacity factor?]; the factor lets one component (e.g. a TM helix) fade.
   function template(name, center, colors, opacity = 1, tooltip = '', angle = 0, tilt = 0, spin = 0) {
     const key = JSON.stringify([name, colors, opacity, tooltip]);
     let structure = templateGroups.get(key);
     if (!structure) {
       structure = builder.download({ url: `./${name}.pdb` })
         .parse({ format: 'pdb' }).modelStructure({});
-      for (const [selector, color] of colors) {
+      for (const [selector, color, factor = 1] of colors) {
         const component = structure.component({ selector });
         component.tooltip({ text: tooltip });
-        component.representation({ type: 'surface', surface_type: 'gaussian' })
-          .color({ color }).opacity({ opacity });
+        component.representation({ type: 'surface', surface_type: 'gaussian', size_factor: surfaceSize })
+          .color({ color }).opacity({ opacity: opacity * factor });
       }
       templateGroups.set(key, structure);
     }
     structure.instance({ rotation: rotation(angle, tilt, spin), translation: pos(center) });
   }
 
-  builder.primitives({ opacity: envOpacity * 0.45 })
-    .box({ center: pos([0, membraneBottom + 60, -45]), extent: [330, 40, 60], face_color: '#ecebe4', tooltip: 'Cell interior (schematic)' })
-    .box({ center: pos([0, membraneBottom + 20, -30]), extent: [330, 40, 70], face_color: palette.membrane, tooltip: 'Cell membrane, schematic 4 nm bilayer' })
-    .box({ center: pos([0, wellTop - 9, -25]), extent: [330, 18, 80], face_color: '#dce1e5', tooltip: 'Well bottom (schematic)' });
+  // Thin backdrops, as in the figure; deep boxes show grey top/underside faces in perspective.
+  builder.primitives({ opacity: envOpacity * 0.9 })
+    .box({ center: pos([0, membraneBottom + 60, -60]), extent: [330, 40, 2], face_color: palette.interior, tooltip: 'Cell interior (schematic)' })
+    .box({ center: pos([0, membraneBottom + 20, -60]), extent: [330, 40, 2], face_color: palette.membrane, tooltip: 'Cell membrane, schematic 4 nm bilayer' })
+    .box({ center: pos([0, wellTop - 9, -60]), extent: [330, 18, 2], face_color: palette.well, tooltip: 'Well bottom (schematic)' });
   const lipids = builder.primitives({ opacity: envOpacity * 0.65 });
   for (let x = -160; x <= 160; x += 10) {
     for (const y of [membraneBottom, membraneBottom + 40]) {
-      lipids.ellipsoid({ center: pos([x, y, 3]), radius: [4.5, 3.8, 4.5], color: palette.membrane,
+      lipids.ellipsoid({ center: pos([x, y, 3]), radius: [4.5, 3.8, 4.5], color: palette.lipid,
         tooltip: 'Schematic lipid headgroup; no lipid chemistry implied' });
     }
   }
   const receptors = panel.receptors.map(x => [x, false]);
-  if (panel.receptors.length === 1) receptors.push([95, true]);
+  if (panel.receptors.length === 1) receptors.push([80, true]);
   receptors.push([-140, true]);
   for (const [x, bystander] of receptors) {
     // Receptors right of center are spun 180 degrees so alpha-DG sits on the outside, as in the figure.
     template('dg', [x, membraneBottom + 20, bystander ? -20 : 0],
-      [[{ auth_asym_id: 'A' }, palette.alpha], [{ auth_asym_id: 'B' }, palette.beta]],
-      envOpacity * (bystander ? 0.18 : 1),
-      'Rabbit alpha/beta-DG from 9C3C; released alpha NTD omitted; illustrative placement',
+      [[{ auth_asym_id: 'A' }, palette.alpha],
+       [{ auth_asym_id: 'B', end_auth_seq_id: 749 }, palette.betaDG],
+       [{ auth_asym_id: 'B', beg_auth_seq_id: 750, end_auth_seq_id: 774 }, palette.tm, 0.75]],
+      envOpacity * (bystander ? 0.45 : 1),
+      'Rabbit alpha/beta-DG from 9C3C (beta-DG TM 750-774 in grey; cytoplasmic tail hidden); released alpha NTD omitted; illustrative placement',
       0, 0, x > 0 ? 180 : 0);
   }
   // Bystander coat copies are dropped where a bound copy takes their place.
   const coatXs = [-140, -72, 0, 72, 140]
-    .filter(x => panel.coatTargets.every(t => Math.abs(x - t) >= 60))
+    .filter(x => panel.coatTargets.every(t => Math.abs(x - t) >= 50)) // end-on copies are ~48 A wide
     .concat(panel.coatTargets);
   for (const x of coatXs) {
     const bound = panel.coatTargets.includes(x);
-    template('lg45-proxy', [x, wellTop + 22, bound ? 5 : -25],
-      [['polymer', palette.coat]], envOpacity * (bound ? 0.85 : 0.22),
-      'LAMA4 coat SHAPE PROXY: mouse LAMA2 LG4-5, PDB 5IK8 B. Not LAMA4 coordinates; adsorption pose unknown.', 90);
+    template('lg45-proxy', [x, wellTop + 20, bound ? 5 : -25],
+      [['polymer', bound ? palette.coatBound : palette.coat]], envOpacity * (bound ? 0.9 : 0.5),
+      'LAMA4 coat SHAPE PROXY: mouse LAMA2 LG4-5, PDB 5IK8 B. Not LAMA4 coordinates; adsorption pose unknown.', 0, 90);
   }
 
   if (stage !== 'context') {
     const { fc, hinge } = panel;
-    template('fc', fc.center, [['all', palette.antibody]], 1,
-      'Generic human IgG1 Fc with Asn297 glycans from 1HZH, not the engineered construct sequence',
+    template('fc', fc.center,
+      [[[{ auth_asym_id: 'H', beg_auth_seq_id: 246 }, { auth_asym_id: 'K', beg_auth_seq_id: 246 }], palette.fc],
+       [[{ auth_asym_id: 'A' }, { auth_asym_id: 'B' }], palette.glycan]], 1,
+      'Generic human IgG1 Fc (CH2-CH3, from residue 246) with Asn297 glycans (pale) from 1HZH; hinge drawn as tubes',
       fc.angle, fc.tilt ?? 0, fc.spin ?? 0);
+    const fcTop = endpoint(fc, 30); // top of CH2; residues 230-245 are drawn as hinge tubes
     for (const fab of panel.betaFabs) {
+      // A CrossMab arm carries CL on the heavy chain and CH1 on the light chain.
+      const [heavyC, lightC] = fab.crossover ? [palette.cl, palette.ch1] : [palette.ch1, palette.cl];
       template('fab', fab.center,
-        [[[{ auth_asym_id: 'H', end_auth_seq_id: 110 }, { auth_asym_id: 'L', end_auth_seq_id: 110 }], palette.beta],
-         [[{ auth_asym_id: 'H', beg_auth_seq_id: 111 }, { auth_asym_id: 'L', beg_auth_seq_id: 111 }], palette.antibody]],
-        1, 'Beta-DG Fab: generic 1HZH scaffold; AS30 sequence and crossover not modeled', fab.angle);
+        [[domains.vh, palette.vh], [domains.vl, palette.vl], [domains.ch1, heavyC], [domains.cl, lightC]], 1,
+        fab.crossover
+          ? 'Beta-DG CrossMab arm: CH1/CL colors swapped to show the crossover on a generic 1HZH Fab; AS30 sequence not modeled'
+          : 'Beta-DG Fab: generic 1HZH scaffold; AS30 sequence not modeled',
+        fab.angle, 0, fab.spin ?? 0);
       const end = endpoint(fab, -34);
-      tube([hinge, [end[0] * 0.5, Math.max(hinge[1], end[1]) + 4, 8], end], palette.antibody, 2.4, 'Schematic hinge connection');
-    }
-    tube([hinge, endpoint(fc, 40)], palette.antibody, 3, 'Schematic hinge to Fc');
-    for (const arm of panel.lamaArms) {
-      template(arm.type, arm.center, [['polymer', palette.lama]], 1,
-        `LAMA4 ${arm.type === 'fv' ? 'scFv represented by generic Fv' : 'Fab'}; generic 1HZH scaffold, not tool sequence`, arm.angle);
       if (panel.format === '1+1') {
-        tube([hinge, endpoint(arm, -34)], palette.antibody, 2.4, 'Second Fab shares hinge with beta-DG Fab');
+        tube([end, hinge], palette.linker, 2.4, 'Schematic hinge connection');
+      } else {
+        // Two hinge strands pinch together above the Fc, as in the figure.
+        const side = end[0] < 0 ? -1 : 1;
+        tube([end, [side * 8, hinge[1] + 1, 8], [side * 4, hinge[1] - 4, 8], [side * 2, hinge[1] - 13, 8],
+          [side * 4, hinge[1] - 20, 8], [side * 7, fcTop[1], 8]],
+          palette.linker, 2.4, 'Schematic hinge connection');
+      }
+    }
+    if (panel.format === '1+1') tube([hinge, fcTop], palette.linker, 3, 'Schematic hinge to Fc');
+    for (const arm of panel.lamaArms) {
+      template(arm.type, arm.center,
+        arm.type === 'fv'
+          ? [['polymer', palette.lama]]
+          : [[[domains.vh, domains.vl], palette.lama], [domains.ch1, palette.ch1], [domains.cl, palette.cl]],
+        1, `LAMA4 ${arm.type === 'fv' ? 'scFv represented by generic Fv' : 'Fab'} (variable domains blue); generic 1HZH scaffold, not tool sequence`,
+        arm.angle, 0, arm.spin ?? 0);
+      if (panel.format === '1+1') {
+        tube([hinge, endpoint(arm, -34)], palette.linker, 2.4, 'Second Fab shares hinge with beta-DG Fab');
       } else {
         // Fc C-terminus -> dip in front of the coat -> inner lower side of the LAMA4 arm.
         const side = arm.center[0] < 0 ? -1 : 1;
         const tip = endpoint(arm, arm.type === 'fv' ? 20 : 34);
-        tube([[side * 10, endpoint(fc, -34)[1], 8], [side * 22, coatTop - 6, 26],
-          [arm.center[0] - side * 26, coatTop - 6, 26], [arm.center[0] - side * 16, tip[1] + 12, 12]],
-          palette.antibody, 2, 'Illustrative C-terminal Fc-to-LAMA4 linker; no peptide conformation inferred');
+        tube([[side * 10, endpoint(fc, -34)[1], 8], [side * 22, coatTop - 6, 50],
+          [arm.center[0] - side * 26, coatTop - 6, 50], [arm.center[0] - side * 16, tip[1] + 12, 12]],
+          palette.linker, 2, 'Illustrative C-terminal Fc-to-LAMA4 linker; no peptide conformation inferred');
       }
     }
   }
@@ -187,22 +227,22 @@ function drawPanel(panel, stage, offset = 0, labels = true) {
     for (const [arm, tipOffset] of arms) {
       const [x, y] = endpoint(arm, tipOffset);
       const reach = arm.bond === 'reach';
-      marks.ellipsoid({ center: pos([x, y, 45]), radius: 5.8, color: 'white',
+      marks.ellipsoid({ center: pos([x, y, 70]), radius: 5.8, color: 'white',
         tooltip: reach ? 'Second bond within reach; not shown to form' : 'Illustrated contact; not an atom-level bond' });
-      marks.ellipsoid({ center: pos([x, y, 50]), radius: 3.8, color: reach ? palette.reach : palette.contact });
-      if (reach) label('within reach', [x + (x < 0 ? -26 : 26), y - 12, 65], 6);
+      marks.ellipsoid({ center: pos([x, y, 75]), radius: 3.8, color: reach ? palette.reach : palette.contact });
+      if (reach) label('within reach', [x + (x < 0 ? -26 : 26), y - 12, 80], 6);
     }
   }
   label(panel.title, [0, 218, 30], 18);
   label('cell', [-144, membraneBottom + 61, 30], 7);
-  label('well bottom', [-115, wellTop - 9, 40], 7);
-  label('LAMA4 coat (homolog proxy)', [0, wellTop - 32, 30], 7);
+  label('well bottom', [-115, wellTop - 9, 60], 7);
+  label('LAMA4 coat (homolog proxy)', [0, wellTop - 32, 60], 7);
   if (stage === 'context') {
     label('alpha-DG', [-118, 12, 45], 7);
     label('beta-DG', [-96, 100, 45], 7);
   } else {
     label(`${panel.betaFabs.length} beta-DG arm${panel.betaFabs.length > 1 ? 's' : ''}`, [0, 184, 35], 8);
-    label(`${panel.lamaArms.length} LAMA4 arm${panel.lamaArms.length > 1 ? 's' : ''}`, [0, wellTop - 50, 35], 8);
+    label(`${panel.lamaArms.length} LAMA4 arm${panel.lamaArms.length > 1 ? 's' : ''}`, [0, wellTop - 50, 60], 8);
     if (stage === 'antibody') {
       label('Fc', [panel.fc.center[0] + 48, panel.fc.center[1], 65], 8);
       if (panel.format === '1+1') label('shared hinge', [panel.hinge[0] - 40, panel.hinge[1] - 18, 65], 7);
