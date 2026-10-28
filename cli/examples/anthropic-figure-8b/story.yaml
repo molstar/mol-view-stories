@@ -1,0 +1,17 @@
+title: "Figure 8b | Bispecific antibody bridges"
+author_note: "Figure 8b representative reconstruction; template/proxy geometry, illustrative poses"
+scenes:
+  - folder: compare-complete
+  - folder: crossmab-context
+  - folder: crossmab-antibody
+  - folder: crossmab-complete
+  - folder: crossmab-contacts
+  - folder: 2plus1-context
+  - folder: 2plus1-antibody
+  - folder: 2plus1-complete
+  - folder: 2plus1-contacts
+  - folder: igg-scfv-context
+  - folder: igg-scfv-antibody
+  - folder: igg-scfv-complete
+  - folder: igg-scfv-contacts
+  - folder: compare-contacts
