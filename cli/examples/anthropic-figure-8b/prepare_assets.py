@@ -66,7 +66,7 @@ def normalized(atoms, direction=None, origin=None):
 
 def write(name, atoms, source):
     if not atoms: raise ValueError(f'Empty template: {name}')
-    dest = ROOT / 'shared' / 'assets'
+    dest = ROOT / 'assets'
     dest.mkdir(parents=True, exist_ok=True)
     lines = ['REMARK   1 '+source, 'REMARK   2 RIGIDLY REORIENTED TEMPLATE; NOT A DOCKED COMPLEX']
     prev = None
@@ -108,7 +108,6 @@ def main():
     stats['dg'] = write('dg', normalized(dg, sub(center(tm),center(outside)), center(tm)), 'PDB 9C3C: alpha-DG A 485-653 + beta-DG B 654-798; rabbit')
     lg = [a for a in lg if a['chain']=='B']
     stats['lg45-proxy'] = write('lg45-proxy', normalized(lg), 'PDB 5IK8 chain B: mouse LAMA2 LG4-5 HOMOLOG PROXY, NOT LAMA4')
-    (ROOT/'shared'/'templates.json').write_text(json.dumps(stats,indent=2)+'\n')
     print(json.dumps(stats,indent=2))
 
 if __name__ == '__main__': main()

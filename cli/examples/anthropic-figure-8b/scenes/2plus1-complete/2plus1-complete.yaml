@@ -1,0 +1,4 @@
+header: "2+1 | Assembled bridge"
+key: 2plus1-complete
+linger_duration_ms: 12000
+transition_duration_ms: 700

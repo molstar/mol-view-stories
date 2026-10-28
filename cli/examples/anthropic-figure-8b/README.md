@@ -1,107 +1,59 @@
 # Figure 8b: bispecific antibody bridges
 
-A first, editable Mol* / MolViewSpec reconstruction of the **three molecular panels in Figure 8b** of [Tranbarger and Mithril Medicine, *Preclinical Characterization of a Bispecific Bridging Antibody for the Treatment of LAMA2-Related Congenital Muscular Dystrophy* (26 October 2026)](https://www-cdn.anthropic.com/52e1f5d50c47ca3818f56704c27cf19e59b62e77.pdf). Figure: PDF page 14; structural methods: page 25. This example covers 8b, not the assay diagrams or data plots in 8a/c/d.
+A Mol* / MolViewSpec reconstruction of the **three molecular panels in Figure 8b** of [Tranbarger and Mithril Medicine, *Preclinical Characterization of a Bispecific Bridging Antibody for the Treatment of LAMA2-Related Congenital Muscular Dystrophy* (26 October 2026)](https://www-cdn.anthropic.com/52e1f5d50c47ca3818f56704c27cf19e59b62e77.pdf) (figure: PDF p. 14; structural methods: p. 25).
 
-**Status: representative template-based reconstruction, ready for visual feedback.** It does not reproduce the authors' original assembled coordinates, docking, engineered sequences, or experimentally determined binding poses. In particular, **the coat currently uses a LAMA2 LG4–5 homolog as a shape proxy for LAMA4**. This is stated in every scene and coat tooltip.
+**Representative, template-based reconstruction.** It does not reproduce the authors' assembled coordinates, engineered sequences or binding poses, and **the coat uses a LAMA2 LG4–5 homolog as a shape proxy for LAMA4**. Every scene and coat tooltip says so.
 
 ## Preview
 
-Run from `cli/`:
+From `cli/`:
 
 ```sh
-# Three formats together at a shared coordinate scale
-deno run --allow-all main.ts watch examples/anthropic-figure-8b/00-comparison --port 8098
-
-# One independently editable story per Figure 8b panel
-deno run --allow-all main.ts watch examples/anthropic-figure-8b/01-crossmab --port 8099
-deno run --allow-all main.ts watch examples/anthropic-figure-8b/02-2plus1 --port 8100
-deno run --allow-all main.ts watch examples/anthropic-figure-8b/03-igg-scfv --port 8101
+deno run --allow-all main.ts watch examples/anthropic-figure-8b --port 8098
 ```
 
-Open the localhost address printed by the command. Widen the viewer for the three-panel comparison. Each panel story has four scenes: **context**, **antibody architecture**, **assembled bridge**, and **contacts/reach**. Click Next/Prev to compare; drag to inspect the scene in 3D. Watch mode rebuilds and reloads after edits.
+The story opens on all three formats side by side, then walks each panel through four scenes (**context**, **antibody**, **complete**, **contacts**) and ends with a contacts comparison. Edit `story.js` (panel geometry and renderer) or a scene's `.js`/`.md`; watch mode rebuilds and reloads.
+
+To validate every snapshot and build `.mvsx` / `.mvstory` into `.build/`:
+
+```sh
+deno run --allow-all examples/anthropic-figure-8b/check.ts
+```
 
 ## What is represented
 
 | Piece | Implementation | Fidelity / limitation |
 | --- | --- | --- |
-| Cell membrane and cell interior | Flat MolViewSpec backdrops and lipid-headgroup primitives | Schematic bilayer, nominal 40 Å thickness; not an atomistic membrane |
-| α/β-dystroglycan | Rabbit **9C3C**, α chain A residues 485–653 (light grey), β chain B 654–749 (near-black) + TM 750–774 (grey) | Experimental coordinates retain their relative arrangement; receptors right of center are spun 180° so α-DG faces outward, as drawn. Cytoplasmic tail hidden (the figure's cell interior covers it). Released α-DG N-terminal domain omitted; no added glycans |
-| β-DG-binding Fab(s) | **1HZH**, H residues 1–225 + L | Colored by domain type as in the figure: VH dark grey, VL mid grey, CH1 beige, CL near-white (Kabat boundaries VH ≤113, VL ≤107). The CrossMab arm shows its crossover by swapped CH1/CL colors; coordinates are not swapped. Not AS30 |
-| Fc | **1HZH**, H/K residues 246–end + experimental Asn297 glycans (chains A/B, pale) | Generic human IgG1 scaffold; the extended hinge (230–245) is drawn as tubes, as in the figure. CrossMab panel does not model its mouse IgG2a sequence |
-| LAMA4-binding Fab | Same generic Fab scaffold; variable domains blue, CH1 beige, CL near-white | Illustrative specificity coloring, not the tool antibody's variable domains |
-| LAMA4-binding scFv(s) | **1HZH** H 1–113 + L 1–107, blue | Fv shape proxy; engineered VH–VL peptide connection is absent |
-| Hinge / Fc-terminal linkers | MolViewSpec tubes | Schematic connections; lengths and conformations are not peptide predictions |
-| LAMA4 LG4–5 coat | **5IK8 chain B, mouse LAMA2 LG4–5 homolog proxy**, seen end-on | Temporary proxy. The paper uses **AF-Q16363-F1 v4** LAMA4; public AlphaFold file downloads returned HTTP 403 during preparation |
-| Well bottom and pale bystanders | Slab + additional structural copies | Schematic adsorption poses and densities |
-| Contacts and second-arm reach | Black markers for bonds, grey for a second bond within reach; placed at each arm's paratope end | Mirrors the figure's distinction, not atom-level bonds or measured stoichiometry |
-| Scale | 100 Å bar = 10 nm; no coordinate scaling | Structural template dimensions retained. Relative placement is illustrative |
+| Membrane, cell interior, well | Flat backdrops and lipid-headgroup primitives | Schematic 4 nm bilayer |
+| α/β-dystroglycan | **9C3C** (rabbit): α-DG A 485–653 light grey; β-DG B 654–749 near-black, TM 750–774 grey | Experimental relative arrangement. Cytoplasmic tail hidden (the figure's cell interior covers it); released α-DG N-terminal domain omitted |
+| β-DG Fab(s) | **1HZH** H 1–225 + L | Colored by domain type, as in the figure: VH dark grey, VL mid grey, CH1 beige, CL near-white (Kabat VH ≤113, VL ≤107). The CrossMab arm shows its crossover by swapped CH1/CL colors; coordinates are not swapped |
+| Fc | **1HZH** H/K 246–end + Asn297 glycans (pale) | Generic human IgG1; the hinge (230–245) is drawn as tubes. The 1+1 construct's mouse IgG2a Fc is not modeled |
+| LAMA4 Fab / scFv | Same scaffolds; variable domains blue | Fv proxy lacks the engineered VH–VL linker |
+| Hinge and Fc-terminal linkers | Tubes | Schematic paths, not peptide conformations |
+| LAMA4 LG4–5 coat | **5IK8** chain B (mouse LAMA2 LG4–5), end-on | Proxy; the paper uses **AF-Q16363-F1 v4**, whose download returned HTTP 403 during preparation |
+| Contacts | Black: bond drawn in the figure; grey: second bond within reach | Schematic markers at each arm's paratope end |
 
-In 1+1, both Fabs connect at the hinge and the Fc tilts forward. In 2+1, one LAMA4 Fab connects below the Fc. In 2+2, two LAMA4 Fv proxies connect below the Fc. As in the figure, the second β-DG bond (2+1, 2+2) and the second LAMA4 bond (2+2) are shown as **within reach**, not asserted to form. The vertical layout follows the figure's ~21 nm from the inner membrane surface to the well bottom, and each LAMA4 arm rests on a coat copy. The paper explicitly states that coat orientation and density are unknown, stoichiometry was not measured, and poses are illustrative.
+Placements, angles and colors are measured from the figure's own panel renders (about 4.43 px/Å). Surfaces are Gaussian with `size_factor: 1.5`, the only surface parameter MVS exposes, which smooths side chains into the figure's domain-level blobs (about 1 Å wider envelope). Repeated molecules are MVS instances of one styled structure, so a snapshot builds at most 9 structures; `check.ts` guards this.
 
-## Loading performance
+## Open differences from the figure
 
-The renderer uses **Gaussian surfaces** with `size_factor: 1.5`, which smooths side-chain detail into domain-level blobs like the figure's (about 1 Å wider envelope; `size_factor` is the only Gaussian-surface parameter MVS exposes). It groups copies with the same template, colors,
-opacity, and tooltip into MolViewSpec **instances**. The comparison retains all 36 molecular
-placements while reducing independently constructed structures from 36 to 9 and building one surface
-per colored domain group (22 per snapshot). The exact timings depend on the browser/GPU
-and whether the Mol* viewer bundle is already cached; the validation script guards these
-structure/representation counts. Gaussian envelopes are illustrative molecular shapes,
-not solvent-excluded molecular surfaces for atom-level analysis.
-
-Watch mode coalesces rapid file changes into a single rebuild and serializes rebuilds
-so regeneration does not queue a reload for every written file. The generator also
-leaves unchanged files untouched, including the bundled structure assets.
-
-The CLI builder and default preview viewer use Mol* **5.13.1**. The viewer version comes
-from the installed builder package, preventing the previous 5.8.0 preview mismatch.
-
-## Feedback cycle
-
-1. Watch a panel or the comparison above.
-2. For a quick experiment, edit that story's `story.js` or `scenes/<stage>/<stage>.js`; the browser reloads. These are generated files, so move accepted changes to the shared sources before regeneration.
-3. For persistent changes, edit **`shared/panels.json`** (domain centers, angles/tilt/spin, receptor positions, coat targets, `"bond": "reach"` on an arm) or **`shared/scene.js`** (styles, labels, primitives and connections).
-4. Run `python3 examples/anthropic-figure-8b/generate.py` from `cli/`. This updates all four watchable stories. No third-party Python packages are required.
-5. Run `deno run --allow-all examples/anthropic-figure-8b/check.ts`. It validates all 14 snapshots, checks bundled structure references and builds all four `.mvsx` and `.mvstory` files into `.build/`.
-6. Record feedback in [FEEDBACK.md](FEEDBACK.md), using panel, scene, visible issue, and desired change. Make one geometric change at a time and compare the same scene/camera.
-
-**Generated files are checked in** so normal preview/build needs no preparation. Regeneration overwrites each generated `story.js`, `story.yaml`, and scene files. Canonical sources live in `shared/`, `generate.py`, and `prepare_assets.py`.
-
-## Export
-
-From `cli/`:
-
-```sh
-# Mol* viewer package, with local structures embedded
-deno run --allow-all main.ts build examples/anthropic-figure-8b/00-comparison -f mvsx -o figure-8b.mvsx
-
-# Editable story container
-deno run --allow-all main.ts build examples/anthropic-figure-8b/03-igg-scfv -f mvstory -o figure-8b-2plus2.mvstory
-```
-
-The structure downloads inside MVS use `./<name>.pdb`, matching the flat asset paths in the CLI's MVSX container. Molecular data need no remote requests after packaging. The watch viewer still loads its Mol* JavaScript/CSS through the CLI's normal CDN-based viewer.
+- The coat is one row of copies; the figure shows two or three staggered rows.
+- No outlines or flat toon shading.
+- The 2+1 / 2+2 Fc is a little rounder than the figure's two-column shape.
+- Not validated as a molecular complex: no clash checks, generic scaffolds, no engineered sequences.
 
 ## Reproduce the structural templates
 
-Download these public files into a temporary directory as `1hzh.pdb`, `9c3c.cif`, and `5ik8.pdb`:
-
-- [1HZH coordinates](https://files.rcsb.org/download/1HZH.pdb) · [entry / original citation](https://www.rcsb.org/structure/1HZH)
-- [9C3C coordinates](https://files.rcsb.org/download/9C3C.cif) · [entry / original citation](https://www.rcsb.org/structure/9C3C)
-- [5IK8 coordinates](https://files.rcsb.org/download/5IK8.pdb) · [entry / original citation](https://www.rcsb.org/structure/5IK8)
-
-Then run from `cli/`:
+Download [1HZH](https://www.rcsb.org/structure/1HZH) (`1hzh.pdb`), [9C3C](https://www.rcsb.org/structure/9C3C) (`9c3c.cif`) and [5IK8](https://www.rcsb.org/structure/5IK8) (`5ik8.pdb`) from RCSB into one directory, then from `cli/`:
 
 ```sh
 python3 examples/anthropic-figure-8b/prepare_assets.py /path/to/downloads
-python3 examples/anthropic-figure-8b/generate.py
-deno run --allow-all examples/anthropic-figure-8b/check.ts
 ```
 
-Preparation crops domains, retains source residue and chain identifiers, and applies rigid rotations/translations only. Domain coordinates are not scaled. `shared/templates.json` records sources, atom counts, and bounding boxes. Normalized PDBs carry provenance remarks; occupancy/B factors are reset for this illustrative use and must not be interpreted as confidence values. The script uses the first model, excludes non-ATOM records, and selects blank/A alternate locations.
+The script (Python standard library only) crops domains and applies rigid rotations/translations; coordinates are not scaled. It keeps source chain IDs, residue numbers and insertion codes, and the 1HZH Fc glycans. Each PDB records its source in a REMARK. Occupancy and B-factors are reset and carry no meaning.
 
 ## Next fidelity improvements
 
-- Obtain the authors' original assembled Figure 8b coordinates / PyMOL session if available; the report does not link a public coordinate/code archive.
-- Replace `shared/assets/lg45-proxy.pdb` with a prepared **LAMA4** LG4–5 model from **AF-Q16363-F1 v4**. Update the asset name, renderer tooltip, preparation script, provenance, and scene caveat together; adjust its placement after checking dimensions. Do not silently relabel LAMA2 coordinates as LAMA4.
-- Replace generic Fab/Fv/Fc scaffolds with the actual construct models, including crossover, hinge, scFv connections, and Fc isotype.
-- Refine placements and linker endpoints against the original figure, check clashes, then add residue-specific annotation only where supported by coordinates.
-- Add modeled glycosylation and membrane chemistry if those details become part of the intended representation.
+- Use the authors' assembled coordinates or PyMOL session if they become available.
+- Replace `assets/lg45-proxy.pdb` with LAMA4 LG4–5 from AF-Q16363-F1 v4, updating the tooltip, scene caveat and preparation script together.
+- Replace generic Fab/Fv/Fc scaffolds with the construct models (crossover, hinge, scFv linker, Fc isotype).

@@ -1,0 +1,4 @@
+header: "2+1 | Antibody architecture"
+key: 2plus1-antibody
+linger_duration_ms: 12000
+transition_duration_ms: 700

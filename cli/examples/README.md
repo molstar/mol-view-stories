@@ -1,7 +1,7 @@
 # Examples
 
 ## Full Examples
-- **anthropic-figure-8b** - Three bispecific antibody format stories plus a side-by-side Mol* comparison; representative structural templates with documented proxies and a live feedback workflow
+- **anthropic-figure-8b** - Three bispecific antibody formats from a published figure, side by side and scene by scene, built from instanced structural templates
 - **exosome** - Comprehensive exploration of exosome structure with detailed annotations and scientific references
 - **motm-01** - Molecule of the Month feature showcasing a complete structural story
 - **npc-basket** - Nuclear pore complex basket structure example
